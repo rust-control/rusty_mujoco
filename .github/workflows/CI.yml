@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, v*]
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: rustup update && rustup default ${{ matrix.toolchain }}
+
+      - run: cargo check
