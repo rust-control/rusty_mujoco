@@ -1,14 +1,24 @@
-# Rusty MuJoCo Binding
+<div align="center">
+    <h1>Rusty MuJoCo Binding</h1>
+    <p>Rust bindings for the <a href="https://mujoco.org">MuJoCo</a> physics simulator</p>
+</div>
 
-- MuJoCo Version: >= 3.3
-
-[![](https://github.com/rust-control/rusty_mujoco/workflows/CI/badge.svg?branch=main)](https://github.com/rust-control/rusty_mujoco/actions)
-[![](https://img.shields.io/crates/v/rusty_mujoco.svg)](https://crates.io/crates/rusty_mujoco)
-[![](https://img.shields.io/crates/l/rusty_mujoco.svg)](https://github.com/rust-control/rusty_mujoco/blob/main/LICENSE)
+<div align="right">
+    <a href="https://github.com/rust-control/rusty_mujoco/blob/main/LICENSE">
+        <img alt="license" src="https://img.shields.io/crates/l/rusty_mujoco.svg"/>
+    </a>
+    <a href="https://github.com/rust-control/rusty_mujoco/actions">
+        <img alt="CI" src="https://github.com/rust-control/rusty_mujoco/workflows/CI/badge.svg?branch=main"/>
+    </a>
+    <a href="https://crates.io/crates/rusty_mujoco">
+        <img alt="crates.io" src="https://img.shields.io/crates/v/rusty_mujoco.svg"/>
+    </a>
+</div>
 
 ## Requirements
 
-- environment variable `MUJOCO_HOME` to be set to the path of mujoco directory ( e.g. `~/.mujoco`, `/opt/mujoco` or something )
+- MuJoCo version >= 3.3 to be downloaded to a directory
+- environment variable `MUJOCO_HOME` to be set to the path to the directory ( e.g. `~/.mujoco`, `/opt/mujoco` or something )
 
 ## License
 
