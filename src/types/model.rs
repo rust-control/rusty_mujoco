@@ -562,7 +562,7 @@ impl_buffer_slices! {
     plugin: [i32; nplugin * 1]               = "globally registered plugin slot number";
     plugin_stateadr: [i32; nplugin * 1]      = "address in the plugin state array";
     plugin_statenum: [i32; nplugin * 1]      = "number of states in the plugin instance";
-    plugin_attr: [u8; npluginattr * 1]          = "config attributes of plugin instances";
+    plugin_attr: [i8; npluginattr * 1]          = "config attributes of plugin instances";
     plugin_attradr: [i32; nplugin * 1]       = "address to each instance's config attrib";
 
     // custom numeric fields
@@ -573,7 +573,7 @@ impl_buffer_slices! {
     // custom text fields
     text_adr: [i32; ntext * 1]             = "address of text in text_data";
     text_size: [i32; ntext * 1]            = "size of text field (strlen+1)";
-    text_data: [u8; ntextdata * 1]            = "array of all text fields (0-terminated)";
+    text_data: [i8; ntextdata * 1]            = "array of all text fields (0-terminated)";
 
     // custom tuple fields
     tuple_adr: [i32; ntuple * 1]            = "address of text in text_data";
@@ -615,9 +615,9 @@ impl_buffer_slices! {
     name_tupleadr: [i32; ntuple * 1]        = "tuple name pointers";
     name_keyadr: [i32; nkey * 1]          = "keyframe name pointers";
     name_pluginadr: [i32; nplugin * 1]       = "plugin instance name pointers";
-    names: [u8; nnames * 1]                = "names of all objects, 0-terminated";
+    names: [i8; nnames * 1]                = "names of all objects, 0-terminated";
     names_map: [i32; nnames_map * 1]            = "internal hash map of names";
 
     // paths
-    paths: [u8; npaths * 1]                = "paths to assets, 0-terminated";
+    paths: [i8; npaths * 1]                = "paths to assets, 0-terminated";
 }
