@@ -90,7 +90,6 @@ impl MjData {
     }
 }
 
-
 // diagnostics
 /*
   mjWarningStat warning[mjNWARNING];          // warning statistics
@@ -105,4 +104,56 @@ impl MjData {
     pub fn timer(&self) -> [MjTimerStat; mjNTIMER as usize] {
         self.0.timer.map(MjTimerStat)
     }
+}
+
+// variable sizes
+impl MjData {
+    /// number of detected contacts
+    pub fn ncon(&self) -> usize {self.0.ncon as usize}
+    /// number of equality constraints
+    pub fn ne(&self) -> usize {self.0.ne as usize}
+    /// number of friction constraints
+    pub fn nf(&self) -> usize {self.0.nf as usize}
+    /// number of limit constraints
+    pub fn nl(&self) -> usize {self.0.nl as usize}
+    /// number of constraints
+    pub fn nefc(&self) -> usize {self.0.nefc as usize}
+    /// number of non-zeros in constraint Jacobian
+    #[allow(non_snake_case)]
+    pub fn nJ(&self) -> usize {self.0.nJ as usize}
+    /// number of non-zeros in constraint inverse inertia matrix
+    #[allow(non_snake_case)]
+    pub fn nA(&self) -> usize {self.0.nA as usize}
+    /// number of detected constraint islands
+    pub fn nisland(&self) -> usize {self.0.nisland as usize}
+}
+
+// global properties
+/*
+  mjtNum  time;              // simulation time
+  mjtNum  energy[2];         // potential, kinetic energy
+*/
+impl MjData {
+    /// simulation time
+    pub fn time(&self) -> f64 {
+        self.0.time
+    }
+    /// potential, kinetic energy
+    pub fn energy(&self) -> [f64; 2] {
+        self.0.energy
+    }
+}
+
+macro_rules! impl_buffer_slices {
+    ($($name:ident: [$T:ty; $size:ident $(* $mul_lit:literal)? $(* $mul_const:ident)? $(x $mul:ident)?] = $description:literal;)*) => {
+        impl MjModel {
+            $(
+                #[allow(non_snake_case)]
+                #[doc = $description]
+                pub fn $name(&self) -> &[$T] {
+                    unsafe { std::slice::from_raw_parts(self.0.$name, self.$size() $(* $mul_lit)? $(* $mul_const as usize)? $(* self.$mul())?) }
+                }
+            )*
+        }
+    };
 }
