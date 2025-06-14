@@ -1,3 +1,5 @@
+use super::*;
+
 pub struct MjModel(crate::bindgen::mjModel);
 
 macro_rules! impl_size_getters {
@@ -106,4 +108,39 @@ impl_size_getters! {
 }
 
 impl MjModel {
+    /// physics options
+    pub fn opt(&self) -> MjOption {
+        MjOption(self.0.opt)
+    }
+    /// update physics options
+    pub fn update_opt(&mut self, f: impl FnOnce(&mut MjOption) -> &mut MjOption) -> &mut Self {
+        let mut opt = self.opt();
+        f(&mut opt);
+        self.0.opt = opt.0;
+        self
+    }
+
+    /// visualization options
+    pub fn vis(&self) -> MjVisual {
+        MjVisual(self.0.vis)
+    }
+    /// update visualization options
+    pub fn update_visual(&mut self, f: impl FnOnce(&mut MjVisual) -> &mut MjVisual) -> &mut Self {
+        let mut vis = self.vis();
+        f(&mut vis);
+        self.0.vis = vis.0;
+        self
+    }
+
+    /// model statistics
+    pub fn stat(&self) -> MjStatistic {
+        MjStatistic(self.0.stat)
+    }
+    /// update model statistics
+    pub fn update_stat(&mut self, f: impl FnOnce(&mut MjStatistic) -> &mut MjStatistic) -> &mut Self {
+        let mut stat = self.stat();
+        f(&mut stat);
+        self.0.stat = stat.0;
+        self
+    }
 }

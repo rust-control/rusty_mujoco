@@ -1,7 +1,7 @@
-pub struct MjVisual(crate::bindgen::mjVisual);
+pub struct MjVisual(pub(super) crate::bindgen::mjVisual);
 
 macro_rules! visual_category {
-    ($name:ident / $set_name:ident : $Category:ident ($bindgen_t:ty) {
+    ($name:ident / $update_name:ident : $Category:ident ($bindgen_t:ty) {
         $($field:ident / $set_field:ident : $T:ty = $description:literal;)*
     } = $category_description:literal) => {
         impl MjVisual {
@@ -9,10 +9,13 @@ macro_rules! visual_category {
             pub fn $name(&self) -> $Category {
                 $Category(self.0.$name)
             }
-            #[doc = "set "]
+            #[doc = "update "]
             #[doc = $category_description]
-            pub fn $set_name(&mut self, f: impl FnOnce($Category) -> $Category) {
-                self.0.$name = f(self.$name()).0;
+            pub fn $update_name(&mut self, f: impl FnOnce(&mut $Category) -> &mut $Category) -> &mut Self {
+                let mut category = self.$name();
+                f(&mut category);
+                self.0.$name = category.0;
+                self
             }
         }
 
@@ -26,15 +29,16 @@ macro_rules! visual_category {
                 }
                 #[doc = "set "]
                 #[doc = $description]
-                pub fn $set_field(&mut self, value: $T) {
+                pub fn $set_field(&mut self, value: $T) -> &mut Self {
                     self.0.$field = value;
+                    self
                 }
             )*
         }
     };
 }
 
-visual_category!(global / set_global: MjVisualGlobal(crate::bindgen::mjVisual___bindgen_ty_1) {
+visual_category!(global / update_global: MjVisualGlobal(crate::bindgen::mjVisual___bindgen_ty_1) {
     orthographic / set_orthographic: i32 = "is the free camera orthographic (0: no, 1: yes)";
     fovy / set_fovy: f32 = "y field-of-view of free camera (orthographic ? length : degree)";
     ipd / set_ipd: f32 = "inter-pupilary distance for free camera";
@@ -49,7 +53,7 @@ visual_category!(global / set_global: MjVisualGlobal(crate::bindgen::mjVisual___
     bvactive / set_bvactive: i32 = "visualize active bounding volumes (0: no, 1: yes)";
 } = "global parameters");
 
-visual_category!(quality / set_quality: MjVisualQuality(crate::bindgen::mjVisual___bindgen_ty_2) {
+visual_category!(quality / update_quality: MjVisualQuality(crate::bindgen::mjVisual___bindgen_ty_2) {
     shadowsize / set_shadowsize: i32 = "size of shadowmap texture";
     offsamples / set_offsamples: i32 = "number of multisamples for offscreen rendering";
     numslices / set_numslices: i32 = "number of slices for builtin geom drawing";
@@ -57,14 +61,14 @@ visual_category!(quality / set_quality: MjVisualQuality(crate::bindgen::mjVisual
     numquads / set_numquads: i32 = "number of quads for box rendering";
 } = "rendering quality");
 
-visual_category!(headlight / set_headlight: MjVisualHeadlight(crate::bindgen::mjVisual___bindgen_ty_3) {
+visual_category!(headlight / update_headlight: MjVisualHeadlight(crate::bindgen::mjVisual___bindgen_ty_3) {
     ambient / set_ambient: [f32; 3] = "ambient rgb (alpha=1)";
     diffuse / set_diffuse: [f32; 3] = "diffuse rgb (alpha=1)";
     specular / set_specular: [f32; 3] = "specular rgb (alpha=1)";
     active / set_active: i32 = "is headlight active";
 } = "head light");
 
-visual_category!(map / set_map: MjVisualMap(crate::bindgen::mjVisual___bindgen_ty_4) {
+visual_category!(map / update_map: MjVisualMap(crate::bindgen::mjVisual___bindgen_ty_4) {
     stiffness / set_stiffness: f32 = "mouse perturbation stiffness (space->force)";
     stiffnessrot / set_stiffnessrot: f32 = "mouse perturbation stiffness (space->torque)";
     force / set_force: f32 = "from force units to space units";
@@ -80,7 +84,7 @@ visual_category!(map / set_map: MjVisualMap(crate::bindgen::mjVisual___bindgen_t
     actuatortendon / set_actuatortendon: f32 = "scale tendon width";
 } = "mapping");
 
-visual_category!(scale / set_scale: MjVisualScale(crate::bindgen::mjVisual___bindgen_ty_5) {
+visual_category!(scale / update_scale: MjVisualScale(crate::bindgen::mjVisual___bindgen_ty_5) {
     forcewidth / set_forcewidth: f32 = "width of force arrow";
     contactwidth / set_contactwidth: f32 = "contact width";
     contactheight / set_contactheight: f32 = "contact height";
@@ -100,7 +104,7 @@ visual_category!(scale / set_scale: MjVisualScale(crate::bindgen::mjVisual___bin
     frustum / set_frustum: f32 = "frustum zfar plane";
 } = "scale of decor elements relative to mean body size");
 
-visual_category!(rgba / set_rgba: MjVisualRgba(crate::bindgen::mjVisual___bindgen_ty_6) {
+visual_category!(rgba / update_rgba: MjVisualRgba(crate::bindgen::mjVisual___bindgen_ty_6) {
     fog / set_fog: [f32; 4] = "fog";
     haze / set_haze: [f32; 4] = "haze";
     force / set_force: [f32; 4] = "external force";

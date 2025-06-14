@@ -1,4 +1,4 @@
-pub struct MjOption(crate::bindgen::mjOption);
+pub struct MjOption(pub(super) crate::bindgen::mjOption);
 
 macro_rules! impl_parameters {
     ($($name:ident / $set_name:ident: $T:ty = $description:literal;)*) => {
@@ -10,8 +10,9 @@ macro_rules! impl_parameters {
                 }
                 #[doc = "set "]
                 #[doc = $description]
-                pub fn $set_name(&mut self, value: $T) {
+                pub fn $set_name(&mut self, value: $T) -> &mut Self {
                     self.0.$name = value;
+                    self
                 }
             )*
         }
@@ -52,9 +53,10 @@ macro_rules! impl_enum_settings {
                     unsafe {std::mem::transmute(self.0.$name)}
                 }
                 #[doc = "set "]
-                #[doc = stringify!($name)]
-                pub fn $set_name(&mut self, value: $T) {
+                #[doc = $description]
+                pub fn $set_name(&mut self, value: $T) -> &mut Self {
                     self.0.$name = value as i32;
+                    self
                 }
             )*
         }
@@ -79,9 +81,10 @@ macro_rules! impl_int_settings {
                     self.0.$name as usize
                 }
                 #[doc = "set "]
-                #[doc = stringify!($name)]
-                pub fn $set_name(&mut self, value: usize) {
+                #[doc = $description]
+                pub fn $set_name(&mut self, value: usize) -> &mut Self {
                     self.0.$name = value as i32;
+                    self
                 }
             )*
         }

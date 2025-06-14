@@ -1,4 +1,4 @@
-pub struct MjStatistic(crate::bindgen::mjStatistic);
+pub struct MjStatistic(pub(super) crate::bindgen::mjStatistic);
 
 macro_rules! impl_statistic_fields {
     ($($name:ident / $set_name:ident: $T:ty = $description:literal;)*) => {
@@ -10,8 +10,9 @@ macro_rules! impl_statistic_fields {
                 }
                 #[doc = "set "]
                 #[doc = $description]
-                pub fn $set_name(&mut self, value: $T) {
+                pub fn $set_name(&mut self, value: $T) -> &mut Self {
                     self.0.$name = value;
+                    self
                 }
             )*
         }
