@@ -144,10 +144,6 @@ impl MjModel {
         self.0.stat = stat.0;
         self
     }
-
-    pub fn signature(&self) -> u64 {
-        self.0.signature
-    }
 }
 
 macro_rules! impl_buffer_slices {
@@ -624,4 +620,10 @@ impl_buffer_slices! {
 
     // paths
     paths: [i8; npaths * 1]                = "paths to assets, 0-terminated";
+}
+
+impl MjModel {
+    pub fn signature(&self) -> u64 {
+        self.0.signature
+    }
 }
