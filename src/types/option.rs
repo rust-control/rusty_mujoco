@@ -9,7 +9,7 @@ macro_rules! impl_parameters {
                     self.0.$name
                 }
                 #[doc = "set "]
-                #[doc = stringify!($name)]
+                #[doc = $description]
                 pub fn $set_name(&mut self, value: $T) {
                     self.0.$name = value;
                 }
