@@ -1,40 +1,15 @@
-/* ref:
-#[repr(u32)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum mjtObj_ {
-    mjOBJ_UNKNOWN = 0,
-    mjOBJ_BODY = 1,
-    mjOBJ_XBODY = 2,
-    mjOBJ_JOINT = 3,
-    mjOBJ_DOF = 4,
-    mjOBJ_GEOM = 5,
-    mjOBJ_SITE = 6,
-    mjOBJ_CAMERA = 7,
-    mjOBJ_LIGHT = 8,
-    mjOBJ_FLEX = 9,
-    mjOBJ_MESH = 10,
-    mjOBJ_SKIN = 11,
-    mjOBJ_HFIELD = 12,
-    mjOBJ_TEXTURE = 13,
-    mjOBJ_MATERIAL = 14,
-    mjOBJ_PAIR = 15,
-    mjOBJ_EXCLUDE = 16,
-    mjOBJ_EQUALITY = 17,
-    mjOBJ_TENDON = 18,
-    mjOBJ_ACTUATOR = 19,
-    mjOBJ_SENSOR = 20,
-    mjOBJ_NUMERIC = 21,
-    mjOBJ_TEXT = 22,
-    mjOBJ_TUPLE = 23,
-    mjOBJ_KEY = 24,
-    mjOBJ_PLUGIN = 25,
-    mjNOBJECT = 26,
-    mjOBJ_FRAME = 100,
-    mjOBJ_DEFAULT = 101,
-    mjOBJ_MODEL = 102,
+/// element id, used for flex and mesh objects
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct ElementId(pub(crate) usize);
+
+/// vertex id, used for flex and mesh objects
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct VertexId(pub(crate) usize);
+
+pub struct ObjectId<O: Obj> {
+    index: usize,
+    _type: std::marker::PhantomData<O>,
 }
-pub use self::mjtObj_ as mjtObj;
-*/
 
 pub trait Obj: private::Sealed { const TYPE: crate::bindgen::mjtObj; }
 
@@ -93,11 +68,6 @@ obj_as_types! {
     mjOBJ_MODEL as Model,
 }
 
-pub struct ObjectId<O: Obj> {
-    index: usize,
-    _type: std::marker::PhantomData<O>,
-}
-
 impl<O: Obj> ObjectId<O> {
     pub(crate) fn new(index: usize) -> Self {
         Self {
@@ -107,6 +77,7 @@ impl<O: Obj> ObjectId<O> {
     }
 }
 
+/*
 // **NOT** implementing `DerefMut` to prevent accidental mutation of the index.
 // `ObjectId` is intended to be generated **only by** this crate, not by users.
 impl<O: Obj> std::ops::Deref for ObjectId<O> {
@@ -116,6 +87,7 @@ impl<O: Obj> std::ops::Deref for ObjectId<O> {
         &self.index
     }
 }
+*/
 
 impl<O: Obj> std::fmt::Debug for ObjectId<O> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

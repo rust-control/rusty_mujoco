@@ -1,3 +1,4 @@
+use crate::{ObjectId, ElementId, VertexId, obj::{Geom, Flex}};
 use crate::bindgen::{mjNREF, mjNIMP};
 
 /// This is the data structure holding information about one contact.
@@ -90,14 +91,83 @@ impl_getters!(MjContact {
     */
 });
 
+#[repr(usize)]
+pub enum ContactDimension {
+    One = 1,
+    Three = 3,
+    Four = 4,
+    Six = 6,
+}
+
+pub enum ContactExclude {
+    Include,
+    InGap,
+    Fused,
+    NoDofs,
+}
+
+// enums
 impl MjContact {
-    /// contact space dimensionality: 1, 3, 4 or 6
-    pub fn dim(&self) -> usize {
-        self.0.dim as usize
+    /// contact space dimensionality
+    pub fn dim(&self) -> ContactDimension {
+        match self.0.dim {
+            1 => ContactDimension::One,
+            3 => ContactDimension::Three,
+            4 => ContactDimension::Four,
+            6 => ContactDimension::Six,
+            _ => unreachable!("Invalid contact dimension: {}", self.0.dim),
+        }
     }
 
+    /// flag set by `mj_setContact` or `mj_instantiateContact`
+    pub fn exclude(&self) -> ContactExclude {
+        match self.0.exclude {
+            0 => ContactExclude::Include,
+            1 => ContactExclude::InGap,
+            2 => ContactExclude::Fused,
+            3 => ContactExclude::NoDofs,
+            _ => unreachable!("Invalid contact exclusion type: {}", self.0.exclude),
+        }
+    }
+}
+
+// ids
+impl MjContact {
     /// geom ids
-    pub fn geom(&self) -> [Option<usize>; 2] {
-        self.0.geom.map(|id| if id < 0 { None } else { Some(id as usize) })
+    pub fn geom(&self) -> (Option<ObjectId<Geom>>, Option<ObjectId<Geom>>) {
+        (
+            if self.0.geom[0] != -1 {None} else {Some(ObjectId::new(self.0.geom[0] as usize))},
+            if self.0.geom[1] != -1 {None} else {Some(ObjectId::new(self.0.geom[1] as usize))},
+        )
+    }
+
+    /// flex ids
+    pub fn flex(&self) -> (Option<ObjectId<Flex>>, Option<ObjectId<Flex>>) {
+        (
+            if self.0.flex[0] != -1 {None} else {Some(ObjectId::new(self.0.flex[0] as usize))},
+            if self.0.flex[1] != -1 {None} else {Some(ObjectId::new(self.0.flex[1] as usize))},
+        )
+    }
+
+    /// element ids
+    pub fn elem(&self) -> (Option<ElementId>, Option<ElementId>) {
+        (
+            if self.0.elem[0] != -1 {None} else {Some(ElementId(self.0.elem[0] as usize))},
+            if self.0.elem[1] != -1 {None} else {Some(ElementId(self.0.elem[1] as usize))},
+        )
+    }
+
+    /// vertex ids
+    pub fn vert(&self) -> (Option<VertexId>, Option<VertexId>) {
+        (
+            if self.0.vert[0] != -1 {None} else {Some(VertexId(self.0.vert[0] as usize))},
+            if self.0.vert[1] != -1 {None} else {Some(VertexId(self.0.vert[1] as usize))},
+        )
+    }
+}
+
+impl MjContact {
+    pub fn efc_address(&self) -> Option<usize> {
+        if self.0.efc_address != -1 {None} else {Some(self.0.efc_address as usize)}
     }
 }
