@@ -1,6 +1,13 @@
 pub mod bindgen;
-pub mod types;
-pub mod id;
 
+pub mod types;
 pub use types::*;
-pub use id::*;
+
+pub mod functions;
+pub use functions::*;
+
+mod error;
+pub use error::MjError;
+
+mod id;
+pub use id::{ElementId, VertexId, ObjectId, obj};
