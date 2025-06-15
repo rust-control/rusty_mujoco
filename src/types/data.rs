@@ -397,11 +397,9 @@ impl MjData {
     /// array of all detected contacts
     /// 
     /// SAFETY: `len` must not exceed `ncon` of corresponded MjModel.
-    pub unsafe fn contact(&self, len: usize) -> Vec<MjContact> {
-        (unsafe {std::slice::from_raw_parts(self.0.contact, len)})
-            .iter()
-            .copied()
-            .map(MjContact)
-            .collect()
+    pub unsafe fn contact(&self, len: usize) -> &[MjContact] {
+        let slice: &[crate::bindgen::mjContact] = unsafe { std::slice::from_raw_parts(self.0.contact, len) };
+        // SAFETY: `MjContact` is just a **newtype** struct of `crate::bindgen::mjContact`
+        unsafe { std::mem::transmute(slice) }
     }
 }

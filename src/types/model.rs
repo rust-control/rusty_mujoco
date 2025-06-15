@@ -111,39 +111,36 @@ impl_size_getters! {
 
 impl MjModel {
     /// physics options
-    pub fn opt(&self) -> MjOption {
-        MjOption(self.0.opt)
+    pub fn opt(&self) -> &MjOption {
+        // `MjOption` is just a **newtype** struct of `crate::bindgen::mjOption`
+        unsafe {std::mem::transmute(&self.0.opt)}
     }
-    /// update physics options
-    pub fn update_opt(&mut self, f: impl FnOnce(&mut MjOption) -> &mut MjOption) -> &mut Self {
-        let mut opt = self.opt();
-        f(&mut opt);
-        self.0.opt = opt.0;
-        self
+    /// mutable physics options
+    pub fn opt_mut(&mut self) -> &mut MjOption {
+        // `MjOption` is just a **newtype** struct of `crate::bindgen::mjOption`
+        unsafe {std::mem::transmute(&mut self.0.opt)}
     }
 
     /// visualization options
-    pub fn vis(&self) -> MjVisual {
-        MjVisual(self.0.vis)
+    pub fn vis(&self) -> &MjVisual {
+        // `MjVisual` is just a **newtype** struct of `crate::bindgen::mjVisual`
+        unsafe {std::mem::transmute(&self.0.vis)}
     }
-    /// update visualization options
-    pub fn update_visual(&mut self, f: impl FnOnce(&mut MjVisual) -> &mut MjVisual) -> &mut Self {
-        let mut vis = self.vis();
-        f(&mut vis);
-        self.0.vis = vis.0;
-        self
+    /// mutable visualization options
+    pub fn vis_mut(&mut self) -> &mut MjVisual {
+        // `MjVisual` is just a **newtype** struct of `crate::bindgen::mjVisual`
+        unsafe {std::mem::transmute(&mut self.0.vis)}
     }
 
     /// model statistics
-    pub fn stat(&self) -> MjStatistic {
-        MjStatistic(self.0.stat)
+    pub fn stat(&self) -> &MjStatistic {
+        // `MjStatistic` is just a **newtype** struct of `crate::bindgen::mjStatistic`
+        unsafe {std::mem::transmute(&self.0.stat)}
     }
-    /// update model statistics
-    pub fn update_stat(&mut self, f: impl FnOnce(&mut MjStatistic) -> &mut MjStatistic) -> &mut Self {
-        let mut stat = self.stat();
-        f(&mut stat);
-        self.0.stat = stat.0;
-        self
+    /// mutable model statistics
+    pub fn stat_mut(&mut self) -> &mut MjStatistic {
+        // `MjStatistic` is just a **newtype** struct of `crate::bindgen::mjStatistic`
+        unsafe {std::mem::transmute(&mut self.0.stat)}
     }
 }
 
