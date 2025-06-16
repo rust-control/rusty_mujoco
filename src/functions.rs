@@ -1,3 +1,5 @@
+#![allow(non_snake_case)]
+
 mod attribute_getters;
 mod parse_and_compile;
 

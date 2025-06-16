@@ -1,7 +1,5 @@
 //! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#parse-and-compile>
 
-#![allow(non_snake_case)]
-
 use crate::{MjError, MjSpec, MjModel, MjData};
 
 /// Parse XML file in MJCF or URDF format, compile it, return low-level model.
@@ -189,6 +187,9 @@ pub fn mj_saveXMLString(s: &MjSpec) -> Result<String, MjError> {
     if status == 0 {
         Ok(String::from_utf8(output_buffer).map_err(MjError::from_error)?)
     } else {
+        #[cfg(debug_assertions)] {
+            assert_eq!(status, -1, "unexpected status of `mj_saveXMLString`");
+        }
         Err(error)
     }
 }
