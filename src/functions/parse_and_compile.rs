@@ -5,8 +5,8 @@
 use crate::{MjError, MjSpec, MjModel, MjData};
 
 /// Parse XML file in MJCF or URDF format, compile it, return low-level model.
-pub fn mj_loadXML(filename: impl Into<Vec<u8>>) -> Result<MjModel, MjError> {
-    let filename = std::ffi::CString::new(filename).map_err(MjError::from_error)?;
+pub fn mj_loadXML(filename: impl Into<String>) -> Result<MjModel, MjError> {
+    let filename = std::ffi::CString::new(filename.into()).map_err(MjError::from_error)?;
 
     let mut error = MjError::init();
     let model_ptr = unsafe {
@@ -27,8 +27,8 @@ pub fn mj_loadXML(filename: impl Into<Vec<u8>>) -> Result<MjModel, MjError> {
 }
 
 /// Parse spec from XML file.
-pub fn mj_parseXML(filename: impl Into<Vec<u8>>) -> Result<MjSpec, MjError> {
-    let filename = std::ffi::CString::new(filename).map_err(MjError::from_error)?;
+pub fn mj_parseXML(filename: impl Into<String>) -> Result<MjSpec, MjError> {
+    let filename = std::ffi::CString::new(filename.into()).map_err(MjError::from_error)?;
 
     let mut error = MjError::init();
     let model_ptr = unsafe {
@@ -49,8 +49,8 @@ pub fn mj_parseXML(filename: impl Into<Vec<u8>>) -> Result<MjSpec, MjError> {
 }
 
 /// Parse spec from XML string.
-pub fn mj_parseXMLString(xml: &'static str) -> Result<MjSpec, MjError> {
-    let xml = std::ffi::CString::new(xml).map_err(MjError::from_error)?;
+pub fn mj_parseXMLString(xml: impl Into<String>) -> Result<MjSpec, MjError> {
+    let xml = std::ffi::CString::new(xml.into()).map_err(MjError::from_error)?;
 
     let mut error = MjError::init();
     let model_ptr = unsafe {
@@ -118,10 +118,10 @@ pub fn mj_recompile(s: &mut MjSpec, m: &mut MjModel, d: &mut MjData) -> Result<(
 /// chapter to understand the difference between the
 /// old and new model loading and saving mechanisms.
 pub fn mj_saveLastXML(
-    filename: impl Into<Vec<u8>>,
+    filename: impl Into<String>,
     m: &MjModel,
 ) -> Result<(), MjError> {
-    let filename = std::ffi::CString::new(filename).map_err(MjError::from_error)?;
+    let filename = std::ffi::CString::new(filename.into()).map_err(MjError::from_error)?;
 
     let mut error = MjError::init();
     let status = unsafe {
@@ -137,4 +137,81 @@ pub fn mj_saveLastXML(
     // <https://github.com/google-deepmind/mujoco/blob/84ad22a5905a7d0b4e2e67ca8bb13ea90b6f74ef/src/xml/xml_api.cc#L131-L134>
     // returns 1 if successful, 0 otherwise
     if status == 1 {Ok(())} else {Err(error)}
+}
+
+/// Free last XML model if loaded. Called internally at each load.
+pub fn mj_freeLastXML() {
+    unsafe {
+        crate::bindgen::mj_freeLastXML();
+    }
+}
+
+/// Save spec to XML string.
+/// XML saving automatically compiles the spec before saving.
+pub fn mj_saveXMLString(s: &MjSpec) -> Result<String, MjError> {
+    fn proc_inner(
+        s: &MjSpec,
+        output_buffer: &mut Vec<u8>,
+    ) -> (i32, MjError) {
+        let mut error = MjError::init();
+        let status = unsafe {
+            let (err_ptr, err_len) = error.as_parts();
+            crate::bindgen::mj_saveXMLString(
+                s.as_ref(),
+                output_buffer.as_mut_ptr() as *mut std::ffi::c_char,
+                output_buffer.len() as i32,
+                err_ptr,
+                err_len,
+            )
+        };
+        (status, error)
+    }
+
+    #[cold]
+    #[inline(never)]
+    fn retry(
+        s: &MjSpec,
+        output_buffer: &mut Vec<u8>,
+    ) -> (i32, MjError) {
+        proc_inner(s, output_buffer)
+    }
+
+    let mut output_buffer = vec![0u8; 1 << 12];
+    let (mut status, mut error) = proc_inner(s, &mut output_buffer);
+
+    // <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mj-savexmlstring>
+    // return 0 on success, -1 on failure.
+    // If the length of the output buffer is too small, returns the required size.
+    if status > 0 {
+        output_buffer.extend(vec![0u8; status as usize - output_buffer.len()]);
+        (status, error) = retry(s, &mut output_buffer);
+    }
+    if status == 0 {
+        Ok(String::from_utf8(output_buffer).map_err(MjError::from_error)?)
+    } else {
+        Err(error)
+    }
+}
+
+/// Save spec to XML file. XML saving requires that the spec first be compiled.
+pub fn mj_saveXML(
+    s: &MjSpec,
+    filename: impl Into<String>,
+) -> Result<(), MjError> {
+    let filename = std::ffi::CString::new(filename.into()).map_err(MjError::from_error)?;
+
+    let mut error = MjError::init();
+    let status = unsafe {
+        let (err_ptr, err_len) = error.as_parts();
+        crate::bindgen::mj_saveXML(
+            s.as_ref(),
+            filename.as_ptr(),
+            err_ptr,
+            err_len,
+        )
+    };
+
+    // <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mj-savexml>
+    // return 0 on success, -1 otherwise
+    if status == 0 {Ok(())} else {Err(error)}
 }

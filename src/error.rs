@@ -1,4 +1,4 @@
-const BUFFER_SIZE: usize = 1024;
+const BUFFER_SIZE: usize = 1 << 10;
 
 pub struct MjError {
     buffer: [u8; BUFFER_SIZE],
@@ -25,10 +25,10 @@ impl MjError {
         }
     }
 
-    pub(crate) fn as_parts(&mut self) -> (*mut core::ffi::c_char, i32) {
-        let ptr = self.buffer.as_mut_ptr() as *mut core::ffi::c_char;
+    pub(crate) fn as_parts(&mut self) -> (*mut std::ffi::c_char, i32) {
+        let ptr = self.buffer.as_mut_ptr();
         let len = self.buffer.len();
-        (ptr, len as i32)
+        (ptr as *mut std::ffi::c_char, len as i32)
     }
 }
 
