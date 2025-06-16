@@ -30,10 +30,6 @@ impl MjError {
         let len = self.buffer.len();
         (ptr, len as i32)
     }
-
-    pub(crate) fn is_some(&self) -> bool {
-        self.buffer[0] != 0 // check if any non-zero byte is written
-    }
 }
 
 impl MjError {

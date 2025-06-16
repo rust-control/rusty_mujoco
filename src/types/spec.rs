@@ -89,17 +89,21 @@ typedef struct mjsCompiler_ {      // compiler options
 } mjsCompiler;
 */
 
+/*
+  mjsElement* element;             // element type
+  mjString* modelname;             // model name
+*/
 impl MjSpec {
+    /// element type, do not modify
     pub fn element(&self) -> &MjsElement {
         (unsafe { &*self.0.element }).into()
     }
-    pub fn element_mut(&mut self) -> &mut MjsElement {
-        (unsafe { &mut *self.0.element }).into()
-    }
 
+    /// model name
     pub fn modelname(&self) -> &MjString {
         (unsafe { &*self.0.modelname }).into()
     }
+    /// mutable model name
     pub fn modelname_mut(&mut self) -> &mut MjString {
         (unsafe { &mut *self.0.modelname }).into()
     }
@@ -113,21 +117,79 @@ impl MjSpec {
   mjString* texturedir;            // texture directory
 */
 impl MjSpec {
+    /// compiler options
     pub fn compiler(&self) -> &MjsCompiler {
         (&self.0.compiler).into()
     }
+    /// mutable compiler options
     pub fn compiler_mut(&mut self) -> &mut MjsCompiler {
         (&mut self.0.compiler).into()
     }
 
+    /// if or not automatically strip paths from mesh files
     pub fn strippath(&self) -> u8 {
         self.0.strippath
     }
-    pub fn strippath_mut(&self) -> u8 {
-        self.0.strippath
+    /// if or not automatically strip paths from mesh files
+    pub fn strippath_mut(&mut self) -> &mut u8 {
+        &mut self.0.strippath
+    }
+
+    /// mesh and hfield directory
+    pub fn meshdir(&self) -> &MjString {
+        (unsafe { &*self.0.meshdir }).into()
+    }
+    /// mutable mesh and hfield directory
+    pub fn meshdir_mut(&mut self) -> &mut MjString {
+        (unsafe { &mut *self.0.meshdir }).into()
+    }
+
+    /// texture directory
+    pub fn texturedir(&self) -> &MjString {
+        (unsafe { &*self.0.texturedir }).into()
+    }
+    /// mutable texture directory
+    pub fn texturedir_mut(&mut self) -> &mut MjString {
+        (unsafe { &mut *self.0.texturedir }).into()
     }
 }
 
+// engine data
+/*
+  mjOption option;                 // physics options
+  mjVisual visual;                 // visual options
+  mjStatistic stat;                // statistics override (if defined)
+*/
+impl MjSpec {
+    /// physics options
+    pub fn option(&self) -> &MjOption {
+        (&self.0.option).into()
+    }
+    /// mutable physics options
+    pub fn option_mut(&mut self) -> &mut MjOption {
+        (&mut self.0.option).into()
+    }
+
+    /// visual options
+    pub fn visual(&self) -> &MjVisual {
+        (&self.0.visual).into()
+    }
+    /// mutable visual options
+    pub fn visual_mut(&mut self) -> &mut MjVisual {
+        (&mut self.0.visual).into()
+    }
+
+    /// statistics override (if defined)
+    pub fn stat(&self) -> &MjStatistic {
+        (&self.0.stat).into()
+    }
+    /// mutable statistics override (if defined)
+    pub fn stat_mut(&mut self) -> &mut MjStatistic {
+        (&mut self.0.stat).into()
+    }
+}
+
+// sizes
 macro_rules! sizes {
     ($($name:ident / $set_name:ident = $description:literal;)*) => {
         impl MjSpec {
@@ -161,4 +223,29 @@ sizes! {
   nuser_actuator / set_nuser_actuator = "number of mjtNums in actuator_user";
   nuser_sensor / set_nuser_sensor     = "number of mjtNums in sensor_user";
   nkey / set_nkey                     = "number of keyframes";
+}
+
+// global data
+/*
+  mjString* comment;               // comment at top of XML
+  mjString* modelfiledir;          // path to model file
+*/
+impl MjSpec {
+    /// comment at top of XML
+    pub fn comment(&self) -> Option<&MjString> {
+        if self.0.comment.is_null() {
+            None
+        } else {
+            Some((unsafe { &*self.0.comment }).into())
+        }
+    }
+
+    /// path to model file
+    pub fn modelfiledir(&self) -> &MjString {
+        (unsafe { &*self.0.modelfiledir }).into()
+    }
+    /// mutable path to model file
+    pub fn modelfiledir_mut(&mut self) -> &mut MjString {
+        (unsafe { &mut *self.0.modelfiledir }).into()
+    }
 }

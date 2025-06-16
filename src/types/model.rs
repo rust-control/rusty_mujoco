@@ -110,17 +110,23 @@ impl_size_getters! {
 }
 
 impl MjModel {
-    /// physics options
+    /// physics options.
+    /// 
+    /// **note**: _read-only_. To dynamically mutate this, consider build `MjModel` via `MjSpec`.
     pub fn opt(&self) -> &MjOption {
         (&self.0.opt).into()
     }
 
-    /// visualization options
+    /// visualization options.
+    /// 
+    /// **note**: _read-only_. To dynamically mutate this, consider build `MjModel` via `MjSpec`.
     pub fn vis(&self) -> &MjVisual {
         (&self.0.vis).into()
     }
 
-    /// model statistics
+    /// model statistics.
+    /// 
+    /// **note**: _read-only_. To dynamically mutate this, consider build `MjModel` via `MjSpec`.
     pub fn stat(&self) -> &MjStatistic {
         (&self.0.stat).into()
     }
