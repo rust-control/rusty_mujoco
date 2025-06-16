@@ -5,9 +5,7 @@
 use crate::{MjError, MjModel};
 
 /// Parse XML file in MJCF or URDF format, compile it, return low-level model.
-pub fn mj_loadXML(
-    filename: impl AsRef<std::path::Path>,
-) -> Result<MjModel, MjError> {
+pub fn mj_loadXML(filename: impl AsRef<std::path::Path>) -> Result<MjModel, MjError> {
     let filename = std::ffi::CString::new(
         filename.as_ref().as_os_str().as_encoded_bytes()
     ).map_err(MjError::from_error)?;

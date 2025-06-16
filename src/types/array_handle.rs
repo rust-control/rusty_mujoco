@@ -1,15 +1,15 @@
-pub struct MjString(pub(crate) crate::bindgen::mjString);
+newtype!(MjString of crate::bindgen::mjString);
 
-pub struct MjStringVec(pub(crate) crate::bindgen::mjStringVec);
+newtype!(MjStringVec of crate::bindgen::mjStringVec);
 
-pub struct MjIntVec(pub(crate) crate::bindgen::mjIntVec);
+newtype!(MjIntVec of crate::bindgen::mjIntVec);
 
-pub struct MjIntVecVec(pub(crate) crate::bindgen::mjIntVecVec);
+newtype!(MjIntVecVec of crate::bindgen::mjIntVecVec);
 
-pub struct MjFloatVec(pub(crate) crate::bindgen::mjFloatVec);
+newtype!(MjFloatVec of crate::bindgen::mjFloatVec);
 
-pub struct MjFloatVecVec(pub(crate) crate::bindgen::mjFloatVecVec);
+newtype!(MjFloatVecVec of crate::bindgen::mjFloatVecVec);
 
-pub struct MjDoubleVec(pub(crate) crate::bindgen::mjDoubleVec);
+newtype!(MjDoubleVec of crate::bindgen::mjDoubleVec);
 
-pub struct MjByteVec(pub(crate) crate::bindgen::mjByteVec);
+newtype!(MjByteVec of crate::bindgen::mjByteVec);

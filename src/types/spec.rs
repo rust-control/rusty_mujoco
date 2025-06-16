@@ -1,21 +1,27 @@
 use super::{MjOption, MjStatistic, MjVisual};
 use crate::{MjString};
 
-/// Model specification
-pub struct MjSpec(pub(crate) crate::bindgen::mjSpec);
+newtype! {
+    /// Model specification
+    MjSpec of crate::bindgen::mjSpec
+}
 
-/// Special type corresponding to any element.
-/// This struct is the first member of all other elements;
-/// in the low-level C++ implementation, it is not included as a member
-/// but via class inheritance. Inclusion via inheritance allows
-/// the compiler to static_cast an mjsElement to the correct C++ object class.
-/// Unlike all other attributes of the structs below, which are user-settable
-/// by design, modifying the contents of an mjsElement is not allowed
-/// and leads to undefined behavior.
-pub struct MjsElement(pub(crate) crate::bindgen::mjsElement);
+newtype! {
+    /// Special type corresponding to any element.
+    /// This struct is the first member of all other elements;
+    /// in the low-level C++ implementation, it is not included as a member
+    /// but via class inheritance. Inclusion via inheritance allows
+    /// the compiler to static_cast an mjsElement to the correct C++ object class.
+    /// Unlike all other attributes of the structs below, which are user-settable
+    /// by design, modifying the contents of an mjsElement is not allowed
+    /// and leads to undefined behavior.
+    MjsElement of crate::bindgen::mjsElement
+}
 
-/// Compiler options.
-pub struct MjsCompiler(pub(crate) crate::bindgen::mjsCompiler);
+newtype! {
+    /// Compiler options.
+    MjsCompiler of crate::bindgen::mjsCompiler
+}
 
 /*
 typedef struct mjSpec_ {           // model specification
@@ -84,24 +90,41 @@ typedef struct mjsCompiler_ {      // compiler options
 */
 
 impl MjSpec {
-    /* SAFETY: each `transmute` is just between a **newtype** struct and its inner type. */
-
     pub fn element(&self) -> &MjsElement {
-        let inner_ref = unsafe { &*self.0.element };
-        unsafe { std::mem::transmute(inner_ref) }
+        (unsafe { &*self.0.element }).into()
     }
     pub fn element_mut(&mut self) -> &mut MjsElement {
-        let inner_ref = unsafe { &mut *self.0.element };
-        unsafe { std::mem::transmute(inner_ref) }
+        (unsafe { &mut *self.0.element }).into()
     }
 
     pub fn modelname(&self) -> &MjString {
-        let inner_ref = unsafe { &*self.0.modelname };
-        unsafe { std::mem::transmute(inner_ref) }
+        (unsafe { &*self.0.modelname }).into()
     }
     pub fn modelname_mut(&mut self) -> &mut MjString {
-        let inner_ref = unsafe { &mut *self.0.modelname };
-        unsafe { std::mem::transmute(inner_ref) }
+        (unsafe { &mut *self.0.modelname }).into()
+    }
+}
+
+// compiler data
+/*
+  mjsCompiler compiler;            // compiler options
+  mjtByte strippath;               // automatically strip paths from mesh files
+  mjString* meshdir;               // mesh and hfield directory
+  mjString* texturedir;            // texture directory
+*/
+impl MjSpec {
+    pub fn compiler(&self) -> &MjsCompiler {
+        (&self.0.compiler).into()
+    }
+    pub fn compiler_mut(&mut self) -> &mut MjsCompiler {
+        (&mut self.0.compiler).into()
+    }
+
+    pub fn strippath(&self) -> u8 {
+        self.0.strippath
+    }
+    pub fn strippath_mut(&self) -> u8 {
+        self.0.strippath
     }
 }
 

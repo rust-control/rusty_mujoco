@@ -112,20 +112,17 @@ impl_size_getters! {
 impl MjModel {
     /// physics options
     pub fn opt(&self) -> &MjOption {
-        // `MjOption` is just a **newtype** struct of `crate::bindgen::mjOption`
-        unsafe {std::mem::transmute(&self.0.opt)}
+        (&self.0.opt).into()
     }
 
     /// visualization options
     pub fn vis(&self) -> &MjVisual {
-        // `MjVisual` is just a **newtype** struct of `crate::bindgen::mjVisual`
-        unsafe {std::mem::transmute(&self.0.vis)}
+        (&self.0.vis).into()
     }
 
     /// model statistics
     pub fn stat(&self) -> &MjStatistic {
-        // `MjStatistic` is just a **newtype** struct of `crate::bindgen::mjStatistic`
-        unsafe {std::mem::transmute(&self.0.stat)}
+        (&self.0.stat).into()
     }
 }
 

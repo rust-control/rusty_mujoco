@@ -1,4 +1,4 @@
-pub struct MjStatistic(pub(super) crate::bindgen::mjStatistic);
+newtype!(MjStatistic of crate::bindgen::mjStatistic);
 
 macro_rules! impl_statistic_fields {
     ($($name:ident / $set_name:ident: $T:ty = $description:literal;)*) => {

@@ -3,7 +3,7 @@
 /// Get string contents.
 #[allow(non_snake_case)]
 pub fn mjs_getString(source: &crate::MjString) -> &str {
-    let c_char_ptr = unsafe { crate::bindgen::mjs_getString(&source.0) };
+    let c_char_ptr = unsafe { crate::bindgen::mjs_getString(source.as_ref()) };
     let c_str = unsafe { std::ffi::CStr::from_ptr(c_char_ptr) };
     c_str.to_str().expect("`mjs_getString` returned non-UTF-8 bytes")
 }
@@ -12,6 +12,6 @@ pub fn mjs_getString(source: &crate::MjString) -> &str {
 #[allow(non_snake_case)]
 pub fn mjs_getDouble(source: &crate::MjDoubleVec) -> &[f64] {
     let mut size_buf = 0i32;
-    let c_double_ptr = unsafe { crate::bindgen::mjs_getDouble(&source.0, &mut size_buf) };
+    let c_double_ptr = unsafe { crate::bindgen::mjs_getDouble(source.as_ref(), &mut size_buf) };
     unsafe { std::slice::from_raw_parts(c_double_ptr, size_buf as usize) }
 }

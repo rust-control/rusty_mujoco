@@ -1,4 +1,4 @@
-pub struct MjOption(pub(super) crate::bindgen::mjOption);
+newtype!(MjOption of crate::bindgen::mjOption);
 
 macro_rules! impl_parameters {
     ($($name:ident / $set_name:ident: $T:ty = $description:literal;)*) => {
@@ -8,6 +8,7 @@ macro_rules! impl_parameters {
                 pub fn $name(&self) -> $T {
                     self.0.$name
                 }
+                
                 #[doc = "set "]
                 #[doc = $description]
                 pub fn $set_name(&mut self, value: $T) -> &mut Self {
@@ -50,8 +51,10 @@ macro_rules! impl_enum_settings {
             $(
                 #[doc = $description]
                 pub fn $name(&self) -> $T {
+                    // SAFETY: enum discriminator
                     unsafe {std::mem::transmute(self.0.$name)}
                 }
+
                 #[doc = "set "]
                 #[doc = $description]
                 pub fn $set_name(&mut self, value: $T) -> &mut Self {
