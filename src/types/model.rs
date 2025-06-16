@@ -115,32 +115,17 @@ impl MjModel {
         // `MjOption` is just a **newtype** struct of `crate::bindgen::mjOption`
         unsafe {std::mem::transmute(&self.0.opt)}
     }
-    /// mutable physics options
-    pub fn opt_mut(&mut self) -> &mut MjOption {
-        // `MjOption` is just a **newtype** struct of `crate::bindgen::mjOption`
-        unsafe {std::mem::transmute(&mut self.0.opt)}
-    }
 
     /// visualization options
     pub fn vis(&self) -> &MjVisual {
         // `MjVisual` is just a **newtype** struct of `crate::bindgen::mjVisual`
         unsafe {std::mem::transmute(&self.0.vis)}
     }
-    /// mutable visualization options
-    pub fn vis_mut(&mut self) -> &mut MjVisual {
-        // `MjVisual` is just a **newtype** struct of `crate::bindgen::mjVisual`
-        unsafe {std::mem::transmute(&mut self.0.vis)}
-    }
 
     /// model statistics
     pub fn stat(&self) -> &MjStatistic {
         // `MjStatistic` is just a **newtype** struct of `crate::bindgen::mjStatistic`
         unsafe {std::mem::transmute(&self.0.stat)}
-    }
-    /// mutable model statistics
-    pub fn stat_mut(&mut self) -> &mut MjStatistic {
-        // `MjStatistic` is just a **newtype** struct of `crate::bindgen::mjStatistic`
-        unsafe {std::mem::transmute(&mut self.0.stat)}
     }
 }
 

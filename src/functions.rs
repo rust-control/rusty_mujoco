@@ -1,3 +1,5 @@
+mod attribute_getters;
 mod parse_and_compile;
 
+pub use attribute_getters::*;
 pub use parse_and_compile::*;
