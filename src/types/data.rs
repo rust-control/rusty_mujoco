@@ -1,8 +1,10 @@
 use super::*;
 use crate::bindgen::{mjNSOLVER, mjNISLAND, mjtTimer::mjNTIMER, mjtWarning::mjNWARNING};
 
-/// This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
-pub struct MjData(pub(crate) crate::bindgen::mjData);
+newtype! {
+    /// This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
+    MjData of crate::bindgen::mjData
+}
 
 // constant sizes
 impl MjData {

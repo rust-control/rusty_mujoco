@@ -1,8 +1,10 @@
 use super::*;
 use crate::bindgen::{mjNREF, mjNIMP, mjNFLUID, mjNEQDATA, mjNGAIN, mjNBIAS, mjNDYN, mjtTextureRole::mjNTEXROLE};
 
-/// This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
-pub struct MjModel(pub(crate) crate::bindgen::mjModel);
+newtype! {
+    /// This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
+    MjModel of crate::bindgen::mjModel
+}
 
 macro_rules! impl_size_getters {
     ($($n_name:ident = $description:literal;)*) => {
