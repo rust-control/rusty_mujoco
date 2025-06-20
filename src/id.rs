@@ -7,7 +7,7 @@ pub struct ElementId(pub(crate) usize);
 pub struct VertexId(pub(crate) usize);
 
 pub struct ObjectId<O: Obj> {
-    index: usize,
+    pub(crate) index: usize,
     _type: std::marker::PhantomData<O>,
 }
 
