@@ -6,7 +6,7 @@ use crate::{MjModel, MjData, MjContact, ObjectId, obj};
 
 /// Returns the number of mjtNum⁠s required for a given state specification. The bits of the integer spec correspond to element fields of mjtState.
 pub fn mj_stateSize(m: &MjModel, spec: crate::bindgen::mjtState) -> usize {
-    unsafe { crate::bindgen::mj_stateSize(m.as_ref(), spec as u32) as usize }
+    unsafe { crate::bindgen::mj_stateSize(m.as_ref(), spec as u32) as _ }
 }
 
 /// Copy concatenated state components specified by spec from d into state. The bits of the integer spec correspond to element fields of mjtState. Fails with mju_error if spec is invalid.
@@ -82,7 +82,7 @@ pub fn mj_isDual(m: &MjModel) -> bool {
 /// This function multiplies the constraint Jacobian mjData.efc_J by a vector. Note that the Jacobian can be either dense or sparse; the function is aware of this setting. Multiplication by J maps velocities from joint space to constraint space.
 pub fn mj_mulJacVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
     #[cfg(debug_assertions)] {
-        assert_eq!(vec.len(), m.nv() as usize);
+        assert_eq!(vec.len(), m.nv());
     }
     let mut res = vec![0.0; d.nefc()];
     unsafe {
@@ -99,9 +99,9 @@ pub fn mj_mulJacVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
 /// Same as mj_mulJacVec but multiplies by the transpose of the Jacobian. This maps forces from constraint space to joint space.
 pub fn mj_mulJacTVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
     #[cfg(debug_assertions)] {
-        assert_eq!(vec.len(), d.nefc() as usize);
+        assert_eq!(vec.len(), d.nefc());
     }
-    let mut res = vec![0.0; m.nv() as usize];
+    let mut res = vec![0.0; m.nv()];
     unsafe {
         crate::bindgen::mj_mulJacTVec(
             m.as_ref(),
@@ -292,7 +292,7 @@ pub fn mj_angmomMat(
     d: &mut MjData,
     body: ObjectId<obj::Body>,
 ) -> Vec<f64> {
-    let mut res = vec![0.0; 3 * m.nv() as usize];
+    let mut res = vec![0.0; 3 * m.nv()];
     unsafe {
         crate::bindgen::mj_angmomMat(
             m.as_ref(),
@@ -366,9 +366,9 @@ pub fn mj_mulM(
     mut vec: Vec<f64>,
 ) -> Vec<f64> {
     #[cfg(debug_assertions)] {
-        assert_eq!(vec.len(), m.nv() as usize);
+        assert_eq!(vec.len(), m.nv());
     }
-    let mut res = vec![0.0; m.nv() as usize];
+    let mut res = vec![0.0; m.nv()];
     unsafe {
         crate::bindgen::mj_mulM(
             m.as_ref(),
@@ -387,9 +387,9 @@ pub fn mj_mulM2(
     mut vec: Vec<f64>,
 ) -> Vec<f64> {
     #[cfg(debug_assertions)] {
-        assert_eq!(vec.len(), m.nv() as usize);
+        assert_eq!(vec.len(), m.nv());
     }
-    let mut res = vec![0.0; m.nv() as usize];
+    let mut res = vec![0.0; m.nv()];
     unsafe {
         crate::bindgen::mj_mulM2(
             m.as_ref(),
@@ -401,4 +401,163 @@ pub fn mj_mulM2(
     res
 }
 
+/// Add inertia matrix to destination matrix.
+/// Destination can be sparse or dense when all int are `None`.
+/* void mj_addM(const mjModel* m, mjData* d, mjtNum* dst, int* rownnz, int* rowadr, int* colind); */
+pub fn mj_addM(
+    m: &MjModel,
+    d: &mut MjData,
+    dst: &mut [f64],
+    rownnz: Option<&mut [i32]>,
+    rowadr: Option<&mut [i32]>,
+    colind: Option<&mut [i32]>,
+) {
+    #[cfg(debug_assertions)] {
+        match (rownnz.as_ref(), rowadr.as_ref(), colind.as_ref()) {
+            (Some(rownnz), Some(rowadr), Some(_)) => {
+                assert_eq!(rownnz.len(), m.nv());
+                assert_eq!(rowadr.len(), m.nv());
+            }
+            (None, None, None) => {
+                assert_eq!(dst.len(), m.nv() * m.nv());
+            }
+            _ => panic!("If any of rownnz, rowadr or colind is specified, all must be specified"),
+        }
+    }
+    unsafe {
+        crate::bindgen::mj_addM(
+            m.as_ref(),
+            d.as_mut(),
+            dst.as_mut_ptr(),
+            rownnz.map_or(std::ptr::null_mut(), |x| x.as_mut_ptr()),
+            rowadr.map_or(std::ptr::null_mut(), |x| x.as_mut_ptr()),
+            colind.map_or(std::ptr::null_mut(), |x| x.as_mut_ptr()),
+        );
+    }
+}
 
+/// This function can be used to apply a Cartesian force and torque to a point on a body,
+/// and add the result to the vector mjData.qfrc_applied of all applied forces.
+/// Note that the function requires a pointer to this vector,
+/// because sometimes we want to add the result to a different vector.
+/* void mj_applyFT(
+    const mjModel* m, mjData* d,
+    const mjtNum force[3], const mjtNum torque[3], const mjtNum point[3],
+    int body, mjtNum* qfrc_target); */
+pub fn mj_applyFT(
+    m: &MjModel,
+    d: &mut MjData,
+    body: ObjectId<obj::Body>,
+    point: [f64; 3],
+    force: [f64; 3],
+    torque: [f64; 3],
+    qfrc_target: &mut [f64],
+) {
+    unsafe {
+        crate::bindgen::mj_applyFT(
+            m.as_ref(),
+            d.as_mut(),
+            point.as_ptr(),
+            force.as_ptr(),
+            torque.as_ptr(),
+            body.index as i32,
+            qfrc_target.as_mut_ptr(),
+        );
+    }
+}
+
+/// Compute object 6D velocity (rot:lin) in object-centered frame, world/local orientation.
+/* void mj_objectVelocity(const mjModel* m, const mjData* d,
+                       int objtype, int objid, mjtNum res[6], int flg_local); */
+pub fn mj_objectVelocity<O: crate::id::Obj>(
+    m: &MjModel,
+    d: &MjData,
+    object: ObjectId<O>,
+    local: bool,
+) -> [f64; 6] {
+    let mut res = [0.0; 6];
+    unsafe {
+        crate::bindgen::mj_objectVelocity(
+            m.as_ref(),
+            d.as_ref(),
+            O::TYPE as i32,
+            object.index as i32,
+            res.as_mut_ptr(),
+            local as i32,
+        );
+    }
+    res
+}
+
+/// Compute object 6D acceleration (rot:lin) in object-centered frame,
+/// world/local orientation. If acceleration or force sensors are
+/// not present in the model, mj_rnePostConstraint must be manually called
+/// in order to calculate mjData.cacc – the total body acceleration,
+/// including contributions from the constraint solver.
+/* void mj_objectAcceleration(const mjModel* m, const mjData* d,
+                           int objtype, int objid, mjtNum res[6], int flg_local); */
+pub fn mj_objectAcceleration<O: crate::id::Obj>(
+    m: &MjModel,
+    d: &MjData,
+    object: ObjectId<O>,
+    local: bool,
+) -> [f64; 6] {
+    let mut res = [0.0; 6];
+    unsafe {
+        crate::bindgen::mj_objectAcceleration(
+            m.as_ref(),
+            d.as_ref(),
+            O::TYPE as i32,
+            object.index as i32,
+            res.as_mut_ptr(),
+            local as i32,
+        );
+    }
+    res
+}
+
+/// Returns the smallest signed distance between two geoms and the segment from geom1 to geom2.
+/// Returned distances are bounded from above by distmax.
+/// 
+/// If no collision of distance smaller than distmax is found, the function will return distmax and fromto, if given, will be set to (0, 0, 0, 0, 0, 0).
+/* mjtNum mj_geomDistance(const mjModel* m, const mjData* d, int geom1, int geom2,
+                       mjtNum distmax, mjtNum fromto[6]); */
+pub fn mj_geomDistance(
+    m: &MjModel,
+    d: &MjData,
+    geom1: ObjectId<obj::Geom>,
+    geom2: ObjectId<obj::Geom>,
+    distmax: f64,
+) -> (f64, [f64; 6]) {
+    let mut fromto = [0.0; 6];
+    let dist = unsafe {
+        crate::bindgen::mj_geomDistance(
+            m.as_ref(),
+            d.as_ref(),
+            geom1.index as i32,
+            geom2.index as i32,
+            distmax,
+            fromto.as_mut_ptr(),
+        )
+    };
+    (dist, fromto)
+}
+
+/// Extract 6D force:torque given contact id, in the contact frame.
+/* void mj_contactForce(const mjModel* m, const mjData* d, int id, mjtNum result[6]); */
+pub fn mj_contactForce(
+    m: &MjModel,
+    d: &MjData,
+    contact_id: usize,
+) -> [f64; 6] {
+    let mut result = [0.0; 6];
+    unsafe {
+        crate::bindgen::mj_contactForce(
+            m.as_ref(),
+            d.as_ref(),
+            contact_id as i32,
+            result.as_mut_ptr(),
+        );
+    }
+    result
+}
