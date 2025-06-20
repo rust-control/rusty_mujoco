@@ -283,3 +283,122 @@ pub fn mj_jacDot(
     (jacp, jacr)
 }
 
+/// his function computes the 3 x nv angular momentum matrix *H(q)*,
+/// providing the linear mapping from generalized velocities to subtree angular momentum.
+/// More precisely if *h* is the subtree angular momentum of body id in mjData.subtree_angmom (reported by the subtreeangmom sensor)
+/// and *qdot* ​is the generalized velocity mjData.qvel, then *h = H qdot*
+pub fn mj_angmomMat(
+    m: &MjModel,
+    d: &mut MjData,
+    body: ObjectId<obj::Body>,
+) -> Vec<f64> {
+    let mut res = vec![0.0; 3 * m.nv() as usize];
+    unsafe {
+        crate::bindgen::mj_angmomMat(
+            m.as_ref(),
+            d.as_mut(),
+            res.as_mut_ptr(),
+            body.index as i32,
+        )
+    };
+    res
+}
+
+/// Get id of object with the specified mjtObj type and name, returns `None` if id not found.
+pub fn mj_name2id(
+    m: &MjModel,
+    obj_type: crate::bindgen::mjtObj,
+    name: &str,
+) -> Option<usize> {
+    let c_name = std::ffi::CString::new(name).expect("`name` contains null bytes");
+    let id = unsafe {
+        crate::bindgen::mj_name2id(m.as_ref(), obj_type as i32, c_name.as_ptr())
+    };
+    if id < 0 {None} else {Some(id as usize)}
+}
+
+/// Get name of object with the specified mjtObj type and id, returns `None` if name not found.
+pub fn mj_id2name(
+    m: &MjModel,
+    obj_type: crate::bindgen::mjtObj,
+    id: usize,
+) -> Option<String> {
+    let c_name = unsafe {
+        crate::bindgen::mj_id2name(m.as_ref(), obj_type as i32, id as i32)
+    };
+    if c_name.is_null() {
+        None
+    } else {
+        Some(unsafe { std::ffi::CStr::from_ptr(c_name).to_str().unwrap().to_owned() })
+    }
+}
+
+/// Convert sparse inertia matrix M into full (i.e. dense) matrix.
+/// `M` must be of the same size as mjData.`qM`.
+/// Returned one is of size `nv x nv`,
+pub fn mj_fullM(
+    m: &MjModel,
+    M: &[f64],
+) -> Vec<f64> {
+    #[cfg(debug_assertions)] {
+        assert_eq!(M.len(), m.nM());
+    }
+    let mut res = vec![0.0; m.nv() * m.nv()];
+    unsafe {
+        crate::bindgen::mj_fullM(
+            m.as_ref(),
+            res.as_mut_ptr(),
+            M.as_ptr(),
+        );
+    }
+    res
+}
+
+/// This function multiplies the joint-space inertia matrix stored in mjData.qM by a vector.
+/// 
+/// qM has a custom sparse format that the user should not attempt to manipulate directly.
+/// Alternatively one can convert qM to a dense matrix with `mj_fullM`
+/// and then user regular matrix-vector multiplication,
+/// but this is slower because it no longer benefits from sparsity.
+pub fn mj_mulM(
+    m: &MjModel,
+    d: &MjData,
+    mut vec: Vec<f64>,
+) -> Vec<f64> {
+    #[cfg(debug_assertions)] {
+        assert_eq!(vec.len(), m.nv() as usize);
+    }
+    let mut res = vec![0.0; m.nv() as usize];
+    unsafe {
+        crate::bindgen::mj_mulM(
+            m.as_ref(),
+            d.as_ref(),
+            vec.as_mut_ptr(),
+            res.as_mut_ptr(),
+        );
+    }
+    res
+}
+
+/// Multiply vector by (inertia matrix)^(1/2).
+pub fn mj_mulM2(
+    m: &MjModel,
+    d: &MjData,
+    mut vec: Vec<f64>,
+) -> Vec<f64> {
+    #[cfg(debug_assertions)] {
+        assert_eq!(vec.len(), m.nv() as usize);
+    }
+    let mut res = vec![0.0; m.nv() as usize];
+    unsafe {
+        crate::bindgen::mj_mulM2(
+            m.as_ref(),
+            d.as_ref(),
+            vec.as_mut_ptr(),
+            res.as_mut_ptr(),
+        );
+    }
+    res
+}
+
+
