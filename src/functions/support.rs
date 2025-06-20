@@ -673,6 +673,25 @@ pub fn mj_setTotalmass(
     unsafe { crate::bindgen::mj_setTotalmass(m.as_mut(), newmass) }
 }
 
+/// Return a config attribute value of a plugin instance;
+/// `None`: invalid plugin instance ID or attribute name
+/* const char* mj_getPluginConfig(const mjModel* m, int plugin_id, const char* attrib); */
+pub fn mj_getPluginConfig(
+    m: &MjModel,
+    plugin_id: ObjectId<obj::Plugin>,
+    attrib: &str,
+) -> Option<String> {
+    let c_attrib = std::ffi::CString::new(attrib).expect("`attrib` contains null bytes");
+    let c_str = unsafe {
+        crate::bindgen::mj_getPluginConfig(m.as_ref(), plugin_id.index as i32, c_attrib.as_ptr())
+    };
+    if c_str.is_null() {
+        None
+    } else {
+        Some(unsafe { std::ffi::CStr::from_ptr(c_str).to_str().unwrap().to_owned() })
+    }
+}
+
 /// Load a dynamic library. The dynamic library is assumed to register one or more plugins.
 pub fn mj_loadPluginLibrary(
     path: &str,
