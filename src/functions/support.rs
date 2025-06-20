@@ -561,3 +561,139 @@ pub fn mj_contactForce(
     }
     result
 }
+
+/// This function subtracts two vectors in the format of qpos
+/// (and divides the result by dt), while respecting the properties of quaternions.
+/// Recall that unit quaternions represent spatial orientations.
+/// They are points on the unit sphere in 4D.
+/// 
+/// The tangent to that sphere is a 3D plane of rotational velocities.
+/// Thus when we subtract two quaternions in the right way,
+/// the result is a 3D vector and not a 4D vector.
+/// Thus the output qvel has dimensionality nv while the inputs have dimensionality nq.
+/*
+void mj_differentiatePos(const mjModel* m, mjtNum* qvel, mjtNum dt,
+                         const mjtNum* qpos1, const mjtNum* qpos2);
+*/
+pub fn mj_differentiatePos(
+    m: &MjModel,
+    qpos1: &[f64],
+    qpos2: &[f64],
+    dt: f64,
+) -> Vec<f64> {
+    #[cfg(debug_assertions)] {
+        assert_eq!(qpos1.len(), m.nq());
+        assert_eq!(qpos2.len(), m.nq());
+    }
+    let mut qvel = vec![0.0; m.nv()];
+    unsafe {
+        crate::bindgen::mj_differentiatePos(
+            m.as_ref(),
+            qvel.as_mut_ptr(),
+            dt,
+            qpos1.as_ptr(),
+            qpos2.as_ptr(),
+        );
+    }
+    qvel
+}
+
+/// This is the opposite of mj_differentiatePos. It adds a vector in the format of qvel (scaled by dt) to a vector in the format of qpos.
+/* void mj_integratePos(const mjModel* m, mjtNum* qpos, const mjtNum* qvel, mjtNum dt); */
+pub fn mj_integratePos(
+    m: &MjModel,
+    qpos: &mut [f64],
+    qvel: &[f64],
+    dt: f64,
+) {
+    #[cfg(debug_assertions)] {
+        assert_eq!(qpos.len(), m.nq());
+        assert_eq!(qvel.len(), m.nv());
+    }
+    unsafe {
+        crate::bindgen::mj_integratePos(
+            m.as_ref(),
+            qpos.as_mut_ptr(),
+            qvel.as_ptr(),
+            dt,
+        );
+    }
+}
+
+/// Normalize all quaternions in qpos-type vector.
+/* void mj_normalizeQuat(const mjModel* m, mjtNum* qpos); */
+pub fn mj_normalizeQuat(
+    m: &MjModel,
+    qpos: &mut [f64],
+) {
+    #[cfg(debug_assertions)] {
+        assert_eq!(qpos.len(), m.nq());
+    }
+    unsafe {
+        crate::bindgen::mj_normalizeQuat(m.as_ref(), qpos.as_mut_ptr());
+    }
+}
+
+/// Map from body local to global Cartesian coordinates, sameframe takes values from mjtSameFrame.
+/* void mj_local2Global(mjData* d, mjtNum xpos[3], mjtNum xmat[9], const mjtNum pos[3],
+                     const mjtNum quat[4], int body, mjtByte sameframe); */
+pub fn mj_local2Global(
+    d: &mut MjData,
+    xpos: &mut [f64; 3],
+    xmat: &mut [f64; 9],
+    pos: &[f64; 3],
+    quat: &[f64; 4],
+    body: ObjectId<obj::Body>,
+    sameframe: crate::bindgen::mjtSameFrame,
+) {
+    unsafe {
+        crate::bindgen::mj_local2Global(
+            d.as_mut(),
+            xpos.as_mut_ptr(),
+            xmat.as_mut_ptr(),
+            pos.as_ptr(),
+            quat.as_ptr(),
+            body.index as i32,
+            sameframe as u8,
+        );
+    }
+}
+
+/// Sum all body masses.
+pub fn mj_getTotalmass(m: &MjModel) -> f64 {
+    unsafe { crate::bindgen::mj_getTotalmass(m.as_ref()) }
+}
+
+/// Scale body masses and inertias to achieve specified total mass.
+/* void mj_setTotalmass(mjModel* m, mjtNum newmass); */
+pub fn mj_setTotalmass(
+    m: &mut MjModel,
+    newmass: f64,
+) {
+    unsafe { crate::bindgen::mj_setTotalmass(m.as_mut(), newmass) }
+}
+
+/// Load a dynamic library. The dynamic library is assumed to register one or more plugins.
+pub fn mj_loadPluginLibrary(
+    path: &str,
+) {
+    let c_path = std::ffi::CString::new(path).expect("`path` contains null bytes");
+    unsafe {
+        crate::bindgen::mj_loadPluginLibrary(c_path.as_ptr());
+    }
+}
+
+/// Return version number: 1.0.2 is encoded as 102.
+pub fn mj_version() -> u32 {
+    unsafe { crate::bindgen::mj_version() as u32}
+}
+
+/// Return the current version of MuJoCo as a string.
+pub fn mj_versionString() -> String {
+    let c_str = unsafe { crate::bindgen::mj_versionString() };
+    if c_str.is_null() {
+        String::new()
+    } else {
+        unsafe { std::ffi::CStr::from_ptr(c_str).to_str().unwrap().to_owned() }
+    }
+}
