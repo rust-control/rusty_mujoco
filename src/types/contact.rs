@@ -1,11 +1,13 @@
 use crate::{ObjectId, ElementId, VertexId, obj::{Geom, Flex}};
 use crate::bindgen::{mjNREF, mjNIMP};
 
-/// This is the data structure holding information about one contact.
-/// mjData.contact is a preallocated array of mjContact data structures,
-/// populated at runtime with the contacts found by the collision detector.
-/// Additional contact information is then filled-in by the simulator.
-pub struct MjContact(pub(super) crate::bindgen::mjContact);
+wrapper! {
+    /// This is the data structure holding information about one contact.
+    /// mjData.contact is a preallocated array of mjContact data structures,
+    /// populated at runtime with the contacts found by the collision detector.
+    /// Additional contact information is then filled-in by the simulator.
+    MjContact of crate::bindgen::mjContact
+}
 
 /*
 struct mjContact_ {                // result of collision detection functions
