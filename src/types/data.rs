@@ -1,7 +1,7 @@
 use super::*;
 use crate::bindgen::{mjNSOLVER, mjNISLAND, mjtTimer::mjNTIMER, mjtWarning::mjNWARNING};
 
-newtype! {
+wrapper! {
     /// This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
     MjData of crate::bindgen::mjData
 }
@@ -401,7 +401,7 @@ impl MjData {
     /// SAFETY: `len` must not exceed `ncon` of corresponded MjModel.
     pub unsafe fn contact(&self, len: usize) -> &[MjContact] {
         let slice: &[crate::bindgen::mjContact] = unsafe { std::slice::from_raw_parts(self.0.contact, len) };
-        // SAFETY: `MjContact` is just a **newtype** struct of `crate::bindgen::mjContact`
+        // SAFETY: `MjContact` is just a **wrapper** struct of `crate::bindgen::mjContact`
         unsafe { std::mem::transmute(slice) }
     }
 }

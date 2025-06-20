@@ -1,4 +1,4 @@
-newtype!(MjOption of crate::bindgen::mjOption);
+wrapper!(MjOption of crate::bindgen::mjOption);
 
 macro_rules! impl_parameters {
     ($($name:ident / $set_name:ident: $T:ty = $description:literal;)*) => {

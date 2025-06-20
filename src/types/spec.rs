@@ -1,12 +1,12 @@
 use super::{MjOption, MjStatistic, MjVisual};
 use crate::{MjString};
 
-newtype! {
+wrapper! {
     /// Model specification
     MjSpec of crate::bindgen::mjSpec
 }
 
-newtype! {
+wrapper! {
     /// Special type corresponding to any element.
     /// This struct is the first member of all other elements;
     /// in the low-level C++ implementation, it is not included as a member
@@ -18,7 +18,7 @@ newtype! {
     MjsElement of crate::bindgen::mjsElement
 }
 
-newtype! {
+wrapper! {
     /// Compiler options.
     MjsCompiler of crate::bindgen::mjsCompiler
 }

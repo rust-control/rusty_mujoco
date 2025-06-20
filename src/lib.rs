@@ -1,6 +1,6 @@
 pub mod bindgen;
 
-macro_rules! newtype {
+macro_rules! wrapper {
     ($(#[$attr:meta])* $Name:ident of $inner:path) => {
         $(#[$attr])*
         pub struct $Name($inner);
@@ -18,13 +18,13 @@ macro_rules! newtype {
 
         impl<'a> From<&'a $inner> for &'a $Name {
             fn from(inner: &'a $inner) -> &'a $Name {
-                // SAFETY: between newtype and its inner type
+                // SAFETY: between wrapper and its inner type
                 unsafe {std::mem::transmute(inner)}
             }
         }
         impl<'a> From<&'a mut $inner> for &'a mut $Name {
             fn from(inner: &'a mut $inner) -> &'a mut $Name {
-                // SAFETY: between newtype and its inner type
+                // SAFETY: between wrapper and its inner type
                 unsafe {std::mem::transmute(inner)}
             }
         }

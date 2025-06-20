@@ -1,4 +1,4 @@
-newtype!(MjVisual of crate::bindgen::mjVisual);
+wrapper!(MjVisual of crate::bindgen::mjVisual);
 
 macro_rules! visual_category {
     ($name:ident / $update_name:ident : $Category:ident ($bindgen_t:ty) {

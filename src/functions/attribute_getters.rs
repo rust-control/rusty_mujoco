@@ -13,4 +13,3 @@ pub fn mjs_getDouble(source: &crate::MjDoubleVec) -> &[f64] {
     let c_double_ptr = unsafe { crate::bindgen::mjs_getDouble(source.as_ref(), &mut size_buf) };
     unsafe { std::slice::from_raw_parts(c_double_ptr, size_buf as usize) }
 }
-use crate::bindgen::mjsPl;
