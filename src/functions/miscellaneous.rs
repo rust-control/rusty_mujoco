@@ -114,23 +114,21 @@ when directly implemented in Rust:
 /// Return human readable number of bytes using standard letter suffix.
 /* const char* mju_writeNumBytes(size_t nbytes); */
 pub fn mju_writeNumBytes(nbytes: usize) -> String {
-    let c_str = unsafe { crate::bindgen::mju_writeNumBytes(nbytes) };
-    if c_str.is_null() {
-        String::new()
-    } else {
-        unsafe { std::ffi::CStr::from_ptr(c_str).to_str().unwrap().to_owned() }
+    let c_ptr = unsafe { crate::bindgen::mju_writeNumBytes(nbytes) };
+    #[cfg(debug_assertions)] {
+        assert!(!c_ptr.is_null(), "`mju_writeNumBytes` unexpectedly returned a null pointer");
     }
+    unsafe { std::ffi::CStr::from_ptr(c_ptr).to_str().unwrap().to_owned() }
 }
 
 /// Construct a warning message given the warning type and info.
 /* const char* mju_warningText(int warning, size_t info); */
 pub fn mju_warningText(warning: crate::bindgen::mjtWarning, info: usize) -> String {
-    let c_str = unsafe { crate::bindgen::mju_warningText(warning as i32, info) };
-    if c_str.is_null() {
-        String::new()
-    } else {
-        unsafe { std::ffi::CStr::from_ptr(c_str).to_str().unwrap().to_owned() }
+    let c_ptr = unsafe { crate::bindgen::mju_warningText(warning as i32, info) };
+    #[cfg(debug_assertions)] {
+        assert!(!c_ptr.is_null(), "`mju_warningText` unexpectedly returned a null pointer");
     }
+    unsafe { std::ffi::CStr::from_ptr(c_ptr).to_str().unwrap().to_owned() }
 }
 
 /// Return 1 if nan or abs(x)>mjMAXVAL, 0 otherwise. Used by check functions.
