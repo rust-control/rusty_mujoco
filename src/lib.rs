@@ -52,4 +52,4 @@ mod error;
 pub use error::MjError;
 
 mod id;
-pub use id::{ElementId, VertexId, ObjectId, obj};
+pub use id::{ElementId, VertexId, ObjectId, Obj, obj, ObjType};

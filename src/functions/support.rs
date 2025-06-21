@@ -2,7 +2,7 @@
 
 //! These are support functions that need access to mjModel and mjData, unlike the utility functions which do not need such access. Support functions are called within the simulator but some of them can also be useful for custom computations, and are documented in more detail below.
 
-use crate::{MjModel, MjData, MjContact, ObjectId, obj};
+use crate::{obj, MjContact, MjData, MjModel, ObjectId};
 
 /// Returns the number of mjtNum⁠s required for a given state specification. The bits of the integer spec correspond to element fields of mjtState.
 pub fn mj_stateSize(m: &MjModel, spec: crate::bindgen::mjtState) -> usize {
@@ -305,32 +305,46 @@ pub fn mj_angmomMat(
 }
 
 /// Get id of object with the specified mjtObj type and name, returns `None` if id not found.
-pub fn mj_name2id(
+/// 
+/// ## Example
+/// 
+/// ```
+/// use rusty_mujoco::obj;
+/// 
+/// # fn main() {
+/// let model = rusty_mujoco::mj_loadXML(
+///     "path/to/model.xml"
+/// ).unwrap();
+/// let body_id = rusty_mujoco::mj_name2id::<obj::Body>(
+///     &model,
+///     "body_name"
+/// );
+/// println!("Body ID: {:?}", body_id);
+/// # }
+/// ```
+pub fn mj_name2id<O: crate::Obj>(
     m: &MjModel,
-    obj_type: crate::bindgen::mjtObj,
     name: &str,
-) -> Option<usize> {
+) -> Option<ObjectId<O>> {
     let c_name = std::ffi::CString::new(name).expect("`name` contains null bytes");
-    let id = unsafe {
-        crate::bindgen::mj_name2id(m.as_ref(), obj_type as i32, c_name.as_ptr())
+    let index = unsafe {
+        crate::bindgen::mj_name2id(m.as_ref(), O::TYPE as i32, c_name.as_ptr())
     };
-    if id < 0 {None} else {Some(id as usize)}
+    if index < 0 {None} else {Some(ObjectId::<O>::new(index as usize))}
 }
 
 /// Get name of object with the specified mjtObj type and id, returns `None` if name not found.
-pub fn mj_id2name(
+pub fn mj_id2name<O: crate::Obj>(
     m: &MjModel,
-    obj_type: crate::bindgen::mjtObj,
-    id: usize,
-) -> Option<String> {
+    id: ObjectId<O>,
+) -> String {
     let c_name = unsafe {
-        crate::bindgen::mj_id2name(m.as_ref(), obj_type as i32, id as i32)
+        crate::bindgen::mj_id2name(m.as_ref(), O::TYPE as i32, id.index as i32)
     };
-    if c_name.is_null() {
-        None
-    } else {
-        Some(unsafe { std::ffi::CStr::from_ptr(c_name).to_str().unwrap().to_owned() })
+    #[cfg(debug_assertions)] {
+        assert!(!c_name.is_null(), "`ObjectId` is always expected to have a valid index for the corresponding object type");
     }
+    unsafe {std::ffi::CStr::from_ptr(c_name).to_str().unwrap().to_owned()}
 }
 
 /// Convert sparse inertia matrix M into full (i.e. dense) matrix.

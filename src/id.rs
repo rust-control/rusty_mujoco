@@ -11,32 +11,38 @@ pub struct ObjectId<O: Obj> {
     _type: std::marker::PhantomData<O>,
 }
 
-pub trait Obj: private::Sealed { const TYPE: crate::bindgen::mjtObj; }
+pub trait Obj: private::Sealed { const TYPE: ObjType; }
 
 mod private { pub trait Sealed {} }
 
-macro_rules! obj_as_types {
+macro_rules! obj_types {
     ($($name:ident as $type_name:ident),* $(,)?) => {
+        pub enum ObjType {
+            $(
+                #[allow(non_camel_case_types)]
+                $type_name = crate::bindgen::mjtObj::$name as isize,
+            )*
+        }
+
         pub mod obj {
             $(
                 pub struct $type_name;
 
                 impl super::private::Sealed for $type_name {}
                 impl super::Obj for $type_name {
-                    const TYPE: crate::bindgen::mjtObj = crate::bindgen::mjtObj::$name;
+                    const TYPE: super::ObjType = super::ObjType::$type_name;
                 }
             )*
 
             pub(super) fn name<O: super::Obj>() -> &'static str {
                 match O::TYPE {
-                    $(crate::bindgen::mjtObj::$name => stringify!($type_name),)*
-                    _ => "Unknown",
+                    $(super::ObjType::$type_name => stringify!($type_name),)*
                 }
             }
         }
     };
 }
-obj_as_types! {
+obj_types! {
     mjOBJ_UNKNOWN as Unknown,
     mjOBJ_BODY as Body,
     mjOBJ_XBODY as XBody,
@@ -75,19 +81,19 @@ impl<O: Obj> ObjectId<O> {
             _type: std::marker::PhantomData,
         }
     }
-}
 
-/*
-// **NOT** implementing `DerefMut` to prevent accidental mutation of the index.
-// `ObjectId` is intended to be generated **only by** this crate, not by users.
-impl<O: Obj> std::ops::Deref for ObjectId<O> {
-    type Target = usize;
+    pub fn index(&self) -> usize {
+        self.index
+    }
 
-    fn deref(&self) -> &Self::Target {
-        &self.index
+    /// SAFETY: This function should only be used when you are sure that the index is valid for the object type `O`.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self {
+            index,
+            _type: std::marker::PhantomData,
+        }
     }
 }
-*/
 
 impl<O: Obj> std::fmt::Debug for ObjectId<O> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
