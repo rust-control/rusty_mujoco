@@ -43,44 +43,44 @@ pub fn mju_muscleDynamics(ctrl: f64, act: f64, prm: [f64; 3]) -> f64 {
 
 /// Convert contact force to pyramid representation.
 /* void mju_encodePyramid(mjtNum* pyramid, const mjtNum* force, const mjtNum* mu, int dim); */
-pub fn mju_encodePyramid(
-    pyramid: &mut [f64; 3],
-    force: &[f64; 3],
-    mu: &[f64; 2],
-    dim: usize,
-) {
+pub fn mju_encodePyramid<const MU_DIM: usize>(
+    force: [f64; 3],
+    mu: [f64; MU_DIM],
+) -> [f64; 3] {
     #[cfg(debug_assertions)] {
-        assert!(dim <= 3, "Dimension cannot exceed 3");
+        assert!(matches!(MU_DIM, 1 | 2), "mu must have 1 or 2 dimensions");
     }
+    let mut pyramid = [0.0; 3];
     unsafe {
         crate::bindgen::mju_encodePyramid(
             pyramid.as_mut_ptr(),
             force.as_ptr(),
             mu.as_ptr(),
-            dim as i32,
-        )
+            MU_DIM as i32,
+        );
     }
+    pyramid
 }
 
 /// Convert pyramid representation to contact force.
 /* void mju_decodePyramid(mjtNum* force, const mjtNum* pyramid, const mjtNum* mu, int dim); */
-pub fn mju_decodePyramid(
-    force: &mut [f64; 3],
-    pyramid: &[f64; 3],
-    mu: &[f64; 2],
-    dim: usize,
-) {
+pub fn mju_decodePyramid<const MU_DIM: usize>(
+    pyramid: [f64; 3],
+    mu: [f64; MU_DIM],
+) -> [f64; 3] {
     #[cfg(debug_assertions)] {
-        assert!(dim <= 3, "Dimension cannot exceed 3");
+        assert!(matches!(MU_DIM, 1 | 2), "mu must have 1 or 2 dimensions");
     }
+    let mut force = [0.0; 3];
     unsafe {
         crate::bindgen::mju_decodePyramid(
             force.as_mut_ptr(),
             pyramid.as_ptr(),
             mu.as_ptr(),
-            dim as i32,
-        )
+            MU_DIM as i32,
+        );
     }
+    force
 }
 
 /// Integrate spring-damper analytically, return pos(dt).
