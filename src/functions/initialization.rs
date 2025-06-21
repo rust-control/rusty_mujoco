@@ -7,11 +7,18 @@ use crate::{ObjectId, obj};
 use crate::MjError;
 
 /// Set default options for length range computation.
+/// 
+/// **note**: `rusty_mujoco::MjLrOpt` calls this function in its `Default` implementation.
 /* void mj_defaultLROpt(mjLROpt* opt); */
 pub fn mj_defaultLROpt() -> MjLrOpt {
     let mut c = crate::bindgen::mjLROpt::default();
     unsafe { crate::bindgen::mj_defaultLROpt(&mut c) };
     MjLrOpt::from(c)
+}
+impl Default for MjLrOpt {
+    fn default() -> Self {
+        mj_defaultLROpt()
+    }
 }
 
 /// Set solver parameters to default values.
@@ -27,19 +34,33 @@ pub fn mj_defaultSolRefImp() -> (
 }
 
 /// Set physics options to default values.
+/// 
+/// **note**: `rusty_mujoco::MjOption` calls this function in its `Default` implementation.
 /* void mj_defaultOption(mjOption* opt); */
 pub fn mj_defaultOption() -> MjOption {
     let mut c = crate::bindgen::mjOption::default();
     unsafe { crate::bindgen::mj_defaultOption(&mut c) };
     MjOption::from(c)
 }
+impl Default for MjOption {
+    fn default() -> Self {
+        mj_defaultOption()
+    }
+}
 
 /// Set visual options to default values.
+/// 
+/// **note**: `rusty_mujoco::MjVisual` calls this function in its `Default` implementation.
 /* void mj_defaultVisual(mjVisual* vis); */
 pub fn mj_defaultVisual() -> MjVisual {
     let mut c = crate::bindgen::mjVisual::default();
     unsafe { crate::bindgen::mj_defaultVisual(&mut c) };
     MjVisual::from(c)
+}
+impl Default for MjVisual {
+    fn default() -> Self {
+        mj_defaultVisual()
+    }
 }
 
 /// Copy `MjModel`.
@@ -106,9 +127,16 @@ pub fn mj_loadModel(
 }
 
 /// Free memory allocation in model.
+/// 
+/// **note**: `rusty_mujoco::MjModel` calls this function in its `Drop` implementation.
 /* void mj_deleteModel(mjModel* m); */
 pub fn mj_deleteModel(m: &mut MjModel) {
     unsafe { crate::bindgen::mj_deleteModel(m.as_mut()) };
+}
+impl Drop for MjModel {
+    fn drop(&mut self) {
+        mj_deleteModel(self);
+    }
 }
 
 /// Return size of buffer needed to hold model.
@@ -142,77 +170,6 @@ pub fn mj_makeData(m: &MjModel) -> MjData {
 pub unsafe fn mj_copyData(dest: &mut MjData, m: &MjModel, src: &MjData) {
     unsafe { crate::bindgen::mj_copyData(dest.as_mut(), m.as_ref(), src.as_ref()) };
 }
-
-/*
-mj_resetData
-void mj_resetData(const mjModel* m, mjData* d);
-Reset data to defaults.
-
-mj_resetDataDebug
-void mj_resetDataDebug(const mjModel* m, mjData* d, unsigned char debug_value);
-Reset data to defaults, fill everything else with debug_value.
-
-mj_resetDataKeyframe
-void mj_resetDataKeyframe(const mjModel* m, mjData* d, int key);
-Reset data. If 0 <= key < nkey, set fields from specified keyframe.
-
-mj_markStack
-void mj_markStack(mjData* d);
-Mark a new frame on the mjData stack.
-
-mj_freeStack
-void mj_freeStack(mjData* d);
-Free the current mjData stack frame. All pointers returned by mj_stackAlloc since the last call to mj_markStack must no longer be used afterwards.
-
-mj_stackAllocByte
-void* mj_stackAllocByte(mjData* d, size_t bytes, size_t alignment);
-Allocate a number of bytes on mjData stack at a specific alignment. Call mju_error on stack overflow.
-
-mj_stackAllocNum
-mjtNum* mj_stackAllocNum(mjData* d, size_t size);
-Allocate array of mjtNums on mjData stack. Call mju_error on stack overflow.
-
-mj_stackAllocInt
-int* mj_stackAllocInt(mjData* d, size_t size);
-Allocate array of ints on mjData stack. Call mju_error on stack overflow.
-
-mj_deleteData
-void mj_deleteData(mjData* d);
-Free memory allocation in mjData.
-
-mj_resetCallbacks
-void mj_resetCallbacks(void);
-Reset all callbacks to NULL pointers (NULL is the default).
-
-mj_setConst
-void mj_setConst(mjModel* m, mjData* d);
-Set constant fields of mjModel, corresponding to qpos0 configuration.
-
-mj_setLengthRange
-int mj_setLengthRange(mjModel* m, mjData* d, int index,
-                      const mjLROpt* opt, char* error, int error_sz);
-Set actuator_lengthrange for specified actuator; return 1 if ok, 0 if error.
-
-mj_makeSpec
-mjSpec* mj_makeSpec(void);
-Create empty spec.
-
-mj_copySpec
-mjSpec* mj_copySpec(const mjSpec* s);
-Copy spec.
-
-mj_deleteSpec
-void mj_deleteSpec(mjSpec* s);
-Free memory allocation in mjSpec.
-
-mjs_activatePlugin
-int mjs_activatePlugin(mjSpec* s, const char* name);
-Activate plugin. Returns 0 on success.
-
-mjs_setDeepCopy
-int mjs_setDeepCopy(mjSpec* s, int deepcopy);
-Turn deep copy on or off attach. Returns 0 on success.
-*/
 
 /// Reset data to defaults.
 /* void mj_resetData(const mjModel* m, mjData* d); */
@@ -273,9 +230,16 @@ pub fn mj_stackAllocInt(d: &mut MjData, size: usize) -> *mut i32 {
 }
 
 /// Free memory allocation in mjData.
+/// 
+/// **note**: `rusty_mujoco::MjData` calls this function in its `Drop` implementation.
 /* void mj_deleteData(mjData* d); */
 pub fn mj_deleteData(d: &mut MjData) {
     unsafe { crate::bindgen::mj_deleteData(d.as_mut()) };
+}
+impl Drop for MjData {
+    fn drop(&mut self) {
+        mj_deleteData(self);
+    }
 }
 
 /// Reset all callbacks to NULL pointers (NULL is the default).
@@ -324,6 +288,8 @@ pub fn mj_setLengthRange(
 }
 
 /// Create empty spec.
+/// 
+/// **note**: `rusty_mujoco::MjSpec` calls this function in its `Default` implementation.
 /* mjSpec* mj_makeSpec(void); */
 pub fn mj_makeSpec() -> MjSpec {
     let c_ptr = unsafe { crate::bindgen::mj_makeSpec() };
@@ -331,6 +297,11 @@ pub fn mj_makeSpec() -> MjSpec {
         assert!(!c_ptr.is_null(), "Failed to create empty mjSpec");
     }
     MjSpec::from(unsafe { *c_ptr })
+}
+impl Default for MjSpec {
+    fn default() -> Self {
+        mj_makeSpec()
+    }
 }
 
 /// Copy spec.
@@ -344,9 +315,16 @@ pub fn mj_copySpec(s: &MjSpec) -> MjSpec {
 }
 
 /// Free memory allocation in mjSpec.
+/// 
+/// **note**: `rusty_mujoco::MjSpec` calls this function in its `Drop` implementation.
 /* void mj_deleteSpec(mjSpec* s); */
 pub fn mj_deleteSpec(s: &mut MjSpec) {
     unsafe { crate::bindgen::mj_deleteSpec(s.as_mut()) };
+}
+impl Drop for MjSpec {
+    fn drop(&mut self) {
+        mj_deleteSpec(self);
+    }
 }
 
 /// Activate plugin.
