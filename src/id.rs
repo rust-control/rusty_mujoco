@@ -16,12 +16,30 @@ pub trait Obj: private::Sealed { const TYPE: ObjType; }
 mod private { pub trait Sealed {} }
 
 macro_rules! obj_types {
-    ($($name:ident as $type_name:ident),* $(,)?) => {
+    ($($name:ident as $type_name:ident ($id_bytes:literal)),* $(,)?) => {
+        #[derive(Clone, Copy, Debug)]
         pub enum ObjType {
             $(
                 #[allow(non_camel_case_types)]
                 $type_name = crate::bindgen::mjtObj::$name as isize,
             )*
+        }
+        impl ObjType {
+            /// Rusty-[`mju_type2str`](https://github.com/google-deepmind/mujoco/blob/baf84265b8627e6f868bc92ea6422e4e78dacb9c/src/engine/engine_util_misc.c#L1030)
+            pub const fn to_str(&self) -> &'static str {
+                match self {
+                    $(Self::$type_name => unsafe {std::str::from_utf8_unchecked($id_bytes)},)*
+                }
+            }
+            /// Rusty-[`mju_str2type`](https://github.com/google-deepmind/mujoco/blob/baf84265b8627e6f868bc92ea6422e4e78dacb9c/src/engine/engine_util_misc.c#L1118)
+            pub const fn from_str(s: &str) -> Self {
+                match s.as_bytes() {
+                    $(
+                        $id_bytes => Self::$type_name,
+                    )*
+                    _ => Self::Unknown,
+                }
+            }
         }
 
         pub mod obj {
@@ -34,7 +52,7 @@ macro_rules! obj_types {
                 }
             )*
 
-            pub(super) fn name<O: super::Obj>() -> &'static str {
+            pub(crate) fn display_name<O: super::Obj>() -> &'static str {
                 match O::TYPE {
                     $(super::ObjType::$type_name => stringify!($type_name),)*
                 }
@@ -43,35 +61,33 @@ macro_rules! obj_types {
     };
 }
 obj_types! {
-    mjOBJ_UNKNOWN as Unknown,
-    mjOBJ_BODY as Body,
-    mjOBJ_XBODY as XBody,
-    mjOBJ_JOINT as Joint,
-    mjOBJ_DOF as Dof,
-    mjOBJ_GEOM as Geom,
-    mjOBJ_SITE as Site,
-    mjOBJ_CAMERA as Camera,
-    mjOBJ_LIGHT as Light,
-    mjOBJ_FLEX as Flex,
-    mjOBJ_MESH as Mesh,
-    mjOBJ_SKIN as Skin,
-    mjOBJ_HFIELD as HField,
-    mjOBJ_TEXTURE as Texture,
-    mjOBJ_MATERIAL as Material,
-    mjOBJ_PAIR as Pair,
-    mjOBJ_EXCLUDE as Exclude,
-    mjOBJ_EQUALITY as Equality,
-    mjOBJ_TENDON as Tendon,
-    mjOBJ_ACTUATOR as Actuator,
-    mjOBJ_SENSOR as Sensor,
-    mjOBJ_NUMERIC as Numeric,
-    mjOBJ_TEXT as Text,
-    mjOBJ_TUPLE as Tuple,
-    mjOBJ_KEY as Key,
-    mjOBJ_PLUGIN as Plugin,
-    mjOBJ_FRAME as Frame,
-    mjOBJ_DEFAULT as Default,
-    mjOBJ_MODEL as Model,
+    mjOBJ_UNKNOWN as Unknown(b"unknown"),
+    mjOBJ_BODY as Body(b"body"),
+    mjOBJ_XBODY as XBody(b"xbody"),
+    mjOBJ_JOINT as Joint(b"joint"),
+    mjOBJ_DOF as Dof(b"dof"),
+    mjOBJ_GEOM as Geom(b"geom"),
+    mjOBJ_SITE as Site(b"site"),
+    mjOBJ_CAMERA as Camera(b"camera"),
+    mjOBJ_LIGHT as Light(b"light"),
+    mjOBJ_FLEX as Flex(b"flex"),
+    mjOBJ_MESH as Mesh(b"mesh"),
+    mjOBJ_SKIN as Skin(b"skin"),
+    mjOBJ_HFIELD as HField(b"hfield"),
+    mjOBJ_TEXTURE as Texture(b"texture"),
+    mjOBJ_MATERIAL as Material(b"material"),
+    mjOBJ_PAIR as Pair(b"pair"),
+    mjOBJ_EXCLUDE as Exclude(b"exclude"),
+    mjOBJ_EQUALITY as Equality(b"equality"),
+    mjOBJ_TENDON as Tendon(b"tendon"),
+    mjOBJ_ACTUATOR as Actuator(b"actuator"),
+    mjOBJ_SENSOR as Sensor(b"sensor"),
+    mjOBJ_NUMERIC as Numeric(b"numeric"),
+    mjOBJ_TEXT as Text(b"text"),
+    mjOBJ_TUPLE as Tuple(b"tuple"),
+    mjOBJ_KEY as Key(b"key"),
+    mjOBJ_PLUGIN as Plugin(b"plugin"),
+    mjOBJ_FRAME as Frame(b"frame"),
 }
 
 impl<O: Obj> ObjectId<O> {
@@ -97,12 +113,12 @@ impl<O: Obj> ObjectId<O> {
 
 impl<O: Obj> std::fmt::Debug for ObjectId<O> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ObjectId<{}>({})", obj::name::<O>(), self.index)
+        write!(f, "ObjectId<{}>({})", obj::display_name::<O>(), self.index)
     }
 }
 impl<O: Obj> std::fmt::Display for ObjectId<O> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "ObjectId<{}>({})", obj::name::<O>(), self.index)
+        write!(f, "ObjectId<{}>({})", obj::display_name::<O>(), self.index)
     }
 }
 
