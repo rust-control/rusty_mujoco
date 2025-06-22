@@ -1,4 +1,4 @@
-//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#support>
+//! # [Support](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#support)
 //! 
 //! These are support functions that need access to mjModel and mjData,
 //! unlike the utility functions which do not need such access.

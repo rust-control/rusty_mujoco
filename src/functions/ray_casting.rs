@@ -1,4 +1,4 @@
-//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#ray-casting>
+//! # [Ray casting](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#ray-casting)
 //! 
 //! Ray collisions, also known as ray casting, find the distance `x`
 //! of a ray’s intersection with a geom, where a ray is a line emanating from

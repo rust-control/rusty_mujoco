@@ -1,4 +1,4 @@
-//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#initialization>
+//! # [Initialization](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#initialization)
 //! 
 //! This section contains functions that load/initialize the model or other data structures. Their use is well illustrated in the code samples.
 

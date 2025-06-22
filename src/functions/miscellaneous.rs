@@ -1,4 +1,4 @@
-//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#miscellaneous>
+//! # [Miscellaneous](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#miscellaneous)
 
 use super::helper::{Dimention, FrictionDimention};
 

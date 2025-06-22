@@ -1,4 +1,4 @@
-//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#parse-and-compile>
+//! # [Parse and compile](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#parse-and-compile)
 
 use crate::{MjError, MjSpec, MjModel, MjData};
 

@@ -26,15 +26,17 @@ pub mod parse_and_compile;
 pub mod ray_casting;
 pub mod sub_components;
 pub mod support;
+pub mod visualization;
 
 pub use attribute_getters::*;
 pub use components::*;
 pub use error_and_memory::*;
 pub use initialization::*;
-
+pub use interaction::*;
 pub use main_simulation::*;
 pub use miscellaneous::*;
 pub use parse_and_compile::*;
 pub use ray_casting::*;
 pub use sub_components::*;
 pub use support::*;
+pub use visualization::*;

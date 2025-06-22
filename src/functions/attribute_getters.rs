@@ -1,4 +1,4 @@
-//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#attributegetters>
+//! # [Attribute getters](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#attributegetters)
 
 /// Get string contents.
 pub fn mjs_getString(source: &crate::MjString) -> &str {
