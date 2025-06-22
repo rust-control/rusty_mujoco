@@ -1,12 +1,4 @@
-//! # Visualization
-//! 
-//! <https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#visualisation>
-//! 
-//! The names of these struct types are prefixed with mjv.
-//! 
-//! <https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#tyvisenums>
-//! 
-//! The enums below are defined in mjvisualize.h.
+//! # [Visualization]((https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#visualisation))
 
 use crate::{SegmentationId, ObjectId, ObjType, obj};
 pub use crate::bindgen::{
