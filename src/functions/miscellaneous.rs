@@ -1,5 +1,7 @@
 /* https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#miscellaneous */
 
+use super::helper::{Dimention, FrictionDimention};
+
 /// Muscle active force, prm = (range[2], force, scale, lmin, lmax, vmax, fpmax, fvmax).
 /* mjtNum mju_muscleGain(mjtNum len, mjtNum vel, const mjtNum lengthrange[2],
                       mjtNum acc0, const mjtNum prm[9]); */
@@ -46,10 +48,10 @@ pub fn mju_muscleDynamics(ctrl: f64, act: f64, prm: [f64; 3]) -> f64 {
 pub fn mju_encodePyramid<const MU_DIM: usize>(
     force: [f64; 3],
     mu: [f64; MU_DIM],
-) -> [f64; 3] {
-    #[cfg(debug_assertions)] {
-        assert!(matches!(MU_DIM, 1 | 2), "mu must have 1 or 2 dimensions");
-    }
+) -> [f64; 3]
+where
+    Dimention<MU_DIM>: FrictionDimention,
+{
     let mut pyramid = [0.0; 3];
     unsafe {
         crate::bindgen::mju_encodePyramid(
@@ -67,10 +69,10 @@ pub fn mju_encodePyramid<const MU_DIM: usize>(
 pub fn mju_decodePyramid<const MU_DIM: usize>(
     pyramid: [f64; 3],
     mu: [f64; MU_DIM],
-) -> [f64; 3] {
-    #[cfg(debug_assertions)] {
-        assert!(matches!(MU_DIM, 1 | 2), "mu must have 1 or 2 dimensions");
-    }
+) -> [f64; 3]
+where
+    Dimention<MU_DIM>: FrictionDimention,
+{
     let mut force = [0.0; 3];
     unsafe {
         crate::bindgen::mju_decodePyramid(

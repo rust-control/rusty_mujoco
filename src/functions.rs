@@ -1,5 +1,13 @@
 #![allow(non_snake_case)]
 
+mod helper {
+    pub struct Dimention<const N: usize>;
+
+    pub trait FrictionDimention {}
+    impl FrictionDimention for Dimention<1> {}
+    impl FrictionDimention for Dimention<2> {}
+}
+
 pub mod attribute_getters;
 pub mod components;
 pub mod error_and_memory;
