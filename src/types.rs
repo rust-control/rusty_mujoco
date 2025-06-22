@@ -50,6 +50,7 @@ mod plugin;
 mod spec;
 mod statistics;
 mod visual;
+mod visualization;
 
 pub use array_handle::*;
 pub use auxiliary::*;
@@ -61,3 +62,4 @@ pub use plugin::*;
 pub use spec::*;
 pub use statistics::*;
 pub use visual::*;
+pub use visualization::*;

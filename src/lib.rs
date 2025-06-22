@@ -10,4 +10,4 @@ mod error;
 pub use error::MjError;
 
 mod id;
-pub use id::{ElementId, VertexId, ObjectId, Obj, obj, ObjType};
+pub use id::{ElementId, VertexId, SegmentationId, ObjectId, Obj, obj, ObjType};

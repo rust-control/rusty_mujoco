@@ -6,9 +6,65 @@ pub struct ElementId(pub(crate) usize);
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct VertexId(pub(crate) usize);
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct SegmentationId(pub(crate) usize);
+impl SegmentationId {
+    /// convert `SegmentationId` to corresponding object type and index
+    pub fn to_object_info(&self) -> (ObjType, usize) {
+        /*
+            We know:
+
+                segid = (objtype << 16) | objid
+
+            Then, we'll restore `objtype` and `objid` from `segid`:
+
+                objtype = segid >> 16
+                objid = segid & 0xFFFF
+        */
+
+        let objtype = self.0 >> 16;
+        let objid = self.0 & 0xFFFF;
+
+        (
+            unsafe {std::mem::transmute::<_, ObjType>(objtype as u32)},
+            objid,
+        )
+    }
+
+    /// try to convert `SegmentationId` to `ObjectId<O>`
+    pub fn to_object_id<O: Obj>(&self) -> Option<ObjectId<O>> {
+        let (objtype, objid) = self.to_object_info();
+        if objtype == O::TYPE {
+            Some(unsafe {ObjectId::new_unchecked(objid)})
+        } else {
+            None
+        }
+    }
+}
+
 pub struct ObjectId<O: Obj> {
     pub(crate) index: usize,
     _type: std::marker::PhantomData<O>,
+}
+impl<O: Obj> ObjectId<O> {
+    pub(crate) fn new(index: usize) -> Self {
+        Self {
+            index,
+            _type: std::marker::PhantomData,
+        }
+    }
+
+    pub fn index(&self) -> usize {
+        self.index
+    }
+
+    /// SAFETY: This function should only be used when you are sure that the index is valid for the object type `O`.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self {
+            index,
+            _type: std::marker::PhantomData,
+        }
+    }
 }
 
 pub trait Obj: private::Sealed { const TYPE: ObjType; }
@@ -17,11 +73,12 @@ mod private { pub trait Sealed {} }
 
 macro_rules! obj_types {
     ($($name:ident as $type_name:ident ($id_bytes:literal)),* $(,)?) => {
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+        #[repr(u32)]
         pub enum ObjType {
             $(
                 #[allow(non_camel_case_types)]
-                $type_name = crate::bindgen::mjtObj::$name as isize,
+                $type_name = crate::bindgen::mjtObj::$name as _,
             )*
         }
         impl ObjType {
@@ -88,27 +145,6 @@ obj_types! {
     mjOBJ_KEY as Key(b"key"),
     mjOBJ_PLUGIN as Plugin(b"plugin"),
     mjOBJ_FRAME as Frame(b"frame"),
-}
-
-impl<O: Obj> ObjectId<O> {
-    pub(crate) fn new(index: usize) -> Self {
-        Self {
-            index,
-            _type: std::marker::PhantomData,
-        }
-    }
-
-    pub fn index(&self) -> usize {
-        self.index
-    }
-
-    /// SAFETY: This function should only be used when you are sure that the index is valid for the object type `O`.
-    pub unsafe fn new_unchecked(index: usize) -> Self {
-        Self {
-            index,
-            _type: std::marker::PhantomData,
-        }
-    }
 }
 
 impl<O: Obj> std::fmt::Debug for ObjectId<O> {
