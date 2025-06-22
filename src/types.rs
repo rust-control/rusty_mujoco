@@ -1,5 +1,5 @@
 macro_rules! wrapper {
-    ($(#[$attr:meta])* $Name:ident of $inner:path) => {
+    ($(#[$attr:meta])* $Name:ident of $inner:ty) => {
         $(#[$attr])*
         pub struct $Name($inner);
 
