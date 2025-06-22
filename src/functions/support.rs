@@ -1,6 +1,9 @@
-/* https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#support */
-
-//! These are support functions that need access to mjModel and mjData, unlike the utility functions which do not need such access. Support functions are called within the simulator but some of them can also be useful for custom computations, and are documented in more detail below.
+//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#support>
+//! 
+//! These are support functions that need access to mjModel and mjData,
+//! unlike the utility functions which do not need such access.
+//! Support functions are called within the simulator but
+//! some of them can also be useful for custom computations.
 
 use crate::{obj, MjContact, MjData, MjModel, ObjectId};
 

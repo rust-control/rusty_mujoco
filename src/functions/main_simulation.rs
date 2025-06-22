@@ -1,5 +1,5 @@
-/* https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#main-simulation */
-
+//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#main-simulation>
+//! 
 //! These are the main entry points to the simulator. Most users will only need to call `mj_step`, which computes everything and advanced the simulation state by one time step. Controls and applied forces must either be set in advance (in mjData.{ctrl, qfrc_applied, xfrc_applied}), or a control callback mjcb_control must be installed which will be called just before the controls and applied forces are needed. Alternatively, one can use `mj_step1` and `mj_step2` which break down the simulation pipeline into computations that are executed before and after the controls are needed; in this way one can set controls that depend on the results from `mj_step1`. Keep in mind though that the RK4 solver does not work with `mj_step1`/2. See Simulation pipeline for a more detailed description.
 //! 
 //! `mj_forward` performs the same computations as `mj_step` but without the integration. It is useful after loading or resetting a model (to put the entire mjData in a valid state), and also for out-of-order computations that involve sampling or finite-difference approximations.

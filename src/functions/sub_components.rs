@@ -1,5 +1,5 @@
-/* https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#sub-components */
-
+//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#sub-components>
+//! 
 //! These are sub-components of the simulation pipeline, called internally from the components above.
 
 /// Evaluate position-dependent sensors.

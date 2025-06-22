@@ -1,5 +1,5 @@
-/* https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#initialization */
-
+//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#initialization>
+//! 
 //! This section contains functions that load/initialize the model or other data structures. Their use is well illustrated in the code samples.
 
 use crate::{MjLrOpt, MjOption, MjVisual, MjModel, MjData, MjSpec};

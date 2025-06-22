@@ -1,4 +1,4 @@
-/* https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#error-and-memory */
+//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#error-and-memory>
 
 /// Main error function; does not return to caller.
 /* void mju_error(const char* msg, ...) mjPRINTFLIKE(1, 2); */

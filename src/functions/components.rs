@@ -1,6 +1,6 @@
-/* https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#components */
-
-//! These are components of the simulation pipeline, called internally from mj_step, mj_forward and mj_inverse. It is unlikely that the user will need to call them.
+//! <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#components>
+//! 
+//! These are components of the simulation pipeline, called internally from `mj_step`, `mj_forward` and `mj_inverse`. It is unlikely that the user will need to call them.
 
 /// Run position-dependent computations.
 /* void mj_fwdPosition(const mjModel* m, mjData* d); */
