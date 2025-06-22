@@ -1,6 +1,15 @@
 #![allow(non_snake_case)]
 
 mod helper {
+    pub(crate) fn array_flatslice<T, const M: usize, const N: usize>(arr: &[[T; N]; M]) -> &[T] {
+        // SAFETY: `[[T; N]; M]` has the same memory layout as `[T; {M * N}]`
+        let slice: &[T] = unsafe {std::mem::transmute(&arr[..])};
+        #[cfg(debug_assertions)] {
+            assert_eq!(slice.len(), M * N);
+        }
+        slice
+    }
+
     pub struct Dimention<const N: usize>;
 
     pub trait FrictionDimention {}

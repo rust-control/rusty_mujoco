@@ -17,6 +17,7 @@
 //! which casts a single ray, and [`mj_multiRay`](crate::mj_multiRay)
 //! which casts multiple rays from a single point.
 
+use super::helper::array_flatslice;
 use crate::{obj, ObjectId, VertexId};
 
 /// Intersect multiple rays emanating from a single point.
@@ -25,19 +26,20 @@ use crate::{obj, ObjectId, VertexId};
 /* void mj_multiRay(const mjModel* m, mjData* d, const mjtNum pnt[3], const mjtNum* vec,
                  const mjtByte* geomgroup, mjtByte flg_static, int bodyexclude,
                  int* geomid, mjtNum* dist, int nray, mjtNum cutoff); */
-pub fn mj_multiRay(
+pub fn mj_multiRay<const N_RAY: usize>(
     m: &crate::MjModel,
     d: &mut crate::MjData,
     pnt: [f64; 3],
-    vec: &[f64],
+    vec: [[f64; 3]; N_RAY],
     geomgroup: Option<&[u8]>,
     flg_static: bool,
     bodyexclude: i32,
-    nray: usize,
     cutoff: f64,
 ) -> Vec<Option<(ObjectId::<obj::Geom>, f64)>> {
-    let mut geomid = vec![-1; nray];
-    let mut dist = vec![-1.0; nray];
+    let vec: &[f64] = array_flatslice(&vec);
+
+    let mut geomid = vec![-1; N_RAY];
+    let mut dist = vec![-1.0; N_RAY];
 
     unsafe {
         crate::bindgen::mj_multiRay(
@@ -50,7 +52,7 @@ pub fn mj_multiRay(
             bodyexclude,
             geomid.as_mut_ptr(),
             dist.as_mut_ptr(),
-            nray as i32,
+            N_RAY as i32,
             cutoff,
         )
     }
@@ -240,28 +242,23 @@ pub fn mju_rayFlex(
 /* mjtNum mju_raySkin(int nface, int nvert, const int* face, const float* vert,
                    const mjtNum pnt[3], const mjtNum vec[3], int vertid[1]); */
 pub fn mju_raySkin<const N_FACE: usize, const N_VERT: usize>(
-    face_indices: [(usize, usize, usize); N_FACE],
-    vert_coordinates: [(f32, f32, f32); N_VERT],
+    face_indices: [[usize; 3]; N_FACE],
+    vert_coordinates: [[f32; 3]; N_VERT],
     pnt: [f64; 3],
     vec: [f64; 3],
 ) -> Option<(VertexId, f64)> {
-    let face_indices: Vec<i32> = face_indices
-        .into_iter()
-        .flat_map(|(a, b, c)| [a as _, b as _, c as _])
-        .collect();
-    let vert_indices: Vec<f32> = vert_coordinates
-        .into_iter()
-        .flat_map(|(x, y, z)| [x, y, z])
-        .collect();
+    let vert_coordinates: &[f32] = array_flatslice(&vert_coordinates);
+    let face_indices: &[usize] = array_flatslice(&face_indices);
+    let face_indices: Vec<i32> = face_indices.iter().map(|&i| i as i32).collect();
 
-    let mut vertid = [-1];    
+    let mut vertid = [-1];
     
     let distance = unsafe {
         crate::bindgen::mju_raySkin(
             N_FACE as i32,
             N_VERT as i32,
             face_indices.as_ptr(),
-            vert_indices.as_ptr(),
+            vert_coordinates.as_ptr(),
             pnt.as_ptr(),
             vec.as_ptr(),
             vertid.as_mut_ptr(),
