@@ -78,17 +78,18 @@ macro_rules! obj_types {
         impl mjtObj {
             /// Rusty-[`mju_type2str`](https://github.com/google-deepmind/mujoco/blob/baf84265b8627e6f868bc92ea6422e4e78dacb9c/src/engine/engine_util_misc.c#L1030)
             pub const fn to_str(&self) -> &'static str {
-                match self {
-                    $(Self::$type_name => unsafe {std::str::from_utf8_unchecked($id_bytes)},)*
+                match *self {
+                    $(Self::$name => unsafe {std::str::from_utf8_unchecked($id_bytes)},)*
+                    _ => Self::UNKNOWN.to_str(),
                 }
             }
             /// Rusty-[`mju_str2type`](https://github.com/google-deepmind/mujoco/blob/baf84265b8627e6f868bc92ea6422e4e78dacb9c/src/engine/engine_util_misc.c#L1118)
             pub const fn from_str(s: &str) -> Self {
                 match s.as_bytes() {
                     $(
-                        $id_bytes => Self::$type_name,
+                        $id_bytes => Self::$name,
                     )*
-                    _ => Self::mjOBJ_UNKNOWN,
+                    _ => Self::UNKNOWN,
                 }
             }
         }
@@ -99,46 +100,47 @@ macro_rules! obj_types {
 
                 impl super::private::Sealed for $type_name {}
                 impl super::Obj for $type_name {
-                    const TYPE: super::ObjType = super::ObjType::$type_name;
+                    const TYPE: super::mjtObj = super::mjtObj::$name;
                 }
             )*
 
             pub(crate) fn display_name<O: super::Obj>() -> &'static str {
                 match O::TYPE {
-                    $(super::ObjType::$type_name => stringify!($type_name),)*
+                    $(super::mjtObj::$name => stringify!($type_name),)*
+                    _ => "Unknown",
                 }
             }
         }
     };
 }
 obj_types! {
-    mjOBJ_UNKNOWN as Unknown(b"unknown"),
-    mjOBJ_BODY as Body(b"body"),
-    mjOBJ_XBODY as XBody(b"xbody"),
-    mjOBJ_JOINT as Joint(b"joint"),
-    mjOBJ_DOF as Dof(b"dof"),
-    mjOBJ_GEOM as Geom(b"geom"),
-    mjOBJ_SITE as Site(b"site"),
-    mjOBJ_CAMERA as Camera(b"camera"),
-    mjOBJ_LIGHT as Light(b"light"),
-    mjOBJ_FLEX as Flex(b"flex"),
-    mjOBJ_MESH as Mesh(b"mesh"),
-    mjOBJ_SKIN as Skin(b"skin"),
-    mjOBJ_HFIELD as HField(b"hfield"),
-    mjOBJ_TEXTURE as Texture(b"texture"),
-    mjOBJ_MATERIAL as Material(b"material"),
-    mjOBJ_PAIR as Pair(b"pair"),
-    mjOBJ_EXCLUDE as Exclude(b"exclude"),
-    mjOBJ_EQUALITY as Equality(b"equality"),
-    mjOBJ_TENDON as Tendon(b"tendon"),
-    mjOBJ_ACTUATOR as Actuator(b"actuator"),
-    mjOBJ_SENSOR as Sensor(b"sensor"),
-    mjOBJ_NUMERIC as Numeric(b"numeric"),
-    mjOBJ_TEXT as Text(b"text"),
-    mjOBJ_TUPLE as Tuple(b"tuple"),
-    mjOBJ_KEY as Key(b"key"),
-    mjOBJ_PLUGIN as Plugin(b"plugin"),
-    mjOBJ_FRAME as Frame(b"frame"),
+    UNKNOWN as Unknown(b"unknown"),
+    BODY as Body(b"body"),
+    XBODY as XBody(b"xbody"),
+    JOINT as Joint(b"joint"),
+    DOF as Dof(b"dof"),
+    GEOM as Geom(b"geom"),
+    SITE as Site(b"site"),
+    CAMERA as Camera(b"camera"),
+    LIGHT as Light(b"light"),
+    FLEX as Flex(b"flex"),
+    MESH as Mesh(b"mesh"),
+    SKIN as Skin(b"skin"),
+    HFIELD as HField(b"hfield"),
+    TEXTURE as Texture(b"texture"),
+    MATERIAL as Material(b"material"),
+    PAIR as Pair(b"pair"),
+    EXCLUDE as Exclude(b"exclude"),
+    EQUALITY as Equality(b"equality"),
+    TENDON as Tendon(b"tendon"),
+    ACTUATOR as Actuator(b"actuator"),
+    SENSOR as Sensor(b"sensor"),
+    NUMERIC as Numeric(b"numeric"),
+    TEXT as Text(b"text"),
+    TUPLE as Tuple(b"tuple"),
+    KEY as Key(b"key"),
+    PLUGIN as Plugin(b"plugin"),
+    FRAME as Frame(b"frame"),
 }
 
 impl<O: Obj> std::fmt::Debug for ObjectId<O> {
