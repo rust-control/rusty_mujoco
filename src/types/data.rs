@@ -1,5 +1,5 @@
 use super::*;
-use crate::bindgen::{mjNSOLVER, mjNISLAND, mjtTimer::mjNTIMER, mjtWarning::mjNWARNING};
+use crate::bindgen::{mjNSOLVER, mjNISLAND, mjNTIMER, mjNWARNING};
 
 wrapper! {
     /// This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.

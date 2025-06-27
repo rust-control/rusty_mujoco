@@ -1,5 +1,5 @@
 use super::*;
-use crate::bindgen::{mjNREF, mjNIMP, mjNFLUID, mjNEQDATA, mjNGAIN, mjNBIAS, mjNDYN};
+use crate::bindgen::{mjNREF, mjNIMP, mjNFLUID, mjNEQDATA, mjNGAIN, mjNBIAS, mjNDYN, mjNTEXROLE};
 
 wrapper! {
     /// This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.

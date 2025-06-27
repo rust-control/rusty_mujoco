@@ -72,23 +72,23 @@ pub type mjtNum = f64;
 pub type mjtByte = ::core::ffi::c_uchar;
 pub const mjNDISABLE: usize = mjtDisableBit::mjNDISABLE.0 as usize;
 impl mjtDisableBit {
-    pub const mjDSBL_CONSTRAINT: mjtDisableBit = mjtDisableBit(1);
-    pub const mjDSBL_EQUALITY: mjtDisableBit = mjtDisableBit(2);
-    pub const mjDSBL_FRICTIONLOSS: mjtDisableBit = mjtDisableBit(4);
-    pub const mjDSBL_LIMIT: mjtDisableBit = mjtDisableBit(8);
-    pub const mjDSBL_CONTACT: mjtDisableBit = mjtDisableBit(16);
-    pub const mjDSBL_PASSIVE: mjtDisableBit = mjtDisableBit(32);
-    pub const mjDSBL_GRAVITY: mjtDisableBit = mjtDisableBit(64);
-    pub const mjDSBL_CLAMPCTRL: mjtDisableBit = mjtDisableBit(128);
-    pub const mjDSBL_WARMSTART: mjtDisableBit = mjtDisableBit(256);
-    pub const mjDSBL_FILTERPARENT: mjtDisableBit = mjtDisableBit(512);
-    pub const mjDSBL_ACTUATION: mjtDisableBit = mjtDisableBit(1024);
-    pub const mjDSBL_REFSAFE: mjtDisableBit = mjtDisableBit(2048);
-    pub const mjDSBL_SENSOR: mjtDisableBit = mjtDisableBit(4096);
-    pub const mjDSBL_MIDPHASE: mjtDisableBit = mjtDisableBit(8192);
-    pub const mjDSBL_EULERDAMP: mjtDisableBit = mjtDisableBit(16384);
-    pub const mjDSBL_AUTORESET: mjtDisableBit = mjtDisableBit(32768);
-    pub const mjDSBL_NATIVECCD: mjtDisableBit = mjtDisableBit(65536);
+    pub const CONSTRAINT: mjtDisableBit = mjtDisableBit(1);
+    pub const EQUALITY: mjtDisableBit = mjtDisableBit(2);
+    pub const FRICTIONLOSS: mjtDisableBit = mjtDisableBit(4);
+    pub const LIMIT: mjtDisableBit = mjtDisableBit(8);
+    pub const CONTACT: mjtDisableBit = mjtDisableBit(16);
+    pub const PASSIVE: mjtDisableBit = mjtDisableBit(32);
+    pub const GRAVITY: mjtDisableBit = mjtDisableBit(64);
+    pub const CLAMPCTRL: mjtDisableBit = mjtDisableBit(128);
+    pub const WARMSTART: mjtDisableBit = mjtDisableBit(256);
+    pub const FILTERPARENT: mjtDisableBit = mjtDisableBit(512);
+    pub const ACTUATION: mjtDisableBit = mjtDisableBit(1024);
+    pub const REFSAFE: mjtDisableBit = mjtDisableBit(2048);
+    pub const SENSOR: mjtDisableBit = mjtDisableBit(4096);
+    pub const MIDPHASE: mjtDisableBit = mjtDisableBit(8192);
+    pub const EULERDAMP: mjtDisableBit = mjtDisableBit(16384);
+    pub const AUTORESET: mjtDisableBit = mjtDisableBit(32768);
+    pub const NATIVECCD: mjtDisableBit = mjtDisableBit(65536);
     pub(crate) const mjNDISABLE: mjtDisableBit = mjtDisableBit(17);
 }
 impl ::core::ops::BitOr<mjtDisableBit> for mjtDisableBit {
@@ -122,12 +122,12 @@ impl ::core::ops::BitAndAssign for mjtDisableBit {
 pub struct mjtDisableBit(pub(crate) ::core::ffi::c_uint);
 pub const mjNENABLE: usize = mjtEnableBit::mjNENABLE.0 as usize;
 impl mjtEnableBit {
-    pub const mjENBL_OVERRIDE: mjtEnableBit = mjtEnableBit(1);
-    pub const mjENBL_ENERGY: mjtEnableBit = mjtEnableBit(2);
-    pub const mjENBL_FWDINV: mjtEnableBit = mjtEnableBit(4);
-    pub const mjENBL_INVDISCRETE: mjtEnableBit = mjtEnableBit(8);
-    pub const mjENBL_MULTICCD: mjtEnableBit = mjtEnableBit(16);
-    pub const mjENBL_ISLAND: mjtEnableBit = mjtEnableBit(32);
+    pub const OVERRIDE: mjtEnableBit = mjtEnableBit(1);
+    pub const ENERGY: mjtEnableBit = mjtEnableBit(2);
+    pub const FWDINV: mjtEnableBit = mjtEnableBit(4);
+    pub const INVDISCRETE: mjtEnableBit = mjtEnableBit(8);
+    pub const MULTICCD: mjtEnableBit = mjtEnableBit(16);
+    pub const ISLAND: mjtEnableBit = mjtEnableBit(32);
     pub(crate) const mjNENABLE: mjtEnableBit = mjtEnableBit(6);
 }
 impl ::core::ops::BitOr<mjtEnableBit> for mjtEnableBit {
@@ -160,323 +160,323 @@ impl ::core::ops::BitAndAssign for mjtEnableBit {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtEnableBit(pub(crate) ::core::ffi::c_uint);
 impl mjtJoint {
-    pub const mjJNT_FREE: mjtJoint = mjtJoint(0);
-    pub const mjJNT_BALL: mjtJoint = mjtJoint(1);
-    pub const mjJNT_SLIDE: mjtJoint = mjtJoint(2);
-    pub const mjJNT_HINGE: mjtJoint = mjtJoint(3);
+    pub const FREE: mjtJoint = mjtJoint(0);
+    pub const BALL: mjtJoint = mjtJoint(1);
+    pub const SLIDE: mjtJoint = mjtJoint(2);
+    pub const HINGE: mjtJoint = mjtJoint(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtJoint(pub(crate) ::core::ffi::c_uint);
 pub const mjNGEOMTYPES: usize = mjtGeom::mjNGEOMTYPES.0 as usize;
 impl mjtGeom {
-    pub const mjGEOM_PLANE: mjtGeom = mjtGeom(0);
-    pub const mjGEOM_HFIELD: mjtGeom = mjtGeom(1);
-    pub const mjGEOM_SPHERE: mjtGeom = mjtGeom(2);
-    pub const mjGEOM_CAPSULE: mjtGeom = mjtGeom(3);
-    pub const mjGEOM_ELLIPSOID: mjtGeom = mjtGeom(4);
-    pub const mjGEOM_CYLINDER: mjtGeom = mjtGeom(5);
-    pub const mjGEOM_BOX: mjtGeom = mjtGeom(6);
-    pub const mjGEOM_MESH: mjtGeom = mjtGeom(7);
-    pub const mjGEOM_SDF: mjtGeom = mjtGeom(8);
-    pub const mjGEOM_ARROW: mjtGeom = mjtGeom(100);
-    pub const mjGEOM_ARROW1: mjtGeom = mjtGeom(101);
-    pub const mjGEOM_ARROW2: mjtGeom = mjtGeom(102);
-    pub const mjGEOM_LINE: mjtGeom = mjtGeom(103);
-    pub const mjGEOM_LINEBOX: mjtGeom = mjtGeom(104);
-    pub const mjGEOM_FLEX: mjtGeom = mjtGeom(105);
-    pub const mjGEOM_SKIN: mjtGeom = mjtGeom(106);
-    pub const mjGEOM_LABEL: mjtGeom = mjtGeom(107);
-    pub const mjGEOM_TRIANGLE: mjtGeom = mjtGeom(108);
-    pub const mjGEOM_NONE: mjtGeom = mjtGeom(1001);
+    pub const PLANE: mjtGeom = mjtGeom(0);
+    pub const HFIELD: mjtGeom = mjtGeom(1);
+    pub const SPHERE: mjtGeom = mjtGeom(2);
+    pub const CAPSULE: mjtGeom = mjtGeom(3);
+    pub const ELLIPSOID: mjtGeom = mjtGeom(4);
+    pub const CYLINDER: mjtGeom = mjtGeom(5);
+    pub const BOX: mjtGeom = mjtGeom(6);
+    pub const MESH: mjtGeom = mjtGeom(7);
+    pub const SDF: mjtGeom = mjtGeom(8);
+    pub const ARROW: mjtGeom = mjtGeom(100);
+    pub const ARROW1: mjtGeom = mjtGeom(101);
+    pub const ARROW2: mjtGeom = mjtGeom(102);
+    pub const LINE: mjtGeom = mjtGeom(103);
+    pub const LINEBOX: mjtGeom = mjtGeom(104);
+    pub const FLEX: mjtGeom = mjtGeom(105);
+    pub const SKIN: mjtGeom = mjtGeom(106);
+    pub const LABEL: mjtGeom = mjtGeom(107);
+    pub const TRIANGLE: mjtGeom = mjtGeom(108);
+    pub const NONE: mjtGeom = mjtGeom(1001);
     pub(crate) const mjNGEOMTYPES: mjtGeom = mjtGeom(9);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtGeom(pub(crate) ::core::ffi::c_uint);
 impl mjtCamLight {
-    pub const mjCAMLIGHT_FIXED: mjtCamLight = mjtCamLight(0);
-    pub const mjCAMLIGHT_TRACK: mjtCamLight = mjtCamLight(1);
-    pub const mjCAMLIGHT_TRACKCOM: mjtCamLight = mjtCamLight(2);
-    pub const mjCAMLIGHT_TARGETBODY: mjtCamLight = mjtCamLight(3);
-    pub const mjCAMLIGHT_TARGETBODYCOM: mjtCamLight = mjtCamLight(4);
+    pub const FIXED: mjtCamLight = mjtCamLight(0);
+    pub const TRACK: mjtCamLight = mjtCamLight(1);
+    pub const TRACKCOM: mjtCamLight = mjtCamLight(2);
+    pub const TARGETBODY: mjtCamLight = mjtCamLight(3);
+    pub const TARGETBODYCOM: mjtCamLight = mjtCamLight(4);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtCamLight(pub(crate) ::core::ffi::c_uint);
 impl mjtTexture {
-    pub const mjTEXTURE_2D: mjtTexture = mjtTexture(0);
-    pub const mjTEXTURE_CUBE: mjtTexture = mjtTexture(1);
-    pub const mjTEXTURE_SKYBOX: mjtTexture = mjtTexture(2);
+    pub const _2D: mjtTexture = mjtTexture(0);
+    pub const CUBE: mjtTexture = mjtTexture(1);
+    pub const SKYBOX: mjtTexture = mjtTexture(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtTexture(pub(crate) ::core::ffi::c_uint);
 pub const mjNTEXROLE: usize = mjtTextureRole::mjNTEXROLE.0 as usize;
 impl mjtTextureRole {
-    pub const mjTEXROLE_USER: mjtTextureRole = mjtTextureRole(0);
-    pub const mjTEXROLE_RGB: mjtTextureRole = mjtTextureRole(1);
-    pub const mjTEXROLE_OCCLUSION: mjtTextureRole = mjtTextureRole(2);
-    pub const mjTEXROLE_ROUGHNESS: mjtTextureRole = mjtTextureRole(3);
-    pub const mjTEXROLE_METALLIC: mjtTextureRole = mjtTextureRole(4);
-    pub const mjTEXROLE_NORMAL: mjtTextureRole = mjtTextureRole(5);
-    pub const mjTEXROLE_OPACITY: mjtTextureRole = mjtTextureRole(6);
-    pub const mjTEXROLE_EMISSIVE: mjtTextureRole = mjtTextureRole(7);
-    pub const mjTEXROLE_RGBA: mjtTextureRole = mjtTextureRole(8);
-    pub const mjTEXROLE_ORM: mjtTextureRole = mjtTextureRole(9);
+    pub const USER: mjtTextureRole = mjtTextureRole(0);
+    pub const RGB: mjtTextureRole = mjtTextureRole(1);
+    pub const OCCLUSION: mjtTextureRole = mjtTextureRole(2);
+    pub const ROUGHNESS: mjtTextureRole = mjtTextureRole(3);
+    pub const METALLIC: mjtTextureRole = mjtTextureRole(4);
+    pub const NORMAL: mjtTextureRole = mjtTextureRole(5);
+    pub const OPACITY: mjtTextureRole = mjtTextureRole(6);
+    pub const EMISSIVE: mjtTextureRole = mjtTextureRole(7);
+    pub const RGBA: mjtTextureRole = mjtTextureRole(8);
+    pub const ORM: mjtTextureRole = mjtTextureRole(9);
     pub(crate) const mjNTEXROLE: mjtTextureRole = mjtTextureRole(10);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtTextureRole(pub(crate) ::core::ffi::c_uint);
 impl mjtIntegrator {
-    pub const mjINT_EULER: mjtIntegrator = mjtIntegrator(0);
-    pub const mjINT_RK4: mjtIntegrator = mjtIntegrator(1);
-    pub const mjINT_IMPLICIT: mjtIntegrator = mjtIntegrator(2);
-    pub const mjINT_IMPLICITFAST: mjtIntegrator = mjtIntegrator(3);
+    pub const EULER: mjtIntegrator = mjtIntegrator(0);
+    pub const RK4: mjtIntegrator = mjtIntegrator(1);
+    pub const IMPLICIT: mjtIntegrator = mjtIntegrator(2);
+    pub const IMPLICITFAST: mjtIntegrator = mjtIntegrator(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtIntegrator(pub(crate) ::core::ffi::c_uint);
 impl mjtCone {
-    pub const mjCONE_PYRAMIDAL: mjtCone = mjtCone(0);
-    pub const mjCONE_ELLIPTIC: mjtCone = mjtCone(1);
+    pub const PYRAMIDAL: mjtCone = mjtCone(0);
+    pub const ELLIPTIC: mjtCone = mjtCone(1);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtCone(pub(crate) ::core::ffi::c_uint);
 impl mjtJacobian {
-    pub const mjJAC_DENSE: mjtJacobian = mjtJacobian(0);
-    pub const mjJAC_SPARSE: mjtJacobian = mjtJacobian(1);
-    pub const mjJAC_AUTO: mjtJacobian = mjtJacobian(2);
+    pub const DENSE: mjtJacobian = mjtJacobian(0);
+    pub const SPARSE: mjtJacobian = mjtJacobian(1);
+    pub const AUTO: mjtJacobian = mjtJacobian(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtJacobian(pub(crate) ::core::ffi::c_uint);
 impl mjtSolver {
-    pub const mjSOL_PGS: mjtSolver = mjtSolver(0);
-    pub const mjSOL_CG: mjtSolver = mjtSolver(1);
-    pub const mjSOL_NEWTON: mjtSolver = mjtSolver(2);
+    pub const PGS: mjtSolver = mjtSolver(0);
+    pub const CG: mjtSolver = mjtSolver(1);
+    pub const NEWTON: mjtSolver = mjtSolver(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtSolver(pub(crate) ::core::ffi::c_uint);
 impl mjtEq {
-    pub const mjEQ_CONNECT: mjtEq = mjtEq(0);
-    pub const mjEQ_WELD: mjtEq = mjtEq(1);
-    pub const mjEQ_JOINT: mjtEq = mjtEq(2);
-    pub const mjEQ_TENDON: mjtEq = mjtEq(3);
-    pub const mjEQ_FLEX: mjtEq = mjtEq(4);
-    pub const mjEQ_DISTANCE: mjtEq = mjtEq(5);
+    pub const CONNECT: mjtEq = mjtEq(0);
+    pub const WELD: mjtEq = mjtEq(1);
+    pub const JOINT: mjtEq = mjtEq(2);
+    pub const TENDON: mjtEq = mjtEq(3);
+    pub const FLEX: mjtEq = mjtEq(4);
+    pub const DISTANCE: mjtEq = mjtEq(5);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtEq(pub(crate) ::core::ffi::c_uint);
 impl mjtWrap {
-    pub const mjWRAP_NONE: mjtWrap = mjtWrap(0);
-    pub const mjWRAP_JOINT: mjtWrap = mjtWrap(1);
-    pub const mjWRAP_PULLEY: mjtWrap = mjtWrap(2);
-    pub const mjWRAP_SITE: mjtWrap = mjtWrap(3);
-    pub const mjWRAP_SPHERE: mjtWrap = mjtWrap(4);
-    pub const mjWRAP_CYLINDER: mjtWrap = mjtWrap(5);
+    pub const NONE: mjtWrap = mjtWrap(0);
+    pub const JOINT: mjtWrap = mjtWrap(1);
+    pub const PULLEY: mjtWrap = mjtWrap(2);
+    pub const SITE: mjtWrap = mjtWrap(3);
+    pub const SPHERE: mjtWrap = mjtWrap(4);
+    pub const CYLINDER: mjtWrap = mjtWrap(5);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtWrap(pub(crate) ::core::ffi::c_uint);
 impl mjtTrn {
-    pub const mjTRN_JOINT: mjtTrn = mjtTrn(0);
-    pub const mjTRN_JOINTINPARENT: mjtTrn = mjtTrn(1);
-    pub const mjTRN_SLIDERCRANK: mjtTrn = mjtTrn(2);
-    pub const mjTRN_TENDON: mjtTrn = mjtTrn(3);
-    pub const mjTRN_SITE: mjtTrn = mjtTrn(4);
-    pub const mjTRN_BODY: mjtTrn = mjtTrn(5);
-    pub const mjTRN_UNDEFINED: mjtTrn = mjtTrn(1000);
+    pub const JOINT: mjtTrn = mjtTrn(0);
+    pub const JOINTINPARENT: mjtTrn = mjtTrn(1);
+    pub const SLIDERCRANK: mjtTrn = mjtTrn(2);
+    pub const TENDON: mjtTrn = mjtTrn(3);
+    pub const SITE: mjtTrn = mjtTrn(4);
+    pub const BODY: mjtTrn = mjtTrn(5);
+    pub const UNDEFINED: mjtTrn = mjtTrn(1000);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtTrn(pub(crate) ::core::ffi::c_uint);
 impl mjtDyn {
-    pub const mjDYN_NONE: mjtDyn = mjtDyn(0);
-    pub const mjDYN_INTEGRATOR: mjtDyn = mjtDyn(1);
-    pub const mjDYN_FILTER: mjtDyn = mjtDyn(2);
-    pub const mjDYN_FILTEREXACT: mjtDyn = mjtDyn(3);
-    pub const mjDYN_MUSCLE: mjtDyn = mjtDyn(4);
-    pub const mjDYN_USER: mjtDyn = mjtDyn(5);
+    pub const NONE: mjtDyn = mjtDyn(0);
+    pub const INTEGRATOR: mjtDyn = mjtDyn(1);
+    pub const FILTER: mjtDyn = mjtDyn(2);
+    pub const FILTEREXACT: mjtDyn = mjtDyn(3);
+    pub const MUSCLE: mjtDyn = mjtDyn(4);
+    pub const USER: mjtDyn = mjtDyn(5);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtDyn(pub(crate) ::core::ffi::c_uint);
 impl mjtGain {
-    pub const mjGAIN_FIXED: mjtGain = mjtGain(0);
-    pub const mjGAIN_AFFINE: mjtGain = mjtGain(1);
-    pub const mjGAIN_MUSCLE: mjtGain = mjtGain(2);
-    pub const mjGAIN_USER: mjtGain = mjtGain(3);
+    pub const FIXED: mjtGain = mjtGain(0);
+    pub const AFFINE: mjtGain = mjtGain(1);
+    pub const MUSCLE: mjtGain = mjtGain(2);
+    pub const USER: mjtGain = mjtGain(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtGain(pub(crate) ::core::ffi::c_uint);
 impl mjtBias {
-    pub const mjBIAS_NONE: mjtBias = mjtBias(0);
-    pub const mjBIAS_AFFINE: mjtBias = mjtBias(1);
-    pub const mjBIAS_MUSCLE: mjtBias = mjtBias(2);
-    pub const mjBIAS_USER: mjtBias = mjtBias(3);
+    pub const NONE: mjtBias = mjtBias(0);
+    pub const AFFINE: mjtBias = mjtBias(1);
+    pub const MUSCLE: mjtBias = mjtBias(2);
+    pub const USER: mjtBias = mjtBias(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtBias(pub(crate) ::core::ffi::c_uint);
 pub const mjNOBJECT: usize = mjtObj::mjNOBJECT.0 as usize;
 impl mjtObj {
-    pub const mjOBJ_UNKNOWN: mjtObj = mjtObj(0);
-    pub const mjOBJ_BODY: mjtObj = mjtObj(1);
-    pub const mjOBJ_XBODY: mjtObj = mjtObj(2);
-    pub const mjOBJ_JOINT: mjtObj = mjtObj(3);
-    pub const mjOBJ_DOF: mjtObj = mjtObj(4);
-    pub const mjOBJ_GEOM: mjtObj = mjtObj(5);
-    pub const mjOBJ_SITE: mjtObj = mjtObj(6);
-    pub const mjOBJ_CAMERA: mjtObj = mjtObj(7);
-    pub const mjOBJ_LIGHT: mjtObj = mjtObj(8);
-    pub const mjOBJ_FLEX: mjtObj = mjtObj(9);
-    pub const mjOBJ_MESH: mjtObj = mjtObj(10);
-    pub const mjOBJ_SKIN: mjtObj = mjtObj(11);
-    pub const mjOBJ_HFIELD: mjtObj = mjtObj(12);
-    pub const mjOBJ_TEXTURE: mjtObj = mjtObj(13);
-    pub const mjOBJ_MATERIAL: mjtObj = mjtObj(14);
-    pub const mjOBJ_PAIR: mjtObj = mjtObj(15);
-    pub const mjOBJ_EXCLUDE: mjtObj = mjtObj(16);
-    pub const mjOBJ_EQUALITY: mjtObj = mjtObj(17);
-    pub const mjOBJ_TENDON: mjtObj = mjtObj(18);
-    pub const mjOBJ_ACTUATOR: mjtObj = mjtObj(19);
-    pub const mjOBJ_SENSOR: mjtObj = mjtObj(20);
-    pub const mjOBJ_NUMERIC: mjtObj = mjtObj(21);
-    pub const mjOBJ_TEXT: mjtObj = mjtObj(22);
-    pub const mjOBJ_TUPLE: mjtObj = mjtObj(23);
-    pub const mjOBJ_KEY: mjtObj = mjtObj(24);
-    pub const mjOBJ_PLUGIN: mjtObj = mjtObj(25);
-    pub const mjOBJ_FRAME: mjtObj = mjtObj(100);
-    pub const mjOBJ_DEFAULT: mjtObj = mjtObj(101);
-    pub const mjOBJ_MODEL: mjtObj = mjtObj(102);
+    pub const UNKNOWN: mjtObj = mjtObj(0);
+    pub const BODY: mjtObj = mjtObj(1);
+    pub const XBODY: mjtObj = mjtObj(2);
+    pub const JOINT: mjtObj = mjtObj(3);
+    pub const DOF: mjtObj = mjtObj(4);
+    pub const GEOM: mjtObj = mjtObj(5);
+    pub const SITE: mjtObj = mjtObj(6);
+    pub const CAMERA: mjtObj = mjtObj(7);
+    pub const LIGHT: mjtObj = mjtObj(8);
+    pub const FLEX: mjtObj = mjtObj(9);
+    pub const MESH: mjtObj = mjtObj(10);
+    pub const SKIN: mjtObj = mjtObj(11);
+    pub const HFIELD: mjtObj = mjtObj(12);
+    pub const TEXTURE: mjtObj = mjtObj(13);
+    pub const MATERIAL: mjtObj = mjtObj(14);
+    pub const PAIR: mjtObj = mjtObj(15);
+    pub const EXCLUDE: mjtObj = mjtObj(16);
+    pub const EQUALITY: mjtObj = mjtObj(17);
+    pub const TENDON: mjtObj = mjtObj(18);
+    pub const ACTUATOR: mjtObj = mjtObj(19);
+    pub const SENSOR: mjtObj = mjtObj(20);
+    pub const NUMERIC: mjtObj = mjtObj(21);
+    pub const TEXT: mjtObj = mjtObj(22);
+    pub const TUPLE: mjtObj = mjtObj(23);
+    pub const KEY: mjtObj = mjtObj(24);
+    pub const PLUGIN: mjtObj = mjtObj(25);
+    pub const FRAME: mjtObj = mjtObj(100);
+    pub const DEFAULT: mjtObj = mjtObj(101);
+    pub const MODEL: mjtObj = mjtObj(102);
     pub(crate) const mjNOBJECT: mjtObj = mjtObj(26);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtObj(pub(crate) ::core::ffi::c_uint);
 impl mjtConstraint {
-    pub const mjCNSTR_EQUALITY: mjtConstraint = mjtConstraint(0);
-    pub const mjCNSTR_FRICTION_DOF: mjtConstraint = mjtConstraint(1);
-    pub const mjCNSTR_FRICTION_TENDON: mjtConstraint = mjtConstraint(2);
-    pub const mjCNSTR_LIMIT_JOINT: mjtConstraint = mjtConstraint(3);
-    pub const mjCNSTR_LIMIT_TENDON: mjtConstraint = mjtConstraint(4);
-    pub const mjCNSTR_CONTACT_FRICTIONLESS: mjtConstraint = mjtConstraint(5);
-    pub const mjCNSTR_CONTACT_PYRAMIDAL: mjtConstraint = mjtConstraint(6);
-    pub const mjCNSTR_CONTACT_ELLIPTIC: mjtConstraint = mjtConstraint(7);
+    pub const EQUALITY: mjtConstraint = mjtConstraint(0);
+    pub const FRICTION_DOF: mjtConstraint = mjtConstraint(1);
+    pub const FRICTION_TENDON: mjtConstraint = mjtConstraint(2);
+    pub const LIMIT_JOINT: mjtConstraint = mjtConstraint(3);
+    pub const LIMIT_TENDON: mjtConstraint = mjtConstraint(4);
+    pub const CONTACT_FRICTIONLESS: mjtConstraint = mjtConstraint(5);
+    pub const CONTACT_PYRAMIDAL: mjtConstraint = mjtConstraint(6);
+    pub const CONTACT_ELLIPTIC: mjtConstraint = mjtConstraint(7);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtConstraint(pub(crate) ::core::ffi::c_uint);
 impl mjtConstraintState {
-    pub const mjCNSTRSTATE_SATISFIED: mjtConstraintState = mjtConstraintState(0);
-    pub const mjCNSTRSTATE_QUADRATIC: mjtConstraintState = mjtConstraintState(1);
-    pub const mjCNSTRSTATE_LINEARNEG: mjtConstraintState = mjtConstraintState(2);
-    pub const mjCNSTRSTATE_LINEARPOS: mjtConstraintState = mjtConstraintState(3);
-    pub const mjCNSTRSTATE_CONE: mjtConstraintState = mjtConstraintState(4);
+    pub const SATISFIED: mjtConstraintState = mjtConstraintState(0);
+    pub const QUADRATIC: mjtConstraintState = mjtConstraintState(1);
+    pub const LINEARNEG: mjtConstraintState = mjtConstraintState(2);
+    pub const LINEARPOS: mjtConstraintState = mjtConstraintState(3);
+    pub const CONE: mjtConstraintState = mjtConstraintState(4);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtConstraintState(pub(crate) ::core::ffi::c_uint);
 impl mjtSensor {
-    pub const mjSENS_TOUCH: mjtSensor = mjtSensor(0);
-    pub const mjSENS_ACCELEROMETER: mjtSensor = mjtSensor(1);
-    pub const mjSENS_VELOCIMETER: mjtSensor = mjtSensor(2);
-    pub const mjSENS_GYRO: mjtSensor = mjtSensor(3);
-    pub const mjSENS_FORCE: mjtSensor = mjtSensor(4);
-    pub const mjSENS_TORQUE: mjtSensor = mjtSensor(5);
-    pub const mjSENS_MAGNETOMETER: mjtSensor = mjtSensor(6);
-    pub const mjSENS_RANGEFINDER: mjtSensor = mjtSensor(7);
-    pub const mjSENS_CAMPROJECTION: mjtSensor = mjtSensor(8);
-    pub const mjSENS_JOINTPOS: mjtSensor = mjtSensor(9);
-    pub const mjSENS_JOINTVEL: mjtSensor = mjtSensor(10);
-    pub const mjSENS_TENDONPOS: mjtSensor = mjtSensor(11);
-    pub const mjSENS_TENDONVEL: mjtSensor = mjtSensor(12);
-    pub const mjSENS_ACTUATORPOS: mjtSensor = mjtSensor(13);
-    pub const mjSENS_ACTUATORVEL: mjtSensor = mjtSensor(14);
-    pub const mjSENS_ACTUATORFRC: mjtSensor = mjtSensor(15);
-    pub const mjSENS_JOINTACTFRC: mjtSensor = mjtSensor(16);
-    pub const mjSENS_TENDONACTFRC: mjtSensor = mjtSensor(17);
-    pub const mjSENS_BALLQUAT: mjtSensor = mjtSensor(18);
-    pub const mjSENS_BALLANGVEL: mjtSensor = mjtSensor(19);
-    pub const mjSENS_JOINTLIMITPOS: mjtSensor = mjtSensor(20);
-    pub const mjSENS_JOINTLIMITVEL: mjtSensor = mjtSensor(21);
-    pub const mjSENS_JOINTLIMITFRC: mjtSensor = mjtSensor(22);
-    pub const mjSENS_TENDONLIMITPOS: mjtSensor = mjtSensor(23);
-    pub const mjSENS_TENDONLIMITVEL: mjtSensor = mjtSensor(24);
-    pub const mjSENS_TENDONLIMITFRC: mjtSensor = mjtSensor(25);
-    pub const mjSENS_FRAMEPOS: mjtSensor = mjtSensor(26);
-    pub const mjSENS_FRAMEQUAT: mjtSensor = mjtSensor(27);
-    pub const mjSENS_FRAMEXAXIS: mjtSensor = mjtSensor(28);
-    pub const mjSENS_FRAMEYAXIS: mjtSensor = mjtSensor(29);
-    pub const mjSENS_FRAMEZAXIS: mjtSensor = mjtSensor(30);
-    pub const mjSENS_FRAMELINVEL: mjtSensor = mjtSensor(31);
-    pub const mjSENS_FRAMEANGVEL: mjtSensor = mjtSensor(32);
-    pub const mjSENS_FRAMELINACC: mjtSensor = mjtSensor(33);
-    pub const mjSENS_FRAMEANGACC: mjtSensor = mjtSensor(34);
-    pub const mjSENS_SUBTREECOM: mjtSensor = mjtSensor(35);
-    pub const mjSENS_SUBTREELINVEL: mjtSensor = mjtSensor(36);
-    pub const mjSENS_SUBTREEANGMOM: mjtSensor = mjtSensor(37);
-    pub const mjSENS_GEOMDIST: mjtSensor = mjtSensor(38);
-    pub const mjSENS_GEOMNORMAL: mjtSensor = mjtSensor(39);
-    pub const mjSENS_GEOMFROMTO: mjtSensor = mjtSensor(40);
-    pub const mjSENS_E_POTENTIAL: mjtSensor = mjtSensor(41);
-    pub const mjSENS_E_KINETIC: mjtSensor = mjtSensor(42);
-    pub const mjSENS_CLOCK: mjtSensor = mjtSensor(43);
-    pub const mjSENS_PLUGIN: mjtSensor = mjtSensor(44);
-    pub const mjSENS_USER: mjtSensor = mjtSensor(45);
+    pub const TOUCH: mjtSensor = mjtSensor(0);
+    pub const ACCELEROMETER: mjtSensor = mjtSensor(1);
+    pub const VELOCIMETER: mjtSensor = mjtSensor(2);
+    pub const GYRO: mjtSensor = mjtSensor(3);
+    pub const FORCE: mjtSensor = mjtSensor(4);
+    pub const TORQUE: mjtSensor = mjtSensor(5);
+    pub const MAGNETOMETER: mjtSensor = mjtSensor(6);
+    pub const RANGEFINDER: mjtSensor = mjtSensor(7);
+    pub const CAMPROJECTION: mjtSensor = mjtSensor(8);
+    pub const JOINTPOS: mjtSensor = mjtSensor(9);
+    pub const JOINTVEL: mjtSensor = mjtSensor(10);
+    pub const TENDONPOS: mjtSensor = mjtSensor(11);
+    pub const TENDONVEL: mjtSensor = mjtSensor(12);
+    pub const ACTUATORPOS: mjtSensor = mjtSensor(13);
+    pub const ACTUATORVEL: mjtSensor = mjtSensor(14);
+    pub const ACTUATORFRC: mjtSensor = mjtSensor(15);
+    pub const JOINTACTFRC: mjtSensor = mjtSensor(16);
+    pub const TENDONACTFRC: mjtSensor = mjtSensor(17);
+    pub const BALLQUAT: mjtSensor = mjtSensor(18);
+    pub const BALLANGVEL: mjtSensor = mjtSensor(19);
+    pub const JOINTLIMITPOS: mjtSensor = mjtSensor(20);
+    pub const JOINTLIMITVEL: mjtSensor = mjtSensor(21);
+    pub const JOINTLIMITFRC: mjtSensor = mjtSensor(22);
+    pub const TENDONLIMITPOS: mjtSensor = mjtSensor(23);
+    pub const TENDONLIMITVEL: mjtSensor = mjtSensor(24);
+    pub const TENDONLIMITFRC: mjtSensor = mjtSensor(25);
+    pub const FRAMEPOS: mjtSensor = mjtSensor(26);
+    pub const FRAMEQUAT: mjtSensor = mjtSensor(27);
+    pub const FRAMEXAXIS: mjtSensor = mjtSensor(28);
+    pub const FRAMEYAXIS: mjtSensor = mjtSensor(29);
+    pub const FRAMEZAXIS: mjtSensor = mjtSensor(30);
+    pub const FRAMELINVEL: mjtSensor = mjtSensor(31);
+    pub const FRAMEANGVEL: mjtSensor = mjtSensor(32);
+    pub const FRAMELINACC: mjtSensor = mjtSensor(33);
+    pub const FRAMEANGACC: mjtSensor = mjtSensor(34);
+    pub const SUBTREECOM: mjtSensor = mjtSensor(35);
+    pub const SUBTREELINVEL: mjtSensor = mjtSensor(36);
+    pub const SUBTREEANGMOM: mjtSensor = mjtSensor(37);
+    pub const GEOMDIST: mjtSensor = mjtSensor(38);
+    pub const GEOMNORMAL: mjtSensor = mjtSensor(39);
+    pub const GEOMFROMTO: mjtSensor = mjtSensor(40);
+    pub const E_POTENTIAL: mjtSensor = mjtSensor(41);
+    pub const E_KINETIC: mjtSensor = mjtSensor(42);
+    pub const CLOCK: mjtSensor = mjtSensor(43);
+    pub const PLUGIN: mjtSensor = mjtSensor(44);
+    pub const USER: mjtSensor = mjtSensor(45);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtSensor(pub(crate) ::core::ffi::c_uint);
 impl mjtStage {
-    pub const mjSTAGE_NONE: mjtStage = mjtStage(0);
-    pub const mjSTAGE_POS: mjtStage = mjtStage(1);
-    pub const mjSTAGE_VEL: mjtStage = mjtStage(2);
-    pub const mjSTAGE_ACC: mjtStage = mjtStage(3);
+    pub const NONE: mjtStage = mjtStage(0);
+    pub const POS: mjtStage = mjtStage(1);
+    pub const VEL: mjtStage = mjtStage(2);
+    pub const ACC: mjtStage = mjtStage(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtStage(pub(crate) ::core::ffi::c_uint);
 impl mjtDataType {
-    pub const mjDATATYPE_REAL: mjtDataType = mjtDataType(0);
-    pub const mjDATATYPE_POSITIVE: mjtDataType = mjtDataType(1);
-    pub const mjDATATYPE_AXIS: mjtDataType = mjtDataType(2);
-    pub const mjDATATYPE_QUATERNION: mjtDataType = mjtDataType(3);
+    pub const REAL: mjtDataType = mjtDataType(0);
+    pub const POSITIVE: mjtDataType = mjtDataType(1);
+    pub const AXIS: mjtDataType = mjtDataType(2);
+    pub const QUATERNION: mjtDataType = mjtDataType(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtDataType(pub(crate) ::core::ffi::c_uint);
 impl mjtSameFrame {
-    pub const mjSAMEFRAME_NONE: mjtSameFrame = mjtSameFrame(0);
-    pub const mjSAMEFRAME_BODY: mjtSameFrame = mjtSameFrame(1);
-    pub const mjSAMEFRAME_INERTIA: mjtSameFrame = mjtSameFrame(2);
-    pub const mjSAMEFRAME_BODYROT: mjtSameFrame = mjtSameFrame(3);
-    pub const mjSAMEFRAME_INERTIAROT: mjtSameFrame = mjtSameFrame(4);
+    pub const NONE: mjtSameFrame = mjtSameFrame(0);
+    pub const BODY: mjtSameFrame = mjtSameFrame(1);
+    pub const INERTIA: mjtSameFrame = mjtSameFrame(2);
+    pub const BODYROT: mjtSameFrame = mjtSameFrame(3);
+    pub const INERTIAROT: mjtSameFrame = mjtSameFrame(4);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtSameFrame(pub(crate) ::core::ffi::c_uint);
 impl mjtLRMode {
-    pub const mjLRMODE_NONE: mjtLRMode = mjtLRMode(0);
-    pub const mjLRMODE_MUSCLE: mjtLRMode = mjtLRMode(1);
-    pub const mjLRMODE_MUSCLEUSER: mjtLRMode = mjtLRMode(2);
-    pub const mjLRMODE_ALL: mjtLRMode = mjtLRMode(3);
+    pub const NONE: mjtLRMode = mjtLRMode(0);
+    pub const MUSCLE: mjtLRMode = mjtLRMode(1);
+    pub const MUSCLEUSER: mjtLRMode = mjtLRMode(2);
+    pub const ALL: mjtLRMode = mjtLRMode(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtLRMode(pub(crate) ::core::ffi::c_uint);
 impl mjtFlexSelf {
-    pub const mjFLEXSELF_NONE: mjtFlexSelf = mjtFlexSelf(0);
-    pub const mjFLEXSELF_NARROW: mjtFlexSelf = mjtFlexSelf(1);
-    pub const mjFLEXSELF_BVH: mjtFlexSelf = mjtFlexSelf(2);
-    pub const mjFLEXSELF_SAP: mjtFlexSelf = mjtFlexSelf(3);
-    pub const mjFLEXSELF_AUTO: mjtFlexSelf = mjtFlexSelf(4);
+    pub const NONE: mjtFlexSelf = mjtFlexSelf(0);
+    pub const NARROW: mjtFlexSelf = mjtFlexSelf(1);
+    pub const BVH: mjtFlexSelf = mjtFlexSelf(2);
+    pub const SAP: mjtFlexSelf = mjtFlexSelf(3);
+    pub const AUTO: mjtFlexSelf = mjtFlexSelf(4);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -2345,9 +2345,9 @@ impl Default for mjModel {
     }
 }
 impl mjtTaskStatus {
-    pub const mjTASK_NEW: mjtTaskStatus = mjtTaskStatus(0);
-    pub const mjTASK_QUEUED: mjtTaskStatus = mjtTaskStatus(1);
-    pub const mjTASK_COMPLETED: mjtTaskStatus = mjtTaskStatus(2);
+    pub const NEW: mjtTaskStatus = mjtTaskStatus(0);
+    pub const QUEUED: mjtTaskStatus = mjtTaskStatus(1);
+    pub const COMPLETED: mjtTaskStatus = mjtTaskStatus(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -2393,23 +2393,23 @@ impl Default for mjTask {
 }
 pub const mjNSTATE: usize = mjtState::mjNSTATE.0 as usize;
 impl mjtState {
-    pub const mjSTATE_TIME: mjtState = mjtState(1);
-    pub const mjSTATE_QPOS: mjtState = mjtState(2);
-    pub const mjSTATE_QVEL: mjtState = mjtState(4);
-    pub const mjSTATE_ACT: mjtState = mjtState(8);
-    pub const mjSTATE_WARMSTART: mjtState = mjtState(16);
-    pub const mjSTATE_CTRL: mjtState = mjtState(32);
-    pub const mjSTATE_QFRC_APPLIED: mjtState = mjtState(64);
-    pub const mjSTATE_XFRC_APPLIED: mjtState = mjtState(128);
-    pub const mjSTATE_EQ_ACTIVE: mjtState = mjtState(256);
-    pub const mjSTATE_MOCAP_POS: mjtState = mjtState(512);
-    pub const mjSTATE_MOCAP_QUAT: mjtState = mjtState(1024);
-    pub const mjSTATE_USERDATA: mjtState = mjtState(2048);
-    pub const mjSTATE_PLUGIN: mjtState = mjtState(4096);
-    pub const mjSTATE_PHYSICS: mjtState = mjtState(14);
-    pub const mjSTATE_FULLPHYSICS: mjtState = mjtState(4111);
-    pub const mjSTATE_USER: mjtState = mjtState(4064);
-    pub const mjSTATE_INTEGRATION: mjtState = mjtState(8191);
+    pub const TIME: mjtState = mjtState(1);
+    pub const QPOS: mjtState = mjtState(2);
+    pub const QVEL: mjtState = mjtState(4);
+    pub const ACT: mjtState = mjtState(8);
+    pub const WARMSTART: mjtState = mjtState(16);
+    pub const CTRL: mjtState = mjtState(32);
+    pub const QFRC_APPLIED: mjtState = mjtState(64);
+    pub const XFRC_APPLIED: mjtState = mjtState(128);
+    pub const EQ_ACTIVE: mjtState = mjtState(256);
+    pub const MOCAP_POS: mjtState = mjtState(512);
+    pub const MOCAP_QUAT: mjtState = mjtState(1024);
+    pub const USERDATA: mjtState = mjtState(2048);
+    pub const PLUGIN: mjtState = mjtState(4096);
+    pub const PHYSICS: mjtState = mjtState(14);
+    pub const FULLPHYSICS: mjtState = mjtState(4111);
+    pub const USER: mjtState = mjtState(4064);
+    pub const INTEGRATION: mjtState = mjtState(8191);
     pub(crate) const mjNSTATE: mjtState = mjtState(13);
 }
 #[repr(transparent)]
@@ -2417,14 +2417,14 @@ impl mjtState {
 pub struct mjtState(pub(crate) ::core::ffi::c_uint);
 pub const mjNWARNING: usize = mjtWarning::mjNWARNING.0 as usize;
 impl mjtWarning {
-    pub const mjWARN_INERTIA: mjtWarning = mjtWarning(0);
-    pub const mjWARN_CONTACTFULL: mjtWarning = mjtWarning(1);
-    pub const mjWARN_CNSTRFULL: mjtWarning = mjtWarning(2);
-    pub const mjWARN_VGEOMFULL: mjtWarning = mjtWarning(3);
-    pub const mjWARN_BADQPOS: mjtWarning = mjtWarning(4);
-    pub const mjWARN_BADQVEL: mjtWarning = mjtWarning(5);
-    pub const mjWARN_BADQACC: mjtWarning = mjtWarning(6);
-    pub const mjWARN_BADCTRL: mjtWarning = mjtWarning(7);
+    pub const INERTIA: mjtWarning = mjtWarning(0);
+    pub const CONTACTFULL: mjtWarning = mjtWarning(1);
+    pub const CNSTRFULL: mjtWarning = mjtWarning(2);
+    pub const VGEOMFULL: mjtWarning = mjtWarning(3);
+    pub const BADQPOS: mjtWarning = mjtWarning(4);
+    pub const BADQVEL: mjtWarning = mjtWarning(5);
+    pub const BADQACC: mjtWarning = mjtWarning(6);
+    pub const BADCTRL: mjtWarning = mjtWarning(7);
     pub(crate) const mjNWARNING: mjtWarning = mjtWarning(8);
 }
 #[repr(transparent)]
@@ -2432,21 +2432,21 @@ impl mjtWarning {
 pub struct mjtWarning(pub(crate) ::core::ffi::c_uint);
 pub const mjNTIMER: usize = mjtTimer::mjNTIMER.0 as usize;
 impl mjtTimer {
-    pub const mjTIMER_STEP: mjtTimer = mjtTimer(0);
-    pub const mjTIMER_FORWARD: mjtTimer = mjtTimer(1);
-    pub const mjTIMER_INVERSE: mjtTimer = mjtTimer(2);
-    pub const mjTIMER_POSITION: mjtTimer = mjtTimer(3);
-    pub const mjTIMER_VELOCITY: mjtTimer = mjtTimer(4);
-    pub const mjTIMER_ACTUATION: mjtTimer = mjtTimer(5);
-    pub const mjTIMER_CONSTRAINT: mjtTimer = mjtTimer(6);
-    pub const mjTIMER_ADVANCE: mjtTimer = mjtTimer(7);
-    pub const mjTIMER_POS_KINEMATICS: mjtTimer = mjtTimer(8);
-    pub const mjTIMER_POS_INERTIA: mjtTimer = mjtTimer(9);
-    pub const mjTIMER_POS_COLLISION: mjtTimer = mjtTimer(10);
-    pub const mjTIMER_POS_MAKE: mjtTimer = mjtTimer(11);
-    pub const mjTIMER_POS_PROJECT: mjtTimer = mjtTimer(12);
-    pub const mjTIMER_COL_BROAD: mjtTimer = mjtTimer(13);
-    pub const mjTIMER_COL_NARROW: mjtTimer = mjtTimer(14);
+    pub const STEP: mjtTimer = mjtTimer(0);
+    pub const FORWARD: mjtTimer = mjtTimer(1);
+    pub const INVERSE: mjtTimer = mjtTimer(2);
+    pub const POSITION: mjtTimer = mjtTimer(3);
+    pub const VELOCITY: mjtTimer = mjtTimer(4);
+    pub const ACTUATION: mjtTimer = mjtTimer(5);
+    pub const CONSTRAINT: mjtTimer = mjtTimer(6);
+    pub const ADVANCE: mjtTimer = mjtTimer(7);
+    pub const POS_KINEMATICS: mjtTimer = mjtTimer(8);
+    pub const POS_INERTIA: mjtTimer = mjtTimer(9);
+    pub const POS_COLLISION: mjtTimer = mjtTimer(10);
+    pub const POS_MAKE: mjtTimer = mjtTimer(11);
+    pub const POS_PROJECT: mjtTimer = mjtTimer(12);
+    pub const COL_BROAD: mjtTimer = mjtTimer(13);
+    pub const COL_NARROW: mjtTimer = mjtTimer(14);
     pub(crate) const mjNTIMER: mjtTimer = mjtTimer(15);
 }
 #[repr(transparent)]
@@ -3059,10 +3059,10 @@ pub type mjfCollision = ::core::option::Option<
     ) -> ::core::ffi::c_int,
 >;
 impl mjtCatBit {
-    pub const mjCAT_STATIC: mjtCatBit = mjtCatBit(1);
-    pub const mjCAT_DYNAMIC: mjtCatBit = mjtCatBit(2);
-    pub const mjCAT_DECOR: mjtCatBit = mjtCatBit(4);
-    pub const mjCAT_ALL: mjtCatBit = mjtCatBit(7);
+    pub const STATIC: mjtCatBit = mjtCatBit(1);
+    pub const DYNAMIC: mjtCatBit = mjtCatBit(2);
+    pub const DECOR: mjtCatBit = mjtCatBit(4);
+    pub const ALL: mjtCatBit = mjtCatBit(7);
 }
 impl ::core::ops::BitOr<mjtCatBit> for mjtCatBit {
     type Output = Self;
@@ -3094,20 +3094,20 @@ impl ::core::ops::BitAndAssign for mjtCatBit {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtCatBit(pub(crate) ::core::ffi::c_uint);
 impl mjtMouse {
-    pub const mjMOUSE_NONE: mjtMouse = mjtMouse(0);
-    pub const mjMOUSE_ROTATE_V: mjtMouse = mjtMouse(1);
-    pub const mjMOUSE_ROTATE_H: mjtMouse = mjtMouse(2);
-    pub const mjMOUSE_MOVE_V: mjtMouse = mjtMouse(3);
-    pub const mjMOUSE_MOVE_H: mjtMouse = mjtMouse(4);
-    pub const mjMOUSE_ZOOM: mjtMouse = mjtMouse(5);
-    pub const mjMOUSE_SELECT: mjtMouse = mjtMouse(6);
+    pub const NONE: mjtMouse = mjtMouse(0);
+    pub const ROTATE_V: mjtMouse = mjtMouse(1);
+    pub const ROTATE_H: mjtMouse = mjtMouse(2);
+    pub const MOVE_V: mjtMouse = mjtMouse(3);
+    pub const MOVE_H: mjtMouse = mjtMouse(4);
+    pub const ZOOM: mjtMouse = mjtMouse(5);
+    pub const SELECT: mjtMouse = mjtMouse(6);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtMouse(pub(crate) ::core::ffi::c_uint);
 impl mjtPertBit {
-    pub const mjPERT_TRANSLATE: mjtPertBit = mjtPertBit(1);
-    pub const mjPERT_ROTATE: mjtPertBit = mjtPertBit(2);
+    pub const TRANSLATE: mjtPertBit = mjtPertBit(1);
+    pub const ROTATE: mjtPertBit = mjtPertBit(2);
 }
 impl ::core::ops::BitOr<mjtPertBit> for mjtPertBit {
     type Output = Self;
@@ -3139,33 +3139,33 @@ impl ::core::ops::BitAndAssign for mjtPertBit {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtPertBit(pub(crate) ::core::ffi::c_uint);
 impl mjtCamera {
-    pub const mjCAMERA_FREE: mjtCamera = mjtCamera(0);
-    pub const mjCAMERA_TRACKING: mjtCamera = mjtCamera(1);
-    pub const mjCAMERA_FIXED: mjtCamera = mjtCamera(2);
-    pub const mjCAMERA_USER: mjtCamera = mjtCamera(3);
+    pub const FREE: mjtCamera = mjtCamera(0);
+    pub const TRACKING: mjtCamera = mjtCamera(1);
+    pub const FIXED: mjtCamera = mjtCamera(2);
+    pub const USER: mjtCamera = mjtCamera(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtCamera(pub(crate) ::core::ffi::c_uint);
 pub const mjNLABEL: usize = mjtLabel::mjNLABEL.0 as usize;
 impl mjtLabel {
-    pub const mjLABEL_NONE: mjtLabel = mjtLabel(0);
-    pub const mjLABEL_BODY: mjtLabel = mjtLabel(1);
-    pub const mjLABEL_JOINT: mjtLabel = mjtLabel(2);
-    pub const mjLABEL_GEOM: mjtLabel = mjtLabel(3);
-    pub const mjLABEL_SITE: mjtLabel = mjtLabel(4);
-    pub const mjLABEL_CAMERA: mjtLabel = mjtLabel(5);
-    pub const mjLABEL_LIGHT: mjtLabel = mjtLabel(6);
-    pub const mjLABEL_TENDON: mjtLabel = mjtLabel(7);
-    pub const mjLABEL_ACTUATOR: mjtLabel = mjtLabel(8);
-    pub const mjLABEL_CONSTRAINT: mjtLabel = mjtLabel(9);
-    pub const mjLABEL_FLEX: mjtLabel = mjtLabel(10);
-    pub const mjLABEL_SKIN: mjtLabel = mjtLabel(11);
-    pub const mjLABEL_SELECTION: mjtLabel = mjtLabel(12);
-    pub const mjLABEL_SELPNT: mjtLabel = mjtLabel(13);
-    pub const mjLABEL_CONTACTPOINT: mjtLabel = mjtLabel(14);
-    pub const mjLABEL_CONTACTFORCE: mjtLabel = mjtLabel(15);
-    pub const mjLABEL_ISLAND: mjtLabel = mjtLabel(16);
+    pub const NONE: mjtLabel = mjtLabel(0);
+    pub const BODY: mjtLabel = mjtLabel(1);
+    pub const JOINT: mjtLabel = mjtLabel(2);
+    pub const GEOM: mjtLabel = mjtLabel(3);
+    pub const SITE: mjtLabel = mjtLabel(4);
+    pub const CAMERA: mjtLabel = mjtLabel(5);
+    pub const LIGHT: mjtLabel = mjtLabel(6);
+    pub const TENDON: mjtLabel = mjtLabel(7);
+    pub const ACTUATOR: mjtLabel = mjtLabel(8);
+    pub const CONSTRAINT: mjtLabel = mjtLabel(9);
+    pub const FLEX: mjtLabel = mjtLabel(10);
+    pub const SKIN: mjtLabel = mjtLabel(11);
+    pub const SELECTION: mjtLabel = mjtLabel(12);
+    pub const SELPNT: mjtLabel = mjtLabel(13);
+    pub const CONTACTPOINT: mjtLabel = mjtLabel(14);
+    pub const CONTACTFORCE: mjtLabel = mjtLabel(15);
+    pub const ISLAND: mjtLabel = mjtLabel(16);
     pub(crate) const mjNLABEL: mjtLabel = mjtLabel(17);
 }
 #[repr(transparent)]
@@ -3173,14 +3173,14 @@ impl mjtLabel {
 pub struct mjtLabel(pub(crate) ::core::ffi::c_uint);
 pub const mjNFRAME: usize = mjtFrame::mjNFRAME.0 as usize;
 impl mjtFrame {
-    pub const mjFRAME_NONE: mjtFrame = mjtFrame(0);
-    pub const mjFRAME_BODY: mjtFrame = mjtFrame(1);
-    pub const mjFRAME_GEOM: mjtFrame = mjtFrame(2);
-    pub const mjFRAME_SITE: mjtFrame = mjtFrame(3);
-    pub const mjFRAME_CAMERA: mjtFrame = mjtFrame(4);
-    pub const mjFRAME_LIGHT: mjtFrame = mjtFrame(5);
-    pub const mjFRAME_CONTACT: mjtFrame = mjtFrame(6);
-    pub const mjFRAME_WORLD: mjtFrame = mjtFrame(7);
+    pub const NONE: mjtFrame = mjtFrame(0);
+    pub const BODY: mjtFrame = mjtFrame(1);
+    pub const GEOM: mjtFrame = mjtFrame(2);
+    pub const SITE: mjtFrame = mjtFrame(3);
+    pub const CAMERA: mjtFrame = mjtFrame(4);
+    pub const LIGHT: mjtFrame = mjtFrame(5);
+    pub const CONTACT: mjtFrame = mjtFrame(6);
+    pub const WORLD: mjtFrame = mjtFrame(7);
     pub(crate) const mjNFRAME: mjtFrame = mjtFrame(8);
 }
 #[repr(transparent)]
@@ -3188,38 +3188,38 @@ impl mjtFrame {
 pub struct mjtFrame(pub(crate) ::core::ffi::c_uint);
 pub const mjNVISFLAG: usize = mjtVisFlag::mjNVISFLAG.0 as usize;
 impl mjtVisFlag {
-    pub const mjVIS_CONVEXHULL: mjtVisFlag = mjtVisFlag(0);
-    pub const mjVIS_TEXTURE: mjtVisFlag = mjtVisFlag(1);
-    pub const mjVIS_JOINT: mjtVisFlag = mjtVisFlag(2);
-    pub const mjVIS_CAMERA: mjtVisFlag = mjtVisFlag(3);
-    pub const mjVIS_ACTUATOR: mjtVisFlag = mjtVisFlag(4);
-    pub const mjVIS_ACTIVATION: mjtVisFlag = mjtVisFlag(5);
-    pub const mjVIS_LIGHT: mjtVisFlag = mjtVisFlag(6);
-    pub const mjVIS_TENDON: mjtVisFlag = mjtVisFlag(7);
-    pub const mjVIS_RANGEFINDER: mjtVisFlag = mjtVisFlag(8);
-    pub const mjVIS_CONSTRAINT: mjtVisFlag = mjtVisFlag(9);
-    pub const mjVIS_INERTIA: mjtVisFlag = mjtVisFlag(10);
-    pub const mjVIS_SCLINERTIA: mjtVisFlag = mjtVisFlag(11);
-    pub const mjVIS_PERTFORCE: mjtVisFlag = mjtVisFlag(12);
-    pub const mjVIS_PERTOBJ: mjtVisFlag = mjtVisFlag(13);
-    pub const mjVIS_CONTACTPOINT: mjtVisFlag = mjtVisFlag(14);
-    pub const mjVIS_ISLAND: mjtVisFlag = mjtVisFlag(15);
-    pub const mjVIS_CONTACTFORCE: mjtVisFlag = mjtVisFlag(16);
-    pub const mjVIS_CONTACTSPLIT: mjtVisFlag = mjtVisFlag(17);
-    pub const mjVIS_TRANSPARENT: mjtVisFlag = mjtVisFlag(18);
-    pub const mjVIS_AUTOCONNECT: mjtVisFlag = mjtVisFlag(19);
-    pub const mjVIS_COM: mjtVisFlag = mjtVisFlag(20);
-    pub const mjVIS_SELECT: mjtVisFlag = mjtVisFlag(21);
-    pub const mjVIS_STATIC: mjtVisFlag = mjtVisFlag(22);
-    pub const mjVIS_SKIN: mjtVisFlag = mjtVisFlag(23);
-    pub const mjVIS_FLEXVERT: mjtVisFlag = mjtVisFlag(24);
-    pub const mjVIS_FLEXEDGE: mjtVisFlag = mjtVisFlag(25);
-    pub const mjVIS_FLEXFACE: mjtVisFlag = mjtVisFlag(26);
-    pub const mjVIS_FLEXSKIN: mjtVisFlag = mjtVisFlag(27);
-    pub const mjVIS_BODYBVH: mjtVisFlag = mjtVisFlag(28);
-    pub const mjVIS_FLEXBVH: mjtVisFlag = mjtVisFlag(29);
-    pub const mjVIS_MESHBVH: mjtVisFlag = mjtVisFlag(30);
-    pub const mjVIS_SDFITER: mjtVisFlag = mjtVisFlag(31);
+    pub const CONVEXHULL: mjtVisFlag = mjtVisFlag(0);
+    pub const TEXTURE: mjtVisFlag = mjtVisFlag(1);
+    pub const JOINT: mjtVisFlag = mjtVisFlag(2);
+    pub const CAMERA: mjtVisFlag = mjtVisFlag(3);
+    pub const ACTUATOR: mjtVisFlag = mjtVisFlag(4);
+    pub const ACTIVATION: mjtVisFlag = mjtVisFlag(5);
+    pub const LIGHT: mjtVisFlag = mjtVisFlag(6);
+    pub const TENDON: mjtVisFlag = mjtVisFlag(7);
+    pub const RANGEFINDER: mjtVisFlag = mjtVisFlag(8);
+    pub const CONSTRAINT: mjtVisFlag = mjtVisFlag(9);
+    pub const INERTIA: mjtVisFlag = mjtVisFlag(10);
+    pub const SCLINERTIA: mjtVisFlag = mjtVisFlag(11);
+    pub const PERTFORCE: mjtVisFlag = mjtVisFlag(12);
+    pub const PERTOBJ: mjtVisFlag = mjtVisFlag(13);
+    pub const CONTACTPOINT: mjtVisFlag = mjtVisFlag(14);
+    pub const ISLAND: mjtVisFlag = mjtVisFlag(15);
+    pub const CONTACTFORCE: mjtVisFlag = mjtVisFlag(16);
+    pub const CONTACTSPLIT: mjtVisFlag = mjtVisFlag(17);
+    pub const TRANSPARENT: mjtVisFlag = mjtVisFlag(18);
+    pub const AUTOCONNECT: mjtVisFlag = mjtVisFlag(19);
+    pub const COM: mjtVisFlag = mjtVisFlag(20);
+    pub const SELECT: mjtVisFlag = mjtVisFlag(21);
+    pub const STATIC: mjtVisFlag = mjtVisFlag(22);
+    pub const SKIN: mjtVisFlag = mjtVisFlag(23);
+    pub const FLEXVERT: mjtVisFlag = mjtVisFlag(24);
+    pub const FLEXEDGE: mjtVisFlag = mjtVisFlag(25);
+    pub const FLEXFACE: mjtVisFlag = mjtVisFlag(26);
+    pub const FLEXSKIN: mjtVisFlag = mjtVisFlag(27);
+    pub const BODYBVH: mjtVisFlag = mjtVisFlag(28);
+    pub const FLEXBVH: mjtVisFlag = mjtVisFlag(29);
+    pub const MESHBVH: mjtVisFlag = mjtVisFlag(30);
+    pub const SDFITER: mjtVisFlag = mjtVisFlag(31);
     pub(crate) const mjNVISFLAG: mjtVisFlag = mjtVisFlag(32);
 }
 #[repr(transparent)]
@@ -3227,25 +3227,25 @@ impl mjtVisFlag {
 pub struct mjtVisFlag(pub(crate) ::core::ffi::c_uint);
 pub const mjNRNDFLAG: usize = mjtRndFlag::mjNRNDFLAG.0 as usize;
 impl mjtRndFlag {
-    pub const mjRND_SHADOW: mjtRndFlag = mjtRndFlag(0);
-    pub const mjRND_WIREFRAME: mjtRndFlag = mjtRndFlag(1);
-    pub const mjRND_REFLECTION: mjtRndFlag = mjtRndFlag(2);
-    pub const mjRND_ADDITIVE: mjtRndFlag = mjtRndFlag(3);
-    pub const mjRND_SKYBOX: mjtRndFlag = mjtRndFlag(4);
-    pub const mjRND_FOG: mjtRndFlag = mjtRndFlag(5);
-    pub const mjRND_HAZE: mjtRndFlag = mjtRndFlag(6);
-    pub const mjRND_SEGMENT: mjtRndFlag = mjtRndFlag(7);
-    pub const mjRND_IDCOLOR: mjtRndFlag = mjtRndFlag(8);
-    pub const mjRND_CULL_FACE: mjtRndFlag = mjtRndFlag(9);
+    pub const SHADOW: mjtRndFlag = mjtRndFlag(0);
+    pub const WIREFRAME: mjtRndFlag = mjtRndFlag(1);
+    pub const REFLECTION: mjtRndFlag = mjtRndFlag(2);
+    pub const ADDITIVE: mjtRndFlag = mjtRndFlag(3);
+    pub const SKYBOX: mjtRndFlag = mjtRndFlag(4);
+    pub const FOG: mjtRndFlag = mjtRndFlag(5);
+    pub const HAZE: mjtRndFlag = mjtRndFlag(6);
+    pub const SEGMENT: mjtRndFlag = mjtRndFlag(7);
+    pub const IDCOLOR: mjtRndFlag = mjtRndFlag(8);
+    pub const CULL_FACE: mjtRndFlag = mjtRndFlag(9);
     pub(crate) const mjNRNDFLAG: mjtRndFlag = mjtRndFlag(10);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtRndFlag(pub(crate) ::core::ffi::c_uint);
 impl mjtStereo {
-    pub const mjSTEREO_NONE: mjtStereo = mjtStereo(0);
-    pub const mjSTEREO_QUADBUFFERED: mjtStereo = mjtStereo(1);
-    pub const mjSTEREO_SIDEBYSIDE: mjtStereo = mjtStereo(2);
+    pub const NONE: mjtStereo = mjtStereo(0);
+    pub const QUADBUFFERED: mjtStereo = mjtStereo(1);
+    pub const SIDEBYSIDE: mjtStereo = mjtStereo(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -4603,10 +4603,10 @@ impl Default for mjpResourceProvider {
     }
 }
 impl mjtPluginCapabilityBit {
-    pub const mjPLUGIN_ACTUATOR: mjtPluginCapabilityBit = mjtPluginCapabilityBit(1);
-    pub const mjPLUGIN_SENSOR: mjtPluginCapabilityBit = mjtPluginCapabilityBit(2);
-    pub const mjPLUGIN_PASSIVE: mjtPluginCapabilityBit = mjtPluginCapabilityBit(4);
-    pub const mjPLUGIN_SDF: mjtPluginCapabilityBit = mjtPluginCapabilityBit(8);
+    pub const ACTUATOR: mjtPluginCapabilityBit = mjtPluginCapabilityBit(1);
+    pub const SENSOR: mjtPluginCapabilityBit = mjtPluginCapabilityBit(2);
+    pub const PASSIVE: mjtPluginCapabilityBit = mjtPluginCapabilityBit(4);
+    pub const SDF: mjtPluginCapabilityBit = mjtPluginCapabilityBit(8);
 }
 impl ::core::ops::BitOr<mjtPluginCapabilityBit> for mjtPluginCapabilityBit {
     type Output = Self;
@@ -4786,47 +4786,47 @@ pub type mjfPluginLibraryLoadCallback = ::core::option::Option<
     ),
 >;
 impl mjtGridPos {
-    pub const mjGRID_TOPLEFT: mjtGridPos = mjtGridPos(0);
-    pub const mjGRID_TOPRIGHT: mjtGridPos = mjtGridPos(1);
-    pub const mjGRID_BOTTOMLEFT: mjtGridPos = mjtGridPos(2);
-    pub const mjGRID_BOTTOMRIGHT: mjtGridPos = mjtGridPos(3);
-    pub const mjGRID_TOP: mjtGridPos = mjtGridPos(4);
-    pub const mjGRID_BOTTOM: mjtGridPos = mjtGridPos(5);
-    pub const mjGRID_LEFT: mjtGridPos = mjtGridPos(6);
-    pub const mjGRID_RIGHT: mjtGridPos = mjtGridPos(7);
+    pub const TOPLEFT: mjtGridPos = mjtGridPos(0);
+    pub const TOPRIGHT: mjtGridPos = mjtGridPos(1);
+    pub const BOTTOMLEFT: mjtGridPos = mjtGridPos(2);
+    pub const BOTTOMRIGHT: mjtGridPos = mjtGridPos(3);
+    pub const TOP: mjtGridPos = mjtGridPos(4);
+    pub const BOTTOM: mjtGridPos = mjtGridPos(5);
+    pub const LEFT: mjtGridPos = mjtGridPos(6);
+    pub const RIGHT: mjtGridPos = mjtGridPos(7);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtGridPos(pub(crate) ::core::ffi::c_uint);
 impl mjtFramebuffer {
-    pub const mjFB_WINDOW: mjtFramebuffer = mjtFramebuffer(0);
-    pub const mjFB_OFFSCREEN: mjtFramebuffer = mjtFramebuffer(1);
+    pub const WINDOW: mjtFramebuffer = mjtFramebuffer(0);
+    pub const OFFSCREEN: mjtFramebuffer = mjtFramebuffer(1);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtFramebuffer(pub(crate) ::core::ffi::c_uint);
 impl mjtDepthMap {
-    pub const mjDEPTH_ZERONEAR: mjtDepthMap = mjtDepthMap(0);
-    pub const mjDEPTH_ZEROFAR: mjtDepthMap = mjtDepthMap(1);
+    pub const ZERONEAR: mjtDepthMap = mjtDepthMap(0);
+    pub const ZEROFAR: mjtDepthMap = mjtDepthMap(1);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtDepthMap(pub(crate) ::core::ffi::c_uint);
 impl mjtFontScale {
-    pub const mjFONTSCALE_50: mjtFontScale = mjtFontScale(50);
-    pub const mjFONTSCALE_100: mjtFontScale = mjtFontScale(100);
-    pub const mjFONTSCALE_150: mjtFontScale = mjtFontScale(150);
-    pub const mjFONTSCALE_200: mjtFontScale = mjtFontScale(200);
-    pub const mjFONTSCALE_250: mjtFontScale = mjtFontScale(250);
-    pub const mjFONTSCALE_300: mjtFontScale = mjtFontScale(300);
+    pub const X50: mjtFontScale = mjtFontScale(50);
+    pub const X100: mjtFontScale = mjtFontScale(100);
+    pub const X150: mjtFontScale = mjtFontScale(150);
+    pub const X200: mjtFontScale = mjtFontScale(200);
+    pub const X250: mjtFontScale = mjtFontScale(250);
+    pub const X300: mjtFontScale = mjtFontScale(300);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtFontScale(pub(crate) ::core::ffi::c_uint);
 impl mjtFont {
-    pub const mjFONT_NORMAL: mjtFont = mjtFont(0);
-    pub const mjFONT_SHADOW: mjtFont = mjtFont(1);
-    pub const mjFONT_BIG: mjtFont = mjtFont(2);
+    pub const NORMAL: mjtFont = mjtFont(0);
+    pub const SHADOW: mjtFont = mjtFont(1);
+    pub const BIG: mjtFont = mjtFont(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -5054,69 +5054,69 @@ pub type mjFloatVecVec = ::core::ffi::c_void;
 pub type mjDoubleVec = ::core::ffi::c_void;
 pub type mjByteVec = ::core::ffi::c_void;
 impl mjtGeomInertia {
-    pub const mjINERTIA_VOLUME: mjtGeomInertia = mjtGeomInertia(0);
-    pub const mjINERTIA_SHELL: mjtGeomInertia = mjtGeomInertia(1);
+    pub const VOLUME: mjtGeomInertia = mjtGeomInertia(0);
+    pub const SHELL: mjtGeomInertia = mjtGeomInertia(1);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtGeomInertia(pub(crate) ::core::ffi::c_uint);
 impl mjtMeshInertia {
-    pub const mjMESH_INERTIA_CONVEX: mjtMeshInertia = mjtMeshInertia(0);
-    pub const mjMESH_INERTIA_EXACT: mjtMeshInertia = mjtMeshInertia(1);
-    pub const mjMESH_INERTIA_LEGACY: mjtMeshInertia = mjtMeshInertia(2);
-    pub const mjMESH_INERTIA_SHELL: mjtMeshInertia = mjtMeshInertia(3);
+    pub const INERTIA_CONVEX: mjtMeshInertia = mjtMeshInertia(0);
+    pub const INERTIA_EXACT: mjtMeshInertia = mjtMeshInertia(1);
+    pub const INERTIA_LEGACY: mjtMeshInertia = mjtMeshInertia(2);
+    pub const INERTIA_SHELL: mjtMeshInertia = mjtMeshInertia(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtMeshInertia(pub(crate) ::core::ffi::c_uint);
 impl mjtBuiltin {
-    pub const mjBUILTIN_NONE: mjtBuiltin = mjtBuiltin(0);
-    pub const mjBUILTIN_GRADIENT: mjtBuiltin = mjtBuiltin(1);
-    pub const mjBUILTIN_CHECKER: mjtBuiltin = mjtBuiltin(2);
-    pub const mjBUILTIN_FLAT: mjtBuiltin = mjtBuiltin(3);
+    pub const NONE: mjtBuiltin = mjtBuiltin(0);
+    pub const GRADIENT: mjtBuiltin = mjtBuiltin(1);
+    pub const CHECKER: mjtBuiltin = mjtBuiltin(2);
+    pub const FLAT: mjtBuiltin = mjtBuiltin(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtBuiltin(pub(crate) ::core::ffi::c_uint);
 impl mjtMark {
-    pub const mjMARK_NONE: mjtMark = mjtMark(0);
-    pub const mjMARK_EDGE: mjtMark = mjtMark(1);
-    pub const mjMARK_CROSS: mjtMark = mjtMark(2);
-    pub const mjMARK_RANDOM: mjtMark = mjtMark(3);
+    pub const NONE: mjtMark = mjtMark(0);
+    pub const EDGE: mjtMark = mjtMark(1);
+    pub const CROSS: mjtMark = mjtMark(2);
+    pub const RANDOM: mjtMark = mjtMark(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtMark(pub(crate) ::core::ffi::c_uint);
 impl mjtLimited {
-    pub const mjLIMITED_FALSE: mjtLimited = mjtLimited(0);
-    pub const mjLIMITED_TRUE: mjtLimited = mjtLimited(1);
-    pub const mjLIMITED_AUTO: mjtLimited = mjtLimited(2);
+    pub const FALSE: mjtLimited = mjtLimited(0);
+    pub const TRUE: mjtLimited = mjtLimited(1);
+    pub const AUTO: mjtLimited = mjtLimited(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtLimited(pub(crate) ::core::ffi::c_uint);
 impl mjtAlignFree {
-    pub const mjALIGNFREE_FALSE: mjtAlignFree = mjtAlignFree(0);
-    pub const mjALIGNFREE_TRUE: mjtAlignFree = mjtAlignFree(1);
-    pub const mjALIGNFREE_AUTO: mjtAlignFree = mjtAlignFree(2);
+    pub const FALSE: mjtAlignFree = mjtAlignFree(0);
+    pub const TRUE: mjtAlignFree = mjtAlignFree(1);
+    pub const AUTO: mjtAlignFree = mjtAlignFree(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtAlignFree(pub(crate) ::core::ffi::c_uint);
 impl mjtInertiaFromGeom {
-    pub const mjINERTIAFROMGEOM_FALSE: mjtInertiaFromGeom = mjtInertiaFromGeom(0);
-    pub const mjINERTIAFROMGEOM_TRUE: mjtInertiaFromGeom = mjtInertiaFromGeom(1);
-    pub const mjINERTIAFROMGEOM_AUTO: mjtInertiaFromGeom = mjtInertiaFromGeom(2);
+    pub const FALSE: mjtInertiaFromGeom = mjtInertiaFromGeom(0);
+    pub const TRUE: mjtInertiaFromGeom = mjtInertiaFromGeom(1);
+    pub const AUTO: mjtInertiaFromGeom = mjtInertiaFromGeom(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtInertiaFromGeom(pub(crate) ::core::ffi::c_uint);
 impl mjtOrientation {
-    pub const mjORIENTATION_QUAT: mjtOrientation = mjtOrientation(0);
-    pub const mjORIENTATION_AXISANGLE: mjtOrientation = mjtOrientation(1);
-    pub const mjORIENTATION_XYAXES: mjtOrientation = mjtOrientation(2);
-    pub const mjORIENTATION_ZAXIS: mjtOrientation = mjtOrientation(3);
-    pub const mjORIENTATION_EULER: mjtOrientation = mjtOrientation(4);
+    pub const QUAT: mjtOrientation = mjtOrientation(0);
+    pub const AXISANGLE: mjtOrientation = mjtOrientation(1);
+    pub const XYAXES: mjtOrientation = mjtOrientation(2);
+    pub const ZAXIS: mjtOrientation = mjtOrientation(3);
+    pub const EULER: mjtOrientation = mjtOrientation(4);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -6665,55 +6665,55 @@ impl Default for mjsDefault {
     }
 }
 impl mjtButton {
-    pub const mjBUTTON_NONE: mjtButton = mjtButton(0);
-    pub const mjBUTTON_LEFT: mjtButton = mjtButton(1);
-    pub const mjBUTTON_RIGHT: mjtButton = mjtButton(2);
-    pub const mjBUTTON_MIDDLE: mjtButton = mjtButton(3);
+    pub const NONE: mjtButton = mjtButton(0);
+    pub const LEFT: mjtButton = mjtButton(1);
+    pub const RIGHT: mjtButton = mjtButton(2);
+    pub const MIDDLE: mjtButton = mjtButton(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtButton(pub(crate) ::core::ffi::c_uint);
 impl mjtEvent {
-    pub const mjEVENT_NONE: mjtEvent = mjtEvent(0);
-    pub const mjEVENT_MOVE: mjtEvent = mjtEvent(1);
-    pub const mjEVENT_PRESS: mjtEvent = mjtEvent(2);
-    pub const mjEVENT_RELEASE: mjtEvent = mjtEvent(3);
-    pub const mjEVENT_SCROLL: mjtEvent = mjtEvent(4);
-    pub const mjEVENT_KEY: mjtEvent = mjtEvent(5);
-    pub const mjEVENT_RESIZE: mjtEvent = mjtEvent(6);
-    pub const mjEVENT_REDRAW: mjtEvent = mjtEvent(7);
-    pub const mjEVENT_FILESDROP: mjtEvent = mjtEvent(8);
+    pub const NONE: mjtEvent = mjtEvent(0);
+    pub const MOVE: mjtEvent = mjtEvent(1);
+    pub const PRESS: mjtEvent = mjtEvent(2);
+    pub const RELEASE: mjtEvent = mjtEvent(3);
+    pub const SCROLL: mjtEvent = mjtEvent(4);
+    pub const KEY: mjtEvent = mjtEvent(5);
+    pub const RESIZE: mjtEvent = mjtEvent(6);
+    pub const REDRAW: mjtEvent = mjtEvent(7);
+    pub const FILESDROP: mjtEvent = mjtEvent(8);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtEvent(pub(crate) ::core::ffi::c_uint);
 pub const mjNITEM: usize = mjtItem::mjNITEM.0 as usize;
 impl mjtItem {
-    pub const mjITEM_END: mjtItem = mjtItem(-2);
-    pub const mjITEM_SECTION: mjtItem = mjtItem(-1);
-    pub const mjITEM_SEPARATOR: mjtItem = mjtItem(0);
-    pub const mjITEM_STATIC: mjtItem = mjtItem(1);
-    pub const mjITEM_BUTTON: mjtItem = mjtItem(2);
-    pub const mjITEM_CHECKINT: mjtItem = mjtItem(3);
-    pub const mjITEM_CHECKBYTE: mjtItem = mjtItem(4);
-    pub const mjITEM_RADIO: mjtItem = mjtItem(5);
-    pub const mjITEM_RADIOLINE: mjtItem = mjtItem(6);
-    pub const mjITEM_SELECT: mjtItem = mjtItem(7);
-    pub const mjITEM_SLIDERINT: mjtItem = mjtItem(8);
-    pub const mjITEM_SLIDERNUM: mjtItem = mjtItem(9);
-    pub const mjITEM_EDITINT: mjtItem = mjtItem(10);
-    pub const mjITEM_EDITNUM: mjtItem = mjtItem(11);
-    pub const mjITEM_EDITFLOAT: mjtItem = mjtItem(12);
-    pub const mjITEM_EDITTXT: mjtItem = mjtItem(13);
+    pub const END: mjtItem = mjtItem(-2);
+    pub const SECTION: mjtItem = mjtItem(-1);
+    pub const SEPARATOR: mjtItem = mjtItem(0);
+    pub const STATIC: mjtItem = mjtItem(1);
+    pub const BUTTON: mjtItem = mjtItem(2);
+    pub const CHECKINT: mjtItem = mjtItem(3);
+    pub const CHECKBYTE: mjtItem = mjtItem(4);
+    pub const RADIO: mjtItem = mjtItem(5);
+    pub const RADIOLINE: mjtItem = mjtItem(6);
+    pub const SELECT: mjtItem = mjtItem(7);
+    pub const SLIDERINT: mjtItem = mjtItem(8);
+    pub const SLIDERNUM: mjtItem = mjtItem(9);
+    pub const EDITINT: mjtItem = mjtItem(10);
+    pub const EDITNUM: mjtItem = mjtItem(11);
+    pub const EDITFLOAT: mjtItem = mjtItem(12);
+    pub const EDITTXT: mjtItem = mjtItem(13);
     pub(crate) const mjNITEM: mjtItem = mjtItem(14);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtItem(pub(crate) ::core::ffi::c_int);
 impl mjtSection {
-    pub const mjSECT_CLOSED: mjtSection = mjtSection(0);
-    pub const mjSECT_OPEN: mjtSection = mjtSection(1);
-    pub const mjSECT_FIXED: mjtSection = mjtSection(2);
+    pub const CLOSED: mjtSection = mjtSection(0);
+    pub const OPEN: mjtSection = mjtSection(1);
+    pub const FIXED: mjtSection = mjtSection(2);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]

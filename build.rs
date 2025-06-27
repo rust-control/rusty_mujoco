@@ -79,7 +79,8 @@ fn main() {
         
         - set `pub(crate)` visibility for newtype's inner field
         - make `mjtN*` constants `usize` instead of original type
-        - hide only `mjtN*` consts of newtype impl from user
+        - hide only `mjtN*` consts of newtype impl from user, and
+          remove `mj{NAME}_` prefix of consts of newtype impl
 
         using bindgen, so we do them manually...
     */
@@ -109,6 +110,24 @@ fn main() {
                 });
             } else if line.starts_with("    pub const mjN") {
                 new.push(line.replace("pub", "pub(crate)"));
+            } else if line.starts_with("    pub const mj") {
+                /*
+                    impl mjtObj {
+                        pub const mjOBJ_UNKNOWN: mjtObj = mjtObj(0);
+                        pub const mjOBJ_BODY: mjtObj = mjtObj(1);
+                        pub const mjOBJ_XBODY: mjtObj = mjtObj(2);
+                        ...
+                        pub const mjNOBJECT: mjtObj = mjtObj(26);
+                    }
+                */
+                let after_mj_prefix = line
+                    .split_once('_')
+                    .map_or(&*line, |(_, rest)| rest);
+                let prefix_for_number = if after_mj_prefix.chars().next().unwrap().is_ascii_digit() {
+                    // mjtTexture::2D / mjtFontScale::50~300
+                    if after_mj_prefix.starts_with("2D") {"_"} else {"X"}
+                } else {""};
+                new.push(format!("    pub const {prefix_for_number}{after_mj_prefix}"));
             } else {
                 new.push(line);
             }

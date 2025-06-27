@@ -30,7 +30,7 @@ impl MjLrOpt {
     }
     /// Set which actuators to process
     pub fn set_mode(&mut self, value: crate::bindgen::mjtLRMode) -> &mut Self {
-        self.0.mode = value as i32;
+        self.0.mode = value.0 as i32;
         self
     }
 

@@ -1,3 +1,5 @@
+pub use crate::bindgen::mjtObj;
+
 /// element id, used for flex and mesh objects
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
 pub struct ElementId(pub(crate) usize);
@@ -10,7 +12,7 @@ pub struct VertexId(pub(crate) usize);
 pub struct SegmentationId(pub(crate) usize);
 impl SegmentationId {
     /// convert `SegmentationId` to corresponding object type and index
-    pub fn to_object_info(&self) -> (ObjType, usize) {
+    pub fn to_object_info(&self) -> (mjtObj, usize) {
         /*
             We know:
 
@@ -26,7 +28,7 @@ impl SegmentationId {
         let objid = self.0 & 0xFFFF;
 
         (
-            unsafe {std::mem::transmute::<_, ObjType>(objtype as u32)},
+            mjtObj(objtype as u32),
             objid,
         )
     }
@@ -67,21 +69,13 @@ impl<O: Obj> ObjectId<O> {
     }
 }
 
-pub trait Obj: private::Sealed { const TYPE: ObjType; }
+pub trait Obj: private::Sealed { const TYPE: mjtObj; }
 
 mod private { pub trait Sealed {} }
 
 macro_rules! obj_types {
     ($($name:ident as $type_name:ident ($id_bytes:literal)),* $(,)?) => {
-        #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
-        #[repr(u32)]
-        pub enum ObjType {
-            $(
-                #[allow(non_camel_case_types)]
-                $type_name = crate::bindgen::mjtObj::$name as _,
-            )*
-        }
-        impl ObjType {
+        impl mjtObj {
             /// Rusty-[`mju_type2str`](https://github.com/google-deepmind/mujoco/blob/baf84265b8627e6f868bc92ea6422e4e78dacb9c/src/engine/engine_util_misc.c#L1030)
             pub const fn to_str(&self) -> &'static str {
                 match self {
@@ -94,7 +88,7 @@ macro_rules! obj_types {
                     $(
                         $id_bytes => Self::$type_name,
                     )*
-                    _ => Self::Unknown,
+                    _ => Self::mjOBJ_UNKNOWN,
                 }
             }
         }

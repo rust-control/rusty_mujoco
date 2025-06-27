@@ -45,20 +45,20 @@ impl_parameters! {
     o_friction / set_o_friction: [f64; 5] = "override contact solver's friction";
 }
 
+use crate::bindgen::{mjtIntegrator, mjtCone, mjtJacobian, mjtSolver, mjtDisableBit, mjtEnableBit};
 macro_rules! impl_enum_settings {
-    ($($name:ident / $set_name:ident: $T:ty = $description:literal;)*) => {
+    ($($name:ident / $set_name:ident: $T:ident = $description:literal;)*) => {
         impl MjOption {
             $(
                 #[doc = $description]
                 pub fn $name(&self) -> $T {
-                    // SAFETY: enum discriminator
-                    unsafe {std::mem::transmute(self.0.$name)}
+                    $T(self.0.$name as u32)
                 }
 
                 #[doc = "set "]
                 #[doc = $description]
                 pub fn $set_name(&mut self, value: $T) -> &mut Self {
-                    self.0.$name = value as i32;
+                    self.0.$name = value.0 as i32;
                     self
                 }
             )*
@@ -66,13 +66,13 @@ macro_rules! impl_enum_settings {
     };
 }
 impl_enum_settings! {
-    integrator / set_integrator: crate::bindgen::mjtIntegrator = "integration mode (mjtIntegrator)";
-    cone / set_cone: crate::bindgen::mjtCone = "type of friction cone (mjtCone)";
-    jacobian / set_jacobian: crate::bindgen::mjtJacobian = "type of Jacobian (mjtJacobian)";
-    solver / set_solver: crate::bindgen::mjtSolver = "solver algorithm (mjtSolver)";
-    disableflags / set_disableflags: crate::bindgen::mjtDisableBit = "bit flags for disabling standard features";
-    enableflags / set_enableflags: crate::bindgen::mjtEnableBit = "bit flags for enabling optional features";
-    disableactuator / set_disableactuator: crate::bindgen::mjtDisableBit = "bit flags for disabling actuators by group id";
+    integrator / set_integrator: mjtIntegrator = "integration mode (mjtIntegrator)";
+    cone / set_cone: mjtCone = "type of friction cone (mjtCone)";
+    jacobian / set_jacobian: mjtJacobian = "type of Jacobian (mjtJacobian)";
+    solver / set_solver: mjtSolver = "solver algorithm (mjtSolver)";
+    disableflags / set_disableflags: mjtDisableBit = "bit flags for disabling standard features";
+    enableflags / set_enableflags: mjtEnableBit = "bit flags for enabling optional features";
+    disableactuator / set_disableactuator: mjtDisableBit = "bit flags for disabling actuators by group id";
 }
 
 macro_rules! impl_int_settings {
