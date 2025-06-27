@@ -140,6 +140,11 @@ impl MjData {
     pub fn time(&self) -> f64 {
         self.0.time
     }
+    /// set simulation time
+    pub fn set_time(&mut self, time: f64) {
+        self.0.time = time;
+    }
+
     /// potential, kinetic energy
     pub fn energy(&self) -> [f64; 2] {
         self.0.energy
