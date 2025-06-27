@@ -40,10 +40,10 @@ pub fn mjv_room2model(
 
     unsafe {
         crate::bindgen::mjv_room2model(
-            modelpos.as_mut_ptr(),
-            modelquat.as_mut_ptr(),
-            roompos.as_ptr(),
-            roomquat.as_ptr(),
+            &mut modelpos,
+            &mut modelquat,
+            &roompos,
+            &roomquat,
             scn.as_ref(),
         );
     }
@@ -65,10 +65,10 @@ pub fn mjv_model2room(
 
     unsafe {
         crate::bindgen::mjv_model2room(
-            roompos.as_mut_ptr(),
-            roomquat.as_mut_ptr(),
-            modelpos.as_ptr(),
-            modelquat.as_ptr(),
+            &mut roompos,
+            &mut roomquat,
+            &modelpos,
+            &modelquat,
             scn.as_ref(),
         );
     }
@@ -87,9 +87,9 @@ pub fn mjv_cameraInModel(scn: &MjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
 
     unsafe {
         crate::bindgen::mjv_cameraInModel(
-            headpos.as_mut_ptr(),
-            forward.as_mut_ptr(),
-            up.as_mut_ptr(),
+            &mut headpos,
+            &mut forward,
+            &mut up,
             scn.as_ref(),
         );
     }
@@ -108,9 +108,9 @@ pub fn mjv_cameraInRoom(scn: &MjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
 
     unsafe {
         crate::bindgen::mjv_cameraInRoom(
-            headpos.as_mut_ptr(),
-            forward.as_mut_ptr(),
-            up.as_mut_ptr(),
+            &mut headpos,
+            &mut forward,
+            &mut up,
             scn.as_ref(),
         );
     }
@@ -130,9 +130,9 @@ pub fn mjv_alignToCamera(vec: [f64; 3], forward: [f64; 3]) -> [f64; 3] {
     let mut res = [0.0; 3];
     unsafe {
         crate::bindgen::mjv_alignToCamera(
-            res.as_mut_ptr(),
-            vec.as_ptr(),
-            forward.as_ptr(),
+            &mut res,
+            &vec,
+            &forward,
         );
     }
     res
@@ -152,7 +152,7 @@ pub fn mjv_moveCamera(
     unsafe {
         crate::bindgen::mjv_moveCamera(
             m.as_ref(),
-            action as i32,
+            action.0 as i32,
             reldx,
             reldy,
             scn.as_ref(),
@@ -177,7 +177,7 @@ pub fn mjv_movePerturb(
         crate::bindgen::mjv_movePerturb(
             m.as_ref(),
             d.as_mut(),
-            action as i32,
+            action.0 as i32,
             reldx,
             reldy,
             scn.as_ref(),
@@ -200,10 +200,10 @@ pub fn mjv_moveModel(
     unsafe {
         crate::bindgen::mjv_moveModel(
             m.as_ref(),
-            action as i32,
+            action.0 as i32,
             reldx,
             reldy,
-            roomup.as_ptr(),
+            &roomup,
             scn.as_mut(),
         );
     }
@@ -293,9 +293,9 @@ pub fn mjv_select(
     rely: f64,
     scn: &MjvScene,
 ) -> mjv_select::SelectResult {
-    let mut geomid = -1;
-    let mut flexid = -1;
-    let mut skinid = -1;
+    let mut geomid = [-1];
+    let mut flexid = [-1];
+    let mut skinid = [-1];
     let mut selpnt = [0.0; 3];
 
     unsafe {
@@ -307,7 +307,7 @@ pub fn mjv_select(
             relx,
             rely,
             scn.as_ref(),
-            selpnt.as_mut_ptr(),
+            &mut selpnt,
             &mut geomid,
             &mut flexid,
             &mut skinid,
@@ -315,10 +315,9 @@ pub fn mjv_select(
     }
 
     mjv_select::SelectResult {
-        geomid: if geomid < 0 {None} else {Some(ObjectId::new(geomid as usize))},
-        flexid: if flexid < 0 {None} else {Some(ObjectId::new(geomid as usize))},
-        skinid: if skinid < 0 {None} else {Some(ObjectId::new(geomid as usize))},
+        geomid: if geomid[0] < 0 {None} else {Some(ObjectId::new(geomid[0] as usize))},
+        flexid: if flexid[0] < 0 {None} else {Some(ObjectId::new(geomid[0] as usize))},
+        skinid: if skinid[0] < 0 {None} else {Some(ObjectId::new(geomid[0] as usize))},
         selpnt,
     }
 }
-

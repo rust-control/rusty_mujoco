@@ -45,7 +45,7 @@ pub fn mj_multiRay<const N_RAY: usize>(
         crate::bindgen::mj_multiRay(
             m.as_ref(),
             d.as_mut(),
-            pnt.as_ptr(),
+            &pnt,
             vec.as_ptr(),
             geomgroup.map_or(std::ptr::null(), |g| g.as_ptr()),
             flg_static as u8,
@@ -96,12 +96,12 @@ pub fn mj_ray(
         crate::bindgen::mj_ray(
             m.as_ref(),
             d.as_mut(),
-            pnt.as_ptr(),
-            vec.as_ptr(),
+            &pnt,
+            &vec,
             geomgroup.map_or(std::ptr::null(), |gg| gg.as_ptr()),
             flg_static as u8,
             bodyexclude.index() as i32,
-            geomid.as_mut_ptr(),
+            &mut geomid,
         )
     };
     
@@ -127,8 +127,8 @@ pub fn mj_rayHfield(
             m.as_ref(),
             d.as_mut(),
             geomid.index() as i32,
-            pnt.as_ptr(),
-            vec.as_ptr(),
+            &pnt,
+            &vec,
         )
     };
     
@@ -154,8 +154,8 @@ pub fn mj_rayMesh(
             m.as_ref(),
             d.as_mut(),
             geomid.index() as i32,
-            pnt.as_ptr(),
-            vec.as_ptr(),
+            &pnt,
+            &vec,
         )
     };
     
@@ -179,12 +179,12 @@ pub fn mju_rayGeom(
 ) -> Option<f64> {
     let distance = unsafe {
         crate::bindgen::mju_rayGeom(
-            pos.as_ptr(),
-            mat.as_ptr(),
-            size.as_ptr(),
-            pnt.as_ptr(),
-            vec.as_ptr(),
-            geomtype as i32,
+            &pos,
+            &mat,
+            &size,
+            &pnt,
+            &vec,
+            geomtype.0 as i32,
         )
     };
     
@@ -226,7 +226,7 @@ pub fn mju_rayFlex(
             flexid.index() as i32,
             pnt.as_ptr(),
             vec.as_ptr(),
-            vertid.as_mut_ptr(),
+            &mut vertid,
         )
     };
     
@@ -259,9 +259,9 @@ pub fn mju_raySkin<const N_FACE: usize, const N_VERT: usize>(
             N_VERT as i32,
             face_indices.as_ptr(),
             vert_coordinates.as_ptr(),
-            pnt.as_ptr(),
-            vec.as_ptr(),
-            vertid.as_mut_ptr(),
+            &pnt,
+            &vec,
+            &mut vertid,
         )
     };
     

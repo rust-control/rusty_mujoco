@@ -41,7 +41,7 @@ pub fn mj_warning(
     warning: crate::bindgen::mjtWarning,
     info: usize,
 ) {
-    unsafe { crate::bindgen::mj_warning(d.as_mut(), warning as i32, info as i32) }
+    unsafe { crate::bindgen::mj_warning(d.as_mut(), warning.0 as i32, info as i32) }
 }
 
 /// Write [datetime, type: message] to MUJOCO_LOG.TXT.

@@ -46,7 +46,7 @@ pub fn mj_forwardSkip(
         crate::bindgen::mj_forwardSkip(
             m.as_ref(),
             d.as_mut(),
-            skipstage as i32,
+            skipstage.0 as i32,
             skipsensor as i32,
     )}
 }
@@ -62,7 +62,7 @@ pub fn mj_inverseSkip(
         crate::bindgen::mj_inverseSkip(
             m.as_ref(),
             d.as_mut(),
-            skipstage as i32,
+            skipstage.0 as i32,
             skipsensor as i32,
         )
     }

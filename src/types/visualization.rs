@@ -1,12 +1,12 @@
 //! # [Visualization]((https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#visualisation))
 
-use crate::{SegmentationId, ObjectId, ObjType, obj};
+use crate::{SegmentationId, ObjectId, mjtObj, obj};
 pub use crate::bindgen::{
     mjNGROUP,
     mjMAXLINE,
     mjMAXLINEPNT,
-    mjtVisFlag::mjNVISFLAG,
-    mjtRndFlag::mjNRNDFLAG,
+    mjNVISFLAG,
+    mjNRNDFLAG,
 };
 
 wrapper! {
@@ -76,7 +76,7 @@ impl MjvPerturb {
     }
     /// set perturbation bitmask
     pub fn set_active(&mut self, active: crate::bindgen::mjtPertBit) {
-        self.0.active = active as i32;
+        self.0.active = active.0 as i32;
     }
 
     /// secondary perturbation bitmask
@@ -86,7 +86,7 @@ impl MjvPerturb {
     }
     /// set secondary perturbation bitmask
     pub fn set_active2(&mut self, active2: crate::bindgen::mjtPertBit) {
-        self.0.active2 = active2 as i32;
+        self.0.active2 = active2.0 as i32;
     }
 
     /// selection point in object coordinates
@@ -174,7 +174,7 @@ impl MjvCamera {
     }
     /// set camera type
     pub fn set_type(&mut self, type_: crate::bindgen::mjtCamera) {
-        self.0.type_ = type_ as i32;
+        self.0.type_ = type_.0 as i32;
     }
 
     /// fixed camera id
@@ -410,7 +410,7 @@ impl MjvGeom {
     }
     /// set geom type
     pub fn set_type(&mut self, type_: crate::bindgen::mjtGeom) {
-        self.0.type_ = type_ as i32;
+        self.0.type_ = type_.0 as i32;
     }
 
     /// mesh, hfield or plane id
@@ -426,14 +426,13 @@ impl MjvGeom {
         self.0.dataid = dataid.map_or(-1, |id| id.index() as i32);
     }
 
-    /// mujoco object type; `ObjType::Unknown` for decor
-    pub fn objtype(&self) -> ObjType {
-        // SAFETY: `mjtObj` is a bitmask, so it can be safely casted from `i32`
-        unsafe { std::mem::transmute(self.0.objtype) }
+    /// mujoco object type; `mjtObj::UNKNOWN` for decor
+    pub fn objtype(&self) -> mjtObj {
+        mjtObj(self.0.objtype as u32)
     }
-    /// set mujoco object type; `ObjType::Unknown` for decor
-    pub fn set_objtype(&mut self, objtype: ObjType) {
-        self.0.objtype = objtype as i32;
+    /// set mujoco object type; `mjtObj::UNKNOWN` for decor
+    pub fn set_objtype(&mut self, objtype: mjtObj) {
+        self.0.objtype = objtype.0 as i32;
     }
 
     /// mujoco object id
@@ -456,7 +455,7 @@ impl MjvGeom {
     }
     /// set visual category
     pub fn set_category(&mut self, category: crate::bindgen::mjtCatBit) {
-        self.0.category = category as i32;
+        self.0.category = category.0 as i32;
     }
 
     /// material id
@@ -763,14 +762,14 @@ impl std::ops::Index<crate::bindgen::mjtVisFlag> for VisualizationFlags {
     fn index(&self, index: crate::bindgen::mjtVisFlag) -> &Self::Output {
         let flags: &[u8; mjNVISFLAG as usize] = &self.0;
         let flags: &[bool; mjNVISFLAG as usize] = unsafe {std::mem::transmute(flags)};
-        &flags[index as usize]
+        &flags[index.0 as usize]
     }
 }
 impl std::ops::IndexMut<crate::bindgen::mjtVisFlag> for VisualizationFlags {
     fn index_mut(&mut self, index: crate::bindgen::mjtVisFlag) -> &mut Self::Output {
         let flags: &mut [u8; mjNVISFLAG as usize] = &mut self.0;
         let flags: &mut [bool; mjNVISFLAG as usize] = unsafe {std::mem::transmute(flags)};
-        &mut flags[index as usize]
+        &mut flags[index.0 as usize]
     }
 }
 impl MjvOption {
@@ -781,7 +780,7 @@ impl MjvOption {
     }
     /// set what objects to label
     pub fn set_label(&mut self, label: crate::bindgen::mjtLabel) {
-        self.0.label = label as i32;
+        self.0.label = label.0 as i32;
     }
 
     /// which frame to show
@@ -791,7 +790,7 @@ impl MjvOption {
     }
     /// set which frame to show
     pub fn set_frame(&mut self, frame: crate::bindgen::mjtFrame) {
-        self.0.frame = frame as i32;
+        self.0.frame = frame.0 as i32;
     }
 
     /// geom visualization by group
@@ -976,7 +975,7 @@ impl std::ops::Index<crate::bindgen::mjtRndFlag> for RenderingFlags {
     fn index(&self, index: crate::bindgen::mjtRndFlag) -> &Self::Output {
         let flags: &[u8; mjNRNDFLAG as usize] = &self.0;
         let flags: &[bool; mjNRNDFLAG as usize] = unsafe {std::mem::transmute(flags)};
-        &flags[index as usize]
+        &flags[index.0 as usize]
     }
 }
 impl MjvScene {

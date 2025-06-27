@@ -16,9 +16,9 @@ pub fn mju_muscleGain(
         crate::bindgen::mju_muscleGain(
             len,
             vel,
-            lengthrange.as_ptr(),
+            &lengthrange,
             acc0,
-            prm.as_ptr(),
+            &prm,
         )
     }
 }
@@ -33,14 +33,14 @@ pub fn mju_muscleBias(
     prm: [f64; 9],
 ) -> f64 {
     unsafe {
-        crate::bindgen::mju_muscleBias(len, lengthrange.as_ptr(), acc0, prm.as_ptr())
+        crate::bindgen::mju_muscleBias(len, &lengthrange, acc0, &prm)
     }
 }
 
 /// Muscle activation dynamics, prm = (tau_act, tau_deact, smoothing_width).
 /* mjtNum mju_muscleDynamics(mjtNum ctrl, mjtNum act, const mjtNum prm[3]); */
 pub fn mju_muscleDynamics(ctrl: f64, act: f64, prm: [f64; 3]) -> f64 {
-    unsafe { crate::bindgen::mju_muscleDynamics(ctrl, act, prm.as_ptr()) }
+    unsafe { crate::bindgen::mju_muscleDynamics(ctrl, act, &prm) }
 }
 
 /// Convert contact force to pyramid representation.
@@ -126,7 +126,7 @@ pub fn mju_writeNumBytes(nbytes: usize) -> String {
 /// Construct a warning message given the warning type and info.
 /* const char* mju_warningText(int warning, size_t info); */
 pub fn mju_warningText(warning: crate::bindgen::mjtWarning, info: usize) -> String {
-    let c_ptr = unsafe { crate::bindgen::mju_warningText(warning as i32, info) };
+    let c_ptr = unsafe { crate::bindgen::mju_warningText(warning.0 as i32, info) };
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "`mju_warningText` unexpectedly returned a null pointer");
     }

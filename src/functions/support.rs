@@ -9,7 +9,7 @@ use crate::{obj, MjContact, MjData, MjModel, ObjectId};
 
 /// Returns the number of mjtNum⁠s required for a given state specification. The bits of the integer spec correspond to element fields of mjtState.
 pub fn mj_stateSize(m: &MjModel, spec: crate::bindgen::mjtState) -> usize {
-    unsafe { crate::bindgen::mj_stateSize(m.as_ref(), spec as u32) as _ }
+    unsafe { crate::bindgen::mj_stateSize(m.as_ref(), spec.0 as u32) as _ }
 }
 
 /// Copy concatenated state components specified by spec from d into state. The bits of the integer spec correspond to element fields of mjtState. Fails with mju_error if spec is invalid.
@@ -27,7 +27,7 @@ pub fn mj_getState(
             m.as_ref(),
             d.as_ref(),
             state.as_mut_ptr(),
-            spec as u32,
+            spec.0 as u32,
         )
     }
 }
@@ -47,7 +47,7 @@ pub fn mj_setState(
             m.as_ref(),
             d.as_mut(),
             state.as_ptr(),
-            spec as u32,
+            spec.0 as u32,
         )
     }
 }
@@ -152,7 +152,7 @@ pub fn mj_jac(
             d.as_mut(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
-            point.as_ptr(),
+            &point,
             body.index as i32,
         );
     }
@@ -255,8 +255,8 @@ pub fn mj_jacPointAxis(
             d.as_mut(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
-            point.as_ptr(),
-            axis.as_ptr(),
+            &point,
+            &axis,
             body.index as i32,
         )
     };
@@ -279,7 +279,7 @@ pub fn mj_jacDot(
             d.as_mut(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
-            point.as_ptr(),
+            &point,
             body.index as i32,
         )
     };
@@ -331,7 +331,7 @@ pub fn mj_name2id<O: crate::Obj>(
 ) -> Option<ObjectId<O>> {
     let c_name = std::ffi::CString::new(name).expect("`name` contains null bytes");
     let index = unsafe {
-        crate::bindgen::mj_name2id(m.as_ref(), O::TYPE as i32, c_name.as_ptr())
+        crate::bindgen::mj_name2id(m.as_ref(), O::TYPE.0 as i32, c_name.as_ptr())
     };
     if index < 0 {None} else {Some(ObjectId::<O>::new(index as usize))}
 }
@@ -342,7 +342,7 @@ pub fn mj_id2name<O: crate::Obj>(
     id: ObjectId<O>,
 ) -> String {
     let c_name = unsafe {
-        crate::bindgen::mj_id2name(m.as_ref(), O::TYPE as i32, id.index as i32)
+        crate::bindgen::mj_id2name(m.as_ref(), O::TYPE.0 as i32, id.index as i32)
     };
     #[cfg(debug_assertions)] {
         assert!(!c_name.is_null(), "`ObjectId` is always expected to have a valid index for the corresponding object type");
@@ -474,9 +474,9 @@ pub fn mj_applyFT(
         crate::bindgen::mj_applyFT(
             m.as_ref(),
             d.as_mut(),
-            point.as_ptr(),
-            force.as_ptr(),
-            torque.as_ptr(),
+            &point,
+            &force,
+            &torque,
             body.index as i32,
             qfrc_target.as_mut_ptr(),
         );
@@ -497,9 +497,9 @@ pub fn mj_objectVelocity<O: crate::id::Obj>(
         crate::bindgen::mj_objectVelocity(
             m.as_ref(),
             d.as_ref(),
-            O::TYPE as i32,
+            O::TYPE.0 as i32,
             object.index as i32,
-            res.as_mut_ptr(),
+            &mut res,
             local as i32,
         );
     }
@@ -524,9 +524,9 @@ pub fn mj_objectAcceleration<O: crate::id::Obj>(
         crate::bindgen::mj_objectAcceleration(
             m.as_ref(),
             d.as_ref(),
-            O::TYPE as i32,
+            O::TYPE.0 as i32,
             object.index as i32,
-            res.as_mut_ptr(),
+            &mut res,
             local as i32,
         );
     }
@@ -554,7 +554,7 @@ pub fn mj_geomDistance(
             geom1.index as i32,
             geom2.index as i32,
             distmax,
-            fromto.as_mut_ptr(),
+            &mut fromto,
         )
     };
     (dist, fromto)
@@ -573,7 +573,7 @@ pub fn mj_contactForce(
             m.as_ref(),
             d.as_ref(),
             contact_id as i32,
-            result.as_mut_ptr(),
+            &mut result,
         );
     }
     result
@@ -666,12 +666,12 @@ pub fn mj_local2Global(
     unsafe {
         crate::bindgen::mj_local2Global(
             d.as_mut(),
-            xpos.as_mut_ptr(),
-            xmat.as_mut_ptr(),
-            pos.as_ptr(),
-            quat.as_ptr(),
+            xpos,
+            xmat,
+            pos,
+            quat,
             body.index as i32,
-            sameframe as u8,
+            sameframe.0 as u8,
         );
     }
 }

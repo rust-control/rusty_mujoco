@@ -259,7 +259,7 @@ pub fn mj_constraintUpdate(
     flg_cone_hessian: bool,
 ) -> f64 {
     assert_eq!(jar.len(), m.nv());
-    let mut cost = 0.0;
+    let mut cost = [0.0];
     unsafe {
         crate::bindgen::mj_constraintUpdate(
             m.as_ref(),
@@ -269,5 +269,5 @@ pub fn mj_constraintUpdate(
             flg_cone_hessian as i32,
         );
     }
-    cost
+    cost[0]
 }

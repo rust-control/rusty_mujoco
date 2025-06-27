@@ -55,11 +55,11 @@ pub fn mjv_initGeom(
     unsafe {
         crate::bindgen::mjv_initGeom(
             &mut c,
-            type_ as i32,
-            size.map_or(std::ptr::null(), |a| a.as_ptr()),
-            pos.map_or(std::ptr::null(), |a| a.as_ptr()),
-            mat.map_or(std::ptr::null(), |a| a.as_ptr()),
-            rgba.map_or(std::ptr::null(), |a| a.as_ptr()),
+            type_.0 as i32,
+            size.map_or(std::ptr::null(), |a| &a),
+            pos.map_or(std::ptr::null(), |a| &a),
+            mat.map_or(std::ptr::null(), |a| &a),
+            rgba.map_or(std::ptr::null(), |a| &a),
         );
     }
     c.into()
@@ -85,10 +85,10 @@ pub fn mjv_connector(
     unsafe {
         crate::bindgen::mjv_connector(
             geom.as_mut(),
-            type_ as i32,
+            type_.0 as i32,
             width,
-            from.as_ptr(),
-            to.as_ptr(),
+            &from,
+            &to,
         );
     }
 }
@@ -177,7 +177,7 @@ pub fn mjv_updateScene(
             opt.as_ref(),
             pert.as_ref(),
             cam.as_mut(),
-            catmask as i32,
+            catmask.0 as i32,
             scene.as_mut(),
         );
     }
@@ -206,7 +206,7 @@ pub fn mjv_addGeoms(
             data.as_mut(),
             opt.as_ref(),
             pert.as_ref(),
-            catmask as i32,
+            catmask.0 as i32,
             scene.as_mut(),
         );
     }
