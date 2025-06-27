@@ -1,9 +1,4 @@
-use crate::{MjsElement, MjString};
-
-wrapper! {
-    /// Plugin specification.
-    MjsPlugin of crate::bindgen::mjsPlugin
-}
+use crate::bindgen::{mjsPlugin, mjsElement, mjString};
 
 /*
 typedef struct mjsPlugin_ {        // plugin specification
@@ -15,29 +10,29 @@ typedef struct mjsPlugin_ {        // plugin specification
 } mjsPlugin;
 */
 
-impl MjsPlugin {
+impl mjsPlugin {
     /// element type
-    pub fn element(&self) -> &MjsElement {
-        (unsafe { &*self.0.element }).into()
+    pub fn element(&self) -> &mjsElement {
+        unsafe { &*self.element }
     }
 
     ///  instance name
-    pub fn name(&self) -> &MjString {
-        (unsafe { &*self.0.name }).into()
+    pub fn name(&self) -> &mjString {
+        unsafe { &*self.name }
     }
 
     /// plugin name
-    pub fn plugin_name(&self) -> &MjString {
-        (unsafe { &*self.0.plugin_name }).into()
+    pub fn plugin_name(&self) -> &mjString {
+        unsafe { &*self.plugin_name }
     }
 
     /// is the plugin active
     pub fn active(&self) -> bool {
-        self.0.active != 0
+        self.active != 0
     }
 
     /// message appended to compiler errors
-    pub fn info(&self) -> &MjString {
-        (unsafe { &*self.0.info }).into()
+    pub fn info(&self) -> &mjString {
+        unsafe { &*self.info }
     }
 }

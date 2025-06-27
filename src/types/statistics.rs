@@ -1,17 +1,17 @@
-wrapper!(MjStatistic of crate::bindgen::mjStatistic);
+use crate::bindgen::mjStatistic;
 
 macro_rules! impl_statistic_fields {
     ($($name:ident / $set_name:ident: $T:ty = $description:literal;)*) => {
-        impl MjStatistic {
+        impl mjStatistic {
             $(
                 #[doc = $description]
                 pub fn $name(&self) -> $T {
-                    self.0.$name
+                    self.$name
                 }
                 #[doc = "set "]
                 #[doc = $description]
                 pub fn $set_name(&mut self, value: $T) -> &mut Self {
-                    self.0.$name = value;
+                    self.$name = value;
                     self
                 }
             )*
