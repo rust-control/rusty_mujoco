@@ -1,5 +1,5 @@
 use super::*;
-use crate::bindgen::{mjNREF, mjNIMP, mjNFLUID, mjNEQDATA, mjNGAIN, mjNBIAS, mjNDYN, mjtTextureRole::mjNTEXROLE};
+use crate::bindgen::{mjNREF, mjNIMP, mjNFLUID, mjNEQDATA, mjNGAIN, mjNBIAS, mjNDYN};
 
 wrapper! {
     /// This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
@@ -438,7 +438,7 @@ impl_buffer_slices! {
     tex_pathadr: [i32; ntex * 1]          = "address of texture asset path; -1: none";
 
     // materials
-    mat_texid: [i32; nmat * mjNTEXROLE]            = "indices of textures; -1: none";
+    mat_texid: [i32; nmat * mjNTEXROLE]   = "indices of textures; -1: none";
     mat_texuniform: [u8; nmat * 1]        = "make texture cube uniform";
     mat_texrepeat: [f32; nmat * 2]        = "texture repetition for 2d mapping";
     mat_emission: [f32; nmat * 1]         = "emission (x rgb)";

@@ -12,23 +12,23 @@ pub const mjMAXIMP: f64 = 0.9999;
 pub const mjMAXCONPAIR: u32 = 50;
 pub const mjMAXTREEDEPTH: u32 = 50;
 pub const mjMAXFLEXNODES: u32 = 27;
-pub const mjNEQDATA: u32 = 11;
-pub const mjNDYN: u32 = 10;
-pub const mjNGAIN: u32 = 10;
-pub const mjNBIAS: u32 = 10;
-pub const mjNFLUID: u32 = 12;
-pub const mjNREF: u32 = 2;
-pub const mjNIMP: u32 = 5;
-pub const mjNSOLVER: u32 = 200;
-pub const mjNISLAND: u32 = 20;
+pub const mjNEQDATA: usize = 11;
+pub const mjNDYN: usize = 10;
+pub const mjNGAIN: usize = 10;
+pub const mjNBIAS: usize = 10;
+pub const mjNFLUID: usize = 12;
+pub const mjNREF: usize = 2;
+pub const mjNIMP: usize = 5;
+pub const mjNSOLVER: usize = 200;
+pub const mjNISLAND: usize = 20;
 pub const mjMAXTHREAD: u32 = 128;
-pub const mjNGROUP: u32 = 6;
+pub const mjNGROUP: usize = 6;
 pub const mjMAXLIGHT: u32 = 100;
 pub const mjMAXOVERLAY: u32 = 500;
 pub const mjMAXLINE: u32 = 100;
 pub const mjMAXLINEPNT: u32 = 1000;
 pub const mjMAXPLANEGRID: u32 = 200;
-pub const mjNAUX: u32 = 10;
+pub const mjNAUX: usize = 10;
 pub const mjMAXTEXTURE: u32 = 1000;
 pub const mjMAXMATERIAL: u32 = 1000;
 pub const mjMAXUISECT: u32 = 10;
@@ -70,6 +70,7 @@ pub const mjKEY_NUMPAD_0: u32 = 320;
 pub const mjKEY_NUMPAD_9: u32 = 329;
 pub type mjtNum = f64;
 pub type mjtByte = ::core::ffi::c_uchar;
+pub const mjNDISABLE: usize = mjtDisableBit::mjNDISABLE.0 as usize;
 impl mjtDisableBit {
     pub const mjDSBL_CONSTRAINT: mjtDisableBit = mjtDisableBit(1);
     pub const mjDSBL_EQUALITY: mjtDisableBit = mjtDisableBit(2);
@@ -88,7 +89,7 @@ impl mjtDisableBit {
     pub const mjDSBL_EULERDAMP: mjtDisableBit = mjtDisableBit(16384);
     pub const mjDSBL_AUTORESET: mjtDisableBit = mjtDisableBit(32768);
     pub const mjDSBL_NATIVECCD: mjtDisableBit = mjtDisableBit(65536);
-    pub const mjNDISABLE: mjtDisableBit = mjtDisableBit(17);
+    pub(crate) const mjNDISABLE: mjtDisableBit = mjtDisableBit(17);
 }
 impl ::core::ops::BitOr<mjtDisableBit> for mjtDisableBit {
     type Output = Self;
@@ -119,6 +120,7 @@ impl ::core::ops::BitAndAssign for mjtDisableBit {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtDisableBit(pub(crate) ::core::ffi::c_uint);
+pub const mjNENABLE: usize = mjtEnableBit::mjNENABLE.0 as usize;
 impl mjtEnableBit {
     pub const mjENBL_OVERRIDE: mjtEnableBit = mjtEnableBit(1);
     pub const mjENBL_ENERGY: mjtEnableBit = mjtEnableBit(2);
@@ -126,7 +128,7 @@ impl mjtEnableBit {
     pub const mjENBL_INVDISCRETE: mjtEnableBit = mjtEnableBit(8);
     pub const mjENBL_MULTICCD: mjtEnableBit = mjtEnableBit(16);
     pub const mjENBL_ISLAND: mjtEnableBit = mjtEnableBit(32);
-    pub const mjNENABLE: mjtEnableBit = mjtEnableBit(6);
+    pub(crate) const mjNENABLE: mjtEnableBit = mjtEnableBit(6);
 }
 impl ::core::ops::BitOr<mjtEnableBit> for mjtEnableBit {
     type Output = Self;
@@ -166,6 +168,7 @@ impl mjtJoint {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtJoint(pub(crate) ::core::ffi::c_uint);
+pub const mjNGEOMTYPES: usize = mjtGeom::mjNGEOMTYPES.0 as usize;
 impl mjtGeom {
     pub const mjGEOM_PLANE: mjtGeom = mjtGeom(0);
     pub const mjGEOM_HFIELD: mjtGeom = mjtGeom(1);
@@ -176,7 +179,6 @@ impl mjtGeom {
     pub const mjGEOM_BOX: mjtGeom = mjtGeom(6);
     pub const mjGEOM_MESH: mjtGeom = mjtGeom(7);
     pub const mjGEOM_SDF: mjtGeom = mjtGeom(8);
-    pub const mjNGEOMTYPES: mjtGeom = mjtGeom(9);
     pub const mjGEOM_ARROW: mjtGeom = mjtGeom(100);
     pub const mjGEOM_ARROW1: mjtGeom = mjtGeom(101);
     pub const mjGEOM_ARROW2: mjtGeom = mjtGeom(102);
@@ -187,6 +189,7 @@ impl mjtGeom {
     pub const mjGEOM_LABEL: mjtGeom = mjtGeom(107);
     pub const mjGEOM_TRIANGLE: mjtGeom = mjtGeom(108);
     pub const mjGEOM_NONE: mjtGeom = mjtGeom(1001);
+    pub(crate) const mjNGEOMTYPES: mjtGeom = mjtGeom(9);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -209,6 +212,7 @@ impl mjtTexture {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtTexture(pub(crate) ::core::ffi::c_uint);
+pub const mjNTEXROLE: usize = mjtTextureRole::mjNTEXROLE.0 as usize;
 impl mjtTextureRole {
     pub const mjTEXROLE_USER: mjtTextureRole = mjtTextureRole(0);
     pub const mjTEXROLE_RGB: mjtTextureRole = mjtTextureRole(1);
@@ -220,7 +224,7 @@ impl mjtTextureRole {
     pub const mjTEXROLE_EMISSIVE: mjtTextureRole = mjtTextureRole(7);
     pub const mjTEXROLE_RGBA: mjtTextureRole = mjtTextureRole(8);
     pub const mjTEXROLE_ORM: mjtTextureRole = mjtTextureRole(9);
-    pub const mjNTEXROLE: mjtTextureRole = mjtTextureRole(10);
+    pub(crate) const mjNTEXROLE: mjtTextureRole = mjtTextureRole(10);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -320,6 +324,7 @@ impl mjtBias {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtBias(pub(crate) ::core::ffi::c_uint);
+pub const mjNOBJECT: usize = mjtObj::mjNOBJECT.0 as usize;
 impl mjtObj {
     pub const mjOBJ_UNKNOWN: mjtObj = mjtObj(0);
     pub const mjOBJ_BODY: mjtObj = mjtObj(1);
@@ -347,10 +352,10 @@ impl mjtObj {
     pub const mjOBJ_TUPLE: mjtObj = mjtObj(23);
     pub const mjOBJ_KEY: mjtObj = mjtObj(24);
     pub const mjOBJ_PLUGIN: mjtObj = mjtObj(25);
-    pub const mjNOBJECT: mjtObj = mjtObj(26);
     pub const mjOBJ_FRAME: mjtObj = mjtObj(100);
     pub const mjOBJ_DEFAULT: mjtObj = mjtObj(101);
     pub const mjOBJ_MODEL: mjtObj = mjtObj(102);
+    pub(crate) const mjNOBJECT: mjtObj = mjtObj(26);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -2386,6 +2391,7 @@ impl Default for mjTask {
         }
     }
 }
+pub const mjNSTATE: usize = mjtState::mjNSTATE.0 as usize;
 impl mjtState {
     pub const mjSTATE_TIME: mjtState = mjtState(1);
     pub const mjSTATE_QPOS: mjtState = mjtState(2);
@@ -2400,15 +2406,16 @@ impl mjtState {
     pub const mjSTATE_MOCAP_QUAT: mjtState = mjtState(1024);
     pub const mjSTATE_USERDATA: mjtState = mjtState(2048);
     pub const mjSTATE_PLUGIN: mjtState = mjtState(4096);
-    pub const mjNSTATE: mjtState = mjtState(13);
     pub const mjSTATE_PHYSICS: mjtState = mjtState(14);
     pub const mjSTATE_FULLPHYSICS: mjtState = mjtState(4111);
     pub const mjSTATE_USER: mjtState = mjtState(4064);
     pub const mjSTATE_INTEGRATION: mjtState = mjtState(8191);
+    pub(crate) const mjNSTATE: mjtState = mjtState(13);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtState(pub(crate) ::core::ffi::c_uint);
+pub const mjNWARNING: usize = mjtWarning::mjNWARNING.0 as usize;
 impl mjtWarning {
     pub const mjWARN_INERTIA: mjtWarning = mjtWarning(0);
     pub const mjWARN_CONTACTFULL: mjtWarning = mjtWarning(1);
@@ -2418,11 +2425,12 @@ impl mjtWarning {
     pub const mjWARN_BADQVEL: mjtWarning = mjtWarning(5);
     pub const mjWARN_BADQACC: mjtWarning = mjtWarning(6);
     pub const mjWARN_BADCTRL: mjtWarning = mjtWarning(7);
-    pub const mjNWARNING: mjtWarning = mjtWarning(8);
+    pub(crate) const mjNWARNING: mjtWarning = mjtWarning(8);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtWarning(pub(crate) ::core::ffi::c_uint);
+pub const mjNTIMER: usize = mjtTimer::mjNTIMER.0 as usize;
 impl mjtTimer {
     pub const mjTIMER_STEP: mjtTimer = mjtTimer(0);
     pub const mjTIMER_FORWARD: mjtTimer = mjtTimer(1);
@@ -2439,7 +2447,7 @@ impl mjtTimer {
     pub const mjTIMER_POS_PROJECT: mjtTimer = mjtTimer(12);
     pub const mjTIMER_COL_BROAD: mjtTimer = mjtTimer(13);
     pub const mjTIMER_COL_NARROW: mjtTimer = mjtTimer(14);
-    pub const mjNTIMER: mjtTimer = mjtTimer(15);
+    pub(crate) const mjNTIMER: mjtTimer = mjtTimer(15);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -3139,6 +3147,7 @@ impl mjtCamera {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtCamera(pub(crate) ::core::ffi::c_uint);
+pub const mjNLABEL: usize = mjtLabel::mjNLABEL.0 as usize;
 impl mjtLabel {
     pub const mjLABEL_NONE: mjtLabel = mjtLabel(0);
     pub const mjLABEL_BODY: mjtLabel = mjtLabel(1);
@@ -3157,11 +3166,12 @@ impl mjtLabel {
     pub const mjLABEL_CONTACTPOINT: mjtLabel = mjtLabel(14);
     pub const mjLABEL_CONTACTFORCE: mjtLabel = mjtLabel(15);
     pub const mjLABEL_ISLAND: mjtLabel = mjtLabel(16);
-    pub const mjNLABEL: mjtLabel = mjtLabel(17);
+    pub(crate) const mjNLABEL: mjtLabel = mjtLabel(17);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtLabel(pub(crate) ::core::ffi::c_uint);
+pub const mjNFRAME: usize = mjtFrame::mjNFRAME.0 as usize;
 impl mjtFrame {
     pub const mjFRAME_NONE: mjtFrame = mjtFrame(0);
     pub const mjFRAME_BODY: mjtFrame = mjtFrame(1);
@@ -3171,11 +3181,12 @@ impl mjtFrame {
     pub const mjFRAME_LIGHT: mjtFrame = mjtFrame(5);
     pub const mjFRAME_CONTACT: mjtFrame = mjtFrame(6);
     pub const mjFRAME_WORLD: mjtFrame = mjtFrame(7);
-    pub const mjNFRAME: mjtFrame = mjtFrame(8);
+    pub(crate) const mjNFRAME: mjtFrame = mjtFrame(8);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtFrame(pub(crate) ::core::ffi::c_uint);
+pub const mjNVISFLAG: usize = mjtVisFlag::mjNVISFLAG.0 as usize;
 impl mjtVisFlag {
     pub const mjVIS_CONVEXHULL: mjtVisFlag = mjtVisFlag(0);
     pub const mjVIS_TEXTURE: mjtVisFlag = mjtVisFlag(1);
@@ -3209,11 +3220,12 @@ impl mjtVisFlag {
     pub const mjVIS_FLEXBVH: mjtVisFlag = mjtVisFlag(29);
     pub const mjVIS_MESHBVH: mjtVisFlag = mjtVisFlag(30);
     pub const mjVIS_SDFITER: mjtVisFlag = mjtVisFlag(31);
-    pub const mjNVISFLAG: mjtVisFlag = mjtVisFlag(32);
+    pub(crate) const mjNVISFLAG: mjtVisFlag = mjtVisFlag(32);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtVisFlag(pub(crate) ::core::ffi::c_uint);
+pub const mjNRNDFLAG: usize = mjtRndFlag::mjNRNDFLAG.0 as usize;
 impl mjtRndFlag {
     pub const mjRND_SHADOW: mjtRndFlag = mjtRndFlag(0);
     pub const mjRND_WIREFRAME: mjtRndFlag = mjtRndFlag(1);
@@ -3225,7 +3237,7 @@ impl mjtRndFlag {
     pub const mjRND_SEGMENT: mjtRndFlag = mjtRndFlag(7);
     pub const mjRND_IDCOLOR: mjtRndFlag = mjtRndFlag(8);
     pub const mjRND_CULL_FACE: mjtRndFlag = mjtRndFlag(9);
-    pub const mjNRNDFLAG: mjtRndFlag = mjtRndFlag(10);
+    pub(crate) const mjNRNDFLAG: mjtRndFlag = mjtRndFlag(10);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -6675,6 +6687,7 @@ impl mjtEvent {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtEvent(pub(crate) ::core::ffi::c_uint);
+pub const mjNITEM: usize = mjtItem::mjNITEM.0 as usize;
 impl mjtItem {
     pub const mjITEM_END: mjtItem = mjtItem(-2);
     pub const mjITEM_SECTION: mjtItem = mjtItem(-1);
@@ -6692,7 +6705,7 @@ impl mjtItem {
     pub const mjITEM_EDITNUM: mjtItem = mjtItem(11);
     pub const mjITEM_EDITFLOAT: mjtItem = mjtItem(12);
     pub const mjITEM_EDITTXT: mjtItem = mjtItem(13);
-    pub const mjNITEM: mjtItem = mjtItem(14);
+    pub(crate) const mjNITEM: mjtItem = mjtItem(14);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]

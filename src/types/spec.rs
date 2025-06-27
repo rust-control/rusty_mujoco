@@ -345,11 +345,11 @@ impl MjsCompiler {
 impl MjsCompiler {
     /// use geom inertias by `mjtInertiaFromGeom`
     pub fn inertiafromgeom(&self) -> crate::bindgen::mjtInertiaFromGeom {
-        unsafe { std::mem::transmute(self.0.inertiafromgeom) }
+        crate::bindgen::mjtInertiaFromGeom(self.0.inertiafromgeom as u32)
     }
     /// set use geom inertias by `mjtInertiaFromGeom`
     pub fn set_inertiafromgeom(&mut self, inertia_from_geom: crate::bindgen::mjtInertiaFromGeom) {
-        self.0.inertiafromgeom = inertia_from_geom as i32;
+        self.0.inertiafromgeom = inertia_from_geom.0 as i32;
     }
 
     /// range of geom group ids used to compute inertia (default: `0..(bindgen::mjNGROUP as usize)`).

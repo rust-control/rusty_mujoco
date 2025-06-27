@@ -12,6 +12,26 @@ impl bindgen::callbacks::ParseCallbacks for TrimUnderscoreCallbacks {
     }
 }
 
+#[derive(Debug)]
+struct MakeMjnConstantsCallbacks;
+impl bindgen::callbacks::ParseCallbacks for MakeMjnConstantsCallbacks {
+    fn enum_variant_behavior(
+        &self,
+        _enum_name: Option<&str>,
+        original_variant_name: &str,
+        _variant_value: bindgen::callbacks::EnumVariantValue,
+    ) -> Option<bindgen::callbacks::EnumVariantCustomBehavior> {
+        /*
+            This generates const like:            
+            ```
+            pub const mjNTEXROLE: mjtTextureRole = mjtTextureRole::mjNTEXROLE;
+            ```
+            at module top for `mjtN*` variants.
+        */
+        original_variant_name.starts_with("mjN").then_some(bindgen::callbacks::EnumVariantCustomBehavior::Constify)
+    }
+}
+
 fn main() {
     if option_env!("DOCS_RS").is_some() {
         return;
@@ -47,28 +67,50 @@ fn main() {
         .size_t_is_usize(true)
         .array_pointers_in_arguments(true)
         .merge_extern_blocks(true)
+        .prepend_enum_name(false)
         .parse_callbacks(Box::new(TrimUnderscoreCallbacks))
+        .parse_callbacks(Box::new(MakeMjnConstantsCallbacks))
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate().expect("Failed to generate bindings")
         .write(Box::new(&mut bindings)).expect("Failed to write bindings to file");
 
     /*
-        There seems to be no way to set `pub(crate)` visibility for newtype inner fields
-        using bindgen, so we do it manually...
+        There seems to be no way to:
+        
+        - set `pub(crate)` visibility for newtype's inner field
+        - make `mjtN*` constants `usize` instead of original type
+        - hide only `mjtN*` consts of newtype impl from user
 
-        ```sh
-        sed -i -r 's/^pub struct mjt(.*)\(pub (.*)\);$/pub struct mjt\1\(pub\(crate\) \2\);/'
-        ```
+        using bindgen, so we do them manually...
     */
     let bindings = bindings
         .lines()
         .map(Result::unwrap)
         .fold(Vec::with_capacity(bindings.len()), |mut new, line| {
             if line.starts_with("pub struct mjt") {
-                let new_line = line.replace("(pub ", "(pub(crate) ");
-                new.push(new_line);
+                /* sed -i -r 's/^pub struct mjt(.*)\(pub (.*)\);$/pub struct mjt\1\(pub\(crate\) \2\);/' */
+                new.push(line.replace("(pub", "(pub(crate)"));
+            } else if line.starts_with("pub const mjN") {
+                /*
+                    pub const mjNSomething: Something = Something::Value;
+                    pub const mjNSOMETHING: u32 = 42;
+                */
+                let mut line = line.split(' ');
+                let _ = line.next(); // "pub"
+                let _ = line.next(); // "const"
+                let name = line.next().unwrap().strip_suffix(':').unwrap();
+                let _ty = line.next().unwrap();
+                let _ = line.next(); // "="
+                let value = line.next().unwrap().strip_suffix(";").unwrap();
+                new.push(if value.contains("::") {
+                    format!("pub const {name}: usize = {value}.0 as usize;")
+                } else {
+                    format!("pub const {name}: usize = {value};")
+                });
+            } else if line.starts_with("    pub const mjN") {
+                new.push(line.replace("pub", "pub(crate)"));
             } else {
-                new.push(line.to_owned());
+                new.push(line);
             }
             new
         });
