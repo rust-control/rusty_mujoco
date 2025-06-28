@@ -2,6 +2,11 @@
 /// Write some edge cases by hand if needed.
 macro_rules! derive_fields_mapping {
     ($T:path {
+        $(boolean_flags {
+            $(
+                $flag_name:ident $(/ $set_flag_name:ident)? = $flag_description:literal;
+            )*
+        })?
         $(scalars {
             $(
                 $scalar_name:ident $(/ $set_scalar_name:ident)?: $Scalar:ty = $scalar_description:literal;
@@ -20,6 +25,20 @@ macro_rules! derive_fields_mapping {
     }) => {
         #[allow(non_snake_case)]
         impl $T {
+            $($(
+                #[doc = $flag_description]
+                pub fn $flag_name(&self) -> bool {
+                    self.$flag_name != 0
+                }
+                $(
+                    #[doc = "set "]
+                    #[doc = $flag_description]
+                    pub fn $set_flag_name(&mut self, value: bool) -> &mut Self {
+                        self.$flag_name = if value { 1 } else { 0 };
+                        self
+                    }
+                )?
+            )*)?
             $($(
                 #[doc = $scalar_description]
                 pub fn $scalar_name(&self) -> $Scalar {
@@ -70,9 +89,11 @@ mod mjoption;
 mod mjdata;
 mod auxiliary;
 mod sim_statistics;
+mod visualization;
 
 pub use mjmodel::*;
 pub use mjoption::*;
 pub use mjdata::*;
 pub use auxiliary::*;
 pub use sim_statistics::*;
+pub use visualization::*;
