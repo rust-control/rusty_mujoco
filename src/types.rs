@@ -84,17 +84,19 @@ macro_rules! derive_fields_mapping {
     };
 }
 
+mod mjdata;
 mod mjmodel;
 mod mjoption;
-mod mjdata;
+mod model_editing;
 mod auxiliary;
 mod rendering;
 mod sim_statistics;
 mod visualization;
 
+pub use mjdata::*;
 pub use mjmodel::*;
 pub use mjoption::*;
-pub use mjdata::*;
+pub use model_editing::*;
 pub use auxiliary::*;
 pub use rendering::*;
 pub use sim_statistics::*;
