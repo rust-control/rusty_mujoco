@@ -1,85 +1,74 @@
-// macro_rules! wrapper {
-//     ($(#[$attr:meta])* $Name:ident of $inner:ty) => {
-//         $(#[$attr])*
-//         pub struct $Name($inner);
-// 
-//         impl From<$inner> for $Name {
-//             fn from(inner: $inner) -> Self {
-//                 $Name(inner)
-//             }
-//         }
-//         impl Into<$inner> for $Name {
-//             fn into(self) -> $inner {
-//                 self.0
-//             }
-//         }
-// 
-//         impl<'a> From<&'a $inner> for &'a $Name {
-//             fn from(inner: &'a $inner) -> &'a $Name {
-//                 // SAFETY: between wrapper and its inner type
-//                 unsafe {std::mem::transmute(inner)}
-//             }
-//         }
-//         impl<'a> From<&'a mut $inner> for &'a mut $Name {
-//             fn from(inner: &'a mut $inner) -> &'a mut $Name {
-//                 // SAFETY: between wrapper and its inner type
-//                 unsafe {std::mem::transmute(inner)}
-//             }
-//         }
-// 
-//         impl AsRef<$inner> for $Name {
-//             fn as_ref(&self) -> &$inner {
-//                 &self.0
-//             }
-//         }
-//         impl AsMut<$inner> for $Name {
-//             fn as_mut(&mut self) -> &mut $inner {
-//                 &mut self.0
-//             }
-//         }
-//     };
-// }
-
-macro_rules! impl_fields_mapping {
-    ($Struct:ident { $($name:ident / $set_name:ident: $T:ty = $description:literal;)* }) => {
-        impl  {
+/// Generates getters and setters for fields of a struct for most/simple cases.
+/// Write some edge cases by hand if needed.
+macro_rules! derive_fields_mapping {
+    ($T:ident {
+        $(scalars {
             $(
-                #[doc = $description]
-                pub fn $name(&self) -> $T {
-                    self.$name as _
-                }
-
-                #[doc = "set "]
-                #[doc = $description]
-                pub fn $set_name(&mut self, value: $T) -> &mut Self {
-                    self.$name = value as _;
-                    self
-                }
+                $scalar_name:ident $(/ $set_scalar_name:ident)?: $Scalar:ty = $scalar_description:literal;
             )*
+        })?
+        $(enums {
+            $(
+                $enum_name:ident $(/ $set_enum_name:ident)?: $Enum:ty = $enum_description:literal;
+            )*
+        })?
+        $(structs {
+            $(
+                $struct_name:ident $(/ $mut_struct_name:ident)?: $Struct:ty = $struct_description:literal;
+            )*
+        })?
+    }) => {
+        #[allow(non_snake_case)]
+        impl $T {
+            $($(
+                #[doc = $scalar_description]
+                pub fn $scalar_name(&self) -> $Scalar {
+                    self.$scalar_name as _
+                }
+                $(
+                    #[doc = "set "]
+                    #[doc = $scalar_description]
+                    pub fn $set_scalar_name(&mut self, value: $Scalar) -> &mut Self {
+                        self.$scalar_name = value as _;
+                        self
+                    }
+                )?
+            )*)?
+            $($(
+                #[doc = $enum_description]
+                pub fn $enum_name(&self) -> $Enum {
+                    $Enum(self.$enum_name.0 as _)
+                }
+                $(
+                    #[doc = "set "]
+                    #[doc = $enum_description]
+                    pub fn $set_enum_name(&mut self, value: $Enum) -> &mut Self {
+                        self.$enum_name = value.0 as _;
+                        self
+                    }
+                )?
+            )*)?
+            $($(
+                #[doc = $struct_description]
+                pub fn $struct_name(&self) -> &$Struct {
+                    &self.$struct_name
+                }
+                $(
+                    #[doc = "mutable "]
+                    #[doc = $struct_description]
+                    pub fn $mut_struct_name(&mut self) -> &mut $Struct {
+                        &mut self.$struct_name
+                    }
+                )?
+            )*)?
         }
     };
 }
 
-mod array_handle;
-mod auxiliary;
-mod contact;
-mod data;
-mod model;
-mod option;
-mod plugin;
-mod spec;
-mod statistics;
-mod visual;
-mod visualization;
+mod mjmodel;
+mod mjoption;
+mod mjdata;
 
-pub use array_handle::*;
-pub use auxiliary::*;
-pub use contact::*;
-pub use data::*;
-pub use model::*;
-pub use option::*;
-pub use plugin::*;
-pub use spec::*;
-pub use statistics::*;
-pub use visual::*;
-pub use visualization::*;
+pub use mjmodel::*;
+pub use mjoption::*;
+pub use mjdata::*;

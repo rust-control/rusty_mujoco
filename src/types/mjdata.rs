@@ -1,10 +1,35 @@
-use super::*;
-use crate::bindgen::{mjNSOLVER, mjNISLAND, mjNTIMER, mjNWARNING};
+//! # [mjData](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#mjdata)
+//! 
+//! This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
 
-wrapper! {
-    /// This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
-    MjData of crate::bindgen::mjData
-}
+pub use crate::bindgen::{
+    mjData,
+    mjNSOLVER, mjNISLAND, mjNTIMER, mjNWARNING
+};
+
+derive_fields_mapping!(mjData {
+    scalars {
+        // constant sizes
+        narena: _ =            "size of the arena in bytes (inclusive of the stack)";
+        nbuffer: _ =           "size of main buffer in bytes";
+        nplugin: _ =           "number of plugin instances";
+
+        // stack pointer
+        pstack: _ =            "first available byte in stack";
+        pbase: _ =             "value of pstack when mj_markStack was last called";
+
+        // arena pointer
+        parena: _ =            "first available byte in arena";
+
+        // memory utilization statistics
+        maxuse_stack: _ =                       "maximum stack allocation in bytes";
+        maxuse_threadstack: [usize; mjMAXTHREAD] =    "maximum stack allocation per thread in bytes";
+        maxuse_arena: _ =                       "maximum arena allocation in bytes";
+        maxuse_con: _ =                         "maximum number of contacts";
+        maxuse_efc: _ =                         "maximum number of scalar constraints";
+
+    }
+});
 
 // constant sizes
 impl MjData {

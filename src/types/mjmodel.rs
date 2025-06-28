@@ -1,147 +1,121 @@
-use super::*;
-use crate::bindgen::{mjNREF, mjNIMP, mjNFLUID, mjNEQDATA, mjNGAIN, mjNBIAS, mjNDYN, mjNTEXROLE};
+//! # [mjModel](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#mjmodel)
+//! 
+//! This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
 
-wrapper! {
-    /// This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
-    MjModel of crate::bindgen::mjModel
-}
+pub use crate::bindgen::{
+    mjModel, mjOption, mjVisual, mjStatistic,
+    mjNREF, mjNIMP, mjNFLUID, mjNEQDATA, mjNGAIN, mjNBIAS, mjNDYN, mjNTEXROLE
+};
 
-macro_rules! impl_size_getters {
-    ($($n_name:ident = $description:literal;)*) => {
-        impl MjModel {
-            $(
-                #[allow(non_snake_case)]
-                #[doc = $description]
-                pub fn $n_name(&self) -> usize {
-                    self.0.$n_name as usize
-                }
-            )*  
-        }
-    };
-}
-impl_size_getters! {
-    // sizes needed at mjModel construction
-    nq                         = "number of generalized coordinates = dim(qpos)";
-    nv                         = "number of degrees of freedom = dim(qvel)";
-    nu                         = "number of actuators/controls = dim(ctrl)";
-    na                         = "number of activation states = dim(act)";
-    nbody                      = "number of bodies";
-    nbvh                       = "number of total bounding volumes in all bodies";
-    nbvhstatic                 = "number of static bounding volumes (aabb stored in mjModel)";
-    nbvhdynamic                = "number of dynamic bounding volumes (aabb stored in mjData)";
-    njnt                       = "number of joints";
-    ngeom                      = "number of geoms";
-    nsite                      = "number of sites";
-    ncam                       = "number of cameras";
-    nlight                     = "number of lights";
-    nflex                      = "number of flexes";
-    nflexnode                  = "number of dofs in all flexes";
-    nflexvert                  = "number of vertices in all flexes";
-    nflexedge                  = "number of edges in all flexes";
-    nflexelem                  = "number of elements in all flexes";
-    nflexelemdata              = "number of element vertex ids in all flexes";
-    nflexelemedge              = "number of element edge ids in all flexes";
-    nflexshelldata             = "number of shell fragment vertex ids in all flexes";
-    nflexevpair                = "number of element-vertex pairs in all flexes";
-    nflextexcoord              = "number of vertices with texture coordinates";
-    nmesh                      = "number of meshes";
-    nmeshvert                  = "number of vertices in all meshes";
-    nmeshnormal                = "number of normals in all meshes";
-    nmeshtexcoord              = "number of texcoords in all meshes";
-    nmeshface                  = "number of triangular faces in all meshes";
-    nmeshgraph                 = "number of ints in mesh auxiliary data";
-    nmeshpoly                  = "number of polygons in all meshes";
-    nmeshpolyvert              = "number of vertices in all polygons";
-    nmeshpolymap               = "number of polygons in vertex map";
-    nskin                      = "number of skins";
-    nskinvert                  = "number of vertices in all skins";
-    nskintexvert               = "number of vertiex with texcoords in all skins";
-    nskinface                  = "number of triangular faces in all skins";
-    nskinbone                  = "number of bones in all skins";
-    nskinbonevert              = "number of vertices in all skin bones";
-    nhfield                    = "number of heightfields";
-    nhfielddata                = "number of data points in all heightfields";
-    ntex                       = "number of textures";
-    ntexdata                   = "number of bytes in texture rgb data";
-    nmat                       = "number of materials";
-    npair                      = "number of predefined geom pairs";
-    nexclude                   = "number of excluded geom pairs";
-    neq                        = "number of equality constraints";
-    ntendon                    = "number of tendons";
-    nwrap                      = "number of wrap objects in all tendon paths";
-    nsensor                    = "number of sensors";
-    nnumeric                   = "number of numeric custom fields";
-    nnumericdata               = "number of mjtNums in all numeric fields";
-    ntext                      = "number of text custom fields";
-    ntextdata                  = "number of mjtBytes in all text fields";
-    ntuple                     = "number of tuple custom fields";
-    ntupledata                 = "number of objects in all tuple fields";
-    nkey                       = "number of keyframes";
-    nmocap                     = "number of mocap bodies";
-    nplugin                    = "number of plugin instances";
-    npluginattr                = "number of chars in all plugin config attributes";
-    nuser_body                 = "number of mjtNums in body_user";
-    nuser_jnt                  = "number of mjtNums in jnt_user";
-    nuser_geom                 = "number of mjtNums in geom_user";
-    nuser_site                 = "number of mjtNums in site_user";
-    nuser_cam                  = "number of mjtNums in cam_user";
-    nuser_tendon               = "number of mjtNums in tendon_user";
-    nuser_actuator             = "number of mjtNums in actuator_user";
-    nuser_sensor               = "number of mjtNums in sensor_user";
-    nnames                     = "number of chars in all names";
-    npaths                     = "number of chars in all paths";
+derive_fields_mapping!(mjModel {
+    scalars {
+        // sizes needed at mjModel construction
+        nq: usize = "number of generalized coordinates = dim(qpos)";
+        nv: usize = "number of degrees of freedom = dim(qvel)";
+        nu: usize = "number of actuators/controls = dim(ctrl)";
+        na: usize = "number of activation states = dim(act)";
+        nbody: usize = "number of bodies";
+        nbvh: usize = "number of total bounding volumes in all bodies";
+        nbvhstatic: usize = "number of static bounding volumes (aabb stored in mjModel)";
+        nbvhdynamic: usize = "number of dynamic bounding volumes (aabb stored in mjData)";
+        njnt: usize = "number of joints";
+        ngeom: usize = "number of geoms";
+        nsite: usize = "number of sites";
+        ncam: usize = "number of cameras";
+        nlight: usize = "number of lights";
+        nflex: usize = "number of flexes";
+        nflexnode: usize = "number of dofs in all flexes";
+        nflexvert: usize = "number of vertices in all flexes";
+        nflexedge: usize = "number of edges in all flexes";
+        nflexelem: usize = "number of elements in all flexes";
+        nflexelemdata: usize = "number of element vertex ids in all flexes";
+        nflexelemedge: usize = "number of element edge ids in all flexes";
+        nflexshelldata: usize = "number of shell fragment vertex ids in all flexes";
+        nflexevpair: usize = "number of element-vertex pairs in all flexes";
+        nflextexcoord: usize = "number of vertices with texture coordinates";
+        nmesh: usize = "number of meshes";
+        nmeshvert: usize = "number of vertices in all meshes";
+        nmeshnormal: usize = "number of normals in all meshes";
+        nmeshtexcoord: usize = "number of texcoords in all meshes";
+        nmeshface: usize = "number of triangular faces in all meshes";
+        nmeshgraph: usize = "number of ints in mesh auxiliary data";
+        nmeshpoly: usize = "number of polygons in all meshes";
+        nmeshpolyvert: usize = "number of vertices in all polygons";
+        nmeshpolymap: usize = "number of polygons in vertex map";
+        nskin: usize = "number of skins";
+        nskinvert: usize = "number of vertices in all skins";
+        nskintexvert: usize = "number of vertiex with texcoords in all skins";
+        nskinface: usize = "number of triangular faces in all skins";
+        nskinbone: usize = "number of bones in all skins";
+        nskinbonevert: usize = "number of vertices in all skin bones";
+        nhfield: usize = "number of heightfields";
+        nhfielddata: usize = "number of data points in all heightfields";
+        ntex: usize = "number of textures";
+        ntexdata: usize = "number of bytes in texture rgb data";
+        nmat: usize = "number of materials";
+        npair: usize = "number of predefined geom pairs";
+        nexclude: usize = "number of excluded geom pairs";
+        neq: usize = "number of equality constraints";
+        ntendon: usize = "number of tendons";
+        nwrap: usize = "number of wrap objects in all tendon paths";
+        nsensor: usize = "number of sensors";
+        nnumeric: usize = "number of numeric custom fields";
+        nnumericdata: usize = "number of mjtNums in all numeric fields";
+        ntext: usize = "number of text custom fields";
+        ntextdata: usize = "number of mjtBytes in all text fields";
+        ntuple: usize = "number of tuple custom fields";
+        ntupledata: usize = "number of objects in all tuple fields";
+        nkey: usize = "number of keyframes";
+        nmocap: usize = "number of mocap bodies";
+        nplugin: usize = "number of plugin instances";
+        npluginattr: usize = "number of chars in all plugin config attributes";
+        nuser_body: usize = "number of mjtNums in body_user";
+        nuser_jnt: usize = "number of mjtNums in jnt_user";
+        nuser_geom: usize = "number of mjtNums in geom_user";
+        nuser_site: usize = "number of mjtNums in site_user";
+        nuser_cam: usize = "number of mjtNums in cam_user";
+        nuser_tendon: usize = "number of mjtNums in tendon_user";
+        nuser_actuator: usize = "number of mjtNums in actuator_user";
+        nuser_sensor: usize = "number of mjtNums in sensor_user";
+        nnames: usize = "number of chars in all names";
+        npaths: usize = "number of chars in all paths";
 
-    // sizes set after mjModel construction
-    nnames_map                 = "number of slots in the names hash map";
-    nM                         = "number of non-zeros in sparse inertia matrix";
-    nB                         = "number of non-zeros in sparse body-dof matrix";
-    nC                         = "number of non-zeros in sparse reduced dof-dof matrix";
-    nD                         = "number of non-zeros in sparse dof-dof matrix";
-    nJmom                      = "number of non-zeros in sparse actuator_moment matrix";
-    ntree                      = "number of kinematic trees under world body";
-    ngravcomp                  = "number of bodies with nonzero gravcomp";
-    nemax                      = "number of potential equality-constraint rows";
-    njmax                      = "number of available rows in constraint Jacobian (legacy)";
-    nconmax                    = "number of potential contacts in contact list (legacy)";
-    nuserdata                  = "number of mjtNums reserved for the user";
-    nsensordata                = "number of mjtNums in sensor data vector";
-    npluginstate               = "number of mjtNums in plugin state vector";
+        // sizes set after mjModel construction
+        nnames_map: usize = "number of slots in the names hash map";
+        nM: usize = "number of non-zeros in sparse inertia matrix";
+        nB: usize = "number of non-zeros in sparse body-dof matrix";
+        nC: usize = "number of non-zeros in sparse reduced dof-dof matrix";
+        nD: usize = "number of non-zeros in sparse dof-dof matrix";
+        nJmom: usize = "number of non-zeros in sparse actuator_moment matrix";
+        ntree: usize = "number of kinematic trees under world body";
+        ngravcomp: usize = "number of bodies with nonzero gravcomp";
+        nemax: usize = "number of potential equality-constraint rows";
+        njmax: usize = "number of available rows in constraint Jacobian (legacy)";
+        nconmax: usize = "number of potential contacts in contact list (legacy)";
+        nuserdata: usize = "number of mjtNums reserved for the user";
+        nsensordata: usize = "number of mjtNums in sensor data vector";
+        npluginstate: usize = "number of mjtNums in plugin state vector";
 
-    narena                     = "number of bytes in the mjData arena (inclusive of stack)";
-    nbuffer                    = "number of bytes in buffer";
-}
+        narena: usize = "number of bytes in the mjData arena (inclusive of stack)";
+        nbuffer: usize = "number of bytes in buffer";
 
-impl MjModel {
-    /// physics options.
-    /// 
-    /// **note**: _read-only_. To dynamically mutate this, consider build `MjModel` via `MjSpec`.
-    pub fn opt(&self) -> &MjOption {
-        (&self.0.opt).into()
+        signature: u64 = "model signature, used to detect changes in model";
     }
-
-    /// visualization options.
-    /// 
-    /// **note**: _read-only_. To dynamically mutate this, consider build `MjModel` via `MjSpec`.
-    pub fn vis(&self) -> &MjVisual {
-        (&self.0.vis).into()
+    structs {
+        opt: mjOption = "physics options\n\n**note**: _read-only_. To dynamically mutate this, consider building `MjModel` via `MjSpec`.";
+        vis: mjVisual = "visualization options\n\n**note**: _read-only_. To dynamically mutate this, consider building `MjModel` via `MjSpec`.";
+        stat: mjStatistic = "model statistics\n\n**note**: _read-only_. To dynamically mutate this, consider building `MjModel` via `MjSpec`.";
     }
-
-    /// model statistics.
-    /// 
-    /// **note**: _read-only_. To dynamically mutate this, consider build `MjModel` via `MjSpec`.
-    pub fn stat(&self) -> &MjStatistic {
-        (&self.0.stat).into()
-    }
-}
+});
 
 macro_rules! impl_buffer_slices {
     ($($name:ident: [$T:ty; $size:ident $(* $mul_lit:literal)? $(* $mul_const:ident)? $(x $mul:ident)?] = $description:literal;)*) => {
-        impl MjModel {
+        #[allow(non_snake_case)]
+        impl mjModel {
             $(
-                #[allow(non_snake_case)]
                 #[doc = $description]
                 pub fn $name(&self) -> &[$T] {
-                    unsafe { std::slice::from_raw_parts(self.0.$name, self.$size() $(* $mul_lit)? $(* $mul_const as usize)? $(* self.$mul())?) }
+                    unsafe { std::slice::from_raw_parts(self.$name, self.$size() $(* $mul_lit)? $(* $mul_const as usize)? $(* self.$mul())?) }
                 }
             )*
         }
@@ -608,10 +582,4 @@ impl_buffer_slices! {
 
     // paths
     paths: [i8; npaths * 1]                = "paths to assets, 0-terminated";
-}
-
-impl MjModel {
-    pub fn signature(&self) -> u64 {
-        self.0.signature
-    }
 }

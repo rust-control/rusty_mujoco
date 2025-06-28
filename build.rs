@@ -68,6 +68,7 @@ fn main() {
         .array_pointers_in_arguments(true)
         .merge_extern_blocks(true)
         .prepend_enum_name(false)
+        .layout_tests(false)
         .parse_callbacks(Box::new(TrimUnderscoreCallbacks))
         .parse_callbacks(Box::new(MakeMjnConstantsCallbacks))
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
@@ -78,8 +79,10 @@ fn main() {
         There seems to be no way to:
         
         - set `pub(crate)` visibility for newtype's inner field
-        - make `mjtN*` constants `usize` instead of original type
-        - hide only `mjtN*` consts of newtype impl from user, and
+        - make `mjtN.*` constants `usize` instead of original type
+        - make `mjMAX.*` constants `usize` except for ones originally defined as
+          `f(64|32)` which are limit values for something
+        - hide only `mjtN.*` consts of newtype impl from user, and
           remove `mj{NAME}_` prefix of consts of newtype impl
 
         using bindgen, so we do them manually...
@@ -93,7 +96,7 @@ fn main() {
                 new.push(line.replace("(pub", "(pub(crate)"));
             } else if line.starts_with("pub const mjN") {
                 /*
-                    pub const mjNSomething: Something = Something::Value;
+                    pub const mjNSomething: Something = Something::Value; // from enum newtype impl
                     pub const mjNSOMETHING: u32 = 42;
                 */
                 let mut line = line.split(' ');
@@ -108,8 +111,25 @@ fn main() {
                 } else {
                     format!("pub const {name}: usize = {value};")
                 });
+            } else if line.starts_with("pub const mjMAX") {
+                /*
+                    pub const mjMAXSOMETHING: f(64|32) = 1.0;
+                    pub const mjMAXNSOMETHING: u.* = 42;
+                */
+                let mut line = line.split(' ');
+                let _ = line.next(); // "pub"
+                let _ = line.next(); // "const"
+                let name = line.next().unwrap().strip_suffix(':').unwrap();
+                let ty = line.next().unwrap();
+                let _ = line.next(); // "="
+                let value = line.next().unwrap().strip_suffix(";").unwrap();
+                new.push(if ty.starts_with('f') {
+                    format!("pub const {name}: {ty} = {value};")
+                } else {
+                    format!("pub const {name}: usize = {value};")
+                });
             } else if line.starts_with("    pub const mjN") {
-                new.push(line.replace("pub", "pub(crate)"));
+                new.push(line.replace("pub ", ""));
             } else if line.starts_with("    pub const mj") {
                 /*
                     impl mjtObj {
