@@ -9,7 +9,7 @@ macro_rules! derive_fields_mapping {
         })?
         $(enums {
             $(
-                $enum_name:ident $(/ $set_enum_name:ident)?: $Enum:ty = $enum_description:literal;
+                $enum_name:ident $(/ $set_enum_name:ident)?: $Enum:ident = $enum_description:literal;
             )*
         })?
         $(structs {
@@ -37,7 +37,7 @@ macro_rules! derive_fields_mapping {
             $($(
                 #[doc = $enum_description]
                 pub fn $enum_name(&self) -> $Enum {
-                    $Enum(self.$enum_name.0 as _)
+                    $Enum(self.$enum_name as u32)
                 }
                 $(
                     #[doc = "set "]

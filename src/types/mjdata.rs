@@ -2,447 +2,350 @@
 //! 
 //! This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
 
+use crate::{mjModel, bindgen::mjContact};
+
 pub use crate::bindgen::{
-    mjData,
-    mjNSOLVER, mjNISLAND, mjNTIMER, mjNWARNING
+    mjData, mjSolverStat, mjWarningStat, mjTimerStat,
+    mjtConstraint, mjtConstraintState,
+    mjNSOLVER, mjNISLAND, mjNTIMER, mjNWARNING, mjMAXTHREAD,
 };
 
 derive_fields_mapping!(mjData {
     scalars {
         // constant sizes
-        narena: _ =            "size of the arena in bytes (inclusive of the stack)";
-        nbuffer: _ =           "size of main buffer in bytes";
-        nplugin: _ =           "number of plugin instances";
+        narena: usize = "size of the arena in bytes (inclusive of the stack)";
+        nbuffer: usize = "size of main buffer in bytes";
+        nplugin: usize = "number of plugin instances";
 
         // stack pointer
-        pstack: _ =            "first available byte in stack";
-        pbase: _ =             "value of pstack when mj_markStack was last called";
+        pstack: usize = "first available byte in stack";
+        pbase: usize = "value of pstack when mj_markStack was last called";
 
         // arena pointer
-        parena: _ =            "first available byte in arena";
+        parena: usize = "first available byte in arena";
 
         // memory utilization statistics
-        maxuse_stack: _ =                       "maximum stack allocation in bytes";
-        maxuse_threadstack: [usize; mjMAXTHREAD] =    "maximum stack allocation per thread in bytes";
-        maxuse_arena: _ =                       "maximum arena allocation in bytes";
-        maxuse_con: _ =                         "maximum number of contacts";
-        maxuse_efc: _ =                         "maximum number of scalar constraints";
+        maxuse_stack: usize = "maximum stack allocation in bytes";
+        maxuse_threadstack: [usize; mjMAXTHREAD] = "maximum stack allocation per thread in bytes";
+        maxuse_arena: usize = "maximum arena allocation in bytes";
+        maxuse_con: usize = "maximum number of contacts";
+        maxuse_efc: usize = "maximum number of scalar constraints";
 
+        // variable sizes
+        ncon: usize = "number of detected contacts";
+        ne: usize = "number of equality constraints";
+        nf: usize = "number of friction constraints";
+        nl: usize = "number of limit constraints";
+        nefc: usize = "number of constraints";
+        nJ: usize = "number of non-zeros in constraint Jacobian";
+        nA: usize = "number of non-zeros in constraint inverse inertia matrix";
+        nisland: usize = "number of detected constraint islands";
+
+        // global properties
+        time / set_time: f64 = "simulation time";
+        energy: [f64; 2] = "potential, kinetic energy";
+
+        signature: u64 = "compilation signature";
+    }
+    structs {
+        // disgnostics
+        warning: [mjWarningStat; mjNWARNING] = "warning statistics";
+        timer: [mjTimerStat; mjNTIMER] = "timer statistics";
     }
 });
 
-// constant sizes
-impl MjData {
-    /// size of the arena in bytes (inclusive of the stack)
-    pub fn narena(&self) -> usize {
-        self.0.narena
-    }
-    /// size of main buffer in bytes
-    pub fn nbuffer(&self) -> usize {
-        self.0.nbuffer
-    }
-    /// number of plugin instances
-    pub fn nplugin(&self) -> usize {
-        self.0.nplugin as usize
-    }
-}
-
-// stack pointer
-impl MjData {
-    /// first available byte in stack
-    pub fn pstack(&self) -> usize {
-        self.0.pstack
-    }
-    /// value of pstack when mj_markStack was last called
-    pub fn pbase(&self) -> usize {
-        self.0.pbase
-    }
-}
-
-// arena pointer
-impl MjData {
-    /// first byte in arena
-    pub fn parena(&self) -> usize {
-        self.0.parena
-    }
-}
-
-// memory utilization statistics
-impl MjData {
-    /// maximum stack allocation in bytes
-    pub fn maxuse_stack(&self) -> usize {
-      self.0.maxuse_stack
-    }
-    /// maximum arena allocation in bytes
-    pub fn maxuse_arena(&self) -> usize {
-      self.0.maxuse_arena
-    }
-    /// maximum stack allocation per thread in bytes
-    pub fn maxuse_threadstack(&self) -> [usize; crate::bindgen::mjMAXTHREAD as usize] {
-        self.0.maxuse_threadstack
-    }
-    /// maximum number of contacts
-    pub fn maxuse_con(&self) -> usize {
-        self.0.maxuse_con as usize
-    }
-    /// maximum number of scalar constraints
-    pub fn maxuse_efc(&self) -> usize {
-        self.0.maxuse_efc as usize
-    }
-}
-
 // solver statistics
-/*
-  mjSolverStat  solver[mjNISLAND*mjNSOLVER];  // solver statistics per island, per iteration
-  int           solver_niter[mjNISLAND];      // number of solver iterations, per island
-  int           solver_nnz[mjNISLAND];        // number of nonzeros in Hessian or efc_AR, per island
-  mjtNum        solver_fwdinv[2];             // forward-inverse comparison: qfrc, efc
-*/
-impl MjData {
+impl mjData {
     /// solver statistics per island, per iteration
-    pub fn solver(&self) -> [MjSolverStat; mjNISLAND as usize * mjNSOLVER as usize] {
-        self.0.solver.map(MjSolverStat)
+    pub fn solver(&self) -> [mjSolverStat; mjNISLAND as usize * mjNSOLVER as usize] {
+        self.solver
     }
     /// number of solver iterations, per island
     pub fn solver_niter(&self) -> [usize; mjNISLAND as usize] {
-        self.0.solver_niter.map(|x| x as usize)
+        self.solver_niter.map(|x| x as usize)
     }
     /// number of nonzeros in Hessian or efc_AR, per island
     pub fn solver_nnz(&self) -> [usize; mjNISLAND as usize] {
-        self.0.solver_nnz.map(|x| x as usize)
+        self.solver_nnz.map(|x| x as usize)
     }
     /// forward-inverse comparison: qfrc, efc
     pub fn solver_fwdinv(&self) -> [f64; 2] {
-        self.0.solver_fwdinv
+        self.solver_fwdinv
     }
 }
 
-// diagnostics
-/*
-  mjWarningStat warning[mjNWARNING];          // warning statistics
-  mjTimerStat   timer[mjNTIMER];              // timer statistics
-*/
-impl MjData {
-    /// warning statistics
-    pub fn warning(&self) -> [MjWarningStat; mjNWARNING as usize] {
-        self.0.warning.map(MjWarningStat)
-    }
-    /// timer statistics
-    pub fn timer(&self) -> [MjTimerStat; mjNTIMER as usize] {
-        self.0.timer.map(MjTimerStat)
-    }
-}
-
-// variable sizes
-impl MjData {
-    /// number of detected contacts
-    pub fn ncon(&self) -> usize {self.0.ncon as usize}
-    /// number of equality constraints
-    pub fn ne(&self) -> usize {self.0.ne as usize}
-    /// number of friction constraints
-    pub fn nf(&self) -> usize {self.0.nf as usize}
-    /// number of limit constraints
-    pub fn nl(&self) -> usize {self.0.nl as usize}
-    /// number of constraints
-    pub fn nefc(&self) -> usize {self.0.nefc as usize}
-    /// number of non-zeros in constraint Jacobian
-    #[allow(non_snake_case)]
-    pub fn nJ(&self) -> usize {self.0.nJ as usize}
-    /// number of non-zeros in constraint inverse inertia matrix
-    #[allow(non_snake_case)]
-    pub fn nA(&self) -> usize {self.0.nA as usize}
-    /// number of detected constraint islands
-    pub fn nisland(&self) -> usize {self.0.nisland as usize}
-}
-
-// global properties
-/*
-  mjtNum  time;              // simulation time
-  mjtNum  energy[2];         // potential, kinetic energy
-*/
-impl MjData {
-    /// simulation time
-    pub fn time(&self) -> f64 {
-        self.0.time
-    }
-    /// set simulation time
-    pub fn set_time(&mut self, time: f64) {
-        self.0.time = time;
-    }
-
-    /// potential, kinetic energy
-    pub fn energy(&self) -> [f64; 2] {
-        self.0.energy
-    }
-}
-
-macro_rules! impl_buffer_slices {
-    ($($name:ident / $mut_name:ident: [$T:ty; $size_note:literal] = $description:literal;)*) => {
-        impl MjData {
+// transmute: `u8` -> `bool`
+macro_rules! buffer_slices_depending_on_model {
+    ($($name:ident : [$T:ty; $size:ident $(* $lit:literal)? $(* $var:ident)?] = $description:literal;)*) => {
+        #[allow(non_snake_case)]
+        impl mjData {
             $(
-                #[allow(non_snake_case)]
                 #[doc = $description]
                 #[doc = "\n"]
-                #[doc = "SAFETY: `len` must not exceed `"]
-                #[doc = $size_note]
-                #[doc = "` of corresponded MjModel."]
-                pub unsafe fn $name(&self, len: usize) -> &[$T] {
-                    unsafe { std::slice::from_raw_parts(self.0.$name, len) }
+                #[doc = "**SAFETY**: `model` must be exactly the same model as the one used to create this `mjData`."]
+                pub unsafe fn $name(&self, model: &mjModel) -> &[$T] {
+                    #[cfg(debug_assertions/* size check */)] let _: $T = unsafe { std::mem::transmute(*self.$name) };
+                    unsafe { std::slice::from_raw_parts(self.$name as *const $T, model.$size()$(* $lit)?$(* model.$var())?) }
+                }
+            )*
+        }
+    };
+    ($($name:ident / $mut_name:ident : [$T:ty; $size:ident $(* $mul:literal)?] = $description:literal;)*) => {
+        #[allow(non_snake_case)]
+        impl mjData {
+            $(
+                #[doc = $description]
+                #[doc = "\n"]
+                #[doc = "**SAFETY**: `model` must be exactly the same model as the one used to create this `mjData`."]
+                pub unsafe fn $name(&self, model: &mjModel) -> &[$T] {
+                    #[cfg(debug_assertions/* size check */)] let _: $T = unsafe { std::mem::transmute(*self.$name) };
+                    unsafe { std::slice::from_raw_parts(self.$name as *const $T, model.$size()$(* $mul)?) }
                 }
 
-                #[allow(non_snake_case)]
                 #[doc = "mutable "]
                 #[doc = $description]
                 #[doc = "\n"]
-                #[doc = "SAFETY: `len` must not exceed `"]
-                #[doc = $size_note]
-                #[doc = "` of corresponded MjModel."]
-                pub unsafe fn $mut_name(&mut self, len: usize) -> &mut [$T] {
-                    unsafe { std::slice::from_raw_parts_mut(self.0.$name, len) }
+                #[doc = "**SAFETY**: `model` must be exactly the same model as the one used to create this `mjData`."]
+                pub unsafe fn $mut_name(&mut self, model: &mjModel) -> &mut [$T] {
+                    #[cfg(debug_assertions/* size check */)] let _: $T = unsafe { std::mem::transmute(*self.$name) };
+                    unsafe { std::slice::from_raw_parts_mut(self.$name as *mut $T, model.$size()$(* $mul)?) }
                 }
             )*
         }
     };
 }
-impl_buffer_slices! {
-  // state
-  qpos / qpos_mut: [f64; "nq * 1"]              = "position";
-  qvel / qvel_mut: [f64; "nv * 1"]              = "velocity";
-  act / act_mut: [f64; "na * 1"]               = "actuator activation";
-  qacc_warmstart / qacc_warmstart_mut: [f64; "nv * 1"]    = "acceleration used for warmstart";
-  plugin_state / plugin_state_mut: [f64; "npluginstate * 1"]      = "plugin state";
+// user-touchable buffers
+buffer_slices_depending_on_model! {
+    // state
+    qpos / qpos_mut: [f64; nq] = "position (nq x 1)";
+    qvel / qvel_mut: [f64; nv] = "velocity (nv x 1)";
+    act / act_mut: [f64; na] = "actuator activation (na x 1)";
+    qacc_warmstart / qacc_warmstart_mut: [f64; nv] = "acceleration used for warmstart (nv x 1)";
+    plugin_state / plugin_state_mut: [f64; npluginstate] = "plugin state (npluginstate x 1)";
+    
+    // control
+    ctrl / ctrl_mut: [f64; nu] = "control (nu x 1)";
+    qfrc_applied / qfrc_applied_mut: [f64; nv] = "applied generalized force (nv x 1)";
+    xfrc_applied / xfrc_applied_mut: [f64; nbody * 6] = "applied Cartesian force/torque (nbody x 6)";
+    eq_active / eq_active_mut: [bool; neq] = "enable/disable constraints (neq x 1)";
 
-  // control
-  ctrl / ctrl_mut: [f64; "nu * 1"]              = "control";
-  qfrc_applied / qfrc_applied_mut: [f64; "nv * 1"]      = "applied generalized force";
-  xfrc_applied / xfrc_applied_mut: [f64; "nbody * 6"]      = "applied Cartesian force/torque";
-  eq_active / eq_active_mut: [u8; "neq * 1"]        = "enable/disable constraints";
+    // mocap data
+    mocap_pos / mocap_pos_mut: [f64; nmocap * 3] = "positions of mocap bodies (nmocap x 3)";
+    mocap_quat / mocap_quat_mut: [f64; nmocap * 4] = "orientations of mocap bodies (nmocap x 4)";
 
-  // mocap data
-  mocap_pos / mocap_pos_mut: [f64; "nmocap * 3"]         = "positions of mocap bodies";
-  mocap_quat / mocap_quat_mut: [f64; "nmocap * 4"]        = "orientations of mocap bodies";
+    // user data
+    userdata / userdata_mut: [f64; nuserdata] = "user data, not touched by engine (nuserdata x 1)";
+}
+// read-only buffers; for MuJoCo's internal use or output
+buffer_slices_depending_on_model! {
+    // dynamics
+    qacc: [f64; nv] = "acceleration (nv x 1)";
+    act_dot: [f64; na] = "time-derivative of actuator activation (na x 1)";
 
-  // dynamics
-  qacc / qacc_mut: [f64; "nv * 1"]              = "acceleration";
-  act_dot / act_dot_mut: [f64; "na * 1"]           = "time-derivative of actuator activation";
+    // sensors
+    sensordata: [f64; nsensordata] = "sensor data array (nsensordata x 1)";
 
-  // user data
-  userdata / userdata_mut: [f64; "nuserdata * 1"]          = "user data, not touched by engine";
+    // plugins
+    plugin: [i32; nplugin] = "copy of m->plugin, required for deletion";
+    plugin_data: [usize; nplugin] = "pointer to plugin-managed data structure (nplugin x 1)";
 
-  // sensors
-  sensordata / sensordata_mut: [f64; "nsensordata * 1"]        = "sensor data array";
+    // computed by mj_fwdPosition/mj_kinematics
+    xpos: [f64; nbody * 3] = "Cartesian position of body frame (nbody x 3)";
+    xquat: [f64; nbody * 4] = "Cartesian orientation of body frame (nbody x 4)";
+    xmat: [f64; nbody * 9] = "Cartesian orientation of body frame (nbody x 9)";
+    xipos: [f64; nbody * 3] = "Cartesian position of body com (nbody x 3)";
+    ximat: [f64; nbody * 9] = "Cartesian orientation of body inertia (nbody x 9)";
+    xanchor: [f64; njnt * 3] = "Cartesian position of joint anchor (njnt x 3)";
+    xaxis: [f64; njnt * 3] = "Cartesian joint axis (njnt x 3)";
+    geom_xpos: [f64; ngeom * 3] = "Cartesian geom position (ngeom x 3)";
+    geom_xmat: [f64; ngeom * 9] = "Cartesian geom orientation (ngeom x 9)";
+    site_xpos: [f64; nsite * 3] = "Cartesian site position (nsite x 3)";
+    site_xmat: [f64; nsite * 9] = "Cartesian site orientation (nsite x 9)";
+    cam_xpos: [f64; ncam * 3] = "Cartesian camera position (ncam x 3)";
+    cam_xmat: [f64; ncam * 9] = "Cartesian camera orientation (ncam x 9)";
+    light_xpos: [f64; nlight * 3] = "Cartesian light position (nlight x 3)";
+    light_xdir: [f64; nlight * 3] = "Cartesian light direction (nlight x 3)";
 
-  // plugins
-  plugin / plugin_mut: [i32; "nplugin * 1"]         = "copy of m->plugin, required for deletion";
-  /* handle specially in later...
-    uintptr_t* plugin_data;    // pointer to plugin-managed data structure         (nplugin * 1)
-  */
+    // computed by mj_fwdPosition/mj_comPos
+    subtree_com: [f64; nbody * 3] = "center of mass of each subtree (nbody x 3)";
+    cdof: [f64; nv * 6] = "com-based motion axis of each dof (rot:lin) (nv x 6)";
+    cinert: [f64; nbody * 10] = "com-based body inertia and mass (nbody x 10)";
 
-  //-------------------- POSITION dependent
+    // computed by mj_fwdPosition/mj_flex
+    flexvert_xpos: [f64; nflexvert * 3] = "Cartesian flex vertex positions (nflexvert x 3)";
+    flexelem_aabb: [f64; nflexelem * 6] = "flex element bounding boxes (center, size) (nflexelem x 6)";
+    flexedge_J: [f64; nflexedge * nv] = "flex edge Jacobian (nflexedge x nv)";
+    flexedge_length: [f64; nflexedge * 1] = "flex edge lengths (nflexedge x 1)";
 
-  // computed by mj_fwdPosition/mj_kinematics
-  xpos / xpos_mut: [f64; "nbody * 3"]              = "Cartesian position of body frame";
-  xquat / xquat_mut: [f64; "nbody * 4"]             = "Cartesian orientation of body frame";
-  xmat / xmat_mut: [f64; "nbody * 9"]              = "Cartesian orientation of body frame";
-  xipos / xipos_mut: [f64; "nbody * 3"]             = "Cartesian position of body com";
-  ximat / ximat_mut: [f64; "nbody * 9"]             = "Cartesian orientation of body inertia";
-  xanchor / xanchor_mut: [f64; "njnt * 3"]           = "Cartesian position of joint anchor";
-  xaxis / xaxis_mut: [f64; "njnt * 3"]             = "Cartesian joint axis";
-  geom_xpos / geom_xpos_mut: [f64; "ngeom * 3"]         = "Cartesian geom position";
-  geom_xmat / geom_xmat_mut: [f64; "ngeom * 9"]         = "Cartesian geom orientation";
-  site_xpos / site_xpos_mut: [f64; "nsite * 3"]         = "Cartesian site position";
-  site_xmat / site_xmat_mut: [f64; "nsite * 9"]         = "Cartesian site orientation";
-  cam_xpos / cam_xpos_mut: [f64; "ncam * 3"]          = "Cartesian camera position";
-  cam_xmat / cam_xmat_mut: [f64; "ncam * 9"]          = "Cartesian camera orientation";
-  light_xpos / light_xpos_mut: [f64; "nlight * 3"]        = "Cartesian light position";
-  light_xdir / light_xdir_mut: [f64; "nlight * 3"]        = "Cartesian light direction";
+    // computed by mj_fwdPosition/mj_flex
+    flexedge_J_rownnz: [i32; nflexedge * 1] = "number of non-zeros in Jacobian row (nflexedge x 1)";
+    flexedge_J_rowadr: [i32; nflexedge * 1] = "row start address in colind array (nflexedge x 1)";
+    flexedge_J_colind: [i32; nflexedge * nv] = "column indices in sparse Jacobian (nflexedge x nv)";
 
-  // computed by mj_fwdPosition/mj_comPos
-  subtree_com / subtree_com_mut: [f64; "nbody * 3"]       = "center of mass of each subtree";
-  cdof / cdof_mut: [f64; "nv * 6"]              = "com-based motion axis of each dof (rot:lin)";
-  cinert / cinert_mut: [f64; "nbody * 10"]            = "com-based body inertia and mass";
+    // computed by mj_fwdPosition/mj_tendon
+    ten_wrapadr: [i32; ntendon * 1] = "start address of tendon's path (ntendon x 1)";
+    ten_wrapnum: [i32; ntendon * 1] = "number of wrap points in path (ntendon x 1)";
+    ten_J_rownnz: [i32; ntendon * 1] = "number of non-zeros in Jacobian row (ntendon x 1)";
+    ten_J_rowadr: [i32; ntendon * 1] = "row start address in colind array (ntendon x 1)";
+    ten_J_colind: [i32; ntendon * nv] = "column indices in sparse Jacobian (ntendon x nv)";
+    wrap_obj: [i32; nwrap * 2] = "geom id; -1: site; -2: pulley (nwrap x 2)";
 
-  // computed by mj_fwdPosition/mj_flex
-  flexvert_xpos / flexvert_xpos_mut: [f64; "nflexvert * 3"]     = "Cartesian flex vertex positions";
-  flexelem_aabb / flexelem_aabb_mut: [f64; "nflexelem * 6"]     = "flex element bounding boxes (center, size)";
-  flexedge_J_rownnz / flexedge_J_rownnz_mut: [i32; "nflexedge * 1"] = "number of non-zeros in Jacobian row";
-  flexedge_J_rowadr / flexedge_J_rowadr_mut: [i32; "nflexedge * 1"] = "row start address in colind array";
-  flexedge_J_colind / flexedge_J_colind_mut: [i32; "nflexedge x nv"] = "column indices in sparse Jacobian";
-  flexedge_J / flexedge_J_mut: [f64; "nflexedge x nv"]        = "flex edge Jacobian";
-  flexedge_length / flexedge_length_mut: [f64; "nflexedge * 1"]   = "flex edge lengths";
+    // computed by mj_fwdPosition/mj_tendon
+    ten_J: [f64; ntendon * nv] = "tendon Jacobian (ntendon x nv)";
+    ten_length: [f64; ntendon * 1] = "tendon lengths (ntendon x 1)";
+    wrap_xpos: [f64; nwrap * 6] = "Cartesian 3D points in all paths (nwrap x 6)";
 
-  // computed by mj_fwdPosition/mj_tendon
-  ten_wrapadr / ten_wrapadr_mut: [i32; "ntendon * 1"]       = "start address of tendon's path";
-  ten_wrapnum / ten_wrapnum_mut: [i32; "ntendon * 1"]       = "number of wrap points in path";
-  ten_J_rownnz / ten_J_rownnz_mut: [i32; "ntendon * 1"]      = "number of non-zeros in Jacobian row";
-  ten_J_rowadr / ten_J_rowadr_mut: [i32; "ntendon * 1"]      = "row start address in colind array";
-  ten_J_colind / ten_J_colind_mut: [i32; "ntendon x nv"]      = "column indices in sparse Jacobian";
-  ten_J / ten_J_mut: [f64; "ntendon x nv"]             = "tendon Jacobian";
-  ten_length / ten_length_mut: [f64; "ntendon * 1"]        = "tendon lengths";
-  wrap_obj / wrap_obj_mut: [i32; "nwrap x 2"]          = "geom id; -1: site; -2: pulley";
-  wrap_xpos / wrap_xpos_mut: [f64; "nwrap * 6"]         = "Cartesian 3D points in all paths";
+    // computed by mj_fwdPosition/mj_transmission
+    actuator_length: [f64; nu * 1] = "actuator lengths (nu x 1)";
+    actuator_moment: [f64; nJmom * 1] = "actuator moments (nJmom x 1)";
 
-  // computed by mj_fwdPosition/mj_transmission
-  actuator_length / actuator_length_mut: [f64; "nu * 1"]   = "actuator lengths";
-  moment_rownnz / moment_rownnz_mut: [i32; "nu * 1"]     = "number of non-zeros in actuator_moment row";
-  moment_rowadr / moment_rowadr_mut: [i32; "nu * 1"]     = "row start address in colind array";
-  moment_colind / moment_colind_mut: [i32; "nJmom * 1"]     = "column indices in sparse Jacobian";
-  actuator_moment / actuator_moment_mut: [f64; "nJmom * 1"]   = "actuator moments";
+    // computed by mj_fwdPosition/mj_transmission
+    moment_rownnz: [i32; nu * 1] = "number of non-zeros in actuator_moment row (nu x 1)";
+    moment_rowadr: [i32; nu * 1] = "row start address in colind array (nu x 1)";
+    moment_colind: [i32; nJmom * 1] = "column indices in sparse Jacobian (nJmom x 1)";
 
-  // computed by mj_fwdPosition/mj_makeM
-  crb / crb_mut: [f64; "nbody * 10"]               = "com-based composite inertia and mass";
-  qM / qM_mut: [f64; "nM * 1"]                = "inertia (sparse)";
+    // computed by mj_fwdPosition/mj_makeM
+    crb: [f64; nbody * 10] = "com-based composite inertia and mass (nbody x 10)";
+    qM: [f64; nM * 1] = "inertia (sparse) (nM x 1)";
 
-  // computed by mj_fwdPosition/mj_factorM
-  qLD / qLD_mut: [f64; "nC * 1"]               = "L'*D*L factorization of M (sparse)";
-  qLDiagInv / qLDiagInv_mut: [f64; "nv * 1"]         = "1/diag(D)";
+    // computed by mj_fwdPosition/mj_factorM
+    qLD: [f64; nC * 1] = "L'*D*L factorization of M (sparse) (nC x 1)";
+    qLDiagInv: [f64; nv * 1] = "1/diag(D) (nv x 1)";
 
-  // computed by mj_collisionTree
-   bvh_aabb_dyn / bvh_aabb_dyn_mut: [f64; "nbvhdynamic * 6"]     = "global bounding box (center, size)";
-  bvh_active / bvh_active_mut: [u8; "nbvh * 1"]       = "was bounding volume checked for collision";
+    // computed by mj_collisionTree
+    bvh_aabb_dyn: [f64; nbvhdynamic * 6] = "global bounding box (center, size) (nbvhdynamic x 6)";
+    bvh_active: [bool; nbvh * 1] = "was bounding volume checked for collision (nbvh x 1)";
 
-  //-------------------- POSITION, VELOCITY dependent
+    // computed by mj_fwdVelocity
+    flexedge_velocity: [f64; nflexedge * 1] = "flex edge velocities (nflexedge x 1)";
+    ten_velocity: [f64; ntendon * 1] = "tendon velocities (ntendon x 1)";
+    actuator_velocity: [f64; nu * 1] = "actuator velocities (nu x 1)";
 
-  // computed by mj_fwdVelocity
-  flexedge_velocity / flexedge_velocity_mut: [f64; "nflexedge * 1"] = "flex edge velocities";
-  ten_velocity / ten_velocity_mut: [f64; "ntendon * 1"]      = "tendon velocities";
-  actuator_velocity / actuator_velocity_mut: [f64; "nu * 1"] = "actuator velocities";
+    // computed by mj_fwdVelocity/mj_comVel
+    cvel: [f64; nbody * 6] = "com-based velocity (rot:lin) (nbody x 6)";
+    cdof_dot: [f64; nv * 6] = "time-derivative of cdof (rot:lin) (nv x 6)";
 
-  // computed by mj_fwdVelocity/mj_comVel
-  cvel / cvel_mut: [f64; "nbody * 6"]              = "com-based velocity (rot:lin)";
-  cdof_dot / cdof_dot_mut: [f64; "nv * 6"]          = "time-derivative of cdof (rot:lin)";
+    // computed by mj_fwdVelocity/mj_rne (without acceleration)
+    qfrc_bias: [f64; nv * 1] = "C(qpos,qvel) (nv x 1)";
 
-  // computed by mj_fwdVelocity/mj_rne (without acceleration)
-  qfrc_bias / qfrc_bias_mut: [f64; "nv * 1"]         = "C(qpos,qvel)";
+    // computed by mj_fwdVelocity/mj_passive
+    qfrc_spring: [f64; nv * 1] = "passive spring force (nv x 1)";
+    qfrc_damper: [f64; nv * 1] = "passive damper force (nv x 1)";
+    qfrc_gravcomp: [f64; nv * 1] = "passive gravity compensation force (nv x 1)";
+    qfrc_fluid: [f64; nv * 1] = "passive fluid force (nv x 1)";
+    qfrc_passive: [f64; nv * 1] = "total passive force (nv x 1)";
 
-  // computed by mj_fwdVelocity/mj_passive
-  qfrc_spring / qfrc_spring_mut: [f64; "nv * 1"]       = "passive spring force";
-  qfrc_damper / qfrc_damper_mut: [f64; "nv * 1"]       = "passive damper force";
-  qfrc_gravcomp / qfrc_gravcomp_mut: [f64; "nv * 1"]     = "passive gravity compensation force";
-  qfrc_fluid / qfrc_fluid_mut: [f64; "nv * 1"]        = "passive fluid force";
-  qfrc_passive / qfrc_passive_mut: [f64; "nv * 1"]      = "total passive force";
+    // computed by mj_sensorVel/mj_subtreeVel if needed
+    subtree_linvel: [f64; nbody * 3] = "linear velocity of subtree com (nbody x 3)";
+    subtree_angmom: [f64; nbody * 3] = "angular momentum about subtree com (nbody x 3)";
 
-  // computed by mj_sensorVel/mj_subtreeVel if needed
-  subtree_linvel / subtree_linvel_mut: [f64; "nbody * 3"]    = "linear velocity of subtree com";
-  subtree_angmom / subtree_angmom_mut: [f64; "nbody * 3"]    = "angular momentum about subtree com";
+    // computed by mj_Euler or mj_implicit
+    qH: [f64; nC * 1] = "L'*D*L factorization of modified M (nC x 1)";
+    qHDiagInv: [f64; nv * 1] = "1/diag(D) of modified M (nv x 1)";
 
-  // computed by mj_Euler or mj_implicit
-  qH / qH_mut: [f64; "nC * 1"]                = "L'*D*L factorization of modified M";
-  qHDiagInv / qHDiagInv_mut: [f64; "nv * 1"]         = "1/diag(D) of modified M";
+    // computed by mj_implicit/mj_derivative
+    qDeriv: [f64; nD * 1] = "d (passive + actuator - bias) / d qvel (nD x 1)";
 
-  // computed by mj_resetData
-  B_rownnz / B_rownnz_mut: [i32; "nbody * 1"]          = "body-dof: non-zeros in each row";
-  B_rowadr / B_rowadr_mut: [i32; "nbody * 1"]          = "body-dof: address of each row in B_colind";
-  B_colind / B_colind_mut: [i32; "nB * 1"]          = "body-dof: column indices of non-zeros";
-  M_rownnz / M_rownnz_mut: [i32; "nv * 1"]          = "reduced inertia: non-zeros in each row";
-  M_rowadr / M_rowadr_mut: [i32; "nv * 1"]          = "reduced inertia: address of each row in ";
-  M_colind / M_colind_mut: [i32; "nC * 1"]          = "reduced inertia: column indices of non-zeros";
-  mapM2M / mapM2M_mut: [i32; "nC * 1"]            = "index mapping from qM to M";
-  D_rownnz / D_rownnz_mut: [i32; "nv * 1"]          = "full inertia: non-zeros in each row";
-  D_rowadr / D_rowadr_mut: [i32; "nv * 1"]          = "full inertia: address of each row in D_colind";
-  D_diag / D_diag_mut: [i32; "nv * 1"]            = "full inertia: index of diagonal element";
-  D_colind / D_colind_mut: [i32; "nD * 1"]          = "full inertia: column indices of non-zeros";
-  mapM2D / mapM2D_mut: [i32; "nD * 1"]            = "index mapping from qM to D";
-  mapD2M / mapD2M_mut: [i32; "nM * 1"]            = "index mapping from D to qM";
+    // computed by mj_implicit/mju_factorLUSparse
+    qLU: [f64; nD * 1] = "sparse LU of (qM - dt*qDeriv) (nD x 1)";
 
-  // computed by mj_implicit/mj_derivative
-  qDeriv / qDeriv_mut: [f64; "nD * 1"]            = "d (passive + actuator - bias) / d qvel";
+    // computed by mj_fwdActuation
+    actuator_force: [f64; nu * 1] = "actuator force in actuation space (nu x 1)";
+    qfrc_actuator: [f64; nv * 1] = "actuator force (nv x 1)";
 
-  // computed by mj_implicit/mju_factorLUSparse
-  qLU / qLU_mut: [f64; "nD * 1"]               = "sparse LU of (qM - dt*qDeriv)";
+    // computed by mj_fwdAcceleration
+    qfrc_smooth: [f64; nv * 1] = "net unconstrained force (nv x 1)";
+    qacc_smooth: [f64; nv * 1] = "unconstrained acceleration (nv x 1)";
 
-  //-------------------- POSITION, VELOCITY, CONTROL/ACCELERATION dependent
+    // computed by mj_fwdConstraint/mj_inverse
+    qfrc_constraint: [f64; nv * 1] = "constraint force (nv x 1)";
 
-  // computed by mj_fwdActuation
-  actuator_force / actuator_force_mut: [f64; "nu * 1"]    = "actuator force in actuation space";
-  qfrc_actuator / qfrc_actuator_mut: [f64; "nv * 1"]     = "actuator force";
+    // computed by mj_inverse
+    qfrc_inverse: [f64; nv * 1] = "net external force; should equal: qfrc_applied + J'*xfrc_applied + qfrc_actuator (nv x 1)";
 
-  // computed by mj_fwdAcceleration
-  qfrc_smooth / qfrc_smooth_mut: [f64; "nv * 1"]       = "net unconstrained force";
-  qacc_smooth / qacc_smooth_mut: [f64; "nv * 1"]       = "unconstrained acceleration";
+    // computed by mj_sensorAcc/mj_rnePostConstraint if needed; rotation:translation format
+    cacc: [f64; nbody * 6] = "com-based acceleration (rot:lin) (nbody x 6)";
+    cfrc_int: [f64; nbody * 6] = "com-based interaction force with parent (rot:lin) (nbody x 6)";
+    cfrc_ext: [f64; nbody * 6] = "com-based external force on body (rot:lin) (nbody x 6)";
 
-  // computed by mj_fwdConstraint/mj_inverse
-  qfrc_constraint / qfrc_constraint_mut: [f64; "nv * 1"]   = "constraint force";
+    // computed by mj_makeConstraint
+    tendon_efcadr: [i32; ntendon * 1] = "first efc address involving tendon; -1: none (ntendon x 1)";
+    efc_JT_rownnz: [i32; nv * 1] = "number of non-zeros in constraint Jacobian row (nv x 1)";
+    efc_JT_rowadr: [i32; nv * 1] = "row start address in colind array (nv x 1)";
+    efc_JT_rowsuper: [i32; nv * 1] = "number of subsequent rows in supernode (nv x 1)";
 
-  // computed by mj_inverse
-  qfrc_inverse / qfrc_inverse_mut: [f64; "; should equal"]      = "net ";
-                             // qfrc_applied + J'*xfrc_applied + qfrc_actuator   (nv * 1)
+    // computed by mj_resetData
+    B_rownnz: [i32; nbody * 1] = "body-dof: non-zeros in each row (nbody x 1)";
+    B_rowadr: [i32; nbody * 1] = "body-dof: address of each row in B_colind (nbody x 1)";
+    B_colind: [i32; nB * 1] = "body-dof: column indices of non-zeros (nB x 1)";
+    M_rownnz: [i32; nv * 1] = "reduced inertia: non-zeros in each row (nv x 1)";
+    M_rowadr: [i32; nv * 1] = "reduced inertia: address of each row in M_colind (nv x 1)";
+    M_colind: [i32; nC * 1] = "reduced inertia: column indices of non-zeros (nC x 1)";
+    mapM2M: [i32; nC * 1] = "index mapping from qM to M (nC x 1)";
+    D_rownnz: [i32; nv * 1] = "full inertia: non-zeros in each row (nv x 1)";
+    D_rowadr: [i32; nv * 1] = "full inertia: address of each row in D_colind (nv x 1)";
+    D_diag: [i32; nv * 1] = "full inertia: index of diagonal element in each row (nv x 1)";
+    D_colind: [i32; nD * 1] = "full inertia: column indices of non-zeros (nD x 1)";
+    mapM2D: [i32; nD * 1] = "index mapping from qM to D (nD x 1)";
+    mapD2M: [i32; nM * 1] = "index mapping from D to qM (nM x 1)";
 
-  // computed by mj_sensorAcc/mj_rnePostConstraint if needed; rotation:translation format
-  cacc / cacc_mut: [f64; "nbody * 6"]              = "com-based acceleration";
-  cfrc_int / cfrc_int_mut: [f64; "nbody * 6"]          = "com-based interaction force with parent";
-  cfrc_ext / cfrc_ext_mut: [f64; "nbody * 6"]          = "com-based external force on body";
-
-  //-------------------- arena-allocated: POSITION dependent
-
-  /* handle specially in later...
-    // computed by mj_collision
-    mjContact* contact;        // array of all detected contacts                   (ncon * 1)
-  */
-
-  // computed by mj_makeConstraint
-  efc_type / efc_type_mut: [i32; "nefc * 1"]          = "constraint type (mjtConstraint)";
-  efc_id / efc_id_mut: [i32; "nefc * 1"]            = "id of object of specified type";
-  efc_J_rownnz / efc_J_rownnz_mut: [i32; "nefc * 1"]      = "number of non-zeros in constraint Jacobian row";
-  efc_J_rowadr / efc_J_rowadr_mut: [i32; "nefc * 1"]      = "row start address in colind array";
-  efc_J_rowsuper / efc_J_rowsuper_mut: [i32; "nefc * 1"]    = "number of subsequent rows in supernode";
-  efc_J_colind / efc_J_colind_mut: [i32; "nJ * 1"]      = "column indices in constraint Jacobian";
-  efc_JT_rownnz / efc_JT_rownnz_mut: [i32; "nv * 1"]     = "number of non-zeros in constraint Jacobian row ";
-  efc_JT_rowadr / efc_JT_rowadr_mut: [i32; "nv * 1"]     = "row start address in colind array              ";
-  efc_JT_rowsuper / efc_JT_rowsuper_mut: [i32; "nv * 1"]   = "number of subsequent rows in supernode         ";
-  efc_JT_colind / efc_JT_colind_mut: [i32; "nJ * 1"]     = "column indices in constraint Jacobian          ";
-  efc_J / efc_J_mut: [f64; "nJ * 1"]             = "constraint Jacobian";
-  efc_JT / efc_JT_mut: [f64; "nJ * 1"]            = "constraint Jacobian transposed";
-  efc_pos / efc_pos_mut: [f64; "nefc * 1"]           = "constraint position (equality, contact)";
-  efc_margin / efc_margin_mut: [f64; "nefc * 1"]        = "inclusion margin (contact)";
-  efc_frictionloss / efc_frictionloss_mut: [f64; "nefc * 1"]  = "frictionloss (friction)";
-  efc_diagApprox / efc_diagApprox_mut: [f64; "nefc * 1"]    = "approximation to diagonal of A";
-  efc_KBIP / efc_KBIP_mut: [f64; "nefc * 4"]          = "stiffness, damping, impedance, imp'";
-  efc_D / efc_D_mut: [f64; "nefc * 1"]             = "constraint mass";
-  efc_R / efc_R_mut: [f64; "nefc * 1"]             = "inverse constraint mass";
-  tendon_efcadr / tendon_efcadr_mut: [i32; "ntendon * 1"]     = "first efc address involving tendon; -1: none";
-
-  // computed by mj_island (island dof structure)
-  dof_island / dof_island_mut: [i32; "nv * 1"]        = "island id of this dof; -1: none";
-  island_dofadr / island_dofadr_mut: [i32; "nisland * 1"]     = "island start address in dof vector";
-
-  // computed by mj_island (island constraint structure)
-  efc_island / efc_island_mut: [i32; "nefc * 1"]        = "island id of this constraint";
-
-  // computed by mj_projectConstraint (PGS solver)
-  efc_AR_rownnz / efc_AR_rownnz_mut: [i32; "nefc * 1"]     = "number of non-zeros in AR";
-  efc_AR_rowadr / efc_AR_rowadr_mut: [i32; "nefc * 1"]     = "row start address in colind array";
-  efc_AR_colind / efc_AR_colind_mut: [i32; "nA * 1"]     = "column indices in sparse AR";
-  efc_AR / efc_AR_mut: [f64; "nA * 1"]            = "J*inv(M)*J' + R";
-
-  //-------------------- arena-allocated: POSITION, VELOCITY dependent
-
-  // computed by mj_fwdVelocity/mj_referenceConstraint
-  efc_vel / efc_vel_mut: [f64; "nefc * 1"]           = "velocity in constraint space: J*qvel";
-  efc_aref / efc_aref_mut: [f64; "nefc * 1"]          = "reference pseudo-acceleration";
-
-  //-------------------- arena-allocated: POSITION, VELOCITY, CONTROL/ACCELERATION dependent
-
-  // computed by mj_fwdConstraint/mj_inverse
-  efc_b / efc_b_mut: [f64; "nefc * 1"]             = "linear cost term: J*qacc_smooth - aref";
-  efc_state / efc_state_mut: [i32; "nefc * 1"]         = "constraint state (mjtConstraintState)";
-  efc_force / efc_force_mut: [f64; "nefc * 1"]         = "constraint force in constraint space";
+    // computed by mj_island (island dof structure)
+    dof_island: [i32; nv * 1] = "island id of this dof; -1: none (nv x 1)";
 }
 
-impl MjData {
-    /// pointer to plugin-managed data structure
-    /// 
-    /// SAFETY: `len` must not exceed `nplugin` of corresponded MjModel.
-    pub unsafe fn plugin_data(&self, len: usize) -> &[usize] {
-        unsafe { std::slice::from_raw_parts(self.0.plugin_data, len) }
-    }
+// transmute: `i32` -> `mjtConstraint`, `mjtConstraintState`
+macro_rules! buffer_slices {
+    ($($name:ident : [$T:ty; $size:ident $(* $lit:literal)?] = $description:literal;)*) => {
+        #[allow(non_snake_case)]
+        impl mjData {
+            $(
+                #[doc = $description]
+                pub fn $name(&self) -> &[$T] {
+                    #[cfg(debug_assertions/* size check */)] let _: $T = unsafe {std::mem::transmute(*self.$name)};
+                    unsafe { std::slice::from_raw_parts(self.$name as *const $T, self.$size()) }
+                }
+            )*
+        }
+    };
+}
+buffer_slices! {
+    // computed by mj_island (island dof structure)
+    island_dofadr: [i32; nisland] = "island start address in dof vector (nisland x 1)";
+    efc_island: [i32; nefc] = "island id of this constraint (nefc x 1)";
 
-    /// array of all detected contacts
-    /// 
-    /// SAFETY: `len` must not exceed `ncon` of corresponded MjModel.
-    pub unsafe fn contact(&self, len: usize) -> &[MjContact] {
-        let slice: &[crate::bindgen::mjContact] = unsafe { std::slice::from_raw_parts(self.0.contact, len) };
-        // SAFETY: `MjContact` is just a **wrapper** struct of `crate::bindgen::mjContact`
-        unsafe { std::mem::transmute(slice) }
-    }
+    // computed by mj_projectConstraint (PGS solver)
+    efc_AR_rownnz: [i32; nefc] = "number of non-zeros in AR (nefc x 1)";
+    efc_AR_rowadr: [i32; nefc] = "row start address in colind array (nefc x 1)";
+    efc_AR_colind: [i32; nA] = "column indices in sparse AR (nA x 1)";
+    efc_AR: [f64; nA] = "J*inv(M)*J' + R (nA x 1)";
+
+    // computed by mj_fwdConstraint/mj_inverse
+    efc_b: [f64; nefc] = "linear cost term: J*qacc_smooth - aref";
+    efc_aref: [f64; nefc] = "reference pseudo-acceleration (nefc x 1)";
+    efc_state: [mjtConstraintState; nefc] = "constraint state (mjtConstraintState)";
+    efc_force: [f64; nefc] = "constraint force in constraint space";
+
+    // computed by mj_makeConstraint
+    efc_type: [mjtConstraint; nefc] = "constraint type (mjtConstraint)";
+    efc_id: [i32; nefc] = "id of object of specified type";
+    efc_J_rownnz: [i32; nefc] = "number of non-zeros in constraint Jacobian row (nefc x 1)";
+    efc_J_rowadr: [i32; nefc] = "row start address in colind array (nefc x 1)";
+    efc_J_rowsuper: [i32; nefc] = "number of subsequent rows in supernode (nefc x 1)";
+    efc_J_colind: [i32; nJ] = "column indices in constraint Jacobian (nJ x 1)";
+    efc_JT_colind: [i32; nJ] = "column indices in constraint Jacobian transposed (nJ x 1)";
+    efc_J: [f64; nJ] = "constraint Jacobian (nJ x 1)";
+    efc_JT: [f64; nJ] = "constraint Jacobian transposed (nJ x 1)";
+    efc_pos: [f64; nefc] = "constraint position (equality, contact) (nefc x 1)";
+    efc_margin: [f64; nefc] = "inclusion margin (contact) (nefc x 1)";
+    efc_frictionloss: [f64; nefc] = "frictionloss (friction) (nefc x 1)";
+    efc_diagApprox: [f64; nefc] = "approximation to diagonal of A (nefc x 1)";
+    efc_KBIP: [f64; nefc * 4] = "stiffness, damping, impedance, imp' (nefc x 4)";
+    efc_D: [f64; nefc] = "constraint mass (nefc x 1)";
+    efc_R: [f64; nefc] = "inverse constraint mass (nefc x 1)";
+
+    // computed by mj_collision
+    contact: [mjContact; ncon] = "array of all detected contacts";
+
+    // computed by mj_fwdVelocity/mj_referenceConstraint
+    efc_vel: [f64; nefc] = "velocity in constraint space: J*qvel (nefc x 1)";
 }

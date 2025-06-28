@@ -45,17 +45,10 @@ impl SegmentationId {
 }
 
 pub struct ObjectId<O: Obj> {
-    pub(crate) index: usize,
+    index: usize,
     _type: std::marker::PhantomData<O>,
 }
 impl<O: Obj> ObjectId<O> {
-    pub(crate) fn new(index: usize) -> Self {
-        Self {
-            index,
-            _type: std::marker::PhantomData,
-        }
-    }
-
     pub fn index(&self) -> usize {
         self.index
     }
