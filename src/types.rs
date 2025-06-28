@@ -88,6 +88,7 @@ mod mjmodel;
 mod mjoption;
 mod mjdata;
 mod auxiliary;
+mod rendering;
 mod sim_statistics;
 mod visualization;
 
@@ -95,5 +96,6 @@ pub use mjmodel::*;
 pub use mjoption::*;
 pub use mjdata::*;
 pub use auxiliary::*;
+pub use rendering::*;
 pub use sim_statistics::*;
 pub use visualization::*;
