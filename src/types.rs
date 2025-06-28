@@ -69,8 +69,10 @@ mod mjmodel;
 mod mjoption;
 mod mjdata;
 mod auxiliary;
+mod sim_statistics;
 
 pub use mjmodel::*;
 pub use mjoption::*;
 pub use mjdata::*;
 pub use auxiliary::*;
+pub use sim_statistics::*;
