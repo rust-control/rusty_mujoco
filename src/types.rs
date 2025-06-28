@@ -1,7 +1,7 @@
 /// Generates getters and setters for fields of a struct for most/simple cases.
 /// Write some edge cases by hand if needed.
 macro_rules! derive_fields_mapping {
-    ($T:ident {
+    ($T:path {
         $(scalars {
             $(
                 $scalar_name:ident $(/ $set_scalar_name:ident)?: $Scalar:ty = $scalar_description:literal;
@@ -68,7 +68,9 @@ macro_rules! derive_fields_mapping {
 mod mjmodel;
 mod mjoption;
 mod mjdata;
+mod auxiliary;
 
 pub use mjmodel::*;
 pub use mjoption::*;
 pub use mjdata::*;
+pub use auxiliary::*;
