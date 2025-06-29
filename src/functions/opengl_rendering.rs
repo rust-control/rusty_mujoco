@@ -8,7 +8,7 @@ pub use crate::bindgen::{
     mjtFontScale, mjtFont, mjtGridPos,
 };
 
-use super::helper::{
+use crate::helper::{
     Rgb, Rgba,
 };
 use crate::{

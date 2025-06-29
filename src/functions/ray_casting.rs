@@ -17,7 +17,7 @@
 //! which casts a single ray, and [`mj_multiRay`](crate::mj_multiRay)
 //! which casts multiple rays from a single point.
 
-use super::helper::array_flatslice;
+use crate::helper::array_flatslice;
 use crate::{obj, ObjectId, VertexId};
 
 /// Intersect multiple rays emanating from a single point.

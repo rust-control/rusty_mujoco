@@ -91,6 +91,7 @@ mod model_editing;
 mod auxiliary;
 mod rendering;
 mod sim_statistics;
+mod user_interface;
 mod visualization;
 
 pub use mjdata::*;
@@ -100,4 +101,5 @@ pub use model_editing::*;
 pub use auxiliary::*;
 pub use rendering::*;
 pub use sim_statistics::*;
+pub use user_interface::*;
 pub use visualization::*;

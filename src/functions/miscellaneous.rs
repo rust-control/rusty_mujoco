@@ -1,6 +1,6 @@
 //! # [Miscellaneous](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#miscellaneous)
 
-use super::helper::{Dimention, FrictionDimention};
+use crate::helper::{Dimention, FrictionDimention};
 
 /// Muscle active force, prm = (range[2], force, scale, lmin, lmax, vmax, fpmax, fvmax).
 /* mjtNum mju_muscleGain(mjtNum len, mjtNum vel, const mjtNum lengthrange[2],
