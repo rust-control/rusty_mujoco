@@ -14,12 +14,12 @@ use crate::{
 
 /// Set default visualization options.
 /// 
-/// **note**: `rusty_mujoco::mjvOption` calls this function in its `Default` implementation.
+/// **note**: [`mjvOption`] calls this function in its `Default` implementation.
 /* void mjv_defaultOption(mjvOption* opt); */
 pub fn mjv_defaultOption() -> mjvOption {
-    let mut c = mjvOption::default();
-    unsafe { crate::bindgen::mjv_defaultOption(&mut c); }
-    c.into()
+    let mut c = std::mem::MaybeUninit::<mjvOption>::uninit();
+    unsafe { crate::bindgen::mjv_defaultOption(c.as_mut_ptr()); }
+    unsafe { c.assume_init() }
 }
 impl Default for mjvOption {
     fn default() -> Self {
@@ -29,12 +29,12 @@ impl Default for mjvOption {
 
 /// Set default figure.
 /// 
-/// **note**: `rusty_mujoco::mjvFigure` calls this function in its `Default` implementation.
+/// **note**: [`mjvFigure`] calls this function in its `Default` implementation.
 /* void mjv_defaultFigure(mjvFigure* fig); */
 pub fn mjv_defaultFigure() -> crate::mjvFigure {
-    let mut c = mjvFigure::default();
-    unsafe { crate::bindgen::mjv_defaultFigure(&mut c); }
-    c.into()
+    let mut c = std::mem::MaybeUninit::<mjvFigure>::uninit();
+    unsafe { crate::bindgen::mjv_defaultFigure(c.as_mut_ptr()); }
+    unsafe { c.assume_init() }
 }
 impl Default for mjvFigure {
     fn default() -> Self {
@@ -44,7 +44,7 @@ impl Default for mjvFigure {
 
 /// Initialize given geom fields when not `None`, set the rest to their default values.
 /// 
-/// **note**: `rusty_mujoco::mjvGeom` calls this function with all default options in its `new` implementation.
+/// **note**: [`mjvGeom`] calls this function with all default options in its `new` implementation.
 /* void mjv_initGeom(mjvGeom* geom, int type, const mjtNum size[3],
                   const mjtNum pos[3], const mjtNum mat[9], const float rgba[4]); */
 pub fn mjv_initGeom(
@@ -98,16 +98,16 @@ pub fn mjv_connector(
 
 /// Set default abstract scene.
 /// 
-/// **note**: `rusty_mujoco::mjvScene` calls this function in its `Default` implementation.
+/// **note**: [`mjvScene`] calls this function in its `Default` implementation.
 /// 
 /// **note**: Call [`mjv_makeScene`] to allocate resources in abstract scene
 ///           before starting a simulation with the `mjvScene`.
 /// 
 /* void mjv_defaultScene(mjvScene* scn); */
 pub fn mjv_defaultScene() -> mjvScene {
-    let mut c = crate::bindgen::mjvScene::default();
-    unsafe { crate::bindgen::mjv_defaultScene(&mut c); }
-    c.into()
+    let mut c = std::mem::MaybeUninit::<mjvScene>::uninit();
+    unsafe { crate::bindgen::mjv_defaultScene(c.as_mut_ptr()); }
+    unsafe { c.assume_init() }
 }
 impl Default for mjvScene {
     /// **note**: Call [`mjv_makeScene`] to allocate resources in abstract scene
@@ -119,7 +119,7 @@ impl Default for mjvScene {
 
 /// Allocate resources in abstract scene.
 /// 
-/// **note**: `rusty_mujoco::mjvScene` calls this function in its `new` implementation.
+/// **note**: [`mjvScene`] calls this function in its `new` implementation.
 /* void mjv_makeScene(const mjModel* m, mjvScene* scn, int maxgeom); */
 pub fn mjv_makeScene(
     model: &mjModel,
@@ -150,7 +150,7 @@ impl mjvScene {
 
 /// Free abstract scene.
 /// 
-/// **note**: `rusty_mujoco::mjvScene` calls this function in its `Drop` implementation.
+/// **note**: [`mjvScene`] calls this function in its `Drop` implementation.
 /* void mjv_freeScene(mjvScene* scn); */
 pub fn mjv_freeScene(scene: &mut mjvScene) {
     unsafe { crate::bindgen::mjv_freeScene(scene) }

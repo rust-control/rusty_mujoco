@@ -2341,7 +2341,7 @@ pub struct mjrRect {
     pub(crate) height: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct mjrContext {
     pub(crate) lineWidth: f32,
     pub(crate) shadowClip: f32,

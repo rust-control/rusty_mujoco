@@ -248,13 +248,12 @@ pub fn mjv_applyPerturbForce(m: &mjModel, d: &mut mjData, pert: &mjvPerturb) {
 /// Return the average of two OpenGL cameras.
 /* mjvGLCamera mjv_averageCamera(const mjvGLCamera* cam1, const mjvGLCamera* cam2); */
 pub fn mjv_averageCamera(cam1: &mjvGLCamera, cam2: &mjvGLCamera) -> mjvGLCamera {
-    let c = unsafe {
+    unsafe {
         crate::bindgen::mjv_averageCamera(
             cam1,
             cam2,
         )
-    };
-    c.into()
+    }
 }
 
 mod mjv_select {

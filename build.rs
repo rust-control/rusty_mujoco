@@ -64,7 +64,7 @@ fn main() {
         .allowlist_function("_?mj.*")
         .allowlist_var("_?mj.*")
         //.derive_default(true)
-        .no_copy("mj(Model|Data|Spec|vScene)_")// impl Drop for them (using specific free-er functions)
+        .no_copy("mj(Model|Data|Spec|vScene|rContext)_")// impl Drop for them (using specific free-er functions)
         .size_t_is_usize(true)
         .array_pointers_in_arguments(true)
         .merge_extern_blocks(true)
