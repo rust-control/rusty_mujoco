@@ -2,20 +2,20 @@
 //! 
 //! This section contains functions that load/initialize the model or other data structures. Their use is well illustrated in the code samples.
 
-use crate::{MjLrOpt, MjOption, MjVisual, MjModel, MjData, MjSpec};
+use crate::{mjLROpt, mjOption, mjVisual, mjModel, mjData, mjSpec};
 use crate::{ObjectId, obj};
 use crate::MjError;
 
 /// Set default options for length range computation.
 /// 
-/// **note**: `rusty_mujoco::MjLrOpt` calls this function in its `Default` implementation.
+/// **note**: [`mjLROpt`] calls this function in its `Default` implementation.
 /* void mj_defaultLROpt(mjLROpt* opt); */
-pub fn mj_defaultLROpt() -> MjLrOpt {
+pub fn mj_defaultLROpt() -> mjLROpt {
     let mut c = crate::bindgen::mjLROpt::default();
     unsafe { crate::bindgen::mj_defaultLROpt(&mut c) };
-    MjLrOpt::from(c)
+    mjLROpt::from(c)
 }
-impl Default for MjLrOpt {
+impl Default for mjLROpt {
     fn default() -> Self {
         mj_defaultLROpt()
     }
@@ -35,14 +35,14 @@ pub fn mj_defaultSolRefImp() -> (
 
 /// Set physics options to default values.
 /// 
-/// **note**: `rusty_mujoco::MjOption` calls this function in its `Default` implementation.
+/// **note**: `rusty_mujoco::mjOption` calls this function in its `Default` implementation.
 /* void mj_defaultOption(mjOption* opt); */
-pub fn mj_defaultOption() -> MjOption {
+pub fn mj_defaultOption() -> mjOption {
     let mut c = crate::bindgen::mjOption::default();
     unsafe { crate::bindgen::mj_defaultOption(&mut c) };
-    MjOption::from(c)
+    mjOption::from(c)
 }
-impl Default for MjOption {
+impl Default for mjOption {
     fn default() -> Self {
         mj_defaultOption()
     }
@@ -50,20 +50,20 @@ impl Default for MjOption {
 
 /// Set visual options to default values.
 /// 
-/// **note**: `rusty_mujoco::MjVisual` calls this function in its `Default` implementation.
+/// **note**: `rusty_mujoco::mjVisual` calls this function in its `Default` implementation.
 /* void mj_defaultVisual(mjVisual* vis); */
-pub fn mj_defaultVisual() -> MjVisual {
+pub fn mj_defaultVisual() -> mjVisual {
     let mut c = crate::bindgen::mjVisual::default();
     unsafe { crate::bindgen::mj_defaultVisual(&mut c) };
-    MjVisual::from(c)
+    mjVisual::from(c)
 }
-impl Default for MjVisual {
+impl Default for mjVisual {
     fn default() -> Self {
         mj_defaultVisual()
     }
 }
 
-/// Copy `MjModel`.
+/// Copy `mjModel`.
 /// Unsafely overwrite `dest` if its `Some(&mut _)` with returning `None`,
 /// otherwise allocate new and return it.
 /// 
@@ -73,16 +73,16 @@ impl Default for MjVisual {
 /// (e.g. same `nq`, `nv`, `nbody`, ...)
 /// 
 /* mjModel* mj_copyModel(mjModel* dest, const mjModel* src); */
-pub unsafe fn mj_copyModel(dest: Option<&mut MjModel>, src: &MjModel) -> Option<MjModel> {
+pub unsafe fn mj_copyModel(dest: Option<&mut mjModel>, src: &mjModel) -> Option<mjModel> {
     match dest {
         Some(dest) => {
-            unsafe { crate::bindgen::mj_copyModel(dest.as_mut(), src.as_ref()) };
+            unsafe { crate::bindgen::mj_copyModel(dest, src) };
             None
         }
         None => {
             let mut c = crate::bindgen::mjModel::default();
-            unsafe { crate::bindgen::mj_copyModel(&mut c, src.as_ref()) };
-            Some(MjModel::from(c))
+            unsafe { crate::bindgen::mj_copyModel(&mut c, src) };
+            Some(mjModel::from(c))
         }
     }
 }
@@ -92,7 +92,7 @@ pub unsafe fn mj_copyModel(dest: Option<&mut MjModel>, src: &MjModel) -> Option<
 /// The size of the buffer must be at least `mj_sizeModel(m)`.
 /* void mj_saveModel(const mjModel* m, const char* filename, void* buffer, int buffer_sz); */
 pub fn mj_saveModel(
-    m: &MjModel,
+    m: &mjModel,
     filename: Option<impl Into<String>>,
     buffer: Option<&mut [u8]>,
 ) {
@@ -100,7 +100,7 @@ pub fn mj_saveModel(
     let buffer_sz = buffer.as_ref().map_or(0, |b| b.len() as i32);
     unsafe {
         crate::bindgen::mj_saveModel(
-            m.as_ref(),
+            m,
             filename.map_or(std::ptr::null(), |cstr| cstr.as_ptr()),
             buffer.map_or(std::ptr::null_mut(), |b| b.as_mut_ptr() as *mut std::ffi::c_void),
             buffer_sz,
@@ -112,7 +112,7 @@ pub fn mj_saveModel(
 /* mjModel* mj_loadModel(const char* filename, const mjVFS* vfs); */
 pub fn mj_loadModel(
     filename: impl Into<String>,
-) -> MjModel {
+) -> mjModel {
     let filename = std::ffi::CString::new(filename.into()).unwrap();
     let c_ptr = unsafe {
         crate::bindgen::mj_loadModel(
@@ -123,17 +123,17 @@ pub fn mj_loadModel(
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to load model from file: {}", filename.to_string_lossy());
     }
-    MjModel::from(unsafe { *c_ptr })
+    mjModel::from(unsafe { *c_ptr })
 }
 
 /// Free memory allocation in model.
 /// 
-/// **note**: `rusty_mujoco::MjModel` calls this function in its `Drop` implementation.
+/// **note**: `rusty_mujoco::mjModel` calls this function in its `Drop` implementation.
 /* void mj_deleteModel(mjModel* m); */
-pub fn mj_deleteModel(m: &mut MjModel) {
-    unsafe { crate::bindgen::mj_deleteModel(m.as_mut()) };
+pub fn mj_deleteModel(m: &mut mjModel) {
+    unsafe { crate::bindgen::mj_deleteModel(m) };
 }
-impl Drop for MjModel {
+impl Drop for mjModel {
     fn drop(&mut self) {
         mj_deleteModel(self);
     }
@@ -141,19 +141,19 @@ impl Drop for MjModel {
 
 /// Return size of buffer needed to hold model.
 /* int mj_sizeModel(const mjModel* m); */
-pub fn mj_sizeModel(m: &MjModel) -> usize {
-    unsafe { crate::bindgen::mj_sizeModel(m.as_ref()) as usize }
+pub fn mj_sizeModel(m: &mjModel) -> usize {
+    unsafe { crate::bindgen::mj_sizeModel(m) as usize }
 }
 
 /// Allocate mjData corresponding to given model. If the model buffer is unallocated
 /// the initial configuration will not be set.
 /* mjData* mj_makeData(const mjModel* m); */
-pub fn mj_makeData(m: &MjModel) -> MjData {
-    let c_ptr = unsafe { crate::bindgen::mj_makeData(m.as_ref()) };
+pub fn mj_makeData(m: &mjModel) -> mjData {
+    let c_ptr = unsafe { crate::bindgen::mj_makeData(m) };
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to allocate mjData for model");
     }
-    MjData::from(unsafe { *c_ptr })
+    mjData::from(unsafe { *c_ptr })
 }
 
 /// Copy mjData. `m` is only required to contain the size fields from MJMODEL_INTS.
@@ -167,33 +167,33 @@ pub fn mj_makeData(m: &MjModel) -> MjData {
 /// (e.g. same `nq`, `nv`, `nbody`, ...)
 /// 
 /* mjData* mj_copyData(mjData* dest, const mjModel* m, const mjData* src); */
-pub unsafe fn mj_copyData(dest: &mut MjData, m: &MjModel, src: &MjData) {
-    unsafe { crate::bindgen::mj_copyData(dest.as_mut(), m.as_ref(), src.as_ref()) };
+pub unsafe fn mj_copyData(dest: &mut mjData, m: &mjModel, src: &mjData) {
+    unsafe { crate::bindgen::mj_copyData(dest, m, src) };
 }
 
 /// Reset data to defaults.
 /* void mj_resetData(const mjModel* m, mjData* d); */
-pub fn mj_resetData(m: &MjModel, d: &mut MjData) {
-    unsafe { crate::bindgen::mj_resetData(m.as_ref(), d.as_mut()) }
+pub fn mj_resetData(m: &mjModel, d: &mut mjData) {
+    unsafe { crate::bindgen::mj_resetData(m, d) }
 }
 
 /// Reset data to defaults, fill everything else with debug_value.
 /* void mj_resetDataDebug(const mjModel* m, mjData* d, unsigned char debug_value); */
-pub fn mj_resetDataDebug(m: &MjModel, d: &mut MjData, debug_value: u8) {
-    unsafe { crate::bindgen::mj_resetDataDebug(m.as_ref(), d.as_mut(), debug_value) }
+pub fn mj_resetDataDebug(m: &mjModel, d: &mut mjData, debug_value: u8) {
+    unsafe { crate::bindgen::mj_resetDataDebug(m, d, debug_value) }
 }
 
 /// Reset data. If `key` is given, set fields from specified keyframe.
 /* void mj_resetDataKeyframe(const mjModel* m, mjData* d, int key); */
 pub fn mj_resetDataKeyframe(
-    m: &MjModel,
-    d: &mut MjData,
+    m: &mjModel,
+    d: &mut mjData,
     key: Option<ObjectId<obj::Key>>,
 ) {
     unsafe {
         crate::bindgen::mj_resetDataKeyframe(
-            m.as_ref(),
-            d.as_mut(),
+            m,
+            d,
             key.map_or(-1, |k| k.index() as i32)
         )
     }
@@ -201,42 +201,42 @@ pub fn mj_resetDataKeyframe(
 
 /// Mark a new frame on the mjData stack.
 /* void mj_markStack(mjData* d); */
-pub fn mj_markStack(d: &mut MjData) {
-    unsafe { crate::bindgen::mj_markStack(d.as_mut()) }
+pub fn mj_markStack(d: &mut mjData) {
+    unsafe { crate::bindgen::mj_markStack(d) }
 }
 
 /// Free the current mjData stack frame. All pointers returned by `mj_stackAlloc` since the last call to `mj_markStack` must no longer be used afterwards.
 /* void mj_freeStack(mjData* d); */
-pub fn mj_freeStack(d: &mut MjData) {
-    unsafe { crate::bindgen::mj_freeStack(d.as_mut()) }
+pub fn mj_freeStack(d: &mut mjData) {
+    unsafe { crate::bindgen::mj_freeStack(d) }
 }
 
 /// Allocate a number of bytes on mjData stack at a specific alignment. Call `mju_error` on stack overflow.
 /* void* mj_stackAllocByte(mjData* d, size_t bytes, size_t alignment); */
-pub fn mj_stackAllocByte(d: &mut MjData, bytes: usize, alignment: usize) -> *mut u8 {
-    unsafe { crate::bindgen::mj_stackAllocByte(d.as_mut(), bytes, alignment) as *mut u8 }
+pub fn mj_stackAllocByte(d: &mut mjData, bytes: usize, alignment: usize) -> *mut u8 {
+    unsafe { crate::bindgen::mj_stackAllocByte(d, bytes, alignment) as *mut u8 }
 }
 
 /// Allocate array of `mjtNums` on mjData stack. Call `mju_error` on stack overflow.
 /* mjtNum* mj_stackAllocNum(mjData* d, size_t size); */
-pub fn mj_stackAllocNum(d: &mut MjData, size: usize) -> *mut f64 {
-    unsafe { crate::bindgen::mj_stackAllocNum(d.as_mut(), size) as *mut f64 }
+pub fn mj_stackAllocNum(d: &mut mjData, size: usize) -> *mut f64 {
+    unsafe { crate::bindgen::mj_stackAllocNum(d, size) as *mut f64 }
 }
 
 /// Allocate array of `ints` on mjData stack. Call `mju_error` on stack overflow.
 /* int* mj_stackAllocInt(mjData* d, size_t size); */
-pub fn mj_stackAllocInt(d: &mut MjData, size: usize) -> *mut i32 {
-    unsafe { crate::bindgen::mj_stackAllocInt(d.as_mut(), size) as *mut i32 }
+pub fn mj_stackAllocInt(d: &mut mjData, size: usize) -> *mut i32 {
+    unsafe { crate::bindgen::mj_stackAllocInt(d, size) as *mut i32 }
 }
 
 /// Free memory allocation in mjData.
 /// 
-/// **note**: `rusty_mujoco::MjData` calls this function in its `Drop` implementation.
+/// **note**: `rusty_mujoco::mjData` calls this function in its `Drop` implementation.
 /* void mj_deleteData(mjData* d); */
-pub fn mj_deleteData(d: &mut MjData) {
-    unsafe { crate::bindgen::mj_deleteData(d.as_mut()) };
+pub fn mj_deleteData(d: &mut mjData) {
+    unsafe { crate::bindgen::mj_deleteData(d) };
 }
-impl Drop for MjData {
+impl Drop for mjData {
     fn drop(&mut self) {
         mj_deleteData(self);
     }
@@ -250,27 +250,27 @@ pub fn mj_resetCallbacks() {
 
 /// Set constant fields of mjModel, corresponding to `qpos0` configuration.
 /* void mj_setConst(mjModel* m, mjData* d); */
-pub fn mj_setConst(m: &mut MjModel, d: &mut MjData) {
-    unsafe { crate::bindgen::mj_setConst(m.as_mut(), d.as_mut()) };
+pub fn mj_setConst(m: &mut mjModel, d: &mut mjData) {
+    unsafe { crate::bindgen::mj_setConst(m, d) };
 }
 
 /// Set actuator length range for specified actuator.
 /* int mj_setLengthRange(mjModel* m, mjData* d, int index,
                       const mjLROpt* opt, char* error, int error_sz); */
 pub fn mj_setLengthRange(
-    m: &mut MjModel,
-    d: &mut MjData,
+    m: &mut mjModel,
+    d: &mut mjData,
     index: ObjectId<obj::Actuator>,
-    opt: &MjLrOpt,
+    opt: &mjLROpt,
 ) -> Result<(), MjError> {
     let mut error = MjError::init();
     let status = unsafe {
         let (err_ptr, err_len) = error.as_parts();
         crate::bindgen::mj_setLengthRange(
-            m.as_mut(),
-            d.as_mut(),
+            m,
+            d,
             index.index() as i32,
-            opt.as_ref(),
+            opt,
             err_ptr,
             err_len,
         )
@@ -289,16 +289,16 @@ pub fn mj_setLengthRange(
 
 /// Create empty spec.
 /// 
-/// **note**: `rusty_mujoco::MjSpec` calls this function in its `Default` implementation.
+/// **note**: [`mjSpec`] calls this function in its `Default` implementation.
 /* mjSpec* mj_makeSpec(void); */
-pub fn mj_makeSpec() -> MjSpec {
+pub fn mj_makeSpec() -> mjSpec {
     let c_ptr = unsafe { crate::bindgen::mj_makeSpec() };
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to create empty mjSpec");
     }
-    MjSpec::from(unsafe { *c_ptr })
+    mjSpec::from(unsafe { *c_ptr })
 }
-impl Default for MjSpec {
+impl Default for mjSpec {
     fn default() -> Self {
         mj_makeSpec()
     }
@@ -306,22 +306,22 @@ impl Default for MjSpec {
 
 /// Copy spec.
 /* mjSpec* mj_copySpec(const mjSpec* s); */
-pub fn mj_copySpec(s: &MjSpec) -> MjSpec {
-    let c_ptr = unsafe { crate::bindgen::mj_copySpec(s.as_ref()) };
+pub fn mj_copySpec(s: &mjSpec) -> mjSpec {
+    let c_ptr = unsafe { crate::bindgen::mj_copySpec(s) };
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to copy mjSpec");
     }
-    MjSpec::from(unsafe { *c_ptr })
+    mjSpec::from(unsafe { *c_ptr })
 }
 
 /// Free memory allocation in mjSpec.
 /// 
-/// **note**: `rusty_mujoco::MjSpec` calls this function in its `Drop` implementation.
+/// **note**: `rusty_mujoco::mjSpec` calls this function in its `Drop` implementation.
 /* void mj_deleteSpec(mjSpec* s); */
-pub fn mj_deleteSpec(s: &mut MjSpec) {
-    unsafe { crate::bindgen::mj_deleteSpec(s.as_mut()) };
+pub fn mj_deleteSpec(s: &mut mjSpec) {
+    unsafe { crate::bindgen::mj_deleteSpec(s) };
 }
-impl Drop for MjSpec {
+impl Drop for mjSpec {
     fn drop(&mut self) {
         mj_deleteSpec(self);
     }
@@ -329,9 +329,9 @@ impl Drop for MjSpec {
 
 /// Activate plugin.
 /* int mjs_activatePlugin(mjSpec* s, const char* name); */
-pub fn mjs_activatePlugin(s: &mut MjSpec, name: impl Into<String>) -> Result<(), MjError> {
+pub fn mjs_activatePlugin(s: &mut mjSpec, name: impl Into<String>) -> Result<(), MjError> {
     let name = std::ffi::CString::new(name.into()).unwrap();
-    let status = unsafe { crate::bindgen::mjs_activatePlugin(s.as_mut(), name.as_ptr()) };
+    let status = unsafe { crate::bindgen::mjs_activatePlugin(s, name.as_ptr()) };
     
     /*
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-activateplugin>
@@ -346,8 +346,8 @@ pub fn mjs_activatePlugin(s: &mut MjSpec, name: impl Into<String>) -> Result<(),
 
 /// Turn deep copy on or off attach.
 /* int mjs_setDeepCopy(mjSpec* s, int deepcopy); */
-pub fn mjs_setDeepCopy(s: &mut MjSpec, deepcopy: bool) -> Result<(), MjError> {
-    let status = unsafe { crate::bindgen::mjs_setDeepCopy(s.as_mut(), deepcopy as i32) };
+pub fn mjs_setDeepCopy(s: &mut mjSpec, deepcopy: bool) -> Result<(), MjError> {
+    let status = unsafe { crate::bindgen::mjs_setDeepCopy(s, deepcopy as i32) };
     
     /*
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-setdeepcopy>

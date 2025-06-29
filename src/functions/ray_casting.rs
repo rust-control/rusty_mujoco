@@ -10,7 +10,7 @@
 //! an intersection.
 //! 
 //! All ray collision functions rely on quantities computed by
-//! [`mj_kinematics`](crate::mj_kinematics) (see [`mjData`](crate::MjData)),
+//! [`mj_kinematics`](crate::mj_kinematics) (see [`mjData`](crate::mjData)),
 //! so must be called after `mj_kinematics`, or functions that call it
 //! (e.g. [`mj_fwdPosition`](crate::mj_fwdPosition)). The top level functions,
 //! which intersect with all geoms types, are [`mj_ray`](crate::mj_ray)
@@ -27,8 +27,8 @@ use crate::{obj, ObjectId, VertexId};
                  const mjtByte* geomgroup, mjtByte flg_static, int bodyexclude,
                  int* geomid, mjtNum* dist, int nray, mjtNum cutoff); */
 pub fn mj_multiRay<const N_RAY: usize>(
-    m: &crate::MjModel,
-    d: &mut crate::MjData,
+    m: &crate::mjModel,
+    d: &mut crate::mjData,
     pnt: [f64; 3],
     vec: [[f64; 3]; N_RAY],
     geomgroup: Option<&[u8]>,
@@ -43,8 +43,8 @@ pub fn mj_multiRay<const N_RAY: usize>(
 
     unsafe {
         crate::bindgen::mj_multiRay(
-            m.as_ref(),
-            d.as_mut(),
+            m,
+            d,
             &pnt,
             vec.as_ptr(),
             geomgroup.map_or(std::ptr::null(), |g| g.as_ptr()),
@@ -61,7 +61,7 @@ pub fn mj_multiRay<const N_RAY: usize>(
         if geomid < 0 || dist < 0.0 {
             None
         } else {
-            Some((ObjectId::new(geomid as usize), dist))
+            Some((unsafe { ObjectId::new_unchecked(geomid as usize) }, dist))
         }
     }).collect()
 }
@@ -80,8 +80,8 @@ pub fn mj_multiRay<const N_RAY: usize>(
               const mjtByte* geomgroup, mjtByte flg_static, int bodyexclude,
               int geomid[1]); */
 pub fn mj_ray(
-    m: &crate::MjModel,
-    d: &mut crate::MjData,
+    m: &crate::mjModel,
+    d: &mut crate::mjData,
     pnt: [f64; 3],
     vec: [f64; 3],
     geomgroup: Option<[bool; crate::bindgen::mjNGROUP as usize]>,
@@ -94,8 +94,8 @@ pub fn mj_ray(
     
     let distance = unsafe {
         crate::bindgen::mj_ray(
-            m.as_ref(),
-            d.as_mut(),
+            m,
+            d,
             &pnt,
             &vec,
             geomgroup.map_or(std::ptr::null(), |gg| gg.as_ptr()),
@@ -108,7 +108,7 @@ pub fn mj_ray(
     if geomid[0] < 0 || distance < 0.0 {
         None
     } else {
-        Some((ObjectId::new(geomid[0] as usize), distance))
+        Some((unsafe { ObjectId::new_unchecked(geomid[0] as usize) }, distance))
     }
 }
 
@@ -116,16 +116,16 @@ pub fn mj_ray(
 /* mjtNum mj_rayHfield(const mjModel* m, const mjData* d, int geomid,
                     const mjtNum pnt[3], const mjtNum vec[3]); */
 pub fn mj_rayHfield(
-    m: &crate::MjModel,
-    d: &mut crate::MjData,
+    m: &crate::mjModel,
+    d: &mut crate::mjData,
     geomid: ObjectId<obj::Geom>,
     pnt: [f64; 3],
     vec: [f64; 3],
 ) -> Option<f64> {
     let distance = unsafe {
         crate::bindgen::mj_rayHfield(
-            m.as_ref(),
-            d.as_mut(),
+            m,
+            d,
             geomid.index() as i32,
             &pnt,
             &vec,
@@ -143,16 +143,16 @@ pub fn mj_rayHfield(
 /* mjtNum mj_rayMesh(const mjModel* m, const mjData* d, int geomid,
                   const mjtNum pnt[3], const mjtNum vec[3]); */
 pub fn mj_rayMesh(
-    m: &crate::MjModel,
-    d: &mut crate::MjData,
+    m: &crate::mjModel,
+    d: &mut crate::mjData,
     geomid: ObjectId<obj::Geom>,
     pnt: [f64; 3],
     vec: [f64; 3],
 ) -> Option<f64> {
     let distance = unsafe {
         crate::bindgen::mj_rayMesh(
-            m.as_ref(),
-            d.as_mut(),
+            m,
+            d,
             geomid.index() as i32,
             &pnt,
             &vec,
@@ -201,8 +201,8 @@ pub fn mju_rayGeom(
                    mjtByte flg_edge, mjtByte flg_face, mjtByte flg_skin, int flexid,
                    const mjtNum* pnt, const mjtNum* vec, int vertid[1]); */
 pub fn mju_rayFlex(
-    m: &crate::MjModel,
-    d: &mut crate::MjData,
+    m: &crate::mjModel,
+    d: &mut crate::mjData,
     flex_layer: Option<usize>,
     flg_vert: bool,
     flg_edge: bool,
@@ -216,8 +216,8 @@ pub fn mju_rayFlex(
     
     let distance = unsafe {
         crate::bindgen::mju_rayFlex(
-            m.as_ref(),
-            d.as_mut(),
+            m,
+            d,
             flex_layer.map_or(-1, |l| l as i32),
             flg_vert as u8,
             flg_edge as u8,

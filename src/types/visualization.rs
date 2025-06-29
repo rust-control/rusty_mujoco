@@ -2,13 +2,13 @@
 //! 
 //! The names of these struct types are prefixed with `mjv`.
 
-use crate::{mjtObj, obj, ObjectId, SegmentationId};
-
 pub use crate::bindgen::{
     mjvPerturb, mjvCamera, mjvGLCamera, mjvGeom, mjvLight, mjvOption, mjvScene, mjvFigure,
     mjtPertBit, mjtCamera, mjtCatBit, mjtGeom, mjtLabel, mjtFrame, mjtVisFlag, mjtStereo, mjtRndFlag,
     mjNGROUP, mjNVISFLAG, mjNRNDFLAG, mjMAXLIGHT, mjMAXLINE, mjMAXLINEPNT,
 };
+
+use crate::{mjtObj, obj, ObjectId, SegmentationId};
 
 derive_fields_mapping!(mjvPerturb {
     scalars {

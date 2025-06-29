@@ -7,18 +7,18 @@
 //! See [simulate](https://mujoco.readthedocs.io/en/stable/programming/samples.html#sasimulate)
 //! for illustration of how to use these functions.
 
-use crate::{MjModel, MjData, MjvOption, MjvScene, MjvCamera, MjvPerturb, MjvGeom};
+use crate::{mjModel, mjData, mjvOption, mjvScene, mjvCamera, mjvPerturb, mjvGeom};
 
 /// Set default visualization options.
 /// 
-/// **note**: `rusty_mujoco::MjvOption` calls this function in its `Default` implementation.
+/// **note**: `rusty_mujoco::mjvOption` calls this function in its `Default` implementation.
 /* void mjv_defaultOption(mjvOption* opt); */
-pub fn mjv_defaultOption() -> MjvOption {
+pub fn mjv_defaultOption() -> mjvOption {
     let mut c = crate::bindgen::mjvOption::default();
     unsafe { crate::bindgen::mjv_defaultOption(&mut c); }
     c.into()
 }
-impl Default for MjvOption {
+impl Default for mjvOption {
     fn default() -> Self {
         mjv_defaultOption()
     }
@@ -26,14 +26,14 @@ impl Default for MjvOption {
 
 /// Set default figure.
 /// 
-/// **note**: `rusty_mujoco::MjvFigure` calls this function in its `Default` implementation.
+/// **note**: `rusty_mujoco::mjvFigure` calls this function in its `Default` implementation.
 /* void mjv_defaultFigure(mjvFigure* fig); */
-pub fn mjv_defaultFigure() -> crate::MjvFigure {
+pub fn mjv_defaultFigure() -> crate::mjvFigure {
     let mut c = crate::bindgen::mjvFigure::default();
     unsafe { crate::bindgen::mjv_defaultFigure(&mut c); }
     c.into()
 }
-impl Default for crate::MjvFigure {
+impl Default for crate::mjvFigure {
     fn default() -> Self {
         mjv_defaultFigure()
     }
@@ -41,7 +41,7 @@ impl Default for crate::MjvFigure {
 
 /// Initialize given geom fields when not `None`, set the rest to their default values.
 /// 
-/// **note**: `rusty_mujoco::MjvGeom` calls this function with all default options in its `new` implementation.
+/// **note**: `rusty_mujoco::mjvGeom` calls this function with all default options in its `new` implementation.
 /* void mjv_initGeom(mjvGeom* geom, int type, const mjtNum size[3],
                   const mjtNum pos[3], const mjtNum mat[9], const float rgba[4]); */
 pub fn mjv_initGeom(
@@ -50,7 +50,7 @@ pub fn mjv_initGeom(
     pos: Option<[f64; 3]>,
     mat: Option<[f64; 9]>,
     rgba: Option<[f32; 4]>,
-) -> MjvGeom {
+) -> mjvGeom {
     let mut c = crate::bindgen::mjvGeom::default();
     unsafe {
         crate::bindgen::mjv_initGeom(
@@ -64,19 +64,19 @@ pub fn mjv_initGeom(
     }
     c.into()
 }
-impl MjvGeom {
+impl mjvGeom {
     pub fn new(type_: crate::bindgen::mjtGeom) -> Self {
         mjv_initGeom(type_, None, None, None, None)
     }
 }
 
 /// Set (type, size, pos, mat) for connector-type geom between given points.
-/// Assume that `mjv_initGeom` (== `MjvGeom::new`) was already called to set all other properties.
+/// Assume that `mjv_initGeom` (== `mjvGeom::new`) was already called to set all other properties.
 /// Width of `mjGEOM_LINE` is denominated in pixels.
 /* void mjv_connector(mjvGeom* geom, int type, mjtNum width,
                    const mjtNum from[3], const mjtNum to[3]); */
 pub fn mjv_connector(
-    geom: &mut MjvGeom,
+    geom: &mut mjvGeom,
     type_: crate::bindgen::mjtGeom,
     width: f64,
     from: [f64; 3],
@@ -84,7 +84,7 @@ pub fn mjv_connector(
 ) {
     unsafe {
         crate::bindgen::mjv_connector(
-            geom.as_mut(),
+            geom,
             type_.0 as i32,
             width,
             &from,
@@ -95,20 +95,20 @@ pub fn mjv_connector(
 
 /// Set default abstract scene.
 /// 
-/// **note**: `rusty_mujoco::MjvScene` calls this function in its `Default` implementation.
+/// **note**: `rusty_mujoco::mjvScene` calls this function in its `Default` implementation.
 /// 
 /// **note**: Call [`mjv_makeScene`] to allocate resources in abstract scene
-///           before starting a simulation with the `MjvScene`.
+///           before starting a simulation with the `mjvScene`.
 /// 
 /* void mjv_defaultScene(mjvScene* scn); */
-pub fn mjv_defaultScene() -> MjvScene {
+pub fn mjv_defaultScene() -> mjvScene {
     let mut c = crate::bindgen::mjvScene::default();
     unsafe { crate::bindgen::mjv_defaultScene(&mut c); }
     c.into()
 }
-impl Default for MjvScene {
+impl Default for mjvScene {
     /// **note**: Call [`mjv_makeScene`] to allocate resources in abstract scene
-    ///           before starting a simulation with the `MjvScene`.
+    ///           before starting a simulation with the `mjvScene`.
     fn default() -> Self {
         mjv_defaultScene()
     }
@@ -116,30 +116,30 @@ impl Default for MjvScene {
 
 /// Allocate resources in abstract scene.
 /// 
-/// **note**: `rusty_mujoco::MjvScene` calls this function in its `new` implementation.
+/// **note**: `rusty_mujoco::mjvScene` calls this function in its `new` implementation.
 /* void mjv_makeScene(const mjModel* m, mjvScene* scn, int maxgeom); */
 pub fn mjv_makeScene(
-    model: &MjModel,
-    scene: &mut MjvScene,
+    model: &mjModel,
+    scene: &mut mjvScene,
     maxgeom: usize,
 ) {
     unsafe {
         crate::bindgen::mjv_makeScene(
-            model.as_ref(),
-            scene.as_mut(),
+            model,
+            scene,
             maxgeom as i32,
         );
     }
 }
-impl MjvScene {
+impl mjvScene {
     /// Create a new abstract scene with resources allocated for `maxgeom` geoms.
     /// 
     /// This internally calls:
     /// 
     /// 1. [`mjv_defaultScene`] to set default values for the scene.
     /// 2. [`mjv_makeScene`] to allocate resources in the scene.
-    pub fn new(model: &MjModel, maxgeom: usize) -> Self {
-        let mut scene = MjvScene::default();
+    pub fn new(model: &mjModel, maxgeom: usize) -> Self {
+        let mut scene = mjvScene::default();
         mjv_makeScene(model, &mut scene, maxgeom);
         scene
     }
@@ -147,12 +147,12 @@ impl MjvScene {
 
 /// Free abstract scene.
 /// 
-/// **note**: `rusty_mujoco::MjvScene` calls this function in its `Drop` implementation.
+/// **note**: `rusty_mujoco::mjvScene` calls this function in its `Drop` implementation.
 /* void mjv_freeScene(mjvScene* scn); */
-pub fn mjv_freeScene(scene: &mut MjvScene) {
-    unsafe { crate::bindgen::mjv_freeScene(scene.as_mut()) }
+pub fn mjv_freeScene(scene: &mut mjvScene) {
+    unsafe { crate::bindgen::mjv_freeScene(scene) }
 }
-impl Drop for MjvScene {
+impl Drop for mjvScene {
     fn drop(&mut self) {
         mjv_freeScene(self);
     }
@@ -162,52 +162,52 @@ impl Drop for MjvScene {
 /* void mjv_updateScene(const mjModel* m, mjData* d, const mjvOption* opt,
                      const mjvPerturb* pert, mjvCamera* cam, int catmask, mjvScene* scn); */
 pub fn mjv_updateScene(
-    model: &MjModel,
-    data: &mut MjData,
-    opt: &MjvOption,
-    pert: &MjvPerturb,
-    cam: &mut MjvCamera,
+    model: &mjModel,
+    data: &mut mjData,
+    opt: &mjvOption,
+    pert: &mjvPerturb,
+    cam: &mut mjvCamera,
     catmask: crate::bindgen::mjtCatBit,
-    scene: &mut MjvScene,
+    scene: &mut mjvScene,
 ) {
     unsafe {
         crate::bindgen::mjv_updateScene(
-            model.as_ref(),
-            data.as_mut(),
-            opt.as_ref(),
-            pert.as_ref(),
-            cam.as_mut(),
+            model,
+            data,
+            opt,
+            pert,
+            cam,
             catmask.0 as i32,
-            scene.as_mut(),
+            scene,
         );
     }
 }
 
 /// Copy mjModel, skip large arrays not required for abstract visualization.
 /* void mjv_copyModel(mjModel* dest, const mjModel* src); */
-pub fn mjv_copyModel(dest: &mut MjModel, src: &MjModel) {
-    unsafe { crate::bindgen::mjv_copyModel(dest.as_mut(), src.as_ref()) }
+pub fn mjv_copyModel(dest: &mut mjModel, src: &mjModel) {
+    unsafe { crate::bindgen::mjv_copyModel(dest, src) }
 }
 
 /// Add geoms from selected categories.
 /* void mjv_addGeoms(const mjModel* m, mjData* d, const mjvOption* opt,
                   const mjvPerturb* pert, int catmask, mjvScene* scn); */
 pub fn mjv_addGeoms(
-    model: &MjModel,
-    data: &mut MjData,
-    opt: &MjvOption,
-    pert: &MjvPerturb,
+    model: &mjModel,
+    data: &mut mjData,
+    opt: &mjvOption,
+    pert: &mjvPerturb,
     catmask: crate::bindgen::mjtCatBit,
-    scene: &mut MjvScene,
+    scene: &mut mjvScene,
 ) {
     unsafe {
         crate::bindgen::mjv_addGeoms(
-            model.as_ref(),
-            data.as_mut(),
-            opt.as_ref(),
-            pert.as_ref(),
+            model,
+            data,
+            opt,
+            pert,
             catmask.0 as i32,
-            scene.as_mut(),
+            scene,
         );
     }
 }
@@ -215,15 +215,15 @@ pub fn mjv_addGeoms(
 /// Make list of lights.
 /* void mjv_makeLights(const mjModel* m, const mjData* d, mjvScene* scn); */
 pub fn mjv_makeLights(
-    model: &MjModel,
-    data: &MjData,
-    scene: &mut MjvScene,
+    model: &mjModel,
+    data: &mjData,
+    scene: &mut mjvScene,
 ) {
     unsafe {
         crate::bindgen::mjv_makeLights(
-            model.as_ref(),
-            data.as_ref(),
-            scene.as_mut(),
+            model,
+            data,
+            scene,
         );
     }
 }
@@ -231,17 +231,17 @@ pub fn mjv_makeLights(
 /// Update camera.
 /* void mjv_updateCamera(const mjModel* m, const mjData* d, mjvCamera* cam, mjvScene* scn); */
 pub fn mjv_updateCamera(
-    model: &MjModel,
-    data: &MjData,
-    cam: &mut MjvCamera,
-    scene: &mut MjvScene,
+    model: &mjModel,
+    data: &mjData,
+    cam: &mut mjvCamera,
+    scene: &mut mjvScene,
 ) {
     unsafe {
         crate::bindgen::mjv_updateCamera(
-            model.as_ref(),
-            data.as_ref(),
-            cam.as_mut(),
-            scene.as_mut(),
+            model,
+            data,
+            cam,
+            scene,
         );
     }
 }
@@ -249,15 +249,15 @@ pub fn mjv_updateCamera(
 /// Update skins.
 /* void mjv_updateSkin(const mjModel* m, const mjData* d, mjvScene* scn); */
 pub fn mjv_updateSkin(
-    model: &MjModel,
-    data: &MjData,
-    scene: &mut MjvScene,
+    model: &mjModel,
+    data: &mjData,
+    scene: &mut mjvScene,
 ) {
     unsafe {
         crate::bindgen::mjv_updateSkin(
-            model.as_ref(),
-            data.as_ref(),
-            scene.as_mut(),
+            model,
+            data,
+            scene,
         );
     }
 }

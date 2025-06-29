@@ -98,33 +98,6 @@ impl mjsElement {
     }
 }
 
-/*
-// boolean flags
-  mjtByte autolimits;              // if or not infer "limited" attribute based on range
-  mjtByte balanceinertia;          // if or not automatically impose A + B >= C rule
-  mjtByte fitaabb;                 // if or not meshfit to aabb instead of inertia box
-  mjtByte degree;                  // if or not angles in radians or degrees
-  mjtByte saveinertial;            // if or not save explicit inertial clause for all bodies to XML
-  mjtByte discardvisual;           // if or not discard visual geoms in parser
-  mjtByte fusestatic;              // if or not fuse static bodies with parent
-  mjtByte usethread;               // if or not use multiple threads to speed up compiler
-
-// scalars
-  double boundmass;                // enforce minimum body mass
-  double boundinertia;             // enforce minimum body diagonal inertia
-  double settotalmass;             // rescale masses and inertias; <=0: ignore
-  int inertiagrouprange[2];        // range of geom groups used to compute inertia
-  int alignfree;                   // align free joints with inertial frame
-
-// enums
-  int inertiafromgeom;             // use geom inertias (mjtInertiaFromGeom)
-
-// structs
-  mjLROpt LRopt;                   // options for lengthrange computation
-
-// byhand
-  char eulerseq[3];                // sequence for euler rotations
-*/
 derive_fields_mapping!(mjsCompiler {
     boolean_flags {
         autolimits / set_autolimits = "infer 'limited' attribute based on range";
