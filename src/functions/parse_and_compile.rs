@@ -13,7 +13,7 @@ pub fn mj_loadXML(filename: impl Into<String>) -> Result<mjModel, MjError> {
     let filename = std::ffi::CString::new(filename.into()).map_err(MjError::from_error)?;
 
     let mut error = MjError::init();
-    let model_ptr = unsafe {
+    let c_ptr = unsafe {
         let (err_ptr, err_len) = error.as_parts();
         crate::bindgen::mj_loadXML(
             filename.as_ptr(),
@@ -23,10 +23,15 @@ pub fn mj_loadXML(filename: impl Into<String>) -> Result<mjModel, MjError> {
         )
     };
 
-    if model_ptr.is_null() {
+    if c_ptr.is_null() {
         Err(error)
     } else {
-        Ok((unsafe {*model_ptr}).into())
+        // SAFETY:
+        // 
+        // - `c_ptr` is valid pointer to `mjModel`
+        // - when the returned `mjModel` is dropped, it calls `mj_deleteModel`.
+        //   then and only then the `mjModel`'s memory will be freed by Rust.
+        Ok(unsafe { std::ptr::read(c_ptr) })
     }
 }
 
@@ -35,7 +40,7 @@ pub fn mj_parseXML(filename: impl Into<String>) -> Result<mjSpec, MjError> {
     let filename = std::ffi::CString::new(filename.into()).map_err(MjError::from_error)?;
 
     let mut error = MjError::init();
-    let model_ptr = unsafe {
+    let c_ptr = unsafe {
         let (err_ptr, err_len) = error.as_parts();
         crate::bindgen::mj_parseXML(
             filename.as_ptr(),
@@ -45,10 +50,15 @@ pub fn mj_parseXML(filename: impl Into<String>) -> Result<mjSpec, MjError> {
         )
     };
 
-    if model_ptr.is_null() {
+    if c_ptr.is_null() {
         Err(error)
     } else {
-        Ok((unsafe {*model_ptr}).into())
+        // SAFETY:
+        // 
+        // - `c_ptr` is valid pointer to `mjSpec`
+        // - when the returned `mjModel` is dropped, it calls `mj_deleteSpec`.
+        //   then and only then the `mjModel`'s memory will be freed by Rust.
+        Ok(unsafe { std::ptr::read(c_ptr) })
     }
 }
 
@@ -57,7 +67,7 @@ pub fn mj_parseXMLString(xml: impl Into<String>) -> Result<mjSpec, MjError> {
     let xml = std::ffi::CString::new(xml.into()).map_err(MjError::from_error)?;
 
     let mut error = MjError::init();
-    let model_ptr = unsafe {
+    let c_ptr = unsafe {
         let (err_ptr, err_len) = error.as_parts();
         crate::bindgen::mj_parseXMLString(
             xml.as_ptr(),
@@ -67,10 +77,15 @@ pub fn mj_parseXMLString(xml: impl Into<String>) -> Result<mjSpec, MjError> {
         )
     };
 
-    if model_ptr.is_null() {
+    if c_ptr.is_null() {
         Err(error)
     } else {
-        Ok((unsafe {*model_ptr}).into())
+        // SAFETY:
+        // 
+        // - `c_ptr` is valid pointer to `mjSpec`
+        // - when the returned `mjModel` is dropped, it calls `mj_deleteSpec`.
+        //   then and only then the `mjModel`'s memory will be freed by Rust.
+        Ok(unsafe { std::ptr::read(c_ptr) })
     }
 }
 
@@ -78,12 +93,17 @@ pub fn mj_parseXMLString(xml: impl Into<String>) -> Result<mjSpec, MjError> {
 /// returning a new mjModel instance that takes the edits into account.
 /// If compilation fails, `mj_compile` returns NULL; the error can be read with `mjs_getError`.
 pub fn mj_compile(s: &mut mjSpec) -> Option<mjModel> {
-    let model_ptr = unsafe { crate::bindgen::mj_compile(s, std::ptr::null()) };
+    let c_ptr = unsafe { crate::bindgen::mj_compile(s, std::ptr::null()) };
 
-    if model_ptr.is_null() {
+    if c_ptr.is_null() {
         None
     } else {
-        Some((unsafe {*model_ptr}).into())
+        // SAFETY:
+        // 
+        // - `c_ptr` is valid pointer to `mjModel`
+        // - when the returned `mjModel` is dropped, it calls `mj_deleteModel`.
+        //   then and only then the `mjModel`'s memory will be freed by Rust.
+        Some(unsafe { std::ptr::read(c_ptr) })
     }
 }
 

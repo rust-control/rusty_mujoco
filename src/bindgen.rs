@@ -482,7 +482,7 @@ impl mjtFlexSelf {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtFlexSelf(pub(crate) ::core::ffi::c_uint);
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjLROpt {
     pub(crate) mode: ::core::ffi::c_int,
     pub(crate) useexisting: ::core::ffi::c_int,
@@ -500,17 +500,8 @@ pub struct mjLROpt {
 pub struct mjVFS {
     pub(crate) impl_: *mut ::core::ffi::c_void,
 }
-impl Default for mjVFS {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjOption {
     pub(crate) timestep: mjtNum,
     pub(crate) apirate: mjtNum,
@@ -543,7 +534,7 @@ pub struct mjOption {
     pub(crate) sdf_iterations: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjVisual {
     pub(crate) global: mjVisual___bindgen_ty_1,
     pub(crate) quality: mjVisual___bindgen_ty_2,
@@ -553,7 +544,7 @@ pub struct mjVisual {
     pub(crate) rgba: mjVisual___bindgen_ty_6,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjVisual___bindgen_ty_1 {
     pub(crate) orthographic: ::core::ffi::c_int,
     pub(crate) fovy: f32,
@@ -569,7 +560,7 @@ pub struct mjVisual___bindgen_ty_1 {
     pub(crate) bvactive: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjVisual___bindgen_ty_2 {
     pub(crate) shadowsize: ::core::ffi::c_int,
     pub(crate) offsamples: ::core::ffi::c_int,
@@ -578,7 +569,7 @@ pub struct mjVisual___bindgen_ty_2 {
     pub(crate) numquads: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjVisual___bindgen_ty_3 {
     pub(crate) ambient: [f32; 3usize],
     pub(crate) diffuse: [f32; 3usize],
@@ -586,7 +577,7 @@ pub struct mjVisual___bindgen_ty_3 {
     pub(crate) active: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjVisual___bindgen_ty_4 {
     pub(crate) stiffness: f32,
     pub(crate) stiffnessrot: f32,
@@ -603,7 +594,7 @@ pub struct mjVisual___bindgen_ty_4 {
     pub(crate) actuatortendon: f32,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjVisual___bindgen_ty_5 {
     pub(crate) forcewidth: f32,
     pub(crate) contactwidth: f32,
@@ -624,7 +615,7 @@ pub struct mjVisual___bindgen_ty_5 {
     pub(crate) frustum: f32,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjVisual___bindgen_ty_6 {
     pub(crate) fog: [f32; 4usize],
     pub(crate) haze: [f32; 4usize],
@@ -653,7 +644,7 @@ pub struct mjVisual___bindgen_ty_6 {
     pub(crate) bvactive: [f32; 4usize],
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjStatistic {
     pub(crate) meaninertia: mjtNum,
     pub(crate) meanmass: mjtNum,
@@ -662,7 +653,7 @@ pub struct mjStatistic {
     pub(crate) center: [mjtNum; 3usize],
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct mjModel {
     pub(crate) nq: ::core::ffi::c_int,
     pub(crate) nv: ::core::ffi::c_int,
@@ -1157,15 +1148,6 @@ pub struct mjModel {
     pub(crate) paths: *mut ::core::ffi::c_char,
     pub(crate) signature: u64,
 }
-impl Default for mjModel {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 impl mjtTaskStatus {
     pub const NEW: mjtTaskStatus = mjtTaskStatus(0);
     pub const QUEUED: mjtTaskStatus = mjtTaskStatus(1);
@@ -1178,7 +1160,7 @@ pub type mjfTask = ::core::option::Option<
     unsafe extern "C" fn(arg1: *mut ::core::ffi::c_void) -> *mut ::core::ffi::c_void,
 >;
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjThreadPool {
     pub(crate) nworker: ::core::ffi::c_int,
 }
@@ -1188,15 +1170,6 @@ pub struct mjTask {
     pub(crate) func: mjfTask,
     pub(crate) args: *mut ::core::ffi::c_void,
     pub(crate) status: ::core::ffi::c_int,
-}
-impl Default for mjTask {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 pub const mjNSTATE: usize = mjtState::mjNSTATE.0 as usize;
 impl mjtState {
@@ -1282,29 +1255,20 @@ pub struct mjContact {
     pub(crate) exclude: ::core::ffi::c_int,
     pub(crate) efc_address: ::core::ffi::c_int,
 }
-impl Default for mjContact {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjWarningStat {
     pub(crate) lastinfo: ::core::ffi::c_int,
     pub(crate) number: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjTimerStat {
     pub(crate) duration: mjtNum,
     pub(crate) number: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjSolverStat {
     pub(crate) improvement: mjtNum,
     pub(crate) gradient: mjtNum,
@@ -1315,7 +1279,7 @@ pub struct mjSolverStat {
     pub(crate) nupdate: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct mjData {
     pub(crate) narena: usize,
     pub(crate) nbuffer: usize,
@@ -1492,15 +1456,6 @@ pub struct mjData {
     pub(crate) efc_state: *mut ::core::ffi::c_int,
     pub(crate) threadpool: usize,
     pub(crate) signature: u64,
-}
-impl Default for mjData {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 pub type mjfGeneric =
     ::core::option::Option<unsafe extern "C" fn(m: *const mjModel, d: *mut mjData)>;
@@ -1722,7 +1677,7 @@ impl mjtStereo {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtStereo(pub(crate) ::core::ffi::c_uint);
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjvPerturb {
     pub(crate) select: ::core::ffi::c_int,
     pub(crate) flexselect: ::core::ffi::c_int,
@@ -1737,7 +1692,7 @@ pub struct mjvPerturb {
     pub(crate) scale: mjtNum,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjvCamera {
     pub(crate) type_: ::core::ffi::c_int,
     pub(crate) fixedcamid: ::core::ffi::c_int,
@@ -1749,7 +1704,7 @@ pub struct mjvCamera {
     pub(crate) orthographic: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjvGLCamera {
     pub(crate) pos: [f32; 3usize],
     pub(crate) forward: [f32; 3usize],
@@ -1786,17 +1741,8 @@ pub struct mjvGeom {
     pub(crate) modelrbound: f32,
     pub(crate) transparent: mjtByte,
 }
-impl Default for mjvGeom {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjvLight {
     pub(crate) pos: [f32; 3usize],
     pub(crate) dir: [f32; 3usize],
@@ -1812,7 +1758,7 @@ pub struct mjvLight {
     pub(crate) bulbradius: f32,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjvOption {
     pub(crate) label: ::core::ffi::c_int,
     pub(crate) frame: ::core::ffi::c_int,
@@ -1828,7 +1774,7 @@ pub struct mjvOption {
     pub(crate) flex_layer: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct mjvScene {
     pub(crate) maxgeom: ::core::ffi::c_int,
     pub(crate) ngeom: ::core::ffi::c_int,
@@ -1869,15 +1815,6 @@ pub struct mjvScene {
     pub(crate) framewidth: ::core::ffi::c_int,
     pub(crate) framergb: [f32; 3usize],
 }
-impl Default for mjvScene {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjvFigure {
@@ -1915,17 +1852,8 @@ pub struct mjvFigure {
     pub(crate) xaxisdata: [f32; 2usize],
     pub(crate) yaxisdata: [f32; 2usize],
 }
-impl Default for mjvFigure {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct mjvSceneState {
     pub(crate) nbuffer: ::core::ffi::c_int,
     pub(crate) buffer: *mut ::core::ffi::c_void,
@@ -2134,15 +2062,6 @@ pub struct mjvSceneState___bindgen_ty_1 {
     pub(crate) names: *mut ::core::ffi::c_char,
     pub(crate) paths: *mut ::core::ffi::c_char,
 }
-impl Default for mjvSceneState___bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjvSceneState___bindgen_ty_2 {
@@ -2189,24 +2108,6 @@ pub struct mjvSceneState___bindgen_ty_2 {
     pub(crate) efc_force: *mut mjtNum,
     pub(crate) arena: *mut ::core::ffi::c_void,
 }
-impl Default for mjvSceneState___bindgen_ty_2 {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl Default for mjvSceneState {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjResource {
@@ -2214,15 +2115,6 @@ pub struct mjResource {
     pub(crate) data: *mut ::core::ffi::c_void,
     pub(crate) timestamp: [::core::ffi::c_char; 512usize],
     pub(crate) provider: *const mjpResourceProvider,
-}
-impl Default for mjResource {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 pub type mjfOpenResource =
     ::core::option::Option<unsafe extern "C" fn(resource: *mut mjResource) -> ::core::ffi::c_int>;
@@ -2256,15 +2148,6 @@ pub struct mjpResourceProvider {
     pub(crate) getdir: mjfGetResourceDir,
     pub(crate) modified: mjfResourceModified,
     pub(crate) data: *mut ::core::ffi::c_void,
-}
-impl Default for mjpResourceProvider {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 impl mjtPluginCapabilityBit {
     pub const ACTUATOR: mjtPluginCapabilityBit = mjtPluginCapabilityBit(1);
@@ -2396,15 +2279,6 @@ pub struct mjpPlugin {
         unsafe extern "C" fn(aabb: *mut [mjtNum; 6usize], attributes: *const mjtNum),
     >,
 }
-impl Default for mjpPlugin {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 pub type mjfPluginLibraryLoadCallback = ::core::option::Option<
     unsafe extern "C" fn(
         filename: *const ::core::ffi::c_char,
@@ -2459,7 +2333,7 @@ impl mjtFont {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtFont(pub(crate) ::core::ffi::c_uint);
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjrRect {
     pub(crate) left: ::core::ffi::c_int,
     pub(crate) bottom: ::core::ffi::c_int,
@@ -2530,15 +2404,6 @@ pub struct mjrContext {
     pub(crate) currentBuffer: ::core::ffi::c_int,
     pub(crate) readPixelFormat: ::core::ffi::c_int,
     pub(crate) readDepthMap: ::core::ffi::c_int,
-}
-impl Default for mjrContext {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 pub type mjString = ::core::ffi::c_void;
 pub type mjStringVec = ::core::ffi::c_void;
@@ -2622,17 +2487,8 @@ pub struct mjsElement {
     pub(crate) elemtype: mjtObj,
     pub(crate) signature: u64,
 }
-impl Default for mjsElement {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjsCompiler {
     pub(crate) autolimits: mjtByte,
     pub(crate) boundmass: f64,
@@ -2652,7 +2508,7 @@ pub struct mjsCompiler {
     pub(crate) LRopt: mjLROpt,
 }
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug)]
 pub struct mjSpec {
     pub(crate) element: *mut mjsElement,
     pub(crate) modelname: *mut mjString,
@@ -2682,15 +2538,6 @@ pub struct mjSpec {
     pub(crate) modelfiledir: *mut mjString,
     pub(crate) hasImplicitPluginElem: mjtByte,
 }
-impl Default for mjSpec {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsOrientation {
@@ -2700,15 +2547,6 @@ pub struct mjsOrientation {
     pub(crate) zaxis: [f64; 3usize],
     pub(crate) euler: [f64; 3usize],
 }
-impl Default for mjsOrientation {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsPlugin {
@@ -2717,15 +2555,6 @@ pub struct mjsPlugin {
     pub(crate) plugin_name: *mut mjString,
     pub(crate) active: mjtByte,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsPlugin {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2749,15 +2578,6 @@ pub struct mjsBody {
     pub(crate) plugin: mjsPlugin,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsBody {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsFrame {
@@ -2768,15 +2588,6 @@ pub struct mjsFrame {
     pub(crate) quat: [f64; 4usize],
     pub(crate) alt: mjsOrientation,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsFrame {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2807,15 +2618,6 @@ pub struct mjsJoint {
     pub(crate) actgravcomp: mjtByte,
     pub(crate) userdata: *mut mjDoubleVec,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsJoint {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2853,15 +2655,6 @@ pub struct mjsGeom {
     pub(crate) plugin: mjsPlugin,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsGeom {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsSite {
@@ -2878,15 +2671,6 @@ pub struct mjsSite {
     pub(crate) rgba: [f32; 4usize],
     pub(crate) userdata: *mut mjDoubleVec,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsSite {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2911,15 +2695,6 @@ pub struct mjsCamera {
     pub(crate) userdata: *mut mjDoubleVec,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsCamera {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsLight {
@@ -2940,15 +2715,6 @@ pub struct mjsLight {
     pub(crate) diffuse: [f32; 3usize],
     pub(crate) specular: [f32; 3usize],
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsLight {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2989,15 +2755,6 @@ pub struct mjsFlex {
     pub(crate) elemtexcoord: *mut mjIntVec,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsFlex {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsMesh {
@@ -3019,15 +2776,6 @@ pub struct mjsMesh {
     pub(crate) plugin: mjsPlugin,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsMesh {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsHField {
@@ -3040,15 +2788,6 @@ pub struct mjsHField {
     pub(crate) ncol: ::core::ffi::c_int,
     pub(crate) userdata: *mut mjFloatVec,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsHField {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3069,15 +2808,6 @@ pub struct mjsSkin {
     pub(crate) vertid: *mut mjIntVecVec,
     pub(crate) vertweight: *mut mjFloatVecVec,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsSkin {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3104,15 +2834,6 @@ pub struct mjsTexture {
     pub(crate) vflip: mjtByte,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsTexture {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsMaterial {
@@ -3130,15 +2851,6 @@ pub struct mjsMaterial {
     pub(crate) rgba: [f32; 4usize],
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsMaterial {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsPair {
@@ -3155,15 +2867,6 @@ pub struct mjsPair {
     pub(crate) friction: [f64; 5usize],
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsPair {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsExclude {
@@ -3172,15 +2875,6 @@ pub struct mjsExclude {
     pub(crate) bodyname1: *mut mjString,
     pub(crate) bodyname2: *mut mjString,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsExclude {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3196,15 +2890,6 @@ pub struct mjsEquality {
     pub(crate) solref: [mjtNum; 2usize],
     pub(crate) solimp: [mjtNum; 5usize],
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsEquality {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3232,29 +2917,11 @@ pub struct mjsTendon {
     pub(crate) userdata: *mut mjDoubleVec,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsTendon {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsWrap {
     pub(crate) element: *mut mjsElement,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsWrap {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3288,15 +2955,6 @@ pub struct mjsActuator {
     pub(crate) plugin: mjsPlugin,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsActuator {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsSensor {
@@ -3316,15 +2974,6 @@ pub struct mjsSensor {
     pub(crate) plugin: mjsPlugin,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsSensor {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsNumeric {
@@ -3334,15 +2983,6 @@ pub struct mjsNumeric {
     pub(crate) size: ::core::ffi::c_int,
     pub(crate) info: *mut mjString,
 }
-impl Default for mjsNumeric {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsText {
@@ -3350,15 +2990,6 @@ pub struct mjsText {
     pub(crate) name: *mut mjString,
     pub(crate) data: *mut mjString,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsText {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3369,15 +3000,6 @@ pub struct mjsTuple {
     pub(crate) objname: *mut mjStringVec,
     pub(crate) objprm: *mut mjDoubleVec,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsTuple {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3392,15 +3014,6 @@ pub struct mjsKey {
     pub(crate) mquat: *mut mjDoubleVec,
     pub(crate) ctrl: *mut mjDoubleVec,
     pub(crate) info: *mut mjString,
-}
-impl Default for mjsKey {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3419,15 +3032,6 @@ pub struct mjsDefault {
     pub(crate) equality: *mut mjsEquality,
     pub(crate) tendon: *mut mjsTendon,
     pub(crate) actuator: *mut mjsActuator,
-}
-impl Default for mjsDefault {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 impl mjtButton {
     pub const NONE: mjtButton = mjtButton(0);
@@ -3519,17 +3123,8 @@ pub struct mjuiState {
     pub(crate) dropcount: ::core::ffi::c_int,
     pub(crate) droppaths: *mut *const ::core::ffi::c_char,
 }
-impl Default for mjuiState {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjuiThemeSpacing {
     pub(crate) total: ::core::ffi::c_int,
     pub(crate) scroll: ::core::ffi::c_int,
@@ -3546,7 +3141,7 @@ pub struct mjuiThemeSpacing {
     pub(crate) samples: ::core::ffi::c_int,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjuiThemeColor {
     pub(crate) master: [f32; 3usize],
     pub(crate) thumb: [f32; 3usize],
@@ -3578,7 +3173,7 @@ pub struct mjuiThemeColor {
     pub(crate) cursor: [f32; 3usize],
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjuiItemSingle {
     pub(crate) modifier: ::core::ffi::c_int,
     pub(crate) shortcut: ::core::ffi::c_int,
@@ -3589,23 +3184,14 @@ pub struct mjuiItemMulti {
     pub(crate) nelem: ::core::ffi::c_int,
     pub(crate) name: [[::core::ffi::c_char; 40usize]; 35usize],
 }
-impl Default for mjuiItemMulti {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjuiItemSlider {
     pub(crate) range: [f64; 2usize],
     pub(crate) divisions: f64,
 }
 #[repr(C)]
-#[derive(Debug, Default, Copy, Clone)]
+#[derive(Debug, Copy, Clone)]
 pub struct mjuiItemEdit {
     pub(crate) nelem: ::core::ffi::c_int,
     pub(crate) range: [[f64; 2usize]; 7usize],
@@ -3632,24 +3218,6 @@ pub union mjuiItem___bindgen_ty_1 {
     pub(crate) slider: mjuiItemSlider,
     pub(crate) edit: mjuiItemEdit,
 }
-impl Default for mjuiItem___bindgen_ty_1 {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-impl Default for mjuiItem {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub struct mjuiSection {
@@ -3663,15 +3231,6 @@ pub struct mjuiSection {
     pub(crate) rtitle: mjrRect,
     pub(crate) rcontent: mjrRect,
     pub(crate) lastclick: ::core::ffi::c_int,
-}
-impl Default for mjuiSection {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -3701,15 +3260,6 @@ pub struct mjUI {
     pub(crate) nsect: ::core::ffi::c_int,
     pub(crate) sect: [mjuiSection; 10usize],
 }
-impl Default for mjUI {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjuiDef {
@@ -3719,15 +3269,6 @@ pub struct mjuiDef {
     pub(crate) pdata: *mut ::core::ffi::c_void,
     pub(crate) other: [::core::ffi::c_char; 300usize],
     pub(crate) otherint: ::core::ffi::c_int,
-}
-impl Default for mjuiDef {
-    fn default() -> Self {
-        let mut s = ::core::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::core::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
 }
 unsafe extern "C" {
     pub static mut mju_user_error:

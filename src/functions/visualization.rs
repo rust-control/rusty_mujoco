@@ -7,14 +7,17 @@
 //! See [simulate](https://mujoco.readthedocs.io/en/stable/programming/samples.html#sasimulate)
 //! for illustration of how to use these functions.
 
-use crate::{mjModel, mjData, mjvOption, mjvScene, mjvCamera, mjvPerturb, mjvGeom};
+use crate::{
+    mjModel, mjData, mjvOption, mjvScene, mjvCamera, mjvPerturb, mjvGeom, mjvFigure,
+    mjtGeom,
+};
 
 /// Set default visualization options.
 /// 
 /// **note**: `rusty_mujoco::mjvOption` calls this function in its `Default` implementation.
 /* void mjv_defaultOption(mjvOption* opt); */
 pub fn mjv_defaultOption() -> mjvOption {
-    let mut c = crate::bindgen::mjvOption::default();
+    let mut c = mjvOption::default();
     unsafe { crate::bindgen::mjv_defaultOption(&mut c); }
     c.into()
 }
@@ -29,11 +32,11 @@ impl Default for mjvOption {
 /// **note**: `rusty_mujoco::mjvFigure` calls this function in its `Default` implementation.
 /* void mjv_defaultFigure(mjvFigure* fig); */
 pub fn mjv_defaultFigure() -> crate::mjvFigure {
-    let mut c = crate::bindgen::mjvFigure::default();
+    let mut c = mjvFigure::default();
     unsafe { crate::bindgen::mjv_defaultFigure(&mut c); }
     c.into()
 }
-impl Default for crate::mjvFigure {
+impl Default for mjvFigure {
     fn default() -> Self {
         mjv_defaultFigure()
     }
@@ -45,16 +48,16 @@ impl Default for crate::mjvFigure {
 /* void mjv_initGeom(mjvGeom* geom, int type, const mjtNum size[3],
                   const mjtNum pos[3], const mjtNum mat[9], const float rgba[4]); */
 pub fn mjv_initGeom(
-    type_: crate::bindgen::mjtGeom,
+    type_: mjtGeom,
     size: Option<[f64; 3]>,
     pos: Option<[f64; 3]>,
     mat: Option<[f64; 9]>,
     rgba: Option<[f32; 4]>,
 ) -> mjvGeom {
-    let mut c = crate::bindgen::mjvGeom::default();
+    let mut c = std::mem::MaybeUninit::<mjvGeom>::uninit();
     unsafe {
         crate::bindgen::mjv_initGeom(
-            &mut c,
+            c.as_mut_ptr(),
             type_.0 as i32,
             size.map_or(std::ptr::null(), |a| &a),
             pos.map_or(std::ptr::null(), |a| &a),
@@ -62,7 +65,7 @@ pub fn mjv_initGeom(
             rgba.map_or(std::ptr::null(), |a| &a),
         );
     }
-    c.into()
+    unsafe { c.assume_init() }
 }
 impl mjvGeom {
     pub fn new(type_: crate::bindgen::mjtGeom) -> Self {

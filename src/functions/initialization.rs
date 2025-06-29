@@ -35,7 +35,7 @@ pub fn mj_defaultSolRefImp() -> (
 
 /// Set physics options to default values.
 /// 
-/// **note**: `rusty_mujoco::mjOption` calls this function in its `Default` implementation.
+/// **note**: [`mjOption`] calls this function in its `Default` implementation.
 /* void mj_defaultOption(mjOption* opt); */
 pub fn mj_defaultOption() -> mjOption {
     let mut c = crate::bindgen::mjOption::default();
@@ -50,7 +50,7 @@ impl Default for mjOption {
 
 /// Set visual options to default values.
 /// 
-/// **note**: `rusty_mujoco::mjVisual` calls this function in its `Default` implementation.
+/// **note**: [`mjVisual`] calls this function in its `Default` implementation.
 /* void mj_defaultVisual(mjVisual* vis); */
 pub fn mj_defaultVisual() -> mjVisual {
     let mut c = crate::bindgen::mjVisual::default();
@@ -80,9 +80,9 @@ pub unsafe fn mj_copyModel(dest: Option<&mut mjModel>, src: &mjModel) -> Option<
             None
         }
         None => {
-            let mut c = crate::bindgen::mjModel::default();
-            unsafe { crate::bindgen::mj_copyModel(&mut c, src) };
-            Some(mjModel::from(c))
+            let mut c = std::mem::MaybeUninit::<mjModel>::uninit();
+            unsafe { crate::bindgen::mj_copyModel(c.as_mut_ptr(), src) };
+            Some(unsafe { c.assume_init() })
         }
     }
 }
@@ -123,12 +123,17 @@ pub fn mj_loadModel(
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to load model from file: {}", filename.to_string_lossy());
     }
-    mjModel::from(unsafe { *c_ptr })
+    // SAFETY:
+    // 
+    // - `c_ptr` is valid pointer to `mjModel`
+    // - when the returned `mjModel` is dropped, it calls `mj_deleteModel`.
+    //   then and only then the `mjModel`'s memory will be freed by Rust.
+    unsafe { std::ptr::read(c_ptr) }
 }
 
 /// Free memory allocation in model.
 /// 
-/// **note**: `rusty_mujoco::mjModel` calls this function in its `Drop` implementation.
+/// **note**: [`mjModel`] calls this function in its `Drop` implementation.
 /* void mj_deleteModel(mjModel* m); */
 pub fn mj_deleteModel(m: &mut mjModel) {
     unsafe { crate::bindgen::mj_deleteModel(m) };
@@ -153,7 +158,12 @@ pub fn mj_makeData(m: &mjModel) -> mjData {
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to allocate mjData for model");
     }
-    mjData::from(unsafe { *c_ptr })
+    // SAFETY:
+    // 
+    // - `c_ptr` is valid pointer to `mjData`
+    // - when the returned `mjData` is dropped, it calls `mj_deleteData`.
+    //   then and only then the `mjData`'s memory will be freed by Rust.
+    unsafe { std::ptr::read(c_ptr) }
 }
 
 /// Copy mjData. `m` is only required to contain the size fields from MJMODEL_INTS.
@@ -231,7 +241,7 @@ pub fn mj_stackAllocInt(d: &mut mjData, size: usize) -> *mut i32 {
 
 /// Free memory allocation in mjData.
 /// 
-/// **note**: `rusty_mujoco::mjData` calls this function in its `Drop` implementation.
+/// **note**: [`mjData`] calls this function in its `Drop` implementation.
 /* void mj_deleteData(mjData* d); */
 pub fn mj_deleteData(d: &mut mjData) {
     unsafe { crate::bindgen::mj_deleteData(d) };
@@ -296,7 +306,7 @@ pub fn mj_makeSpec() -> mjSpec {
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to create empty mjSpec");
     }
-    mjSpec::from(unsafe { *c_ptr })
+    mj_copySpec(unsafe { &*c_ptr })
 }
 impl Default for mjSpec {
     fn default() -> Self {
@@ -305,18 +315,30 @@ impl Default for mjSpec {
 }
 
 /// Copy spec.
+/// 
+/// **note**: [`mjSpec`] calls this function in its `Clone` implementation.
 /* mjSpec* mj_copySpec(const mjSpec* s); */
 pub fn mj_copySpec(s: &mjSpec) -> mjSpec {
     let c_ptr = unsafe { crate::bindgen::mj_copySpec(s) };
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to copy mjSpec");
     }
-    mjSpec::from(unsafe { *c_ptr })
+    // SAFETY:
+    // 
+    // - `c_ptr` is valid pointer to `mjSpec`
+    // - when the returned `mjSpec` is dropped, it calls `mj_deleteSpec`.
+    //   then and only then the `mjSpec`'s memory will be freed by Rust.
+    unsafe { std::ptr::read(c_ptr) }
+}
+impl Clone for mjSpec {
+    fn clone(&self) -> Self {
+        mj_copySpec(self)
+    }
 }
 
 /// Free memory allocation in mjSpec.
 /// 
-/// **note**: `rusty_mujoco::mjSpec` calls this function in its `Drop` implementation.
+/// **note**: [`mjSpec`] calls this function in its `Drop` implementation.
 /* void mj_deleteSpec(mjSpec* s); */
 pub fn mj_deleteSpec(s: &mut mjSpec) {
     unsafe { crate::bindgen::mj_deleteSpec(s) };
