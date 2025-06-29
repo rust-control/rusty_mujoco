@@ -205,7 +205,7 @@ impl mjtCamLight {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtCamLight(pub(crate) ::core::ffi::c_uint);
 impl mjtTexture {
-    pub const _2D: mjtTexture = mjtTexture(0);
+    pub const D2: mjtTexture = mjtTexture(0);
     pub const CUBE: mjtTexture = mjtTexture(1);
     pub const SKYBOX: mjtTexture = mjtTexture(2);
 }

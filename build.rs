@@ -141,14 +141,14 @@ fn main() {
                         pub const mjNOBJECT: mjtObj = mjtObj(26);
                     }
                 */
-                let after_mj_prefix = line
-                    .split_once('_')
-                    .map_or(&*line, |(_, rest)| rest);
-                let prefix_for_number = if after_mj_prefix.chars().next().unwrap().is_ascii_digit() {
-                    // mjtTexture::2D / mjtFontScale::50~300
-                    if after_mj_prefix.starts_with("2D") {"_"} else {"X"}
-                } else {""};
-                new.push(format!("    pub const {prefix_for_number}{after_mj_prefix}"));
+                let after_mj_prefix = line.split_once('_').map_or(&*line, |(_, rest)| rest);
+                new.push(if after_mj_prefix.starts_with("2D") {
+                    format!("    pub const {}", after_mj_prefix.replace("2D", "D2"))
+                } else if after_mj_prefix.chars().next().unwrap().is_ascii_digit() {
+                    format!("    pub const X{after_mj_prefix}")
+                } else {
+                    format!("    pub const {after_mj_prefix}")
+                });
             } else {
                 new.push(line);
             }
