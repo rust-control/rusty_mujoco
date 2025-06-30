@@ -10,7 +10,8 @@ pub use crate::bindgen::{
     mjuiItem, mjuiItemSingle, mjuiItemMulti, mjuiItemSlider, mjuiItemEdit,
     mjuiSection, mjuiDef, mjUI,
     mjtButton, mjtEvent, mjtItem, mjtSection,
-    mjMAXUIRECT, mjMAXUIMULTI, mjMAXUINAME, mjMAXUIEDIT, mjMAXUIITEM, mjMAXUITEXT,
+    mjfItemEnable,
+    mjMAXUIRECT, mjMAXUIMULTI, mjMAXUINAME, mjMAXUIEDIT, mjMAXUIITEM, mjMAXUITEXT, mjMAXUISECT,
 };
 use crate::bindgen::{
     mjrRect,
@@ -383,5 +384,94 @@ impl mjuiDef {
 }
 
 /*
+mjUI
+// scalars; read&write
+  int rectid;                     // index of this ui rectangle in mjuiState
+  int auxid;                      // aux buffer index of this ui
+  int radiocol;                   // number of radio columns (0 defaults to 2)
+// scalars; read-only
+  int width;                      // width
+  int height;                     // current height
+  int maxheight;                  // height when all sections open
+  int scroll;                     // scroll from top of UI
+  int mousesect;                  // 0: none, -1: scroll, otherwise 1+section
+  int mouseitem;                  // item within section
+  int mousehelp;                  // help button down: print shortcuts
+  int mouseclicks;                // number of mouse clicks over UI
+  int mousesectcheck;             // 0: none, otherwise 1+section
+  int editsect;                   // 0: none, otherwise 1+section
+  int edititem;                   // item within section
+  int editcursor;                 // cursor position
+  int editscroll;                 // horizontal scroll
+  int nsect;                      // number of sections in use
 
+// structs; read&write
+  mjuiThemeSpacing spacing;       // UI theme spacing
+  mjuiThemeColor color;           // UI theme color
+// structs; read-only
+  mjuiSection sect[mjMAXUISECT];  // preallocated array of sections
+  
+// by hand
+  void* userdata;                 // pointer to user data (passed to predicate)
+  char edittext[mjMAXUITEXT];     // current text
+  mjuiItem* editchanged;          // pointer to changed edit in last mjui_event
+  mjfItemEnable predicate;        // callback to set item state programmatically
 */
+derive_fields_mapping!(mjUI {
+    scalars {
+        rectid / set_rectid: usize = "index of this ui rectangle in mjuiState";
+        auxid / set_auxid: usize = "aux buffer index of this ui";
+        radiocol / set_radiocol: usize = "number of radio columns (0 defaults to 2)";
+        width: usize = "width";
+        height: usize = "current height";
+        maxheight: usize = "height when all sections open";
+        scroll: f64 = "scroll from top of UI";
+        mousesect: i32 = "0: none, -1: scroll, otherwise 1+section";
+        mouseitem: i32 = "item within section";
+        mousehelp: i32 = "help button down: print shortcuts";
+        mouseclicks: usize = "number of mouse clicks over UI";
+        mousesectcheck: i32 = "0: none, otherwise 1+section";
+        editsect: i32 = "0: none, otherwise 1+section";
+        edititem: i32 = "item within section";
+        editcursor: usize = "cursor position";
+        editscroll: f64 = "horizontal scroll";
+        nsect: usize = "number of sections in use";
+    }
+    structs {
+        spacing / set_spacing: mjuiThemeSpacing = "UI theme spacing";
+        color / set_color: mjuiThemeColor = "UI theme color";
+        sect: [mjuiSection; mjMAXUISECT] = "preallocated array of sections";
+    }
+});
+impl mjUI {
+    /// data pointer (type-specific)
+    pub fn userdata(&self) -> *mut std::ffi::c_void {
+        self.userdata
+    }
+
+    /// current text in the edit field
+    pub fn edittext(&self) -> &str {
+        let c_str = unsafe { std::ffi::CStr::from_ptr(self.edittext.as_ptr()) };
+        c_str.to_str().expect("`mjUI::edittext` returned non-UTF-8 bytes")
+    }
+    /// Set the current text in the edit field
+    pub fn set_edittext(&mut self, text: &str) -> &mut Self {
+        copy_str_to_c_chararray(text, &mut self.edittext);
+        self
+    }
+
+    /// Pointer to changed edit in last `mjui_event`
+    pub fn editchanged(&self) -> Option<&mjuiItem> {
+        if self.editchanged.is_null() {None} else {Some(unsafe {&*self.editchanged})}
+    }
+
+    /// Predicate callback to set item state programmatically
+    pub fn predicate(&self) -> &mjfItemEnable {
+        &self.predicate
+    }
+    /// Set the predicate callback to set item state programmatically
+    pub fn set_predicate(&mut self, predicate: mjfItemEnable) -> &mut Self {
+        self.predicate = predicate;
+        self
+    }
+}
