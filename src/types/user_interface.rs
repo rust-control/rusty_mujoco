@@ -9,14 +9,14 @@ pub use crate::bindgen::{
     mjuiState, mjuiThemeSpacing, mjuiThemeColor,
     mjuiItem, mjuiItemSingle, mjuiItemMulti, mjuiItemSlider, mjuiItemEdit,
     mjuiSection, mjuiDef, mjUI,
-    mjtButton, mjtEvent, mjtItem,
-    mjMAXUIRECT, mjMAXUIMULTI, mjMAXUINAME, mjMAXUIEDIT,
+    mjtButton, mjtEvent, mjtItem, mjtSection,
+    mjMAXUIRECT, mjMAXUIMULTI, mjMAXUINAME, mjMAXUIEDIT, mjMAXUIITEM, mjMAXUITEXT,
 };
 use crate::bindgen::{
     mjrRect,
 };
 use crate::helper::{
-    Rgb,
+    Rgb, copy_str_to_c_chararray,
 };
 
 derive_fields_mapping!(mjuiState {
@@ -259,6 +259,11 @@ derive_fields_mapping!(mjuiItem {
     }
 });
 impl mjuiItem {
+    /// data pointer (type-specific)
+    pub fn pdata(&self) -> *mut std::ffi::c_void {
+        self.pdata
+    }
+
     /// type of the item
     pub fn type_(&self) -> mjtItem {
         mjtItem(self.type_)
@@ -274,45 +279,109 @@ impl mjuiItem {
         let c_str = unsafe { std::ffi::CStr::from_ptr(self.name.as_ptr()) };
         c_str.to_str().expect("`mjuiItem::name` returned non-UTF-8 bytes")
     }
+    /* not provide for union safety
     /// Set the name of the item
     pub fn set_name(&mut self, name: &str) -> &mut Self {
-        let c_str = std::ffi::CString::new(name).expect("`mjuiItem::set_name`: name must be valid UTF-8");
-        let bytes = c_str.into_bytes_with_nul();
-        assert!(bytes.len() <= mjMAXUINAME, "`mjuiItem::set_name`: name must be less than {mjMAXUINAME} bytes long");
-        bytes.iter().enumerate().for_each(|(i, &b)| {self.name[i] = b as i8;});
-        self.name[bytes.len()..].fill(0); // fill the rest with zeros
+        copy_str_to_c_chararray(name, &mut self.name);
         self
     }
+    */
+    /* mjtItem::{END, SECTION, SEPARATOR, STATIC} do not have any union properties. */
+    /// check and button properties for: `mjtItem::{BUTTON, CHECKINT, CHECKBYTE}`
+    pub fn single(&self) -> Option<&mjuiItemSingle> {
+        match self.type_() {
+            mjtItem::BUTTON | mjtItem::CHECKINT | mjtItem::CHECKBYTE => Some(unsafe { &self.__bindgen_anon_1.single }),
+            _ => None,
+        }
+    }
+    /// static, radio and select properties for: `mjtItem::{RADIO, RADIOLINE, SELECT}`
+    pub fn multi(&self) -> Option<&mjuiItemMulti> {
+        match self.type_() {
+            mjtItem::RADIO | mjtItem::RADIOLINE | mjtItem::SELECT => Some(unsafe { &self.__bindgen_anon_1.multi }),
+            _ => None,
+        }
+    }
+    /// slider properties for: `mjtItem::{SLIDERINT, SLIDERNUM}`
+    pub fn slider(&self) -> Option<&mjuiItemSlider> {
+        match self.type_() {
+            mjtItem::SLIDERINT | mjtItem::SLIDERNUM => Some(unsafe { &self.__bindgen_anon_1.slider }),
+            _ => None,
+        }
+    }
+    /// edit properties for: `mjtItem::{EDITINT, EDITNUM, EDITFLOAT, EDITTXT}`
+    pub fn edit(&self) -> Option<&mjuiItemEdit> {
+        match self.type_() {
+            mjtItem::EDITINT | mjtItem::EDITNUM | mjtItem::EDITFLOAT | mjtItem::EDITTXT => Some(unsafe { &self.__bindgen_anon_1.edit }),
+            _ => None,
+        }
+    }
+}
 
+derive_fields_mapping!(mjuiSection {
+    scalars {
+        lastclick: i32 = "last mouse click over this section";
+        modifier / set_modifier: u32 = "modifier key (0: none, 1: control, 2: shift, 4: alt)";
+        shortcut / set_shortcut: u32 = "shortcut key (0: undefined)";
+        checkbox / set_checkbox: i32 = "0: none, 1: unchecked, 2: checked";
+        nitem / set_nitem: usize = "number of items in use";
+    }
+    enums {
+        state / set_state: mjtSection = "section state (mjtSection)";
+    }
+    structs {
+        rtitle: mjrRect = "rectangle occupied by title";
+        rcontent: mjrRect = "rectangle occupied by content";
+    }
+});
+impl mjuiSection {
+    /// name
+    pub fn name(&self) -> &str {
+        let c_str = unsafe { std::ffi::CStr::from_ptr(self.name.as_ptr()) };
+        c_str.to_str().expect("`mjuiSection::name` returned non-UTF-8 bytes")
+    }
+    /// Set the name of the section
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
+        copy_str_to_c_chararray(name, &mut self.name);
+        self
+    }
+}
+
+derive_fields_mapping!(mjuiDef {
+    scalars {
+        type_ / set_type: i32 = "type (mjtItem), -1: section";
+        state / set_state: i32 = "state";
+        otherint / set_otherint: i32 = "int with type-specific properties";
+    }
+});
+impl mjuiDef {
     /// data pointer (type-specific)
     pub fn pdata(&self) -> *mut std::ffi::c_void {
         self.pdata
     }
-}
-// pub enum MjuiItem {
-//     Single(mjuiItemSingle),
-//     Multi(mjuiItemMulti),
-//     Slider(mjuiItemSlider),
-//     Edit(mjuiItemEdit),
-// }
 
-impl mjuiItem {
-    //pub fn union(&)
+    /// string with type-specific properties
+    pub fn other(&self) -> &str {
+        let c_str = unsafe { std::ffi::CStr::from_ptr(self.other.as_ptr()) };
+        c_str.to_str().expect("`mjuiDef::other` returned non-UTF-8 bytes")
+    }
+    /// Set the string with type-specific properties
+    pub fn set_other(&mut self, other: &str) -> &mut Self {
+        copy_str_to_c_chararray(other, &mut self.other);
+        self
+    }
+
+    /// name
+    pub fn name(&self) -> &str {
+        let c_str = unsafe { std::ffi::CStr::from_ptr(self.name.as_ptr()) };
+        c_str.to_str().expect("`mjuiDef::name` returned non-UTF-8 bytes")
+    }
+    /// Set the name of the definition
+    pub fn set_name(&mut self, name: &str) -> &mut Self {
+        copy_str_to_c_chararray(name, &mut self.name);
+        self
+    }
 }
 
 /*
-// by hand
-union {
-    struct mjuiItemSingle single;  // check and button
-    struct mjuiItemMulti multi;    // static, radio and select
-    struct mjuiItemSlider slider;  // slider
-    struct mjuiItemEdit edit;      // edit
-};
 
-mjuiItem___bindgen_ty_1 {
-    single: mjuiItemSingle,
-    multi: mjuiItemMulti,
-    slider: mjuiItemSlider,
-    edit: mjuiItemEdit,
-}
 */

@@ -56,7 +56,7 @@ macro_rules! derive_fields_mapping {
             $($(
                 #[doc = $enum_description]
                 pub fn $enum_name(&self) -> $Enum {
-                    $Enum(self.$enum_name as u32)
+                    $Enum(self.$enum_name as _)
                 }
                 $(
                     #[doc = "set "]

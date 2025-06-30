@@ -5,6 +5,17 @@ pub(crate) fn array_flatslice<T, const M: usize, const N: usize>(
     unsafe {std::slice::from_raw_parts(arr.as_ptr() as *const T, M * N)}
 }
 
+pub(crate) fn copy_str_to_c_chararray<const N: usize>(
+    s: &str,
+    c_array: &mut [i8; N],
+) {
+    let c_str = std::ffi::CString::new(s).expect("string must not contain internal null bytes");
+    let bytes = c_str.into_bytes_with_nul();
+    assert!(bytes.len() <= N, "string must be less than {N} bytes long");
+    bytes.iter().enumerate().for_each(|(i, &b)| {c_array[i] = b as i8});
+    c_array[bytes.len()..].fill(0); // fill the rest with zeros
+}
+
 pub struct Rgb { pub r: f32, pub g: f32, pub b: f32 }
 pub struct Rgba { pub r: f32, pub g: f32, pub b: f32, pub a: f32 }
 
@@ -13,27 +24,3 @@ pub struct Dimention<const N: usize>;
 pub trait FrictionDimention {}
 impl FrictionDimention for Dimention<1> {}
 impl FrictionDimention for Dimention<2> {}
-
-pub trait UiItemTypeUnion { type Union; }
-pub struct UiItemType<const T: i32>;
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::END.0}> { type Union = ();}
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::SECTION.0}> { type Union = (); }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::SEPARATOR.0}> { type Union = (); }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::STATIC.0}> { type Union = (); }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::BUTTON.0}> { type Union = crate::mjuiItemSingle; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::CHECKINT.0}> { type Union = crate::mjuiItemSingle; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::CHECKBYTE.0}> { type Union = crate::mjuiItemSingle; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::RADIO.0}> { type Union = crate::mjuiItemMulti; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::RADIOLINE.0}> { type Union = crate::mjuiItemMulti; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::SELECT.0}> { type Union = crate::mjuiItemMulti; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::SLIDERINT.0}> { type Union = crate::mjuiItemSlider; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::SLIDERNUM.0}> { type Union = crate::mjuiItemSlider; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::EDITINT.0}> { type Union = crate::mjuiItemEdit; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::EDITNUM.0}> { type Union = crate::mjuiItemEdit; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::EDITFLOAT.0}> { type Union = crate::mjuiItemEdit; }
-impl UiItemTypeUnion for UiItemType<{crate::mjtItem::EDITTXT.0}> { type Union = crate::mjuiItemEdit; }
-
-fn _test<const T: i32, U>(u: U)
-where
-    const...
-{}
