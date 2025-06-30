@@ -23,10 +23,8 @@ impl SegmentationId {
                 objtype = segid >> 16
                 objid = segid & 0xFFFF
         */
-
         let objtype = self.0 >> 16;
         let objid = self.0 & 0xFFFF;
-
         (
             mjtObj(objtype as u32),
             objid,
@@ -51,6 +49,10 @@ pub struct ObjectId<O: Obj> {
 impl<O: Obj> ObjectId<O> {
     pub fn index(&self) -> usize {
         self.index
+    }
+
+    pub fn type_(&self) -> mjtObj {
+        O::TYPE
     }
 
     /// SAFETY: This function should only be used when you are sure that the index is valid for the object type `O`.

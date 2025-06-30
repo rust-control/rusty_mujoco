@@ -1,31 +1,45 @@
 #![allow(non_snake_case)]
 
+pub mod assets;
+pub mod attachment;
+pub mod attribute_setters;
 pub mod attribute_getters;
 pub mod components;
 pub mod error_and_memory;
+pub mod find_and_get_utilities;
 pub mod initialization;
 pub mod interaction;
 pub mod main_simulation;
 pub mod miscellaneous;
+pub mod non_tree_elements;
 pub mod opengl_rendering;
 pub mod parse_and_compile;
 pub mod ray_casting;
+pub mod spec_utilities;
 pub mod sub_components;
 pub mod support;
+pub mod tree_elements;
 pub mod ui_framework;
 pub mod visualization;
 
+pub use assets::*;
+pub use attachment::*;
+pub use attribute_setters::*;
 pub use attribute_getters::*;
 pub use components::*;
 pub use error_and_memory::*;
+pub use find_and_get_utilities::*;
 pub use initialization::*;
 pub use interaction::*;
 pub use main_simulation::*;
 pub use miscellaneous::*;
+pub use non_tree_elements::*;
 pub use opengl_rendering::*;
 pub use parse_and_compile::*;
 pub use ray_casting::*;
+pub use spec_utilities::*;
 pub use sub_components::*;
 pub use support::*;
+pub use tree_elements::*;
 pub use ui_framework::*;
 pub use visualization::*;
