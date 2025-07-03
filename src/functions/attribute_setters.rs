@@ -5,52 +5,6 @@ use crate::{
     mjsPlugin,
 };
 
-/*
-mjs_setBuffer
-void mjs_setBuffer(mjByteVec* dest, const void* array, int size);
-Copy buffer.
-
-mjs_setString
-void mjs_setString(mjString* dest, const char* text);
-Copy text to string.
-
-mjs_setStringVec
-void mjs_setStringVec(mjStringVec* dest, const char* text);
-Split text to entries and copy to string vector.
-
-mjs_setInStringVec
-mjtByte mjs_setInStringVec(mjStringVec* dest, int i, const char* text);
-Set entry in string vector.
-
-mjs_appendString
-void mjs_appendString(mjStringVec* dest, const char* text);
-Append text entry to string vector.
-
-mjs_setInt
-void mjs_setInt(mjIntVec* dest, const int* array, int size);
-Copy int array to vector.
-
-mjs_appendIntVec
-void mjs_appendIntVec(mjIntVecVec* dest, const int* array, int size);
-Append int array to vector of arrays.
-
-mjs_setFloat
-void mjs_setFloat(mjFloatVec* dest, const float* array, int size);
-Copy float array to vector.
-
-mjs_appendFloatVec
-void mjs_appendFloatVec(mjFloatVecVec* dest, const float* array, int size);
-Append float array to vector of arrays.
-
-mjs_setDouble
-void mjs_setDouble(mjDoubleVec* dest, const double* array, int size);
-Copy double array to vector.
-
-mjs_setPluginAttributes
-void mjs_setPluginAttributes(mjsPlugin* plugin, void* attributes);
-Set plugin attributes.
-*/
-
 /// Copy buffer to destination.
 pub fn mjs_setBuffer(dest: &mut mjByteVec, array: &[u8]) {
     unsafe {

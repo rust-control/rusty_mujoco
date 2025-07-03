@@ -2,44 +2,6 @@
 
 use crate::{mjsBody, mjsDefault, mjsSite, mjsJoint, mjsGeom, mjsCamera, mjsLight, mjsFrame, mjsElement};
 
-/*
-mjs_addBody
-mjsBody* mjs_addBody(mjsBody* body, const mjsDefault* def);
-Add child body to body, return child.
-
-mjs_addSite
-mjsSite* mjs_addSite(mjsBody* body, const mjsDefault* def);
-Add site to body, return site spec.
-
-mjs_addJoint
-mjsJoint* mjs_addJoint(mjsBody* body, const mjsDefault* def);
-Add joint to body.
-
-mjs_addFreeJoint
-mjsJoint* mjs_addFreeJoint(mjsBody* body);
-Add freejoint to body.
-
-mjs_addGeom
-mjsGeom* mjs_addGeom(mjsBody* body, const mjsDefault* def);
-Add geom to body.
-
-mjs_addCamera
-mjsCamera* mjs_addCamera(mjsBody* body, const mjsDefault* def);
-Add camera to body.
-
-mjs_addLight
-mjsLight* mjs_addLight(mjsBody* body, const mjsDefault* def);
-Add light to body.
-
-mjs_addFrame
-mjsFrame* mjs_addFrame(mjsBody* body, mjsFrame* parentframe);
-Add frame to body.
-
-mjs_delete
-int mjs_delete(mjsElement* element);
-Delete object corresponding to the given element, return 0 on success. This function should only be used for element types that cannot have children, i.e. excluding bodies and default classes.
-*/
-
 /// Add child body to body, return child.
 /* mjsBody* mjs_addBody(mjsBody* body, const mjsDefault* def); */
 pub fn mjs_addBody<'body>(

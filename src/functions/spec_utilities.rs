@@ -5,37 +5,6 @@ use crate::{
     mjsOrientation,
 };
 
-/*
-mjs_setDefault
-void mjs_setDefault(mjsElement* element, const mjsDefault* def);
-Set element’s default.
-
-mjs_setFrame
-int mjs_setFrame(mjsElement* dest, mjsFrame* frame);
-Set element’s enclosing frame, return 0 on success.
-
-mjs_resolveOrientation
-const char* mjs_resolveOrientation(double quat[4], mjtByte degree, const char* sequence,
-                                   const mjsOrientation* orientation);
-Resolve alternative orientations to quat, return error if any.
-
-mjs_bodyToFrame
-mjsFrame* mjs_bodyToFrame(mjsBody** body);
-Transform body into a frame.
-
-mjs_setUserValue
-void mjs_setUserValue(mjsElement* element, const char* key, const void* data);
-Set user payload, overriding the existing value for the specified key if present.
-
-mjs_getUserValue
-const void* mjs_getUserValue(mjsElement* element, const char* key);
-Return user payload or NULL if none found.
-
-mjs_deleteUserValue
-void mjs_deleteUserValue(mjsElement* element, const char* key);
-Delete user payload.
-*/
-
 /// Set element’s default.
 /* void mjs_setDefault(mjsElement* element, const mjsDefault* def); */
 pub fn mjs_setDefault(element: &mut mjsElement, def: &mjsDefault) {
