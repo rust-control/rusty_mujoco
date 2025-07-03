@@ -1,7 +1,7 @@
 //! # [Spec utilities](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#spec-utilities)
 
 use crate::{
-    mjSpec, mjsElement, mjsBody, mjsFrame, mjsDefault, mjtByte,
+    mjsElement, mjsBody, mjsFrame, mjsDefault, mjtByte,
     mjsOrientation,
 };
 
@@ -81,15 +81,14 @@ pub fn mjs_resolveOrientation(
         Ok(())
     }
 }
-
+// const PTR_SIZE: usize = std::mem::size_of::<*mut mjsBody>();
+// const REF_SIZE: usize = std::mem::size_of::<&mut mjsBody>();
 /// Transform body into a frame.
 /* mjsFrame* mjs_bodyToFrame(mjsBody** body); */
-pub fn mjs_bodyToFrame<'body>(body: &'body mut [&mut mjsBody]) -> &'body mut mjsFrame {
+pub fn mjs_bodyToFrame<'body>(body: &'body mut [&mut mjsBody]) -> Option<&'body mut mjsFrame> {
+    let body: &'body mut [*mut mjsBody] = unsafe { std::mem::transmute(body) };
     let c_ptr = unsafe { crate::bindgen::mjs_bodyToFrame(body.as_mut_ptr()) };
-    if c_ptr.is_null() {
-        panic!("Failed to transform body into a frame");
-    }
-    unsafe { &mut *c_ptr }
+    if c_ptr.is_null() {None} else {Some(unsafe { &mut *c_ptr })}
 }
 
 /// Set user payload, overriding the existing value for the specified key if present.

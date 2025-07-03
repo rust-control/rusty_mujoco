@@ -103,3 +103,14 @@ pub use rendering::*;
 pub use sim_statistics::*;
 pub use user_interface::*;
 pub use visualization::*;
+
+pub use crate::bindgen::{
+    mjtByte, mjByteVec, mjString, mjStringVec, mjIntVec, mjFloatVec, mjDoubleVec,
+};
+pub use crate::bindgen::{
+    mjsOrientation, mjsBody, mjsFrame, mjsJoint, mjsGeom, mjsSite,
+    mjsCamera, mjsLight, mjsFlex, mjsMesh, mjsHField, mjsSkin, mjsTexture,
+    mjsMaterial, mjsPair, mjsEquality, mjsTendon, mjsActuator, mjsSensor,
+    mjsNumeric, mjsText, mjsTuple, mjsKey, mjsPlugin,
+    mjsDefault, mjsExclude, mjsWrap,
+};

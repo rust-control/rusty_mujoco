@@ -1,7 +1,7 @@
 //! # [Attribute setters](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#attribute-setters)
 
 use crate::{
-    mjtByte, mjtObj, mjByteVec, mjString, mjStringVec, mjIntVec, mjFloatVec, mjDoubleVec,
+    mjtByte, mjByteVec, mjString, mjStringVec, mjIntVec, mjFloatVec, mjDoubleVec,
     mjsPlugin,
 };
 

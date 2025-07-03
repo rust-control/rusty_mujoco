@@ -1,6 +1,6 @@
 //! # [Attribute getters](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#attributegetters)
 
-use crate::{mjString, mjDoubleVec, mjsPlugin};
+use crate::{mjString, mjDoubleVec};
 
 /// Get string contents.
 pub fn mjs_getString(source: &mjString) -> &str {

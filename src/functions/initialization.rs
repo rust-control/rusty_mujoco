@@ -308,11 +308,6 @@ pub fn mj_makeSpec() -> mjSpec {
     }
     mj_copySpec(unsafe { &*c_ptr })
 }
-impl Default for mjSpec {
-    fn default() -> Self {
-        mj_makeSpec()
-    }
-}
 
 /// Copy spec.
 /// 
