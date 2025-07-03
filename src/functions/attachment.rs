@@ -5,13 +5,25 @@ use crate::{mjSpec, mjsElement, mjsBody, mjsDefault};
 /// Attach child to a parent, return the attached element if success or `None` otherwise.
 /* mjsElement* mjs_attach(mjsElement* parent, const mjsElement* child,
                        const char* prefix, const char* suffix); */
-pub fn mjs_attach(
-    parent: &mut mjsElement,
-    child: &mjsElement,
+pub fn mjs_attach<'element>(
+    parent: &'element mut mjsElement,
+    child: &'element mjsElement,
     prefix: Option<&str>,
     suffix: Option<&str>,
-) -> Option<mjsElement> {
-    todo!()
+) -> Option<&'element mut mjsElement> {
+    let prefix_cstr = prefix.map(|s| std::ffi::CString::new(s).unwrap());
+    let suffix_cstr = suffix.map(|s| std::ffi::CString::new(s).unwrap());
+
+    let c_ptr = unsafe {
+        crate::bindgen::mjs_attach(
+            parent,
+            child,
+            prefix_cstr.as_ref().map_or(std::ptr::null(), |s| s.as_ptr()),
+            suffix_cstr.as_ref().map_or(std::ptr::null(), |s| s.as_ptr()),
+        )
+    };
+
+    if c_ptr.is_null() {None} else {Some(unsafe { &mut *c_ptr })}
 }
 
 /// Delete body and descendants from mjSpec, remove all references.
