@@ -211,7 +211,7 @@ pub fn mju_rayFlex(
     flexid: ObjectId<obj::Flex>,
     pnt: [f64; 3],
     vec: [f64; 3],
-) -> Option<(VertexId, f64)> {
+) -> Option<(VertexId<obj::Flex>, f64)> {
     let mut vertid = [-1];
     
     let distance = unsafe {
@@ -233,7 +233,7 @@ pub fn mju_rayFlex(
     if vertid[0] < 0 || distance < 0.0 {
         None
     } else {
-        Some((VertexId(vertid[0] as usize), distance))
+        Some((unsafe { VertexId::<obj::Flex>::new_unchecked(vertid[0] as usize) }, distance))
     }
 }
 
@@ -246,7 +246,7 @@ pub fn mju_raySkin<const N_FACE: usize, const N_VERT: usize>(
     vert_coordinates: [[f32; 3]; N_VERT],
     pnt: [f64; 3],
     vec: [f64; 3],
-) -> Option<(VertexId, f64)> {
+) -> Option<(VertexId<obj::Mesh>, f64)> {
     let vert_coordinates: &[f32] = array_flatslice(&vert_coordinates);
     let face_indices: &[usize] = array_flatslice(&face_indices);
     let face_indices: Vec<i32> = face_indices.iter().map(|&i| i as i32).collect();
@@ -268,6 +268,6 @@ pub fn mju_raySkin<const N_FACE: usize, const N_VERT: usize>(
     if vertid[0] < 0 || distance < 0.0 {
         None
     } else {
-        Some((VertexId(vertid[0] as usize), distance))
+        Some((unsafe { VertexId::<obj::Mesh>::new_unchecked(vertid[0] as usize) }, distance))
     }
 }

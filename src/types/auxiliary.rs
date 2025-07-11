@@ -194,17 +194,17 @@ impl mjContact {
     }
 
     /// element ids; `None` for geom or flex vertex
-    pub fn elem(&self) -> (Option<ElementId>, Option<ElementId>) {
+    pub fn elem(&self) -> (Option<ElementId<obj::Mesh>>, Option<ElementId<obj::Mesh>>) {
         (
-            if self.elem[0] >= 0 {Some(ElementId(self.elem[0] as usize))} else {None},
-            if self.elem[1] >= 0 {Some(ElementId(self.elem[1] as usize))} else {None}
+            if self.elem[0] >= 0 {Some(unsafe { ElementId::<obj::Mesh>::new_unchecked(self.elem[0] as usize) })} else {None},
+            if self.elem[1] >= 0 {Some(unsafe { ElementId::<obj::Mesh>::new_unchecked(self.elem[1] as usize) })} else {None}
         )
     }
     /// vertex ids; `None` for geom or flex element
-    pub fn vert(&self) -> (Option<VertexId>, Option<VertexId>) {
+    pub fn vert(&self) -> (Option<VertexId<obj::Mesh>>, Option<VertexId<obj::Mesh>>) {
         (
-            if self.vert[0] >= 0 {Some(VertexId(self.vert[0] as usize))} else {None},
-            if self.vert[1] >= 0 {Some(VertexId(self.vert[1] as usize))} else {None}
+            if self.vert[0] >= 0 {Some(unsafe { VertexId::<obj::Mesh>::new_unchecked(self.vert[0] as usize) })} else {None},
+            if self.vert[1] >= 0 {Some(unsafe { VertexId::<obj::Mesh>::new_unchecked(self.vert[1] as usize) })} else {None}
         )
     }
 }

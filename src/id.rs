@@ -1,16 +1,184 @@
-pub use crate::bindgen::mjtObj;
+pub use crate::bindgen::{mjtObj, mjtWrap};
 
-/// element id, used for flex and mesh objects
-#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
-pub struct ElementId(pub(crate) usize);
+pub trait Element: Obj + element::Sealed {}
+mod element {
+    pub trait Sealed {}
+    impl<S: super::Obj + Sealed> super::Element for S {}
+    impl Sealed for super::obj::Flex {}
+    impl Sealed for super::obj::Mesh {}
+    impl Sealed for super::obj::Skin {}
+}
 
-/// vertex id, used for flex and mesh objects
+macro_rules! element_ids {
+    ($( $data:ident ),* $(,)?) => {
+        $(
+            #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
+            pub struct $data<E: Element> {
+                index: usize,
+                _type: std::marker::PhantomData<E>,
+            }
+
+            impl<E: Element> Clone for $data<E> {
+                fn clone(&self) -> Self {
+                    Self { index: self.index, _type: std::marker::PhantomData }
+                }
+            }
+            impl<E: Element> Copy for $data<E> {}
+
+            impl<E: Element> $data<E> {
+                pub fn index(&self) -> usize {
+                    self.index
+                }
+                /// SAFETY: This function should only be used when you are sure that
+                /// the index is valid for the type.
+                pub unsafe fn new_unchecked(index: usize) -> Self {
+                    Self { index, _type: std::marker::PhantomData }
+                }
+            }
+        )*
+    };
+}
+element_ids! {
+    ElementId,
+    VertexId,
+    NodeId,
+    EdgeId,
+    TexcoordId,
+    FaceId,
+}
+
+/// id in flattened all-elements (' vertexes) array
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
-pub struct VertexId(pub(crate) usize);
+pub struct ElementDataId(usize);
+impl ElementDataId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for a element.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+}
+
+/// id in flattened all-edges array
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct EdgeDataId(usize);
+impl EdgeDataId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for a edge.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
-pub struct SegmentationId(pub(crate) usize);
+pub struct ShellDataId(usize);
+impl ShellDataId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for a shell.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct EvPairId(usize);
+impl EvPairId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for an edge-vertex pair.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct NormalId(usize);
+impl NormalId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for an edge-vertex pair.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct BoneId(usize);
+impl BoneId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for an edge-vertex pair.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct BoneVertexId(usize);
+impl BoneVertexId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for an edge-vertex pair.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct HFieldDataId(usize);
+impl HFieldDataId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for an edge-vertex pair.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct TexDataId(usize);
+impl TexDataId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for an edge-vertex pair.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+}
+
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd)]
+pub struct SegmentationId(usize);
 impl SegmentationId {
+    pub fn index(&self) -> usize {
+        self.0
+    }
+
+    /// SAFETY: This function should only be used when you are sure that
+    /// the index is valid for a segmentation id.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self(index)
+    }
+
     /// convert `SegmentationId` to corresponding object type and index
     pub fn to_object_info(&self) -> (mjtObj, usize) {
         /*
@@ -42,6 +210,52 @@ impl SegmentationId {
     }
 }
 
+mod private { pub trait Sealed {} }
+
+pub struct WrapObjectId<W: Wrap> {
+    index: usize,
+    _type: std::marker::PhantomData<W>,
+}
+impl<W: Wrap> WrapObjectId<W> {
+    pub fn index(&self) -> usize {
+        self.index
+    }
+
+    pub fn type_(&self) -> mjtWrap {
+        W::TYPE
+    }
+
+    /// SAFETY: This function should only be used when you are sure that the index is valid for the wrap type `W: Wrap`.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self {
+            index,
+            _type: std::marker::PhantomData,
+        }
+    }
+}
+pub trait Wrap: private::Sealed { const TYPE: mjtWrap; }
+pub mod wrap {
+    pub struct Joint;
+    impl super::private::Sealed for Joint {}
+    impl super::Wrap for Joint { const TYPE: super::mjtWrap = super::mjtWrap::JOINT; }
+
+    pub struct Pulley;
+    impl super::private::Sealed for Pulley {}
+    impl super::Wrap for Pulley { const TYPE: super::mjtWrap = super::mjtWrap::PULLEY; }
+
+    pub struct Site;
+    impl super::private::Sealed for Site {}
+    impl super::Wrap for Site { const TYPE: super::mjtWrap = super::mjtWrap::SITE; }
+
+    pub struct Sphere;
+    impl super::private::Sealed for Sphere {}
+    impl super::Wrap for Sphere { const TYPE: super::mjtWrap = super::mjtWrap::SPHERE; }
+
+    pub struct Cylinder;
+    impl super::private::Sealed for Cylinder {}
+    impl super::Wrap for Cylinder { const TYPE: super::mjtWrap = super::mjtWrap::CYLINDER; }
+}
+
 pub struct ObjectId<O: Obj> {
     index: usize,
     _type: std::marker::PhantomData<O>,
@@ -55,7 +269,7 @@ impl<O: Obj> ObjectId<O> {
         O::TYPE
     }
 
-    /// SAFETY: This function should only be used when you are sure that the index is valid for the object type `O`.
+    /// SAFETY: This function should only be used when you are sure that the index is valid for the object type `O: Obj`.
     pub unsafe fn new_unchecked(index: usize) -> Self {
         Self {
             index,
@@ -65,8 +279,6 @@ impl<O: Obj> ObjectId<O> {
 }
 
 pub trait Obj: private::Sealed { const TYPE: mjtObj; }
-
-mod private { pub trait Sealed {} }
 
 macro_rules! obj_types {
     ($($name:ident as $type_name:ident ($id_bytes:literal)),* $(,)?) => {

@@ -152,7 +152,7 @@ impl mjvGeom {
     }
     /// segmentation id
     pub fn segid(&self) -> Option<SegmentationId> {
-        if self.segid >= 0 {Some(SegmentationId(self.segid as usize))} else {None}
+        if self.segid >= 0 {Some(unsafe { SegmentationId::new_unchecked(self.segid as usize) })} else {None}
     }
     /// if mesh or flex geom has texture coordinates
     pub fn texcoord(&self) -> bool {

@@ -395,7 +395,7 @@ impl_buffer_slices! {
     skin_pathadr: [i32; nskin * 1]         = "address of asset path for skin; -1: none";
 
     // height fields
-    hfield_size: [f64; nhfield * 4]          = "x, y, z_top, z_bottom)";
+    hfield_size: [f64; nhfield * 4]          = "(x, y, z_top, z_bottom)";
     hfield_nrow: [i32; nhfield * 1]          = "number of rows in grid";
     hfield_ncol: [i32; nhfield * 1]          = "number of columns in grid";
     hfield_adr: [i32; nhfield * 1]           = "address in hfield_data";

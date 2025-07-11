@@ -47,8 +47,9 @@ fn main() {
     let bindgen_rs = bindgen_home.join("bindgen.rs").to_str().unwrap().to_owned();
 
     println!("cargo:rerun-if-changed={bindgen_h}");
-    println!("cargo:rustc-link-search={mujoco_lib}");
-    println!("cargo:rustc-link-lib=dylib=libmujoco");
+    println!("cargo:rustc-link-search=native={mujoco_lib}");
+
+    println!("cargo:rustc-link-lib=dylib=mujoco");
 
     let mut bindings = Vec::new();
     bindgen::builder()
