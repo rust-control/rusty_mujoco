@@ -1,4 +1,5 @@
 pub mod bindgen;
+pub use bindgen::{mjMAXVAL, mjMINVAL};
 
 pub mod types;
 pub use types::*;

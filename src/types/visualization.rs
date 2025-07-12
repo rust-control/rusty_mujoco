@@ -188,26 +188,6 @@ impl mjvLight {
     pub fn castshadow(&self) -> bool {self.castshadow != 0}
 }
 
-/*
-struct mjvOption_ {                  // abstract visualization options
-// scalars
-  int      bvh_depth;                // depth of the bounding volume hierarchy to be visualized
-  int      flex_layer;               // element layer to be visualized for 3D flex
-//enums
-  int      label;                    // what objects to label (mjtLabel)
-  int      frame;                    // which frame to show (mjtFrame)
-// by hand
-  mjtByte  geomgroup[mjNGROUP];      // geom visualization by group
-  mjtByte  sitegroup[mjNGROUP];      // site visualization by group
-  mjtByte  jointgroup[mjNGROUP];     // joint visualization by group
-  mjtByte  tendongroup[mjNGROUP];    // tendon visualization by group
-  mjtByte  actuatorgroup[mjNGROUP];  // actuator visualization by group
-  mjtByte  flexgroup[mjNGROUP];      // flex visualization by group
-  mjtByte  skingroup[mjNGROUP];      // skin visualization by group
-  mjtByte  flags[mjNVISFLAG];        // visualization flags (indexed by mjtVisFlag)
-};
-typedef struct mjvOption_ mjvOption;
-*/
 derive_fields_mapping!(mjvOption {
     scalars {
         bvh_depth / set_bvh_depth: usize = "depth of the bounding volume hierarchy to be visualized";

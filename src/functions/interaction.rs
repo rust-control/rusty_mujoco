@@ -9,21 +9,52 @@ use crate::{mjModel, mjData, mjvCamera, mjvGLCamera, mjvPerturb, mjvScene, mjvOp
 use crate::{ObjectId, obj};
 
 /// Set default camera.
+/// 
+/// **note**: [`mjvCamera`] calls this function in its `Default` implementation.
 /* void mjv_defaultCamera(mjvCamera* cam); */
-pub fn mjv_defaultCamera(cam: &mut mjvCamera) {
-    unsafe { crate::bindgen::mjv_defaultCamera(cam) }
+pub fn mjv_defaultCamera() -> mjvCamera {
+    let mut cam = std::mem::MaybeUninit::<mjvCamera>::uninit();
+    unsafe { crate::bindgen::mjv_defaultCamera(cam.as_mut_ptr()) };
+    unsafe { cam.assume_init() }
+}
+impl Default for mjvCamera {
+    /// Create a new camera with default settings by [`mjv_defaultCamera`].
+    /// 
+    /// See [`mjvCamera::default_free`] for a free camera.
+    fn default() -> Self {
+        mjv_defaultCamera()
+    }
 }
 
 /// Set default free camera.
 /* void mjv_defaultFreeCamera(const mjModel* m, mjvCamera* cam); */
-pub fn mjv_defaultFreeCamera(m: &mjModel, cam: &mut mjvCamera) {
-    unsafe { crate::bindgen::mjv_defaultFreeCamera(m, cam) }
+pub fn mjv_defaultFreeCamera(m: &mjModel) -> mjvCamera {
+    let mut cam = std::mem::MaybeUninit::<mjvCamera>::uninit();
+    unsafe { crate::bindgen::mjv_defaultFreeCamera(m, cam.as_mut_ptr()) };
+    unsafe { cam.assume_init() }
+}
+impl mjvCamera {
+    /// Create a new free camera with default settings by [`mjv_defaultFreeCamera`].
+    /// 
+    /// See [`mjvCamera::default`] for a camera with default settings.
+    pub fn default_free(m: &mjModel) -> Self {
+        mjv_defaultFreeCamera(m)
+    }
 }
 
 /// Set default perturbation.
+/// 
+/// **note**: [`mjvPerturb`] calls this function in its `Default` implementation.
 /* void mjv_defaultPerturb(mjvPerturb* pert); */
-pub fn mjv_defaultPerturb(pert: &mut mjvPerturb) {
-    unsafe { crate::bindgen::mjv_defaultPerturb(pert) }
+pub fn mjv_defaultPerturb() -> mjvPerturb {
+    let mut pert = std::mem::MaybeUninit::<mjvPerturb>::uninit();
+    unsafe { crate::bindgen::mjv_defaultPerturb(pert.as_mut_ptr()) };
+    unsafe { pert.assume_init() }
+}
+impl Default for mjvPerturb {
+    fn default() -> Self {
+        mjv_defaultPerturb()
+    }
 }
 
 /// Transform pose from room to model space,

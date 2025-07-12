@@ -383,40 +383,6 @@ impl mjuiDef {
     }
 }
 
-/*
-mjUI
-// scalars; read&write
-  int rectid;                     // index of this ui rectangle in mjuiState
-  int auxid;                      // aux buffer index of this ui
-  int radiocol;                   // number of radio columns (0 defaults to 2)
-// scalars; read-only
-  int width;                      // width
-  int height;                     // current height
-  int maxheight;                  // height when all sections open
-  int scroll;                     // scroll from top of UI
-  int mousesect;                  // 0: none, -1: scroll, otherwise 1+section
-  int mouseitem;                  // item within section
-  int mousehelp;                  // help button down: print shortcuts
-  int mouseclicks;                // number of mouse clicks over UI
-  int mousesectcheck;             // 0: none, otherwise 1+section
-  int editsect;                   // 0: none, otherwise 1+section
-  int edititem;                   // item within section
-  int editcursor;                 // cursor position
-  int editscroll;                 // horizontal scroll
-  int nsect;                      // number of sections in use
-
-// structs; read&write
-  mjuiThemeSpacing spacing;       // UI theme spacing
-  mjuiThemeColor color;           // UI theme color
-// structs; read-only
-  mjuiSection sect[mjMAXUISECT];  // preallocated array of sections
-  
-// by hand
-  void* userdata;                 // pointer to user data (passed to predicate)
-  char edittext[mjMAXUITEXT];     // current text
-  mjuiItem* editchanged;          // pointer to changed edit in last mjui_event
-  mjfItemEnable predicate;        // callback to set item state programmatically
-*/
 derive_fields_mapping!(mjUI {
     scalars {
         rectid / set_rectid: usize = "index of this ui rectangle in mjuiState";

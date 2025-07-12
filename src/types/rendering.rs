@@ -16,6 +16,16 @@ derive_fields_mapping!(mjrRect {
         height / set_height: i32 = "height of rectangle [px]";
     }
 });
+impl mjrRect {
+    pub fn new(left: u32, bottom: u32, width: u32, height: u32) -> Self {
+        Self {
+            left: left as i32,
+            bottom: bottom as i32,
+            width: width as i32,
+            height: height as i32,
+        }
+    }
+}
 
 derive_fields_mapping!(mjrContext {
     boolean_flags {
