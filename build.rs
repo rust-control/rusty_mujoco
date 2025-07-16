@@ -37,14 +37,14 @@ fn main() {
         return;
     }
 
+    let bindgen_dir = Path::new(&env!("CARGO_MANIFEST_DIR")).join("src");
+    let bindgen_h = bindgen_dir.join("bindgen.h").to_str().unwrap().to_owned();
+    let bindgen_rs = bindgen_dir.join("bindgen.rs").to_str().unwrap().to_owned();
+
     let mujoco_dir = env::var("MUJOCO_DIR").expect("MUJOCO_DIR not set");
     let mujoco_lib = Path::new(&mujoco_dir).join("lib").to_str().unwrap().to_owned();
     let mujoco_include = Path::new(&mujoco_dir).join("include").to_str().unwrap().to_owned();
     let mujoco_include_mujoco = Path::new(&mujoco_include).join("mujoco").to_str().unwrap().to_owned();
-
-    let bindgen_dir = Path::new(&env!("CARGO_MANIFEST_DIR")).join("src");
-    let bindgen_h = bindgen_dir.join("bindgen.h").to_str().unwrap().to_owned();
-    let bindgen_rs = bindgen_dir.join("bindgen.rs").to_str().unwrap().to_owned();
 
     println!("cargo:rerun-if-changed={bindgen_h}");
     println!("cargo:rustc-link-arg=-Wl,-rpath,{mujoco_lib}");
