@@ -17,8 +17,7 @@
 
 ## Requirements
 
-- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2) downloaded and expanded
-- `MUJOCO_DIR` exnvironment variable set to path of MuJoCo 3.3.2 directory
+- Link entire the project with `lld`
 
 ## License
 

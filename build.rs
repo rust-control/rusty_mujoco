@@ -33,28 +33,31 @@ impl bindgen::callbacks::ParseCallbacks for MakeMjnConstantsCallbacks {
 }
 
 fn main() {
-    if option_env!("DOCS_RS").is_some() {
-        return;
-    }
+    if option_env!("DOCS_RS").is_some() { return }
 
-    let bindgen_dir = Path::new(&env!("CARGO_MANIFEST_DIR")).join("src");
-    let bindgen_h = bindgen_dir.join("bindgen.h").to_str().unwrap().to_owned();
-    let bindgen_rs = bindgen_dir.join("bindgen.rs").to_str().unwrap().to_owned();
+    let src_dir = Path::new(&env!("CARGO_MANIFEST_DIR")).join("src");
 
-    let mujoco_dir = env::var("MUJOCO_DIR").expect("MUJOCO_DIR not set");
-    let mujoco_lib = Path::new(&mujoco_dir).join("lib").to_str().unwrap().to_owned();
-    let mujoco_include = Path::new(&mujoco_dir).join("include").to_str().unwrap().to_owned();
-    let mujoco_include_mujoco = Path::new(&mujoco_include).join("mujoco").to_str().unwrap().to_owned();
+    let bindgen_h = src_dir.join("bindgen.h").to_str().unwrap().to_owned();
+    let bindgen_rs = src_dir.join("bindgen.rs").to_str().unwrap().to_owned();
 
     println!("cargo:rerun-if-changed={bindgen_h}");
-    println!("cargo:rustc-link-arg=-Wl,-rpath,{mujoco_lib}");
+
+    let mujoco_dir = src_dir.join("mujoco-3.3.2");
+    let mujoco_lib = mujoco_dir.join("build/lib").to_str().unwrap().to_owned();
+    let mujoco_include = mujoco_dir.join("include").to_str().unwrap().to_owned();
+
     println!("cargo:rustc-link-search={mujoco_lib}");
-    println!("cargo:rustc-link-lib=dylib=mujoco");
+    println!("cargo:rustc-link-lib=static=mujoco");
+    println!("cargo:rustc-link-lib=static=lodepng");
+    println!("cargo:rustc-link-lib=static=ccd");
+    println!("cargo:rustc-link-lib=static=tinyxml2");
+    println!("cargo:rustc-link-lib=static=qhullstatic_r");
+    println!("cargo:rustc-link-lib=dylib=stdc++");
 
     let mut bindings = Vec::new();
     bindgen::builder()
         .header(bindgen_h)
-        .clang_args([format!("-I{mujoco_include}"), format!("-I{mujoco_include_mujoco}")])
+        .clang_args([format!("-I{mujoco_include}"), format!("-I{mujoco_include}/mujoco")])
         .use_core()
         .raw_line("#![allow(unused, non_camel_case_types, non_snake_case, non_upper_case_globals)]")
         .respect_cxx_access_specs(false)
@@ -64,7 +67,7 @@ fn main() {
         .allowlist_type("_?mj.*")
         .allowlist_function("_?mj.*")
         .allowlist_var("_?mj.*")
-        .no_copy("mj(Model|Data|Spec|vScene|rContext)_")// impl Drop for them (using specific free-er functions)
+        .no_copy("mj(Model|Data|Spec|vScene|rContext)_")/* impl Drop with using specific freeing functions */
         .size_t_is_usize(true)
         .array_pointers_in_arguments(true)
         .merge_extern_blocks(true)
