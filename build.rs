@@ -41,10 +41,8 @@ fn main() {
 
     println!("cargo:rerun-if-changed={bindgen_h}");
 
-    let mujoco_dir = std::env::var("MUJOCO_DIR").expect("MUJOCO_DIR environment variable is not set");
-    let mujoco_dir = Path::new(&mujoco_dir);
-    let mujoco_lib = mujoco_dir.join("lib").to_str().unwrap().to_owned();
-    let mujoco_include = mujoco_dir.join("include").to_str().unwrap().to_owned();
+    let mujoco_lib = std::env::var("MUJOCO_LIB").expect("MUJOCO_LIB environment variable is not set");
+    let mujoco_include = Path::new(&mujoco_lib).parent().unwrap().join("include").to_str().unwrap().to_owned();
     let mujoco_include_mujoco = Path::new(&mujoco_include).join("mujoco").to_str().unwrap().to_owned();
 
     println!("cargo:rustc-link-search={mujoco_lib}");
