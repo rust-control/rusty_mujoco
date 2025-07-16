@@ -36,28 +36,24 @@ fn main() {
     if option_env!("DOCS_RS").is_some() { return }
 
     let src_dir = Path::new(&env!("CARGO_MANIFEST_DIR")).join("src");
-
     let bindgen_h = src_dir.join("bindgen.h").to_str().unwrap().to_owned();
     let bindgen_rs = src_dir.join("bindgen.rs").to_str().unwrap().to_owned();
 
     println!("cargo:rerun-if-changed={bindgen_h}");
 
-    let mujoco_dir = src_dir.join("mujoco-3.3.2");
-    let mujoco_lib = mujoco_dir.join("build/lib").to_str().unwrap().to_owned();
+    let mujoco_dir = std::env::var("MUJOCO_DIR").expect("MUJOCO_DIR environment variable is not set");
+    let mujoco_dir = Path::new(&mujoco_dir);
+    let mujoco_lib = mujoco_dir.join("lib").to_str().unwrap().to_owned();
     let mujoco_include = mujoco_dir.join("include").to_str().unwrap().to_owned();
+    let mujoco_include_mujoco = Path::new(&mujoco_include).join("mujoco").to_str().unwrap().to_owned();
 
     println!("cargo:rustc-link-search={mujoco_lib}");
-    println!("cargo:rustc-link-lib=static=mujoco");
-    println!("cargo:rustc-link-lib=static=lodepng");
-    println!("cargo:rustc-link-lib=static=ccd");
-    println!("cargo:rustc-link-lib=static=tinyxml2");
-    println!("cargo:rustc-link-lib=static=qhullstatic_r");
-    println!("cargo:rustc-link-lib=dylib=stdc++");
+    println!("cargo:rustc-link-lib=dylib=mujoco");
 
     let mut bindings = Vec::new();
     bindgen::builder()
         .header(bindgen_h)
-        .clang_args([format!("-I{mujoco_include}"), format!("-I{mujoco_include}/mujoco")])
+        .clang_args([format!("-I{mujoco_include}"), format!("-I{mujoco_include_mujoco}")])
         .use_core()
         .raw_line("#![allow(unused, non_camel_case_types, non_snake_case, non_upper_case_globals)]")
         .respect_cxx_access_specs(false)

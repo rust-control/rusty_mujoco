@@ -15,9 +15,29 @@
     </a>
 </div>
 
+## MuJoCo Version
+
+_**3.3.2**_
+
 ## Requirements
 
-- Link entire the project with `lld`
+- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.3) downloaded and expanded
+- `MUJOCO_DIR` environment variable set to the MuJoCo directory path
+
+## Usage
+
+*Cargo.toml*
+```toml
+[dependencies]
+rusty_mujoco = "0.1.0"
+```
+
+*src/main.rs*
+```rust
+fn main() {
+    // TODO
+}
+```
 
 ## License
 
