@@ -26,7 +26,7 @@ impl bindgen::callbacks::ParseCallbacks for MakeMjnConstantsCallbacks {
             ```
             pub const mjNTEXROLE: mjtTextureRole = mjtTextureRole::mjNTEXROLE;
             ```
-            at module top for `mjtN*` variants.
+            at module top for `mjN*` variants.
         */
         original_variant_name.starts_with("mjN").then_some(bindgen::callbacks::EnumVariantCustomBehavior::Constify)
     }
@@ -37,18 +37,18 @@ fn main() {
         return;
     }
 
-    let mujoco_home = env::var("MUJOCO_HOME").expect("MUJOCO_HOME not set");
-    let mujoco_lib = Path::new(&mujoco_home).join("lib").to_str().unwrap().to_owned();
-    let mujoco_include = Path::new(&mujoco_home).join("include").to_str().unwrap().to_owned();
+    let mujoco_dir = env::var("MUJOCO_DIR").expect("MUJOCO_DIR not set");
+    let mujoco_lib = Path::new(&mujoco_dir).join("lib").to_str().unwrap().to_owned();
+    let mujoco_include = Path::new(&mujoco_dir).join("include").to_str().unwrap().to_owned();
     let mujoco_include_mujoco = Path::new(&mujoco_include).join("mujoco").to_str().unwrap().to_owned();
 
-    let bindgen_home = Path::new(&env!("CARGO_MANIFEST_DIR")).join("src");
-    let bindgen_h = bindgen_home.join("bindgen.h").to_str().unwrap().to_owned();
-    let bindgen_rs = bindgen_home.join("bindgen.rs").to_str().unwrap().to_owned();
+    let bindgen_dir = Path::new(&env!("CARGO_MANIFEST_DIR")).join("src");
+    let bindgen_h = bindgen_dir.join("bindgen.h").to_str().unwrap().to_owned();
+    let bindgen_rs = bindgen_dir.join("bindgen.rs").to_str().unwrap().to_owned();
 
     println!("cargo:rerun-if-changed={bindgen_h}");
-    println!("cargo:rustc-link-search=native={mujoco_lib}");
-
+    println!("cargo:rustc-link-arg=-Wl,-rpath,{mujoco_lib}");
+    println!("cargo:rustc-link-search={mujoco_lib}");
     println!("cargo:rustc-link-lib=dylib=mujoco");
 
     let mut bindings = Vec::new();
@@ -64,7 +64,6 @@ fn main() {
         .allowlist_type("_?mj.*")
         .allowlist_function("_?mj.*")
         .allowlist_var("_?mj.*")
-        //.derive_default(true)
         .no_copy("mj(Model|Data|Spec|vScene|rContext)_")// impl Drop for them (using specific free-er functions)
         .size_t_is_usize(true)
         .array_pointers_in_arguments(true)
