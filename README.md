@@ -26,7 +26,7 @@ _**3.3.\***_
 
 ## Note & Tips
 
-- Generally, install MuJoCo to _a default standard path_ (or in _PATH_ in Windows) and set up your shell config like:
+- Generally, install MuJoCo to _a default standard path_ (or in _PATH_ on Windows) and set up your shell config like:
   ```sh
   # Linux example
   export MUJOCO_LIB="/usr/lib/mujoco-3.3.2/lib"
@@ -37,7 +37,7 @@ _**3.3.\***_
   export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.3.2/lib"
   export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$MUJOCO_LIB"
   ```
-- Depending on your setting, be sure to specify `MUJOCO_LIB` when executing your app, for example `LD_LIBRARY_PATH=$MUJOCO_LIB cargo run`.
+- Depending on your setting, be sure to specify `MUJOCO_LIB` when executing your app. (for example `LD_LIBRARY_PATH=$MUJOCO_LIB cargo run` on Linux)
 
 ## Usage
 
