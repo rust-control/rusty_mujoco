@@ -14,4 +14,3 @@ categories    = ["api-bindings", "science::robotics", "simulation"]
 
 [build-dependencies]
 bindgen = "0.72"
-pkg-config = "0.3"

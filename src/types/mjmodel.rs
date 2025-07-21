@@ -2,10 +2,7 @@
 //! 
 //! This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
 
-pub use crate::bindgen::{
-    mjModel, mjOption, mjVisual, mjStatistic,
-    mjNREF, mjNIMP, mjNFLUID, mjNEQDATA, mjNGAIN, mjNBIAS, mjNDYN, mjNTEXROLE
-};
+pub use crate::bindgen::{mjModel, mjOption, mjVisual, mjStatistic};
 
 derive_fields_mapping!(mjModel {
     scalars {
@@ -108,478 +105,1851 @@ derive_fields_mapping!(mjModel {
     }
 });
 
-macro_rules! impl_buffer_slices {
-    ($($name:ident: [$T:ty; $size:ident $(* $mul_lit:literal)? $(* $mul_const:ident)? $(x $mul:ident)?] = $description:literal;)*) => {
-        #[allow(non_snake_case)]
-        impl mjModel {
-            $(
-                #[doc = $description]
-                pub fn $name(&self) -> &[$T] {
-                    unsafe { std::slice::from_raw_parts(self.$name, self.$size() $(* $mul_lit)? $(* $mul_const as usize)? $(* self.$mul())?) }
-                }
-            )*
-        }
-    };
+pub use crate::bindgen::{
+    mjtSameFrame, mjtJoint, mjtGeom, mjtCamLight, mjtFlexSelf, mjtTexture, mjtEq, mjtObj, mjtWrap, mjtTrn, mjtDyn, mjtGain, mjtBias, mjtSensor, mjtDataType, mjtStage,
+    mjNREF, mjNIMP, mjNFLUID, mjNTEXROLE, mjNEQDATA, mjNDYN, mjNGAIN, mjNBIAS,
+    mjMAXVAL, mjMINVAL
+};
+use crate::{
+    helper::Rgba,
+    ObjectId, Obj, obj, JointObjectId, Joint, NodeId, VertexId, BoneId, ElementId, ElementDataId, EdgeId, EdgeDataId, ShellDataId, EvPairId, TexcoordId, FaceId, NormalId, TexDataId, HFieldDataId, BoneVertexId,
+};
+use std::{
+    slice::from_raw_parts as slice,
+    array::from_fn as array,
+};
+
+impl mjModel {
+    pub fn object_id<O: Obj>(&self, name: &str) -> Option<ObjectId<O>> {
+        crate::mj_name2id::<O>(self, name)
+    }
+    
+    pub fn joint_object_id<J: Joint>(&self, name: &str) -> Option<JointObjectId<J>> {
+        let object_id = self.object_id::<obj::Joint>(name)?;
+        object_id.as_joint::<J>(self)
+    }
 }
-impl_buffer_slices! {
-    // default generalized coordinates
-    qpos0: [f64; nq] = "qpos values at default pose";
-    qpos_spring: [f64; nq] = "reference pose for springs";
 
-    // bodies
-    body_parentid: [i32; nbody]          = "id of body's parent";
-    body_rootid: [i32; nbody]            = "id of root above body";
-    body_weldid: [i32; nbody]            = "id of body that this body is welded to";
-    body_mocapid: [i32; nbody]           = "id of mocap data; -1: none";
-    body_jntnum: [i32; nbody]            = "number of joints for this body";
-    body_jntadr: [i32; nbody]            = "start addr of joints; -1: no joints";
-    body_dofnum: [i32; nbody]            = "number of motion degrees of freedom";
-    body_dofadr: [i32; nbody]            = "start addr of dofs; -1: no dofs";
-    body_treeid: [i32; nbody]            = "id of body's kinematic tree; -1: static";
-    body_geomnum: [i32; nbody]           = "number of geoms";
-    body_geomadr: [i32; nbody]           = "start addr of geoms; -1: no geoms";
-    body_simple: [u8; nbody]             = "1: diag M; 2: diag M, sliders only";
-    body_sameframe: [u8; nbody]          = "same frame as inertia (mjtSameframe)";
-    body_pos: [f64; nbody * 3]           = "position offset rel. to parent body";
-    body_quat: [f64; nbody * 4]          = "orientation offset rel. to parent body";
-    body_ipos: [f64; nbody * 3]          = "local position of center of mass";
-    body_iquat: [f64; nbody * 4]         = "local orientation of inertia ellipsoid";
-    body_mass: [f64; nbody * 1]          = "mass";
-    body_subtreemass: [f64; nbody * 1]   = "mass of subtree starting at this body";
-    body_inertia: [f64; nbody * 3]       = "diagonal inertia in ipos/iquat frame";
-    body_invweight0: [f64; nbody * 2]    = "mean inv inert in qpos0 (trn, rot)";
-    body_gravcomp: [f64; nbody * 1]      = "antigravity force, units of body weight";
-    body_margin: [f64; nbody * 1]        = "MAX over all geom margins";
-    body_user: [f64; nbody x nuser_body] = "user data";
-    body_plugin: [i32; nbody]            = "plugin instance id; -1: not in use";
-    body_contype: [i32; nbody]           = "OR over all geom contypes";
-    body_conaffinity: [i32; nbody]       = "OR over all geom conaffinities";
-    body_bvhadr: [i32; nbody]            = "address of bvh root";
-    body_bvhnum: [i32; nbody]            = "number of bounding volumes";
+#[allow(non_snake_case)]
+impl mjModel {
+    /// qpos values at default pose
+    pub fn qpos0<J: Joint>(&self, joint_id: JointObjectId<J>) -> J::Qpos {
+        unsafe {
+            let ptr = self.qpos0.add(self.jnt_qposadr.add(joint_id.index()).read() as usize);
+            J::Qpos::try_from(slice(ptr, J::QPOS_SIZE)).ok().unwrap()
+        }
+    }    
+    /// reference pose for springs
+    pub fn qpos_spring<J: Joint>(&self, joint_id: JointObjectId<J>) -> J::Qpos {
+        unsafe {
+            let ptr = self.qpos_spring.add(self.jnt_qposadr.add(joint_id.index()).read() as usize);
+            J::Qpos::try_from(slice(ptr, J::QPOS_SIZE)).ok().unwrap()
+        }
+    }
+    
+    /// id of body's parent
+    pub fn body_parentid(&self, id: ObjectId<obj::Body>) -> Option<ObjectId<obj::Body>> {
+        let index = (unsafe { self.body_parentid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// id of root above body
+    pub fn body_rootid(&self, id: ObjectId<obj::Body>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.body_rootid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// id of body that this body is welded to
+    pub fn body_weldid(&self, id: ObjectId<obj::Body>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.body_weldid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// id of mocap data
+    pub fn body_mocapid(&self, id: ObjectId<obj::Body>) -> Option<ObjectId<obj::Body>> {
+        let index = (unsafe { self.body_mocapid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// number of joints for this body
+    pub fn body_jntnum(&self, id: ObjectId<obj::Body>) -> usize {
+        (unsafe { self.body_jntnum.add(id.index()).read() }) as usize
+    }
+    /// start addr of joints
+    pub fn body_jntadr(&self, id: ObjectId<obj::Body>) -> Option<usize> {
+        (unsafe { self.body_jntadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of motion degrees of freedom
+    pub fn body_dofnum(&self, id: ObjectId<obj::Body>) -> usize {
+        (unsafe { self.body_dofnum.add(id.index()).read() }) as usize
+    }
+    /// start addr of dofs
+    pub fn body_dofadr(&self, id: ObjectId<obj::Body>) -> Option<usize> {
+        (unsafe { self.body_dofadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// id of body's kinematic tree
+    pub fn body_treeid(&self, id: ObjectId<obj::Body>) -> Option<ObjectId<obj::Body>> {
+        let index = (unsafe { self.body_treeid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// number of geoms
+    pub fn body_geomnum(&self, id: ObjectId<obj::Body>) -> usize {
+        (unsafe { self.body_geomnum.add(id.index()).read() }) as usize
+    }
+    /// start addr of geoms
+    pub fn body_geomadr(&self, id: ObjectId<obj::Body>) -> Option<usize> {
+        (unsafe { self.body_geomadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// body_simple: 1: diag M; 2: diag M, sliders only
+    pub fn body_simple(&self, id: ObjectId<obj::Body>) -> u8 {
+        unsafe { self.body_simple.add(id.index()).read() }
+    }
+    /// same frame as inertia
+    pub fn body_sameframe(&self, id: ObjectId<obj::Body>) -> mjtSameFrame {
+        mjtSameFrame((unsafe { self.body_sameframe.add(id.index()).read() }) as u32)
+    }
+    /// position offset relative to parent body
+    pub fn body_pos(&self, id: ObjectId<obj::Body>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.body_pos.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// orientation offset relative to parent body
+    pub fn body_quat(&self, id: ObjectId<obj::Body>) -> [f64; 4] {
+        unsafe {
+            let ptr = self.body_quat.add(id.index() * 4);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// local position of center of mass
+    pub fn body_ipos(&self, id: ObjectId<obj::Body>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.body_ipos.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// local orientation of inertia ellipsoid
+    pub fn body_iquat(&self, id: ObjectId<obj::Body>) -> [f64; 4] {
+        unsafe {
+            let ptr = self.body_iquat.add(id.index() * 4);
+            array(|i| ptr.add(i).read())            
+        }
+    }
+    /// mass
+    pub fn body_mass(&self, id: ObjectId<obj::Body>) -> f64 {
+        unsafe { self.body_mass.add(id.index()).read() }
+    }
+    /// mass of subtree starting at this body
+    pub fn body_subtreemass(&self, id: ObjectId<obj::Body>) -> f64 {
+        unsafe { self.body_subtreemass.add(id.index()).read() }
+    }
+    /// diagonal inertia in ipos/iquat frame
+    pub fn body_inertia(&self, id: ObjectId<obj::Body>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.body_inertia.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// mean inverse inertia in qpos0 (translation, rotation)
+    pub fn body_invweight0(&self, id: ObjectId<obj::Body>) -> (f64, f64) {
+        unsafe {
+            let ptr = self.body_invweight0.add(id.index() * 2);
+            (ptr.read(), ptr.add(1).read())
+        }
+    }
+    /// antigravity force, units of body weight
+    pub fn body_gravcomp(&self, id: ObjectId<obj::Body>) -> f64 {
+        unsafe { self.body_gravcomp.add(id.index()).read() }
+    }
+    /// maximum over all geom margins
+    pub fn body_margin(&self, id: ObjectId<obj::Body>) -> f64 {
+        unsafe { self.body_margin.add(id.index()).read() }
+    }
+    /// plugin instance id
+    pub fn body_plugin(&self, id: ObjectId<obj::Body>) -> Option<ObjectId<obj::Plugin>> {
+        let index = (unsafe { self.body_plugin.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// bit-wise OR over all geom contypes
+    pub fn body_contype(&self, id: ObjectId<obj::Body>) -> i32 {
+        unsafe { self.body_contype.add(id.index()).read() }
+    }
+    /// bit-wise OR over all geom conaffinities
+    pub fn body_conaffinity(&self, id: ObjectId<obj::Body>) -> i32 {
+        unsafe { self.body_conaffinity.add(id.index()).read() }
+    }
+    /// address of bounding volume hierarchy root
+    pub fn body_bvhadr(&self, id: ObjectId<obj::Body>) -> Option<usize> {
+        (unsafe { self.body_bvhadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of bounding volumes
+    pub fn body_bvhnum(&self, id: ObjectId<obj::Body>) -> Option<usize> {
+        (unsafe { self.body_bvhnum.add(id.index()).read() }).try_into().ok()
+    }
+    
+    /// depth in the bounding volume hierarchy
+    pub fn bvh_depth(&self, id: ObjectId<obj::Geom>) -> usize {
+        (unsafe { self.bvh_depth.add(id.index()).read() }) as usize
+    }
+    /// left and right children in tree
+    pub fn bvh_child(&self, id: ObjectId<obj::Geom>) -> (Option<usize>, Option<usize>) {
+        unsafe {
+            let ptr = self.bvh_child.add(id.index() * 2);
+            (
+                ptr.read().try_into().ok(),
+                ptr.add(1).read().try_into().ok()
+            )
+        }
+    }
+    /// geom or elem id of node
+    pub fn bvh_nodeid(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::Geom>> {
+        let index = (unsafe { self.bvh_nodeid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// local bounding box (center, size)
+    pub fn bvh_aabb(&self, id: ObjectId<obj::Geom>) -> ([f64; 3], [f64; 3]) {
+        unsafe {
+            let ptr = self.bvh_aabb.add(id.index() * 6);
+            (array(|i| ptr.add(i).read()), array(|i| ptr.add(i + 3).read()))
+        }
+    }
 
-    // bounding volume hierarchy
-    bvh_depth: [i32; nbvh * 1]      = "depth in the bounding volume hierarchy";
-    bvh_child: [i32; nbvh * 2]      = "left and right children in tree";
-    bvh_nodeid: [i32; nbvh * 1]     = "geom or elem id of node; -1: non-leaf";
-    bvh_aabb: [f64; nbvhstatic * 6] = "local bounding box (center, size)";
+    /// type of joint
+    pub fn jnt_type(&self, id: ObjectId<obj::Joint>) -> mjtJoint {
+        mjtJoint((unsafe { self.jnt_type.add(id.index()).read() }) as u32)
+    }
+    /// start addr in 'qpos' for joint's data
+    pub fn jnt_qposadr(&self, id: ObjectId<obj::Joint>) -> usize {
+        (unsafe { self.jnt_qposadr.add(id.index()).read() }) as usize
+    }
+    /// start addr in 'qvel' for joint's data
+    pub fn jnt_dofadr(&self, id: ObjectId<obj::Joint>) -> Option<usize> {
+        (unsafe { self.jnt_dofadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// id of joint's body
+    pub fn jnt_bodyid(&self, id: ObjectId<obj::Joint>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.jnt_bodyid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// group for visibility
+    pub fn jnt_group(&self, id: ObjectId<obj::Joint>) -> i32 {
+        unsafe { self.jnt_group.add(id.index()).read() }
+    }
+    /// does joint have limits
+    pub fn jnt_limited(&self, id: ObjectId<obj::Joint>) -> bool {
+        (unsafe { self.jnt_limited.add(id.index()).read() }) != 0
+    }
+    /// does joint have actuator force limits
+    pub fn jnt_actfrclimited(&self, id: ObjectId<obj::Joint>) -> bool {
+        (unsafe { self.jnt_actfrclimited.add(id.index()).read() }) != 0
+    }
+    /// is gravcomp force applied via actuators
+    pub fn jnt_actgravcomp(&self, id: ObjectId<obj::Joint>) -> bool {
+        (unsafe { self.jnt_actgravcomp.add(id.index()).read() }) != 0
+    }
+    /// constraint solver reference: limit
+    pub fn jnt_solref(&self, id: ObjectId<obj::Joint>) -> [f64; mjNREF] {
+        unsafe {
+            let ptr = self.jnt_solref.add(id.index() * mjNREF);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// constraint solver impedance: limit
+    pub fn jnt_solimp(&self, id: ObjectId<obj::Joint>) -> [f64; mjNIMP] {
+        unsafe {
+            let ptr = self.jnt_solimp.add(id.index() * mjNIMP);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// local anchor position
+    pub fn jnt_pos(&self, id: ObjectId<obj::Joint>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.jnt_pos.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// local joint axis
+    pub fn jnt_axis(&self, id: ObjectId<obj::Joint>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.jnt_axis.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// stiffness coefficient
+    pub fn jnt_stiffness(&self, id: ObjectId<obj::Joint>) -> f64 {
+        unsafe { self.jnt_stiffness.add(id.index()).read() }
+    }
+    /// joint limits
+    pub fn jnt_range(&self, id: ObjectId<obj::Joint>) -> std::ops::Range<f64> {
+        unsafe {
+            let ptr = self.jnt_range.add(id.index() * 2);
+            ptr.read()..ptr.add(1).read()
+        }
+    }
+    /// range of total actuator force
+    pub fn jnt_actfrcrange(&self, id: ObjectId<obj::Joint>) -> std::ops::Range<f64> {
+        unsafe {
+            let ptr = self.jnt_actfrcrange.add(id.index() * 2);
+            ptr.read()..ptr.add(1).read()
+        }
+    }
+    /// min distance for limit detection
+    pub fn jnt_margin(&self, id: ObjectId<obj::Joint>) -> f64 {
+        unsafe { self.jnt_margin.add(id.index()).read() }
+    }
 
-    // joints
-    jnt_type: [i32; njnt * 1]            = "type of joint (mjtJoint)";
-    jnt_qposadr: [i32; njnt * 1]         = "start addr in 'qpos' for joint's data";
-    jnt_dofadr: [i32; njnt * 1]          = "start addr in 'qvel' for joint's data";
-    jnt_bodyid: [i32; njnt * 1]          = "id of joint's body";
-    jnt_group: [i32; njnt * 1]           = "group for visibility";
-    jnt_limited: [u8; njnt * 1]          = "does joint have limits";
-    jnt_actfrclimited: [u8; njnt * 1]    = "does joint have actuator force limits";
-    jnt_actgravcomp: [u8; njnt * 1]      = "is gravcomp force applied via actuators";
-    jnt_solref: [f64; njnt * mjNREF]    = "constraint solver reference: limit";
-    jnt_solimp: [f64; njnt * mjNIMP]    = "constraint solver impedance: limit";
-    jnt_pos: [f64; njnt * 3]            = "local anchor position";
-    jnt_axis: [f64; njnt * 3]           = "local joint axis";
-    jnt_stiffness: [f64; njnt * 1]      = "stiffness coefficient";
-    jnt_range: [f64; njnt * 2]          = "joint limits";
-    jnt_actfrcrange: [f64; njnt * 2]    = "range of total actuator force";
-    jnt_margin: [f64; njnt * 1]         = "min distance for limit detection";
-    jnt_user: [f64; njnt x nuser_jnt]   = "user data";
+    /// id of dof's body
+    pub fn dof_bodyid(&self, id: ObjectId<obj::Dof>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.dof_bodyid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// id of dof's joint
+    pub fn dof_jntid(&self, id: ObjectId<obj::Dof>) -> ObjectId<obj::Joint> {
+        let index = (unsafe { self.dof_jntid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// id of dof's parent
+    pub fn dof_parentid(&self, id: ObjectId<obj::Dof>) -> Option<ObjectId<obj::Dof>> {
+        let index = (unsafe { self.dof_parentid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// id of dof's kinematic tree
+    pub fn dof_treeid(&self, id: ObjectId<obj::Dof>) -> usize {
+        (unsafe { self.dof_treeid.add(id.index()).read() }) as usize
+    }
+    /// dof address in M-diagonal
+    pub fn dof_Madr(&self, id: ObjectId<obj::Dof>) -> usize {
+        (unsafe { self.dof_Madr.add(id.index()).read() }) as usize
+    }
+    /// number of consecutive simple dofs
+    pub fn dof_simplenum(&self, id: ObjectId<obj::Dof>) -> usize {
+        (unsafe { self.dof_simplenum.add(id.index()).read() }) as usize
+    }
+    /// constraint solver reference: friction loss
+    pub fn dof_solref(&self, id: ObjectId<obj::Dof>) -> [f64; mjNREF] {
+        unsafe {
+            let ptr = self.dof_solref.add(id.index() * mjNREF);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// constraint solver impedance: friction loss
+    pub fn dof_solimp(&self, id: ObjectId<obj::Dof>) -> [f64; mjNIMP] {
+        unsafe {
+            let ptr = self.dof_solimp.add(id.index() * mjNIMP);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// dof friction loss
+    pub fn dof_frictionloss(&self, id: ObjectId<obj::Dof>) -> f64 {
+        unsafe { self.dof_frictionloss.add(id.index()).read() }
+    }
+    /// dof armature inertia/mass
+    pub fn dof_armature(&self, id: ObjectId<obj::Dof>) -> f64 {
+        unsafe { self.dof_armature.add(id.index()).read() }
+    }
+    /// damping coefficient
+    pub fn dof_damping(&self, id: ObjectId<obj::Dof>) -> f64 {
+        unsafe { self.dof_damping.add(id.index()).read() }
+    }
+    /// diagonal inverse inertia in qpos0
+    pub fn dof_invweight0(&self, id: ObjectId<obj::Dof>) -> f64 {
+        unsafe { self.dof_invweight0.add(id.index()).read() }
+    }
+    /// diagonal inertia in qpos0
+    pub fn dof_M0(&self, id: ObjectId<obj::Dof>) -> f64 {
+        unsafe { self.dof_M0.add(id.index()).read() }
+    }
 
-    // dofs
-    dof_bodyid: [i32; nv * 1]           = "id of dof's body";
-    dof_jntid: [i32; nv * 1]            = "id of dof's joint";
-    dof_parentid: [i32; nv * 1]         = "id of dof's parent; -1: none";
-    dof_treeid: [i32; nv * 1]           = "id of dof's kinematic tree";
-    dof_Madr: [i32; nv * 1]             = "dof address in M-diagonal";
-    dof_simplenum: [i32; nv * 1]        = "number of consecutive simple dofs";
-    dof_solref: [f64; nv * mjNREF]      = "constraint solver reference:frictionloss";
-    dof_solimp: [f64; nv * mjNIMP]      = "constraint solver impedance:frictionloss";
-    dof_frictionloss: [f64; nv * 1]     = "dof friction loss";
-    dof_armature: [f64; nv * 1]         = "dof armature inertia/mass";
-    dof_damping: [f64; nv * 1]          = "damping coefficient";
-    dof_invweight0: [f64; nv * 1]       = "diag. inverse inertia in qpos0";
-    dof_M0: [f64; nv * 1]               = "diag. inertia in qpos0";
+    /// geometric type (mjtGeom)
+    pub fn geom_type(&self, id: ObjectId<obj::Geom>) -> mjtGeom {
+        mjtGeom((unsafe { self.geom_type.add(id.index()).read() }) as u32)
+    }
+    /// geom contact type
+    pub fn geom_contype(&self, id: ObjectId<obj::Geom>) -> i32 {
+        unsafe { self.geom_contype.add(id.index()).read() }
+    }
+    /// geom contact affinity
+    pub fn geom_conaffinity(&self, id: ObjectId<obj::Geom>) -> i32 {
+        unsafe { self.geom_conaffinity.add(id.index()).read() }
+    }
+    /// contact dimensionality (1, 3, 4, 6)
+    pub fn geom_condim(&self, id: ObjectId<obj::Geom>) -> usize {
+        (unsafe { self.geom_condim.add(id.index()).read() }) as usize
+    }
+    /// id of geom's body
+    pub fn geom_bodyid(&self, id: ObjectId<obj::Geom>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.geom_bodyid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// id of geom's mesh
+    pub fn geom_dataid_mesh(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::Mesh>> {
+        if self.geom_type(id) != mjtGeom::MESH {return None}
+        let index = (unsafe { self.geom_dataid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// id of geom's hfield
+    pub fn geom_dataid_hfield(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::HField>> {
+        if self.geom_type(id) != mjtGeom::HFIELD {return None}
+        let index = (unsafe { self.geom_dataid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// material id for rendering
+    pub fn geom_matid(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::Material>> {
+        let index = (unsafe { self.geom_matid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// group for visibility
+    pub fn geom_group(&self, id: ObjectId<obj::Geom>) -> i32 {
+        unsafe { self.geom_group.add(id.index()).read() }
+    }
+    /// geom contact priority
+    pub fn geom_priority(&self, id: ObjectId<obj::Geom>) -> i32 {
+        unsafe { self.geom_priority.add(id.index()).read() }
+    }
+    /// plugin instance id
+    pub fn geom_plugin(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::Plugin>> {
+        let index = (unsafe { self.geom_plugin.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// same frame as body (mjtSameframe)
+    pub fn geom_sameframe(&self, id: ObjectId<obj::Geom>) -> mjtSameFrame {
+        mjtSameFrame((unsafe { self.geom_sameframe.add(id.index()).read() }) as u32)
+    }
+    /// mixing coef for solref/imp in geom pair
+    pub fn geom_solmix(&self, id: ObjectId<obj::Geom>) -> f64 {
+        unsafe { self.geom_solmix.add(id.index()).read() }
+    }
+    /// constraint solver reference: contact
+    pub fn geom_solref(&self, id: ObjectId<obj::Geom>) -> [f64; mjNREF] {
+        unsafe {
+            let ptr = self.geom_solref.add(id.index() * mjNREF);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// constraint solver impedance: contact
+    pub fn geom_solimp(&self, id: ObjectId<obj::Geom>) -> [f64; mjNIMP] {
+        unsafe {
+            let ptr = self.geom_solimp.add(id.index() * mjNIMP);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// geom-specific size parameters
+    pub fn geom_size(&self, id: ObjectId<obj::Geom>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.geom_size.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// bounding box, (center, size)
+    pub fn geom_aabb(&self, id: ObjectId<obj::Geom>) -> ([f64; 3], [f64; 3]) {
+        unsafe {
+            let ptr = self.geom_aabb.add(id.index() * 6);
+            (array(|i| ptr.add(i).read()), array(|i| ptr.add(i + 3).read()))
+        }
+    }
+    /// radius of bounding sphere
+    pub fn geom_rbound(&self, id: ObjectId<obj::Geom>) -> f64 {
+        unsafe { self.geom_rbound.add(id.index()).read() }
+    }
+    /// local position offset relative to body
+    pub fn geom_pos(&self, id: ObjectId<obj::Geom>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.geom_pos.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// local orientation offset relative to body
+    pub fn geom_quat(&self, id: ObjectId<obj::Geom>) -> [f64; 4] {
+        unsafe {
+            let ptr = self.geom_quat.add(id.index() * 4);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// friction for (slide, spin, roll)
+    pub fn geom_friction(&self, id: ObjectId<obj::Geom>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.geom_friction.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// detect contact if dist < margin
+    pub fn geom_margin(&self, id: ObjectId<obj::Geom>) -> f64 {
+        unsafe { self.geom_margin.add(id.index()).read() }
+    }
+    /// include in solver if dist < margin - gap
+    pub fn geom_gap(&self, id: ObjectId<obj::Geom>) -> f64 {
+        unsafe { self.geom_gap.add(id.index()).read() }
+    }
+    /// fluid interaction parameters
+    pub fn geom_fluid(&self, id: ObjectId<obj::Geom>) -> [f64; mjNFLUID] {
+        unsafe {
+            let ptr = self.geom_fluid.add(id.index() * mjNFLUID);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// rgba when material is omitted
+    pub fn geom_rgba(&self, id: ObjectId<obj::Geom>) -> Rgba {
+        unsafe {
+            let ptr = self.geom_rgba.add(id.index() * 4);
+            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+        }
+    }
 
-    // geoms
-    geom_type: [i32; ngeom * 1]            = "geometric type (mjtGeom)";
-    geom_contype: [i32; ngeom * 1]         = "geom contact type";
-    geom_conaffinity: [i32; ngeom * 1]     = "geom contact affinity";
-    geom_condim: [i32; ngeom * 1]          = "contact dimensionality (1, 3, 4, 6)";
-    geom_bodyid: [i32; ngeom * 1]          = "id of geom's body";
-    geom_dataid: [i32; ngeom * 1]          = "id of geom's mesh/hfield; -1: none";
-    geom_matid: [i32; ngeom * 1]           = "material id for rendering; -1: none";
-    geom_group: [i32; ngeom * 1]           = "group for visibility";
-    geom_priority: [i32; ngeom * 1]        = "geom contact priority";
-    geom_plugin: [i32; ngeom * 1]          = "plugin instance id; -1: not in use";
-    geom_sameframe: [u8; ngeom * 1]        = "same frame as body (mjtSameframe)";
-    geom_solmix: [f64; ngeom * 1]          = "mixing coef for solref/imp in geom pair";
-    geom_solref: [f64; ngeom * mjNREF]     = "constraint solver reference: contact";
-    geom_solimp: [f64; ngeom * mjNIMP]     = "constraint solver impedance: contact";
-    geom_size: [f64; ngeom * 3]            = "geom-specific size parameters";
-    geom_aabb: [f64; ngeom * 6]            = "bounding box, (center, size)";
-    geom_rbound: [f64; ngeom * 1]          = "radius of bounding sphere";
-    geom_pos: [f64; ngeom * 3]             = "local position offset rel. to body";
-    geom_quat: [f64; ngeom * 4]            = "local orientation offset rel. to body";
-    geom_friction: [f64; ngeom * 3]        = "friction for (slide, spin, roll)";
-    geom_margin: [f64; ngeom * 1]          = "detect contact if dist<margin";
-    geom_gap: [f64; ngeom * 1]             = "include in solver if dist<margin-gap";
-    geom_fluid: [f64; ngeom * mjNFLUID]    = "fluid interaction parameters";
-    geom_user: [f64; ngeom x nuser_geom]   = "user data";
-    geom_rgba: [f32; ngeom * 4]            = "rgba when material is omitted";
+    /// geom type for rendering
+    pub fn site_type(&self, id: ObjectId<obj::Site>) -> mjtGeom {
+        mjtGeom((unsafe { self.site_type.add(id.index()).read() }) as u32)
+    }
+    /// id of site's body
+    pub fn site_bodyid(&self, id: ObjectId<obj::Site>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.site_bodyid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// material id for rendering
+    pub fn site_matid(&self, id: ObjectId<obj::Site>) -> Option<ObjectId<obj::Material>> {
+        let index = (unsafe { self.site_matid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// group for visibility
+    pub fn site_group(&self, id: ObjectId<obj::Site>) -> i32 {
+        unsafe { self.site_group.add(id.index()).read() }
+    }
+    /// same frame as body
+    pub fn site_sameframe(&self, id: ObjectId<obj::Site>) -> mjtSameFrame {
+        mjtSameFrame((unsafe { self.site_sameframe.add(id.index()).read() }) as u32)
+    }
+    /// geom size for rendering
+    pub fn site_size(&self, id: ObjectId<obj::Site>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.site_size.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// local position offset rel. to body
+    pub fn site_pos(&self, id: ObjectId<obj::Site>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.site_pos.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// local orientation offset rel. to body
+    pub fn site_quat(&self, id: ObjectId<obj::Site>) -> [f64; 4] {
+        unsafe {
+            let ptr = self.site_quat.add(id.index() * 4);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// rgba when material is omitted
+    pub fn site_rgba(&self, id: ObjectId<obj::Site>) -> Rgba {
+        unsafe {
+            let ptr = self.site_rgba.add(id.index() * 4);
+            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+        }
+    }
 
-    // sites
-    site_type: [i32; nsite * 1]            = "geom type for rendering (mjtGeom)";
-    site_bodyid: [i32; nsite * 1]          = "id of site's body";
-    site_matid: [i32; nsite * 1]           = "material id for rendering; -1: none";
-    site_group: [i32; nsite * 1]           = "group for visibility";
-    site_sameframe: [u8; nsite * 1]        = "same frame as body (mjtSameframe)";
-    site_size: [f64; nsite * 3]            = "geom size for rendering";
-    site_pos: [f64; nsite * 3]             = "local position offset rel. to body";
-    site_quat: [f64; nsite * 4]            = "local orientation offset rel. to body";
-    site_user: [f64; nsite x nuser_site]   = "user data";
-    site_rgba: [f32; nsite * 4]            = "rgba when material is omitted";
+    /// camera tracking mode (mjtCamLight)
+    pub fn cam_mode(&self, id: ObjectId<obj::Camera>) -> mjtCamLight {
+        mjtCamLight((unsafe { self.cam_mode.add(id.index()).read() } as u32))
+    }
+    /// id of camera's body
+    pub fn cam_bodyid(&self, id: ObjectId<obj::Camera>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.cam_bodyid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// id of targeted body
+    pub fn cam_targetbodyid(&self, id: ObjectId<obj::Camera>) -> Option<ObjectId<obj::Body>> {
+        let index = (unsafe { self.cam_targetbodyid.add(id.index()).read() }).try_into().ok()?;
+        unsafe { Some(ObjectId::new_unchecked(index)) }
+    }
+    /// does camera cast shadows
+    pub fn cam_pos(&self, id: ObjectId<obj::Camera>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.cam_pos.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// orientation relative to body frame
+    pub fn cam_quat(&self, id: ObjectId<obj::Camera>) -> [f64; 4] {
+        unsafe {
+            let ptr = self.cam_quat.add(id.index() * 4);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// global position relative to sub-com in qpos0
+    pub fn cam_poscom0(&self, id: ObjectId<obj::Camera>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.cam_poscom0.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// global position relative to body in qpos0
+    pub fn cam_pos0(&self, id: ObjectId<obj::Camera>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.cam_pos0.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// global orientation in qpos0
+    pub fn cam_mat0(&self, id: ObjectId<obj::Camera>) -> [[f64; 3]; 3] {
+        unsafe {
+            let ptr = self.cam_mat0.add(id.index() * 9);
+            [
+                [ptr.read(), ptr.add(1).read(), ptr.add(2).read()],
+                [ptr.add(3).read(), ptr.add(4).read(), ptr.add(5).read()],
+                [ptr.add(6).read(), ptr.add(7).read(), ptr.add(8).read()]
+            ]
+        }
+    }
+    /// orthographic camera
+    pub fn cam_orthographic(&self, id: ObjectId<obj::Camera>) -> bool {
+        (unsafe { self.cam_orthographic.add(id.index()).read() }) != 0
+    }
+    /// y field-of-view (ortho ? len : deg)
+    pub fn cam_fovy(&self, id: ObjectId<obj::Camera>) -> f64 {
+        unsafe { self.cam_fovy.add(id.index()).read() }
+    }
+    /// inter-pupilary distance
+    pub fn cam_ipd(&self, id: ObjectId<obj::Camera>) -> f64 {
+        unsafe { self.cam_ipd.add(id.index()).read() }
+    }
+    /// resolution: pixels (width, height)
+    pub fn cam_resolution(&self, id: ObjectId<obj::Camera>) -> (usize, usize) {
+        unsafe {
+            let ptr = self.cam_resolution.add(id.index() * 2);
+            (ptr.read() as usize, ptr.add(1).read() as usize)
+        }
+    }
+    /// sensor size: length (width, height)
+    pub fn cam_sensorsize(&self, id: ObjectId<obj::Camera>) -> (f32, f32) {
+        unsafe {
+            let ptr = self.cam_sensorsize.add(id.index() * 2);
+            (ptr.read(), ptr.add(1).read())            
+        }
+    }
+    /// [focal length; principal point]
+    pub fn cam_intrinsic(&self, id: ObjectId<obj::Camera>) -> [f32; 4] {
+        unsafe {
+            let ptr = self.cam_intrinsic.add(id.index() * 4);
+            array(|i| ptr.add(i).read())
+        }
+    }
 
-    // cameras
-    cam_mode: [i32; ncam * 1]             = "camera tracking mode (mjtCamLight)";
-    cam_bodyid: [i32; ncam * 1]           = "id of camera's body";
-    cam_targetbodyid: [i32; ncam * 1]     = "id of targeted body; -1: none";
-    cam_pos: [f64; ncam * 3]              = "position rel. to body frame";
-    cam_quat: [f64; ncam * 4]             = "orientation rel. to body frame";
-    cam_poscom0: [f64; ncam * 3]          = "global position rel. to sub-com in qpos0";
-    cam_pos0: [f64; ncam * 3]             = "global position rel. to body in qpos0";
-    cam_mat0: [f64; ncam * 9]             = "global orientation in qpos0";
-    cam_orthographic: [i32; ncam * 1]     = "orthographic camera; 0: no, 1: yes";
-    cam_fovy: [f64; ncam * 1]             = "y field-of-view (ortho ? len : deg)";
-    cam_ipd: [f64; ncam * 1]              = "inter-pupilary distance";
-    cam_resolution: [i32; ncam * 2]       = "resolution: pixels [width, height]";
-    cam_sensorsize: [f32; ncam * 2]       = "sensor size: length [width, height]";
-    cam_intrinsic: [f32; ncam * 4]        = "[focal length; principal point]";
-    cam_user: [f64; ncam x nuser_cam]     = "user data";
+    /// light tracking mode (mjtCamLight)
+    pub fn light_mode(&self, id: ObjectId<obj::Light>) -> mjtCamLight {
+        mjtCamLight((unsafe { self.light_mode.add(id.index()).read() } as u32))
+    }
+    /// id of light's body
+    pub fn light_bodyid(&self, id: ObjectId<obj::Light>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.light_bodyid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// id of targeted body
+    pub fn light_targetbodyid(&self, id: ObjectId<obj::Light>) -> Option<ObjectId<obj::Body>> {
+        let index = (unsafe { self.light_targetbodyid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// does light cast shadows
+    pub fn light_castshadow(&self, id: ObjectId<obj::Light>) -> bool {
+        (unsafe { self.light_castshadow.add(id.index()).read() }) != 0
+    }
+    /// light radius for soft shadows
+    pub fn light_bulbradius(&self, id: ObjectId<obj::Light>) -> f32 {
+        unsafe { self.light_bulbradius.add(id.index()).read() }
+    }
+    /// is light on
+    pub fn light_active(&self, id: ObjectId<obj::Light>) -> bool {
+        (unsafe { self.light_active.add(id.index()).read() }) != 0
+    }
+    /// position relative to body frame
+    pub fn light_pos(&self, id: ObjectId<obj::Light>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.light_pos.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// direction relative to body frame
+    pub fn light_dir(&self, id: ObjectId<obj::Light>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.light_dir.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// global position relative to sub-com in qpos0
+    pub fn light_poscom0(&self, id: ObjectId<obj::Light>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.light_poscom0.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// global position relative to body in qpos0
+    pub fn light_pos0(&self, id: ObjectId<obj::Light>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.light_pos0.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// global direction in qpos0
+    pub fn light_dir0(&self, id: ObjectId<obj::Light>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.light_dir0.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// OpenGL attenuation (quadratic model)
+    pub fn light_attenuation(&self, id: ObjectId<obj::Light>) -> [f32; 3] {
+        unsafe {
+            let ptr = self.light_attenuation.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// OpenGL cutoff
+    pub fn light_cutoff(&self, id: ObjectId<obj::Light>) -> f32 {
+        unsafe { self.light_cutoff.add(id.index()).read() }
+    }
+    /// OpenGL exponent
+    pub fn light_exponent(&self, id: ObjectId<obj::Light>) -> f32 {
+        unsafe { self.light_exponent.add(id.index()).read() }
+    }
+    /// ambient rgb (alpha=1)
+    pub fn light_ambient(&self, id: ObjectId<obj::Light>) -> Rgba {
+        unsafe {
+            let ptr = self.light_ambient.add(id.index() * 3);
+            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: 1.0 }
+        }
+    }
+    /// diffuse rgb (alpha=1)
+    pub fn light_diffuse(&self, id: ObjectId<obj::Light>) -> Rgba {
+        unsafe {
+            let ptr = self.light_diffuse.add(id.index() * 4);
+            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+        }
+    }
+    /// specular rgb (alpha=1)
+    pub fn light_specular(&self, id: ObjectId<obj::Light>) -> Rgba {
+        unsafe {
+            let ptr = self.light_specular.add(id.index() * 4);
+            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+        }
+    }
 
-    // lights
-    light_mode: [i32; nlight * 1]           = "light tracking mode (mjtCamLight)";
-    light_bodyid: [i32; nlight * 1]         = "id of light's body";
-    light_targetbodyid: [i32; nlight * 1]   = "id of targeted body; -1: none";
-    light_castshadow: [u8; nlight * 1]      = "does light cast shadows";
-    light_bulbradius: [f32; nlight * 1]     = "light radius for soft shadows";
-    light_active: [u8; nlight * 1]          = "is light on";
-    light_pos: [f64; nlight * 3]            = "position rel. to body frame";
-    light_dir: [f64; nlight * 3]            = "direction rel. to body frame";
-    light_poscom0: [f64; nlight * 3]        = "global position rel. to sub-com in qpos0";
-    light_pos0: [f64; nlight * 3]           = "global position rel. to body in qpos0";
-    light_dir0: [f64; nlight * 3]           = "global direction in qpos0";
-    light_attenuation: [f32; nlight * 3]    = "OpenGL attenuation (quadratic model)";
-    light_cutoff: [f32; nlight * 1]         = "OpenGL cutoff";
-    light_exponent: [f32; nlight * 1]       = "OpenGL exponent";
-    light_ambient: [f32; nlight * 3]        = "ambient rgb (alpha=1)";
-    light_diffuse: [f32; nlight * 3]        = "diffuse rgb (alpha=1)";
-    light_specular: [f32; nlight * 3]       = "specular rgb (alpha=1)";
+    /// flex contact type
+    pub fn flex_contype(&self, id: ObjectId<obj::Flex>) -> i32 {
+        unsafe { self.flex_contype.add(id.index()).read() }
+    }
+    /// flex contact affinity
+    pub fn flex_conaffinity(&self, id: ObjectId<obj::Flex>) -> i32 {
+        unsafe { self.flex_conaffinity.add(id.index()).read() }
+    }
+    /// contact dimensionality (1, 3, 4, 6)
+    pub fn flex_condim(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_condim.add(id.index()).read() }) as usize
+    }
+    /// flex contact priority
+    pub fn flex_priority(&self, id: ObjectId<obj::Flex>) -> i32 {
+        unsafe { self.flex_priority.add(id.index()).read() }
+    }
+    /// mix coef for solref/imp in contact pair
+    pub fn flex_solmix(&self, id: ObjectId<obj::Flex>) -> f64 {
+        unsafe { self.flex_solmix.add(id.index()).read() }
+    }
+    /// constraint solver reference: contact
+    pub fn flex_solref(&self, id: ObjectId<obj::Flex>) -> [f64; mjNREF] {
+        unsafe {
+            let ptr = self.flex_solref.add(id.index() * mjNREF);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// constraint solver impedance: contact
+    pub fn flex_solimp(&self, id: ObjectId<obj::Flex>) -> [f64; mjNIMP] {
+        unsafe {
+            let ptr = self.flex_solimp.add(id.index() * mjNIMP);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// friction for (slide, spin, roll)
+    pub fn flex_friction(&self, id: ObjectId<obj::Flex>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.flex_friction.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// detect contact if dist < margin
+    pub fn flex_margin(&self, id: ObjectId<obj::Flex>) -> f64 {
+        unsafe { self.flex_margin.add(id.index()).read() }
+    }
+    /// include in solver if dist < margin - gap
+    pub fn flex_gap(&self, id: ObjectId<obj::Flex>) -> f64 {
+        unsafe { self.flex_gap.add(id.index()).read() }
+    }
+    /// internal flex collision enabled
+    pub fn flex_internal(&self, id: ObjectId<obj::Flex>) -> bool {
+        (unsafe { self.flex_internal.add(id.index()).read() }) != 0
+    }
+    /// self collision mode (mjtFlexSelf)
+    pub fn flex_selfcollide(&self, id: ObjectId<obj::Flex>) -> mjtFlexSelf {
+        mjtFlexSelf((unsafe { self.flex_selfcollide.add(id.index()).read() }) as u32)
+    }
+    /// number of active element layers, 3D only
+    pub fn flex_activelayers(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_activelayers.add(id.index()).read() }) as usize
+    }
 
-    // flexes: contact properties
-    flex_contype: [i32; nflex * 1]         = "flex contact type";
-    flex_conaffinity: [i32; nflex * 1]     = "flex contact affinity";
-    flex_condim: [i32; nflex * 1]          = "contact dimensionality (1, 3, 4, 6)";
-    flex_priority: [i32; nflex * 1]        = "flex contact priority";
-    flex_solmix: [f64; nflex * 1]          = "mix coef for solref/imp in contact pair";
-    flex_solref: [f64; nflex * mjNREF]          = "constraint solver reference: contact";
-    flex_solimp: [f64; nflex * mjNIMP]          = "constraint solver impedance: contact";
-    flex_friction: [f64; nflex * 3]        = "friction for (slide, spin, roll)";
-    flex_margin: [f64; nflex * 1]          = "detect contact if dist<margin";
-    flex_gap: [f64; nflex * 1]             = "include in solver if dist<margin-gap";
-    flex_internal: [u8; nflex * 1]         = "internal flex collision enabled";
-    flex_selfcollide: [i32; nflex * 1]     = "self collision mode (mjtFlexSelf)";
-    flex_activelayers: [i32; nflex * 1]    = "number of active element layers, 3D only";
+    /// 1: lines, 2: triangles, 3: tetrahedra
+    pub fn flex_dim(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_dim.add(id.index()).read() }) as usize
+    }
+    /// material id for rendering
+    pub fn flex_matid(&self, id: ObjectId<obj::Flex>) -> Option<ObjectId<obj::Material>> {
+        let index = (unsafe { self.flex_matid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// group for visibility
+    pub fn flex_group(&self, id: ObjectId<obj::Flex>) -> i32 {
+        unsafe { self.flex_group.add(id.index()).read() }
+    }
+    /// interpolation (0: vertex, 1: nodes)
+    pub fn flex_interp(&self, id: ObjectId<obj::Flex>) -> i32 {
+        unsafe { self.flex_interp.add(id.index()).read() }
+    }
+    /// first node address
+    pub fn flex_nodeadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
+        (unsafe { self.flex_nodeadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of nodes
+    pub fn flex_nodenum(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_nodenum.add(id.index()).read() }) as usize
+    }
+    /// first vertex address
+    pub fn flex_vertadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
+        (unsafe { self.flex_vertadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of vertices
+    pub fn flex_vertnum(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_vertnum.add(id.index()).read() }) as usize
+    }
+    /// first edge address
+    pub fn flex_edgeadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
+        (unsafe { self.flex_edgeadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of edges
+    pub fn flex_edgenum(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_edgenum.add(id.index()).read() }) as usize
+    }
+    /// first element address
+    pub fn flex_elemadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
+        (unsafe { self.flex_elemadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of elements
+    pub fn flex_elemnum(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_elemnum.add(id.index()).read() }) as usize
+    }
+    /// first element vertex id address
+    pub fn flex_elemdataadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
+        (unsafe { self.flex_elemdataadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// first element edge id address
+    pub fn flex_elemedgeadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
+        (unsafe { self.flex_elemedgeadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of shells
+    pub fn flex_shellnum(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_shellnum.add(id.index()).read() }) as usize
+    }
+    /// first shell data address
+    pub fn flex_shelldataadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
+        (unsafe { self.flex_shelldataadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// first evpair address
+    pub fn flex_evpairadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
+        (unsafe { self.flex_evpairadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of evpairs
+    pub fn flex_evpairnum(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_evpairnum.add(id.index()).read() }) as usize
+    }
+    /// node body ids
+    pub fn flex_nodebodyid(&self, id: NodeId<obj::Flex>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.flex_nodebodyid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// vertex body ids
+    pub fn flex_vertbodyid(&self, id: VertexId<obj::Flex>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.flex_vertbodyid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// edge vertex ids (2 per edge)
+    pub fn flex_edge(&self, id: EdgeId<obj::Flex>) -> (VertexId<obj::Flex>, VertexId<obj::Flex>) {
+        unsafe {
+            let ptr = self.flex_edge.add(id.index() * 2);
+            (
+                VertexId::new_unchecked(ptr.read() as usize),
+                VertexId::new_unchecked(ptr.add(1).read() as usize)
+            )
+        }
+    }
+    /// element vertex ids (dim+1 per elem)
+    pub fn flex_elem(&self, id: ElementDataId) -> VertexId<obj::Flex> {
+        let index = (unsafe { self.flex_elem.add(id.index()).read() }) as usize;
+        unsafe { VertexId::new_unchecked(index) }
+    }
+    /// element texture coordinates (dim+1)
+    pub fn flex_elemtexcoord(&self, id: ElementDataId) -> usize {
+        (unsafe { self.flex_elemtexcoord.add(id.index()).read() }) as usize
+    }
+    /// element edge ids
+    pub fn flex_elemedge(&self, id: EdgeDataId) -> EdgeId<obj::Flex> {
+        let index = (unsafe { self.flex_elemedge.add(id.index()).read() }) as usize;
+        unsafe { EdgeId::new_unchecked(index) }
+    }
+    /// element distance from surface, 3D only
+    pub fn flex_elemlayer(&self, id: ElementId<obj::Flex>) -> i32 {
+        unsafe { self.flex_elemlayer.add(id.index()).read() }
+    }
+    /// shell fragment vertex ids (dim per frag)
+    pub fn flex_shell(&self, id: ShellDataId) -> VertexId<obj::Flex> {
+        let index = (unsafe { self.flex_shell.add(id.index()).read() }) as usize;
+        unsafe { VertexId::new_unchecked(index) }
+    }
+    /// (element, vertex) collision pairs
+    pub fn flex_evpair(&self, id: EvPairId) -> (ElementId<obj::Flex>, VertexId<obj::Flex>) {
+        unsafe {
+            let ptr = self.flex_evpair.add(id.index() * 2);
+            (ElementId::new_unchecked(ptr.read() as usize), VertexId::new_unchecked(ptr.add(1).read() as usize))
+        }
+    }
+    /// vertex positions in local body frames
+    pub fn flex_vert(&self, id: VertexId<obj::Flex>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.flex_vert.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// vertex positions in qpos0 on [0, 1]^d
+    pub fn flex_vert0(&self, id: VertexId<obj::Flex>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.flex_vert0.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// node positions in local body frames
+    pub fn flex_node(&self, id: NodeId<obj::Flex>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.flex_node.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// Cartesian node positions in qpos0
+    pub fn flex_node0(&self, id: NodeId<obj::Flex>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.flex_node0.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// edge lengths in qpos0
+    pub fn flexedge_length0(&self, id: EdgeId<obj::Flex>) -> f64 {
+        unsafe { self.flexedge_length0.add(id.index()).read() }
+    }
+    /// edge inv. weight in qpos0
+    pub fn flexedge_invweight0(&self, id: EdgeId<obj::Flex>) -> f64 {
+        unsafe { self.flexedge_invweight0.add(id.index()).read() }
+    }
+    /// radius around primitive element
+    pub fn flex_radius(&self, id: ObjectId<obj::Flex>) -> f64 {
+        unsafe { self.flex_radius.add(id.index()).read() }
+    }
+    /// finite element stiffness matrix
+    pub fn flex_stiffness(&self, id: ElementId<obj::Flex>) -> [f64; 21] {
+        unsafe {
+            let ptr = self.flex_stiffness.add(id.index() * 21);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// Rayleigh's damping coefficient
+    pub fn flex_damping(&self, id: ObjectId<obj::Flex>) -> f64 {
+        unsafe { self.flex_damping.add(id.index()).read() }
+    }
+    /// edge stiffness
+    pub fn flex_edgestiffness(&self, id: ObjectId<obj::Flex>) -> f64 {
+        unsafe { self.flex_edgestiffness.add(id.index()).read() }
+    }
+    /// edge damping
+    pub fn flex_edgedamping(&self, id: ObjectId<obj::Flex>) -> f64 {
+        unsafe { self.flex_edgedamping.add(id.index()).read() }
+    }
+    /// is edge equality constraint defined
+    pub fn flex_edgeequality(&self, id: EdgeId<obj::Flex>) -> bool {
+        (unsafe { self.flex_edgeequality.add(id.index()).read() }) != 0
+    }
+    /// are all verices in the same body
+    pub fn flex_rigid(&self, id: ObjectId<obj::Flex>) -> bool {
+        (unsafe { self.flex_rigid.add(id.index()).read() }) != 0
+    }
+    /// are both edge vertices in same body
+    pub fn flexedge_rigid(&self, id: EdgeId<obj::Flex>) -> bool {
+        (unsafe { self.flexedge_rigid.add(id.index()).read() }) != 0
+    }
+    /// are all vertex coordinates (0,0,0)
+    pub fn flex_centered(&self, id: ObjectId<obj::Flex>) -> bool {
+        (unsafe { self.flex_centered.add(id.index()).read() }) != 0
+    }
+    /// render flex skin with flat shading
+    pub fn flex_flatskin(&self, id: ObjectId<obj::Flex>) -> bool {
+        (unsafe { self.flex_flatskin.add(id.index()).read() }) != 0
+    }
+    /// address of bvh root
+    pub fn flex_bvhadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
+        (unsafe { self.flex_bvhadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of bounding volumes
+    pub fn flex_bvhnum(&self, id: ObjectId<obj::Flex>) -> usize {
+        (unsafe { self.flex_bvhnum.add(id.index()).read() }) as usize
+    }
+    /// rgba when material is omitted
+    pub fn flex_rgba(&self, id: ObjectId<obj::Flex>) -> Rgba {
+        unsafe {
+            let ptr = self.flex_rgba.add(id.index() * 4);
+            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+        }
+    }
+    /// vertex texture coordinates
+    pub fn flex_texcoord(&self, id: TexcoordId<obj::Flex>) -> [f32; 2] {
+        unsafe {
+            let ptr = self.flex_texcoord.add(id.index() * 2);
+            array(|i| ptr.add(i).read())
+        }
+    }
 
-    // flexes: other properties
-    flex_dim: [i32; nflex * 1]             = "1: lines, 2: triangles, 3: tetrahedra";
-    flex_matid: [i32; nflex * 1]           = "material id for rendering";
-    flex_group: [i32; nflex * 1]           = "group for visibility";
-    flex_interp: [i32; nflex * 1]          = "interpolation (0: vertex, 1: nodes)";
-    flex_nodeadr: [i32; nflex * 1]         = "first node address";
-    flex_nodenum: [i32; nflex * 1]         = "number of nodes";
-    flex_vertadr: [i32; nflex * 1]         = "first vertex address";
-    flex_vertnum: [i32; nflex * 1]         = "number of vertices";
-    flex_edgeadr: [i32; nflex * 1]         = "first edge address";
-    flex_edgenum: [i32; nflex * 1]         = "number of edges";
-    flex_elemadr: [i32; nflex * 1]         = "first element address";
-    flex_elemnum: [i32; nflex * 1]         = "number of elements";
-    flex_elemdataadr: [i32; nflex * 1]     = "first element vertex id address";
-    flex_elemedgeadr: [i32; nflex * 1]     = "first element edge id address";
-    flex_shellnum: [i32; nflex * 1]        = "number of shells";
-    flex_shelldataadr: [i32; nflex * 1]    = "first shell data address";
-    flex_evpairadr: [i32; nflex * 1]       = "first evpair address";
-    flex_evpairnum: [i32; nflex * 1]       = "number of evpairs";
-    flex_texcoordadr: [i32; nflex * 1]     = "address in flex_texcoord; -1: none";
-    flex_nodebodyid: [i32; nflexnode * 1]      = "node body ids";
-    flex_vertbodyid: [i32; nflexvert * 1]      = "vertex body ids";
-    flex_edge: [i32; nflexedge * 2]            = "edge vertex ids (2 per edge)";
-    flex_elem: [i32; nflexelemdata * 1]            = "element vertex ids (dim+1 per elem)";
-    flex_elemtexcoord: [i32; nflexelemdata * 1]    = "element texture coordinates (dim+1)";
-    flex_elemedge: [i32; nflexelemedge * 1]        = "element edge ids";
-    flex_elemlayer: [i32; nflexelem * 1]       = "element distance from surface, 3D only";
-    flex_shell: [i32; nflexshelldata * 1]           = "shell fragment vertex ids (dim per frag)";
-    flex_evpair: [i32; nflexevpair * 2]          = "(element, vertex) collision pairs";
-    flex_vert: [f64; nflexvert * 3]            = "vertex positions in local body frames";
-    flex_vert0: [f64; nflexvert * 3]           = "vertex positions in qpos0 on [0, 1]^d";
-    flex_node: [f64; nflexnode * 3]            = "node positions in local body frames";
-    flex_node0: [f64; nflexnode * 3]           = "Cartesian node positions in qpos0";
-    flexedge_length0: [f64; nflexedge * 1]     = "edge lengths in qpos0";
-    flexedge_invweight0: [f64; nflexedge * 1]  = "edge inv. weight in qpos0";
-    flex_radius: [f64; nflex * 1]          = "radius around primitive element";
-    flex_stiffness: [f64; nflexelem * 21]       = "finite element stiffness matrix";
-    flex_damping: [f64; nflex * 1]         = "Rayleigh's damping coefficient";
-    flex_edgestiffness: [f64; nflex * 1]   = "edge stiffness";
-    flex_edgedamping: [f64; nflex * 1]     = "edge damping";
-    flex_edgeequality: [u8; nflex * 1]     = "is edge equality constraint defined";
-    flex_rigid: [u8; nflex * 1]            = "are all verices in the same body";
-    flexedge_rigid: [u8; nflexedge * 1]        = "are both edge vertices in same body";
-    flex_centered: [u8; nflex * 1]         = "are all vertex coordinates (0,0,0)";
-    flex_flatskin: [u8; nflex * 1]         = "render flex skin with flat shading";
-    flex_bvhadr: [i32; nflex * 1]          = "address of bvh root; -1: no bvh";
-    flex_bvhnum: [i32; nflex * 1]          = "number of bounding volumes";
-    flex_rgba: [f32; nflex * 4]            = "rgba when material is omitted";
-    flex_texcoord: [f32; nflextexcoord * 2]        = "vertex texture coordinates";
+    /// first vertex address
+    pub fn mesh_vertadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
+        (unsafe { self.mesh_vertadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of vertices
+    pub fn mesh_vertnum(&self, id: ObjectId<obj::Mesh>) -> usize {
+        (unsafe { self.mesh_vertnum.add(id.index()).read() }) as usize
+    }
+    /// first face address
+    pub fn mesh_faceadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
+        (unsafe { self.mesh_faceadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of faces
+    pub fn mesh_facenum(&self, id: ObjectId<obj::Mesh>) -> usize {
+        (unsafe { self.mesh_facenum.add(id.index()).read() }) as usize
+    }
+    /// address of bvh root
+    pub fn mesh_bvhadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
+        (unsafe { self.mesh_bvhadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of bounding volumes
+    pub fn mesh_bvhnum(&self, id: ObjectId<obj::Mesh>) -> usize {
+        (unsafe { self.mesh_bvhnum.add(id.index()).read() }) as usize
+    }
+    /// first normal address
+    pub fn mesh_normaladr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
+        (unsafe { self.mesh_normaladr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of normals
+    pub fn mesh_normalnum(&self, id: ObjectId<obj::Mesh>) -> usize {
+        (unsafe { self.mesh_normalnum.add(id.index()).read() }) as usize
+    }
+    /// texcoord data address
+    pub fn mesh_texcoordadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
+        (unsafe { self.mesh_texcoordadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of texcoord
+    pub fn mesh_texcoordnum(&self, id: ObjectId<obj::Mesh>) -> usize {
+        (unsafe { self.mesh_texcoordnum.add(id.index()).read() }) as usize
+    }
+    /// vertex positions for all meshes
+    pub fn mesh_vert(&self, id: VertexId<obj::Mesh>) -> [f32; 3] {
+        unsafe {
+            let ptr = self.mesh_vert.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// normals for all meshes
+    pub fn mesh_normal(&self, id: NormalId) -> [f32; 3] {
+        unsafe {
+            let ptr = self.mesh_normal.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// vertex texcoords for all meshes
+    pub fn mesh_texcoord(&self, id: TexcoordId<obj::Mesh>) -> [f32; 2] {
+        unsafe {
+            let ptr = self.mesh_texcoord.add(id.index() * 2);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// vertex face data
+    pub fn mesh_face(&self, id: FaceId<obj::Mesh>) -> [VertexId<obj::Mesh>; 3] {
+        let ptr = unsafe { self.mesh_face.add(id.index() * 3) };
+        array(|i| unsafe { VertexId::new_unchecked(ptr.add(i).read() as usize) })
+    }
+    /// normal face data
+    pub fn mesh_facenormal(&self, id: FaceId<obj::Mesh>) -> [NormalId; 3] {
+        let ptr = unsafe { self.mesh_facenormal.add(id.index() * 3) };
+        array(|i| unsafe { NormalId::new_unchecked(ptr.add(i).read() as usize) })
+    }
+    /// texture face data
+    pub fn mesh_facetexcoord(&self, id: FaceId<obj::Mesh>) -> [TexcoordId<obj::Mesh>; 3] {
+        let ptr = unsafe { self.mesh_facetexcoord.add(id.index() * 3) };
+        array(|i| unsafe { TexcoordId::new_unchecked(ptr.add(i).read() as usize) })
+    }
+    /// scaling applied to asset vertices
+    pub fn mesh_scale(&self, id: ObjectId<obj::Mesh>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.mesh_scale.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// translation applied to asset vertices
+    pub fn mesh_pos(&self, id: ObjectId<obj::Mesh>) -> [f64; 3] {
+        unsafe {
+            let ptr = self.mesh_pos.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// rotation applied to asset vertices
+    pub fn mesh_quat(&self, id: ObjectId<obj::Mesh>) -> [f64; 4] {
+        unsafe {
+            let ptr = self.mesh_quat.add(id.index() * 4);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// address of asset path for mesh
+    pub fn mesh_pathadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
+        (unsafe { self.mesh_pathadr.add(id.index()).read() }).try_into().ok()
+    }
+    // TODO `mesh_poly*`
 
-    // meshes
-    mesh_vertadr: [i32; nmesh * 1]         = "first vertex address";
-    mesh_vertnum: [i32; nmesh * 1]         = "number of vertices";
-    mesh_faceadr: [i32; nmesh * 1]         = "first face address";
-    mesh_facenum: [i32; nmesh * 1]         = "number of faces";
-    mesh_bvhadr: [i32; nmesh * 1]          = "address of bvh root";
-    mesh_bvhnum: [i32; nmesh * 1]          = "number of bvh";
-    mesh_normaladr: [i32; nmesh * 1]       = "first normal address";
-    mesh_normalnum: [i32; nmesh * 1]       = "number of normals";
-    mesh_texcoordadr: [i32; nmesh * 1]     = "texcoord data address; -1: no texcoord";
-    mesh_texcoordnum: [i32; nmesh * 1]     = "number of texcoord";
-    mesh_graphadr: [i32; nmesh * 1]        = "graph data address; -1: no graph";
-    mesh_vert: [f32; nmeshvert * 3]            = "vertex positions for all meshes";
-    mesh_normal: [f32; nmeshnormal * 3]          = "normals for all meshes";
-    mesh_texcoord: [f32; nmeshtexcoord * 2]        = "vertex texcoords for all meshes";
-    mesh_face: [i32; nmeshface * 3]            = "vertex face data";
-    mesh_facenormal: [i32; nmeshface * 3]      = "normal face data";
-    mesh_facetexcoord: [i32; nmeshface * 3]    = "texture face data";
-    mesh_graph: [i32; nmeshgraph * 1]           = "convex graph data";
-    mesh_scale: [f64; nmesh * 3]           = "scaling applied to asset vertices";
-    mesh_pos: [f64; nmesh * 3]             = "translation applied to asset vertices";
-    mesh_quat: [f64; nmesh * 4]            = "rotation applied to asset vertices";
-    mesh_pathadr: [i32; nmesh * 1]         = "address of asset path for mesh; -1: none";
-    mesh_polynum: [i32; nmesh * 1]         = "number of polygons per mesh";
-    mesh_polyadr: [i32; nmesh * 1]         = "first polygon address per mesh";
-    mesh_polynormal: [f64; nmeshpoly * 3]      = "all polygon normals";
-    mesh_polyvertadr: [i32; nmeshpoly * 1]     = "polygon vertex start address";
-    mesh_polyvertnum: [i32; nmeshpoly * 1]     = "number of vertices per polygon";
-    mesh_polyvert: [i32; nmeshpolyvert * 1]        = "all polygon vertices";
-    mesh_polymapadr: [i32; nmeshvert * 1]      = "first polygon address per vertex";
-    mesh_polymapnum: [i32; nmeshvert * 1]      = "number of polygons per vertex";
-    mesh_polymap: [i32; nmeshpolymap * 1]         = "vertex to polygon map";
+    /// skin material id
+    pub fn skin_matid(&self, id: ObjectId<obj::Skin>) -> Option<ObjectId<obj::Material>> {
+        let index = (unsafe { self.skin_matid.add(id.index()).read() }).try_into().ok()?;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// group for visibility
+    pub fn skin_group(&self, id: ObjectId<obj::Skin>) -> i32 {
+        unsafe { self.skin_group.add(id.index()).read() }
+    }
+    /// rgba when material is omitted
+    pub fn skin_rgba(&self, id: ObjectId<obj::Skin>) -> Rgba {
+        unsafe {
+            let ptr = self.skin_rgba.add(id.index() * 4);
+            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+        }
+    }
+    /// inflate skin in normal direction
+    pub fn skin_inflate(&self, id: ObjectId<obj::Skin>) -> f32 {
+        unsafe { self.skin_inflate.add(id.index()).read() }
+    }
+    /// first vertex address
+    pub fn skin_vertadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
+        (unsafe { self.skin_vertadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of vertices
+    pub fn skin_vertnum(&self, id: ObjectId<obj::Skin>) -> usize {
+        (unsafe { self.skin_vertnum.add(id.index()).read() }) as usize
+    }
+    /// texcoord data address
+    pub fn skin_texcoordadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
+        (unsafe { self.skin_texcoordadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// first face address
+    pub fn skin_faceadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
+        (unsafe { self.skin_faceadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of faces
+    pub fn skin_facenum(&self, id: ObjectId<obj::Skin>) -> usize {
+        (unsafe { self.skin_facenum.add(id.index()).read() }) as usize
+    }
+    /// first bone in skin
+    pub fn skin_boneadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
+        (unsafe { self.skin_boneadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of bones in skin
+    pub fn skin_bonenum(&self, id: ObjectId<obj::Skin>) -> usize {
+        (unsafe { self.skin_bonenum.add(id.index()).read() }) as usize
+    }
+    /// vertex positions for all skin meshes
+    pub fn skin_vert(&self, id: VertexId<obj::Skin>) -> [f32; 3] {
+        unsafe {
+            let ptr = self.skin_vert.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// vertex texcoords for all skin meshes
+    pub fn skin_texcoord(&self, id: TexcoordId<obj::Skin>) -> [f32; 2] {
+        unsafe {
+            let ptr = self.skin_texcoord.add(id.index() * 2);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// triangle faces for all skin meshes
+    pub fn skin_face(&self, id: FaceId<obj::Skin>) -> [VertexId<obj::Skin>; 3] {
+        unsafe {
+            let ptr = self.skin_face.add(id.index() * 3);
+            array(|i| VertexId::new_unchecked(ptr.add(i).read() as usize))
+        }
+    }
+    /// first vertex in each bone
+    pub fn skin_bonevertadr(&self, id: BoneId) -> Option<usize> {
+        (unsafe { self.skin_bonevertadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of vertices in each bone
+    pub fn skin_bonevertnum(&self, id: BoneId) -> usize {
+        (unsafe { self.skin_bonevertnum.add(id.index()).read() }) as usize
+    }
+    /// bind pos of each bone
+    pub fn skin_bonebindpos(&self, id: BoneId) -> [f32; 3] {
+        unsafe {
+            let ptr = self.skin_bonebindpos.add(id.index() * 3);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// bind quat of each bone
+    pub fn skin_bonebindquat(&self, id: BoneId) -> [f32; 4] {
+        unsafe {
+            let ptr = self.skin_bonebindquat.add(id.index() * 4);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// body id of each bone
+    pub fn skin_bonebodyid(&self, id: BoneId) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.skin_bonebodyid.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// mesh ids of vertices in each bone
+    pub fn skin_bonevertid(&self, id: BoneVertexId) -> VertexId<obj::Skin> {
+        let index = (unsafe { self.skin_bonevertid.add(id.index()).read() }) as usize;
+        unsafe { VertexId::new_unchecked(index) }
+    }
+    /// weights of vertices in each bone
+    pub fn skin_bonevertweight(&self, id: BoneVertexId) -> f32 {
+        unsafe { self.skin_bonevertweight.add(id.index()).read() }
+    }
+    /// address of asset path for skin
+    pub fn skin_pathadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
+        (unsafe { self.skin_pathadr.add(id.index()).read() }).try_into().ok()
+    }
 
-    // skins
-    skin_matid: [i32; nskin * 1]           = "skin material id; -1: none";
-    skin_group: [i32; nskin * 1]           = "group for visibility";
-    skin_rgba: [f32; nskin * 4]            = "skin rgba";
-    skin_inflate: [f32; nskin * 1]         = "inflate skin in normal direction";
-    skin_vertadr: [i32; nskin * 1]         = "first vertex address";
-    skin_vertnum: [i32; nskin * 1]         = "number of vertices";
-    skin_texcoordadr: [i32; nskin * 1]     = "texcoord data address; -1: no texcoord";
-    skin_faceadr: [i32; nskin * 1]         = "first face address";
-    skin_facenum: [i32; nskin * 1]         = "number of faces";
-    skin_boneadr: [i32; nskin * 1]         = "first bone in skin";
-    skin_bonenum: [i32; nskin * 1]         = "number of bones in skin";
-    skin_vert: [f32; nskinvert * 3]            = "vertex positions for all skin meshes";
-    skin_texcoord: [f32; nskintexvert * 2]        = "vertex texcoords for all skin meshes";
-    skin_face: [i32; nskinface * 3]            = "triangle faces for all skin meshes";
-    skin_bonevertadr: [i32; nskinbone * 1]     = "first vertex in each bone";
-    skin_bonevertnum: [i32; nskinbone * 1]     = "number of vertices in each bone";
-    skin_bonebindpos: [f32; nskinbone * 3]     = "bind pos of each bone";
-    skin_bonebindquat: [f32; nskinbone * 4]    = "bind quat of each bone";
-    skin_bonebodyid: [i32; nskinbone * 1]      = "body id of each bone";
-    skin_bonevertid: [i32; nskinbonevert * 1]      = "mesh ids of vertices in each bone";
-    skin_bonevertweight: [f32; nskinbonevert * 1]  = "weights of vertices in each bone";
-    skin_pathadr: [i32; nskin * 1]         = "address of asset path for skin; -1: none";
+    /// (x, y, z_top, z_bottom)
+    pub fn hfield_size(&self, id: ObjectId<obj::HField>) -> [f64; 4] {
+        unsafe {
+            let ptr = self.hfield_size.add(id.index() * 4);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// number of rows in grid
+    pub fn hfield_nrow(&self, id: ObjectId<obj::HField>) -> usize {
+        (unsafe { self.hfield_nrow.add(id.index()).read() }) as usize
+    }
+    /// number of columns in grid
+    pub fn hfield_ncol(&self, id: ObjectId<obj::HField>) -> usize {
+        (unsafe { self.hfield_ncol.add(id.index()).read() }) as usize
+    }
+    /// address in hfield_data
+    pub fn hfield_adr(&self, id: ObjectId<obj::HField>) -> usize {
+        (unsafe { self.hfield_adr.add(id.index()).read() }) as usize
+    }
+    /// elevation data
+    pub fn hfield_data(&self, id: HFieldDataId) -> f32 {
+        unsafe { self.hfield_data.add(id.index()).read() }
+    }
+    /// address of hfield asset path
+    pub fn hfield_pathadr(&self, id: ObjectId<obj::HField>) -> Option<usize> {
+        (unsafe { self.hfield_pathadr.add(id.index()).read() }).try_into().ok()
+    }
 
-    // height fields
-    hfield_size: [f64; nhfield * 4]          = "(x, y, z_top, z_bottom)";
-    hfield_nrow: [i32; nhfield * 1]          = "number of rows in grid";
-    hfield_ncol: [i32; nhfield * 1]          = "number of columns in grid";
-    hfield_adr: [i32; nhfield * 1]           = "address in hfield_data";
-    hfield_data: [f32; nhfielddata * 1]          = "elevation data";
-    hfield_pathadr: [i32; nhfield * 1]       = "address of hfield asset path; -1: none";
+    /// texture type (mjtTexture)
+    pub fn tex_type(&self, id: ObjectId<obj::Texture>) -> mjtTexture {
+        mjtTexture((unsafe { self.tex_type.add(id.index()).read() }) as u32)
+    }
+    /// number of rows in texture image [px]
+    pub fn tex_height(&self, id: ObjectId<obj::Texture>) -> usize {
+        (unsafe { self.tex_height.add(id.index()).read() }) as usize
+    }
+    /// number of columns in texture image [px]
+    pub fn tex_width(&self, id: ObjectId<obj::Texture>) -> usize {
+        (unsafe { self.tex_width.add(id.index()).read() }) as usize
+    }
+    /// number of channels in texture image
+    pub fn tex_nchannel(&self, id: ObjectId<obj::Texture>) -> usize {
+        (unsafe { self.tex_nchannel.add(id.index()).read() }) as usize
+    }
+    /// start address in tex_data
+    pub fn tex_adr(&self, id: ObjectId<obj::Texture>) -> usize {
+        (unsafe { self.tex_adr.add(id.index()).read() }) as usize
+    }
+    /// pixel values
+    pub fn tex_data(&self, id: TexDataId) -> u8 {
+        unsafe { self.tex_data.add(id.index()).read() }
+    }
+    /// address of texture asset path
+    pub fn tex_pathadr(&self, id: ObjectId<obj::Texture>) -> Option<usize> {
+        (unsafe { self.tex_pathadr.add(id.index()).read() }).try_into().ok()
+    }
 
-    // textures
-    tex_type: [i32; ntex * 1]             = "texture type (mjtTexture)";
-    tex_height: [i32; ntex * 1]           = "number of rows in texture image";
-    tex_width: [i32; ntex * 1]            = "number of columns in texture image";
-    tex_nchannel: [i32; ntex * 1]         = "number of channels in texture image";
-    tex_adr: [i32; ntex * 1]              = "start address in tex_data";
-    tex_data: [u8; ntexdata * 1]              = "pixel values";
-    tex_pathadr: [i32; ntex * 1]          = "address of texture asset path; -1: none";
+    /// indices of textures
+    pub fn mat_texid(&self, id: ObjectId<obj::Material>) -> [Option<ObjectId<obj::Texture>>; mjNTEXROLE] {
+        unsafe {
+            let ptr = self.mat_texid.add(id.index() * mjNTEXROLE);
+            array(|i| Some(ObjectId::new_unchecked(ptr.add(i).read().try_into().ok()?)))
+        }
+    }
+    /// make texture cube uniform
+    pub fn mat_texuniform(&self, id: ObjectId<obj::Material>) -> bool {
+        (unsafe { self.mat_texuniform.add(id.index()).read() }) != 0
+    }
+    /// texture repetition for 2d mapping
+    pub fn mat_texrepeat(&self, id: ObjectId<obj::Material>) -> [f32; 2] {
+        unsafe {
+            let ptr = self.mat_texrepeat.add(id.index() * 2);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// emission (x rgb)
+    pub fn mat_emission(&self, id: ObjectId<obj::Material>) -> f32 {
+        unsafe { self.mat_emission.add(id.index()).read() }
+    }
+    /// specular (x white)
+    pub fn mat_specular(&self, id: ObjectId<obj::Material>) -> f32 {
+        unsafe { self.mat_specular.add(id.index()).read() }
+    }
+    /// shininess coef
+    pub fn mat_shininess(&self, id: ObjectId<obj::Material>) -> f32 {
+        unsafe { self.mat_shininess.add(id.index()).read() }
+    }
+    /// reflectance (0: disable)
+    pub fn mat_reflectance(&self, id: ObjectId<obj::Material>) -> f32 {
+        unsafe { self.mat_reflectance.add(id.index()).read() }
+    }
+    /// metallic coef
+    pub fn mat_metallic(&self, id: ObjectId<obj::Material>) -> f32 {
+        unsafe { self.mat_metallic.add(id.index()).read() }
+    }
+    /// roughness coef
+    pub fn mat_roughness(&self, id: ObjectId<obj::Material>) -> f32 {
+        unsafe { self.mat_roughness.add(id.index()).read() }
+    }
+    /// rgba
+    pub fn mat_rgba(&self, id: ObjectId<obj::Material>) -> Rgba {
+        unsafe {
+            let ptr = self.mat_rgba.add(id.index() * 4);
+            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+        }
+    }
 
-    // materials
-    mat_texid: [i32; nmat * mjNTEXROLE]   = "indices of textures; -1: none";
-    mat_texuniform: [u8; nmat * 1]        = "make texture cube uniform";
-    mat_texrepeat: [f32; nmat * 2]        = "texture repetition for 2d mapping";
-    mat_emission: [f32; nmat * 1]         = "emission (x rgb)";
-    mat_specular: [f32; nmat * 1]         = "specular (x white)";
-    mat_shininess: [f32; nmat * 1]        = "shininess coef";
-    mat_reflectance: [f32; nmat * 1]      = "reflectance (0: disable)";
-    mat_metallic: [f32; nmat * 1]         = "metallic coef";
-    mat_roughness: [f32; nmat * 1]        = "roughness coef";
-    mat_rgba: [f32; nmat * 4]             = "rgba";
+    /// contact dimensionality (1, 3, 4, 6)
+    pub fn pair_dim(&self, id: ObjectId<obj::Pair>) -> usize {
+        (unsafe { self.pair_dim.add(id.index()).read() }) as usize
+    }
+    /// id of geom1
+    pub fn pair_geom1(&self, id: ObjectId<obj::Pair>) -> ObjectId<obj::Geom> {
+        let index = (unsafe { self.pair_geom1.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// id of geom2
+    pub fn pair_geom2(&self, id: ObjectId<obj::Pair>) -> ObjectId<obj::Geom> {
+        let index = (unsafe { self.pair_geom2.add(id.index()).read() }) as usize;
+        unsafe { ObjectId::new_unchecked(index) }
+    }
+    /// body1 << 16 + body2
+    pub fn pair_signature(&self, id: ObjectId<obj::Pair>) -> u32 {
+        (unsafe { self.pair_signature.add(id.index()).read() }) as u32
+    }
+    /// solver reference: contact normal
+    pub fn pair_solref(&self, id: ObjectId<obj::Pair>) -> [f64; mjNREF] {
+        unsafe {
+            let ptr = self.pair_solref.add(id.index() * mjNREF);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// solver reference: contact friction
+    pub fn pair_solreffriction(&self, id: ObjectId<obj::Pair>) -> [f64; mjNREF] {
+        unsafe {
+            let ptr = self.pair_solreffriction.add(id.index() * mjNREF);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// solver impedance: contact
+    pub fn pair_solimp(&self, id: ObjectId<obj::Pair>) -> [f64; mjNIMP] {
+        unsafe {
+            let ptr = self.pair_solimp.add(id.index() * mjNIMP);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// detect contact if dist < margin
+    pub fn pair_margin(&self, id: ObjectId<obj::Pair>) -> f64 {
+        unsafe { self.pair_margin.add(id.index()).read() }
+    }
+    /// include in solver if dist < margin - gap
+    pub fn pair_gap(&self, id: ObjectId<obj::Pair>) -> f64 {
+        unsafe { self.pair_gap.add(id.index()).read() }
+    }
+    /// friction for (tangent1, tangent2, spin, roll1, roll2)
+    pub fn pair_friction(&self, id: ObjectId<obj::Pair>) -> (f64, f64, f64, f64, f64) {
+        unsafe {
+            let ptr = self.pair_friction.add(id.index() * 5);
+            (ptr.read(), ptr.add(1).read(), ptr.add(2).read(), ptr.add(3).read(), ptr.add(4).read())
+        }
+    }
 
-    // predefined geom pairs for collision detection; has precedence over exclude
-    pair_dim: [i32; npair * 1]             = "contact dimensionality";
-    pair_geom1: [i32; npair * 1]           = "id of geom1";
-    pair_geom2: [i32; npair * 1]           = "id of geom2";
-    pair_signature: [i32; npair * 1]       = "body1 << 16 + body2";
-    pair_solref: [f64; npair * mjNREF]          = "solver reference: contact normal";
-    pair_solreffriction: [f64; npair * mjNREF]  = "solver reference: contact friction";
-    pair_solimp: [f64; npair * mjNIMP]          = "solver impedance: contact";
-    pair_margin: [f64; npair * 1]          = "detect contact if dist<margin";
-    pair_gap: [f64; npair * 1]             = "include in solver if dist<margin-gap";
-    pair_friction: [f64; npair * 5]        = "tangent1, 2, spin, roll1, 2";
+    /// body1 << 16 + body2
+    pub fn exclude_signature(&self, id: ObjectId<obj::Exclude>) -> u32 {
+        (unsafe { self.exclude_signature.add(id.index()).read() }) as u32
+    }
 
-    // excluded body pairs for collision detection
-    exclude_signature: [i32; nexclude * 1]    = "body1 << 16 + body2";
+    /// constraint type (mjtEq)
+    pub fn eq_type(&self, id: ObjectId<obj::Equality>) -> mjtEq {
+        mjtEq((unsafe { self.eq_type.add(id.index()).read() }) as u32)
+    }
+    /// get object ids as `ObjectId<O>`; `None` if object is not of type `O`.
+    /// 
+    /// the object type can be got (as value) with `.eq_objtype()`.
+    pub fn eq_objid<O: Obj>(&self, id: ObjectId<obj::Equality>) -> Option<(ObjectId<O>, ObjectId<O>)> {
+        if self.eq_objtype(id) != O::TYPE {
+            return None;
+        }
+        unsafe {
+            Some((
+                ObjectId::new_unchecked(self.eq_obj1id.add(id.index()).read() as usize),
+                ObjectId::new_unchecked(self.eq_obj2id.add(id.index()).read() as usize)
+            ))
+        }
+    }
+    /// type of both objects (mjtObj)
+    pub fn eq_objtype(&self, id: ObjectId<obj::Equality>) -> mjtObj {
+        mjtObj((unsafe { self.eq_objtype.add(id.index()).read() }) as u32)
+    }
+    /// initial enable/disable constraint state
+    pub fn eq_active0(&self, id: ObjectId<obj::Equality>) -> bool {
+        (unsafe { self.eq_active0.add(id.index()).read() }) != 0
+    }
+    /// constraint solver reference
+    pub fn eq_solref(&self, id: ObjectId<obj::Equality>) -> [f64; mjNREF] {
+        unsafe {
+            let ptr = self.eq_solref.add(id.index() * mjNREF);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// constraint solver impedance
+    pub fn eq_solimp(&self, id: ObjectId<obj::Equality>) -> [f64; mjNIMP] {
+        unsafe {
+            let ptr = self.eq_solimp.add(id.index() * mjNIMP);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// numeric data for constraint
+    pub fn eq_data(&self, id: ObjectId<obj::Equality>) -> [f64; mjNEQDATA] {
+        unsafe {
+            let ptr = self.eq_data.add(id.index() * mjNEQDATA);
+            array(|i| ptr.add(i).read())
+        }
+    }
 
-    // equality constraints
-    eq_type: [i32; neq * 1]              = "constraint type (mjtEq)";
-    eq_obj1id: [i32; neq * 1]            = "id of object 1";
-    eq_obj2id: [i32; neq * 1]            = "id of object 2";
-    eq_objtype: [i32; neq * 1]           = "type of both objects (mjtObj)";
-    eq_active0: [u8; neq * 1]            = "initial enable/disable constraint state";
-    eq_solref: [f64; neq * mjNREF]            = "constraint solver reference";
-    eq_solimp: [f64; neq * mjNIMP]            = "constraint solver impedance";
-    eq_data: [f64; neq * mjNEQDATA]              = "numeric data for constraint";
+    /// first address of tendon path
+    pub fn tendon_adr(&self, id: ObjectId<obj::Tendon>) -> usize {
+        (unsafe { self.tendon_adr.add(id.index()).read() }) as usize
+    }
+    /// number of objects in tendon path
+    pub fn tendon_num(&self, id: ObjectId<obj::Tendon>) -> usize {
+        (unsafe { self.tendon_num.add(id.index()).read() }) as usize
+    }
+    /// material id for rendering
+    pub fn tendon_matid(&self, id: ObjectId<obj::Tendon>) -> Option<ObjectId<obj::Material>> {
+        let index = (unsafe { self.tendon_matid.add(id.index()).read() }) as usize;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// group for visibility
+    pub fn tendon_group(&self, id: ObjectId<obj::Tendon>) -> i32 {
+        unsafe { self.tendon_group.add(id.index()).read() }
+    }
+    /// does tendon have length limits
+    pub fn tendon_limited(&self, id: ObjectId<obj::Tendon>) -> bool {
+        (unsafe { self.tendon_limited.add(id.index()).read() }) != 0
+    }
+    /// does tendon have actuator force limits
+    pub fn tendon_actfrclimited(&self, id: ObjectId<obj::Tendon>) -> bool {
+        (unsafe { self.tendon_actfrclimited.add(id.index()).read() }) != 0
+    }
+    /// width for rendering
+    pub fn tendon_width(&self, id: ObjectId<obj::Tendon>) -> f64 {
+        unsafe { self.tendon_width.add(id.index()).read() }
+    }
+    /// constraint solver reference: limit
+    pub fn tendon_solref_lim(&self, id: ObjectId<obj::Tendon>) -> [f64; mjNREF] {
+        unsafe {
+            let ptr = self.tendon_solref_lim.add(id.index() * mjNREF);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// constraint solver impedance: limit
+    pub fn tendon_solimp_lim(&self, id: ObjectId<obj::Tendon>) -> [f64; mjNIMP] {
+        unsafe {
+            let ptr = self.tendon_solimp_lim.add(id.index() * mjNIMP);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// constraint solver reference: friction
+    pub fn tendon_solref_fri(&self, id: ObjectId<obj::Tendon>) -> [f64; mjNREF] {
+        unsafe {
+            let ptr = self.tendon_solref_fri.add(id.index() * mjNREF);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// constraint solver impedance: friction
+    pub fn tendon_solimp_fri(&self, id: ObjectId<obj::Tendon>) -> [f64; mjNIMP] {
+        unsafe {
+            let ptr = self.tendon_solimp_fri.add(id.index() * mjNIMP);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// tendon length limits
+    pub fn tendon_range(&self, id: ObjectId<obj::Tendon>) -> std::ops::Range<f64> {
+        unsafe {
+            let ptr = self.tendon_range.add(id.index() * 2);
+            ptr.read()..ptr.add(1).read()
+        }
+    }
+    /// range of total actuator force
+    pub fn tendon_actfrcrange(&self, id: ObjectId<obj::Tendon>) -> std::ops::Range<f64> {
+        unsafe {
+            let ptr = self.tendon_actfrcrange.add(id.index() * 2);
+            ptr.read()..ptr.add(1).read()
+        }
+    }
+    /// min distance for limit detection
+    pub fn tendon_margin(&self, id: ObjectId<obj::Tendon>) -> f64 {
+        unsafe { self.tendon_margin.add(id.index()).read() }
+    }
+    /// stiffness coefficient
+    pub fn tendon_stiffness(&self, id: ObjectId<obj::Tendon>) -> f64 {
+        unsafe { self.tendon_stiffness.add(id.index()).read() }
+    }
+    /// damping coefficient
+    pub fn tendon_damping(&self, id: ObjectId<obj::Tendon>) -> f64 {
+        unsafe { self.tendon_damping.add(id.index()).read() }
+    }
+    /// inertia associated with tendon velocity
+    pub fn tendon_armature(&self, id: ObjectId<obj::Tendon>) -> f64 {
+        unsafe { self.tendon_armature.add(id.index()).read() }
+    }
+    /// loss due to friction
+    pub fn tendon_frictionloss(&self, id: ObjectId<obj::Tendon>) -> f64 {
+        unsafe { self.tendon_frictionloss.add(id.index()).read() }
+    }
+    /// spring resting length range
+    pub fn tendon_lengthspring(&self, id: ObjectId<obj::Tendon>) -> std::ops::Range<f64> {
+        unsafe {
+            let ptr = self.tendon_lengthspring.add(id.index() * 2);
+            ptr.read()..ptr.add(1).read()
+        }
+    }
+    /// tendon length in qpos0
+    pub fn tendon_length0(&self, id: ObjectId<obj::Tendon>) -> f64 {
+        unsafe { self.tendon_length0.add(id.index()).read() }
+    }
+    /// edge inv. weight in qpos0
+    pub fn tendon_invweight0(&self, id: ObjectId<obj::Tendon>) -> f64 {
+        unsafe { self.tendon_invweight0.add(id.index()).read() }
+    }
+    /// rgba when material is omitted
+    pub fn tendon_rgba(&self, id: ObjectId<obj::Tendon>) -> Rgba {
+        unsafe {
+            let ptr = self.tendon_rgba.add(id.index() * 4);
+            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+        }
+    }
 
-    // tendons
-    tendon_adr: [i32; ntendon * 1]           = "address of first object in tendon's path";
-    tendon_num: [i32; ntendon * 1]           = "number of objects in tendon's path";
-    tendon_matid: [i32; ntendon * 1]         = "material id for rendering";
-    tendon_group: [i32; ntendon * 1]         = "group for visibility";
-    tendon_limited: [u8; ntendon * 1]        = "does tendon have length limits";
-    tendon_actfrclimited: [u8; ntendon * 1]  = "does tendon have actuator force limits";
-    tendon_width: [f64; ntendon * 1]         = "width for rendering";
-    tendon_solref_lim: [f64; ntendon * mjNREF]    = "constraint solver reference: limit";
-    tendon_solimp_lim: [f64; ntendon * mjNIMP]    = "constraint solver impedance: limit";
-    tendon_solref_fri: [f64; ntendon * mjNREF]    = "constraint solver reference: friction";
-    tendon_solimp_fri: [f64; ntendon * mjNIMP]    = "constraint solver impedance: friction";
-    tendon_range: [f64; ntendon * 2]         = "tendon length limits";
-    tendon_actfrcrange: [f64; ntendon * 2]   = "range of total actuator force";
-    tendon_margin: [f64; ntendon * 1]        = "min distance for limit detection";
-    tendon_stiffness: [f64; ntendon * 1]     = "stiffness coefficient";
-    tendon_damping: [f64; ntendon * 1]       = "damping coefficient";
-    tendon_armature: [f64; ntendon * 1]      = "inertia associated with tendon velocity";
-    tendon_frictionloss: [f64; ntendon * 1]  = "loss due to friction";
-    tendon_lengthspring: [f64; ntendon * 2]  = "spring resting length range";
-    tendon_length0: [f64; ntendon * 1]       = "tendon length in qpos0";
-    tendon_invweight0: [f64; ntendon * 1]    = "inv. weight in qpos0";
-    tendon_user: [f64; ntendon x nuser_tendon]          = "user data";
-    tendon_rgba: [f32; ntendon * 4]          = "rgba when material is omitted";
+    /// wrap object type (mjtWrap)
+    pub fn wrap_type(&self, index: usize) -> mjtWrap {
+        mjtWrap((unsafe { self.wrap_type.add(index).read() }) as u32)
+    }
+    /// object id: geom, site, joint
+    /// 
+    /// Returns `None` if specified object type `O` does not match the wrap object type.
+    /// The wrap object type can be got (as value) with `.wrap_type(index)`.
+    pub fn wrap_objid<O: Obj>(&self, index: usize) -> Option<ObjectId<O>> {
+        if self.wrap_type(index).0 != O::TYPE.0 {
+            return None;
+        }
+        let index = (unsafe { self.wrap_objid.add(index).read() }) as usize;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// divisor, joint coef, or site id
+    pub fn wrap_prm(&self, index: usize) -> f64 {
+        unsafe { self.wrap_prm.add(index).read() }
+    }
+    
+    /// transmission type (mjtTrn)
+    pub fn actuator_trntype(&self, id: ObjectId<obj::Actuator>) -> mjtTrn {
+        mjtTrn((unsafe { self.actuator_trntype.add(id.index()).read() }) as u32)
+    }
+    /// dynamics type (mjtDyn)
+    pub fn actuator_dyntype(&self, id: ObjectId<obj::Actuator>) -> mjtDyn {
+        mjtDyn((unsafe { self.actuator_dyntype.add(id.index()).read() }) as u32)
+    }
+    /// gain type (mjtGain)
+    pub fn actuator_gaintype(&self, id: ObjectId<obj::Actuator>) -> mjtGain {
+        mjtGain((unsafe { self.actuator_gaintype.add(id.index()).read() }) as u32)
+    }
+    /// bias type (mjtBias)
+    pub fn actuator_biastype(&self, id: ObjectId<obj::Actuator>) -> mjtBias {
+        mjtBias((unsafe { self.actuator_biastype.add(id.index()).read() }) as u32)
+    }
+    /// transmission id: joint, tendon, site
+    ///
+    /// Returns `None` if the transmission id does not match the object type `O`.
+    pub fn actuator_trnid<O: Obj>(&self, id: ObjectId<obj::Actuator>) -> (Option<ObjectId<O>>, Option<ObjectId<O>>) {
+        if (unsafe { self.actuator_trnid.add(id.index() * 2).read() }) != O::TYPE.0 as i32 {
+            return (None, None);
+        }
+        unsafe {
+            let ptr = self.actuator_trnid.add(id.index() * 2);
+            (
+                Some(ObjectId::new_unchecked(ptr.read() as usize)),
+                Some(ObjectId::new_unchecked(ptr.add(1).read() as usize))
+            )
+        }
+    }
+    /// first activation address; None: stateless
+    pub fn actuator_actadr(&self, id: ObjectId<obj::Actuator>) -> Option<usize> {
+        (unsafe { self.actuator_actadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of activation variables
+    pub fn actuator_actnum(&self, id: ObjectId<obj::Actuator>) -> usize {
+        (unsafe { self.actuator_actnum.add(id.index()).read() }) as usize
+    }
+    /// group for visibility
+    pub fn actuator_group(&self, id: ObjectId<obj::Actuator>) -> i32 {
+        unsafe { self.actuator_group.add(id.index()).read() }
+    }
+    /// is control limited
+    pub fn actuator_ctrllimited(&self, id: ObjectId<obj::Actuator>) -> bool {
+        (unsafe { self.actuator_ctrllimited.add(id.index()).read() }) != 0
+    }
+    /// is force limited
+    pub fn actuator_forcelimited(&self, id: ObjectId<obj::Actuator>) -> bool {
+        (unsafe { self.actuator_forcelimited.add(id.index()).read() }) != 0
+    }
+    /// is activation limited
+    pub fn actuator_actlimited(&self, id: ObjectId<obj::Actuator>) -> bool {
+        (unsafe { self.actuator_actlimited.add(id.index()).read() }) != 0
+    }
+    /// dynamics parameters
+    pub fn actuator_dynprm(&self, id: ObjectId<obj::Actuator>) -> [f64; mjNDYN] {
+        unsafe {
+            let ptr = self.actuator_dynprm.add(id.index() * mjNDYN);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// gain parameters
+    pub fn actuator_gainprm(&self, id: ObjectId<obj::Actuator>) -> [f64; mjNGAIN] {
+        unsafe {
+            let ptr = self.actuator_gainprm.add(id.index() * mjNGAIN);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// bias parameters
+    pub fn actuator_biasprm(&self, id: ObjectId<obj::Actuator>) -> [f64; mjNBIAS] {
+        unsafe {
+            let ptr = self.actuator_biasprm.add(id.index() * mjNBIAS);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// step activation before force
+    pub fn actuator_actearly(&self, id: ObjectId<obj::Actuator>) -> bool {
+        (unsafe { self.actuator_actearly.add(id.index()).read() }) != 0
+    }
+    /// range of controls
+    pub fn actuator_ctrlrange(&self, id: ObjectId<obj::Actuator>) -> std::ops::Range<f64> {
+        unsafe {
+            let ptr = self.actuator_ctrlrange.add(id.index() * 2);
+            ptr.read().max(mjMINVAL)..ptr.add(1).read().min(mjMAXVAL)
+        }
+    }
+    /// range of forces
+    pub fn actuator_forcerange(&self, id: ObjectId<obj::Actuator>) -> std::ops::Range<f64> {
+        unsafe {
+            let ptr = self.actuator_forcerange.add(id.index() * 2);
+            ptr.read().max(mjMINVAL)..ptr.add(1).read().min(mjMAXVAL)
+        }
+    }
+    /// range of activations
+    pub fn actuator_actrange(&self, id: ObjectId<obj::Actuator>) -> std::ops::Range<f64> {
+        unsafe {
+            let ptr = self.actuator_actrange.add(id.index() * 2);
+            ptr.read().max(mjMINVAL)..ptr.add(1).read().min(mjMAXVAL)
+        }
+    }
+    /// scale length and transmitted force
+    pub fn actuator_gear(&self, id: ObjectId<obj::Actuator>) -> [f64; 6] {
+        unsafe {
+            let ptr = self.actuator_gear.add(id.index() * 6);
+            array(|i| ptr.add(i).read())
+        }
+    }
+    /// crank length for slider-crank
+    pub fn actuator_cranklength(&self, id: ObjectId<obj::Actuator>) -> f64 {
+        unsafe { self.actuator_cranklength.add(id.index()).read() }
+    }
+    /// acceleration from unit force in qpos0
+    pub fn actuator_acc0(&self, id: ObjectId<obj::Actuator>) -> f64 {
+        unsafe { self.actuator_acc0.add(id.index()).read() }
+    }
+    /// actuator length in qpos0
+    pub fn actuator_length0(&self, id: ObjectId<obj::Actuator>) -> f64 {
+        unsafe { self.actuator_length0.add(id.index()).read() }
+    }
+    /// feasible actuator length range
+    pub fn actuator_lengthrange(&self, id: ObjectId<obj::Actuator>) -> std::ops::Range<f64> {
+        unsafe {
+            let ptr = self.actuator_lengthrange.add(id.index() * 2);
+            ptr.read().max(mjMINVAL)..ptr.add(1).read().min(mjMAXVAL)
+        }
+    }
+    /// plugin instance id; None: not a plugin
+    pub fn actuator_plugin(&self, id: ObjectId<obj::Actuator>) -> Option<ObjectId<obj::Plugin>> {
+        let index = (unsafe { self.actuator_plugin.add(id.index()).read() }) as usize;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
 
-    // list of all wrap objects in tendon paths
-    wrap_type: [i32; nwrap * 1]            = "wrap object type (mjtWrap)";
-    wrap_objid: [i32; nwrap * 1]           = "object id: geom, site, joint";
-    wrap_prm: [f64; nwrap * 1]             = "divisor, joint coef, or site id";
+    /// sendor type (mjtSensor)
+    pub fn sensor_type(&self, id: ObjectId<obj::Sensor>) -> mjtSensor {
+        mjtSensor((unsafe { self.sensor_type.add(id.index()).read() }) as u32)
+    }
+    /// numeric data type (mjtDataType)
+    pub fn sensor_datatype(&self, id: ObjectId<obj::Sensor>) -> mjtDataType {
+        mjtDataType((unsafe { self.sensor_datatype.add(id.index()).read() }) as u32)
+    }
+    /// required compute stage (mjtStage)
+    pub fn sensor_needstage(&self, id: ObjectId<obj::Sensor>) -> mjtStage {
+        mjtStage((unsafe { self.sensor_needstage.add(id.index()).read() }) as u32)
+    }
+    /// type of sensorized object (mjtObj)
+    pub fn sensor_objtype(&self, id: ObjectId<obj::Sensor>) -> mjtObj {
+        mjtObj((unsafe { self.sensor_objtype.add(id.index()).read() }) as u32)
+    }
+    /// id of sensorized object
+    ///
+    /// Returns `None` if the object type does not match the sensor object type.
+    /// The sensor object type can be got (as value) with `.sensor_objtype(id)`.
+    pub fn sensor_objid<O: Obj>(&self, id: ObjectId<obj::Sensor>) -> Option<ObjectId<O>> {
+        if self.sensor_objtype(id) != O::TYPE {
+            return None;
+        }
+        let index = (unsafe { self.sensor_objid.add(id.index()).read() }) as usize;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// type of reference frame (mjtObj)
+    pub fn sensor_reftype(&self, id: ObjectId<obj::Sensor>) -> mjtObj {
+        mjtObj((unsafe { self.sensor_reftype.add(id.index()).read() }) as u32)
+    }
+    /// id of reference frame;
+    /// 
+    /// Returns `None` when it's global frame or, if the reference frame type does not match the sensor reference type.
+    /// The sensor reference type can be got (as value) with `.sensor_reftype(id)`.
+    pub fn sensor_refid<O: Obj>(&self, id: ObjectId<obj::Sensor>) -> Option<ObjectId<O>> {
+        if (unsafe { self.sensor_refid.add(id.index()).read() }) == -1 {
+            return None; // global frame
+        }
+        if self.sensor_reftype(id) != O::TYPE {
+            return None;
+        }
+        let index = (unsafe { self.sensor_refid.add(id.index()).read() }) as usize;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
+    /// number of scalar outputs
+    pub fn sensor_dim(&self, id: ObjectId<obj::Sensor>) -> usize {
+        (unsafe { self.sensor_dim.add(id.index()).read() }) as usize
+    }
+    /// address in sensor array
+    pub fn sensor_adr(&self, id: ObjectId<obj::Sensor>) -> usize {
+        (unsafe { self.sensor_adr.add(id.index()).read() }) as usize
+    }
+    /// cutoff for real and positive; 0: ignore
+    pub fn sensor_cutoff(&self, id: ObjectId<obj::Sensor>) -> f64 {
+        unsafe { self.sensor_cutoff.add(id.index()).read() }
+    }
+    /// noise standard deviation
+    pub fn sensor_noise(&self, id: ObjectId<obj::Sensor>) -> f64 {
+        unsafe { self.sensor_noise.add(id.index()).read() }
+    }
+    /// plugin instance id; None: not a plugin
+    pub fn sensor_plugin(&self, id: ObjectId<obj::Sensor>) -> Option<ObjectId<obj::Plugin>> {
+        let index = (unsafe { self.sensor_plugin.add(id.index()).read() }) as usize;
+        Some(unsafe { ObjectId::new_unchecked(index) })
+    }
 
-    // actuators
-    actuator_trntype: [i32; nu * 1]     = "transmission type (mjtTrn)";
-    actuator_dyntype: [i32; nu * 1]     = "dynamics type (mjtDyn)";
-    actuator_gaintype: [i32; nu * 1]    = "gain type (mjtGain)";
-    actuator_biastype: [i32; nu * 1]    = "bias type (mjtBias)";
-    actuator_trnid: [i32; nu * 2]       = "transmission id: joint, tendon, site";
-    actuator_actadr: [i32; nu * 1]      = "first activation address; -1: stateless";
-    actuator_actnum: [i32; nu * 1]      = "number of activation variables";
-    actuator_group: [i32; nu * 1]       = "group for visibility";
-    actuator_ctrllimited: [u8; nu * 1]  = "is control limited";
-    actuator_forcelimited: [u8; nu * 1] = "force limited";
-    actuator_actlimited: [u8; nu * 1]   = "is activation limited";
-    actuator_dynprm: [f64; nu * mjNDYN]      = "dynamics parameters";
-    actuator_gainprm: [f64; nu * mjNGAIN]     = "gain parameters";
-    actuator_biasprm: [f64; nu * mjNBIAS]     = "bias parameters";
-    actuator_actearly: [u8; nu * 1]     = "step activation before force";
-    actuator_ctrlrange: [f64; nu * 2]   = "range of controls";
-    actuator_forcerange: [f64; nu * 2]  = "range of forces";
-    actuator_actrange: [f64; nu * 2]    = "range of activations";
-    actuator_gear: [f64; nu * 6]        = "scale length and transmitted force";
-    actuator_cranklength: [f64; nu * 1] = "crank length for slider-crank";
-    actuator_acc0: [f64; nu * 1]        = "acceleration from unit force in qpos0";
-    actuator_length0: [f64; nu * 1]     = "actuator length in qpos0";
-    actuator_lengthrange: [f64; nu * 2] = "feasible actuator length range";
-    actuator_user: [f64; nu x nuser_actuator]        = "user data";
-    actuator_plugin: [i32; nu * 1]      = "plugin instance id; -1: not a plugin";
+    /// globally registered plugin slot number
+    pub fn plugin(&self, id: ObjectId<obj::Plugin>) -> usize {
+        (unsafe { self.plugin.add(id.index()).read() }) as usize
+    }
+    /// address in the plugin state array
+    pub fn plugin_stateadr(&self, id: ObjectId<obj::Plugin>) -> Option<usize> {
+        (unsafe { self.plugin_stateadr.add(id.index()).read() }).try_into().ok()
+    }
+    /// number of states in the plugin instance
+    pub fn plugin_statenum(&self, id: ObjectId<obj::Plugin>) -> usize {
+        (unsafe { self.plugin_statenum.add(id.index()).read() }) as usize
+    }
+    /// config attributes of plugin instances
+    pub fn plugin_attr(&self, id: ObjectId<obj::Plugin>) -> Option<&str> {
+        let index = self.plugin_attradr(id)?;
+        let ptr = unsafe { self.plugin_attr.add(index) };
+        if ptr.is_null() {
+            None
+        } else {
+            Some(unsafe { std::ffi::CStr::from_ptr(ptr).to_str().unwrap() })
+        }
+    }
+    /// address to each instance's config attribute
+    pub fn plugin_attradr(&self, id: ObjectId<obj::Plugin>) -> Option<usize> {
+        (unsafe { self.plugin_attradr.add(id.index()).read() }).try_into().ok()
+    }
 
-    // sensors
-    sensor_type: [i32; nsensor * 1]          = "sensor type (mjtSensor)";
-    sensor_datatype: [i32; nsensor * 1]      = "numeric data type (mjtDataType)";
-    sensor_needstage: [i32; nsensor * 1]     = "required compute stage (mjtStage)";
-    sensor_objtype: [i32; nsensor * 1]       = "type of sensorized object (mjtObj)";
-    sensor_objid: [i32; nsensor * 1]         = "id of sensorized object";
-    sensor_reftype: [i32; nsensor * 1]       = "type of reference frame (mjtObj)";
-    sensor_refid: [i32; nsensor * 1]         = "id of reference frame; -1: global frame";
-    sensor_dim: [i32; nsensor * 1]           = "number of scalar outputs";
-    sensor_adr: [i32; nsensor * 1]           = "address in sensor array";
-    sensor_cutoff: [f64; nsensor * 1]        = "cutoff for real and positive; 0: ignore";
-    sensor_noise: [f64; nsensor * 1]         = "noise standard deviation";
-    sensor_user: [f64; nsensor x nuser_sensor]          = "user data";
-    sensor_plugin: [i32; nsensor * 1]        = "plugin instance id; -1: not a plugin";
-
-    // plugin instances
-    plugin: [i32; nplugin * 1]               = "globally registered plugin slot number";
-    plugin_stateadr: [i32; nplugin * 1]      = "address in the plugin state array";
-    plugin_statenum: [i32; nplugin * 1]      = "number of states in the plugin instance";
-    plugin_attr: [i8; npluginattr * 1]          = "config attributes of plugin instances";
-    plugin_attradr: [i32; nplugin * 1]       = "address to each instance's config attrib";
-
-    // custom numeric fields
-    numeric_adr: [i32; nnumeric * 1]          = "address of field in numeric_data";
-    numeric_size: [i32; nnumeric * 1]         = "size of numeric field";
-    numeric_data: [f64; nnumericdata * 1]         = "array of all numeric fields";
-
-    // custom text fields
-    text_adr: [i32; ntext * 1]             = "address of text in text_data";
-    text_size: [i32; ntext * 1]            = "size of text field (strlen+1)";
-    text_data: [i8; ntextdata * 1]            = "array of all text fields (0-terminated)";
-
-    // custom tuple fields
-    tuple_adr: [i32; ntuple * 1]            = "address of text in text_data";
-    tuple_size: [i32; ntuple * 1]           = "number of objects in tuple";
-    tuple_objtype: [i32; ntupledata * 1]        = "array of object types in all tuples";
-    tuple_objid: [i32; ntupledata * 1]          = "array of object ids in all tuples";
-    tuple_objprm: [f64; ntupledata * 1]         = "array of object params in all tuples";
-
-    // keyframes
-    key_time: [f64; nkey * 1]             = "key time";
-    key_qpos: [f64; nkey x nq]             = "key position";
-    key_qvel: [f64; nkey x nv]             = "key velocity";
-    key_act: [f64; nkey x na]              = "key activation";
-    key_mpos: [f64; nmocap*3]             = "key mocap position                       (nkey ";
-    key_mquat: [f64; nmocap*4]            = "key mocap quaternion                     (nkey ";
-    key_ctrl: [f64; nkey x nu]             = "key control";
-
-    // names
-    name_bodyadr: [i32; nbody * 1]         = "body name pointers";
-    name_jntadr: [i32; njnt * 1]          = "joint name pointers";
-    name_geomadr: [i32; ngeom * 1]         = "geom name pointers";
-    name_siteadr: [i32; nsite * 1]         = "site name pointers";
-    name_camadr: [i32; ncam * 1]          = "camera name pointers";
-    name_lightadr: [i32; nlight * 1]        = "light name pointers";
-    name_flexadr: [i32; nflex * 1]         = "flex name pointers";
-    name_meshadr: [i32; nmesh * 1]         = "mesh name pointers";
-    name_skinadr: [i32; nskin * 1]         = "skin name pointers";
-    name_hfieldadr: [i32; nhfield * 1]       = "hfield name pointers";
-    name_texadr: [i32; ntex * 1]          = "texture name pointers";
-    name_matadr: [i32; nmat * 1]          = "material name pointers";
-    name_pairadr: [i32; npair * 1]         = "geom pair name pointers";
-    name_excludeadr: [i32; nexclude * 1]      = "exclude name pointers";
-    name_eqadr: [i32; neq * 1]           = "equality constraint name pointers";
-    name_tendonadr: [i32; ntendon * 1]       = "tendon name pointers";
-    name_actuatoradr: [i32; nu * 1]     = "actuator name pointers";
-    name_sensoradr: [i32; nsensor * 1]       = "sensor name pointers";
-    name_numericadr: [i32; nnumeric * 1]      = "numeric name pointers";
-    name_textadr: [i32; ntext * 1]         = "text name pointers";
-    name_tupleadr: [i32; ntuple * 1]        = "tuple name pointers";
-    name_keyadr: [i32; nkey * 1]          = "keyframe name pointers";
-    name_pluginadr: [i32; nplugin * 1]       = "plugin instance name pointers";
-    names: [i8; nnames * 1]                = "names of all objects, 0-terminated";
-    names_map: [i32; nnames_map * 1]            = "internal hash map of names";
-
-    // paths
-    paths: [i8; npaths * 1]                = "paths to assets, 0-terminated";
+    /// keyframe time
+    pub fn key_time(&self, id: ObjectId<obj::Key>) -> f64 {
+        unsafe { self.key_time.add(id.index()).read() }
+    }
+    /// keyframe position: f64 * `nq`
+    pub fn key_qpos(&self, id: ObjectId<obj::Key>) -> &[f64] {
+        unsafe {
+            let ptr = self.key_qpos.add(id.index() * self.nq());
+            slice(ptr, self.nq())
+        }
+    }
+    /// keyframe velocity: f64 * `nv`
+    pub fn key_qvel(&self, id: ObjectId<obj::Key>) -> &[f64] {
+        unsafe {
+            let ptr = self.key_qvel.add(id.index() * self.nv());
+            slice(ptr, self.nv())
+        }
+    }
+    /// keyframe activation: f64 * `na`
+    pub fn key_act(&self, id: ObjectId<obj::Key>) -> &[f64] {
+        unsafe {
+            let ptr = self.key_act.add(id.index() * self.na());
+            slice(ptr, self.na())
+        }
+    }
+    /// keyframe mocap position: f64 * `nmocap * 3`
+    pub fn key_mpos(&self, id: ObjectId<obj::Key>) -> &[f64] {
+        unsafe {
+            let ptr = self.key_mpos.add(id.index() * self.nmocap() * 3);
+            slice(ptr, self.nmocap() * 3)
+        }
+    }
+    /// keyframe mocap quaternion: f64 * `nmocap * 4`
+    pub fn key_mquat(&self, id: ObjectId<obj::Key>) -> &[f64] {
+        unsafe {
+            let ptr = self.key_mquat.add(id.index() * self.nmocap() * 4);
+            slice(ptr, self.nmocap() * 4)
+        }
+    }
+    /// keyframe control: f64 * `nu`
+    pub fn key_ctrl(&self, id: ObjectId<obj::Key>) -> &[f64] {
+        unsafe {
+            let ptr = self.key_ctrl.add(id.index() * self.nu());
+            slice(ptr, self.nu())
+        }
+    }
+    
+    /* TODO: *name* */
 }

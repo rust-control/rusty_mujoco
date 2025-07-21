@@ -1,4 +1,4 @@
-pub use crate::bindgen::{mjtObj, mjtWrap};
+pub use crate::bindgen::{mjtObj, mjtWrap, mjtJoint};
 
 pub trait Element: Obj + element::Sealed {}
 mod element {
@@ -212,27 +212,6 @@ impl SegmentationId {
 
 mod private { pub trait Sealed {} }
 
-pub struct WrapObjectId<W: Wrap> {
-    index: usize,
-    _type: std::marker::PhantomData<W>,
-}
-impl<W: Wrap> WrapObjectId<W> {
-    pub fn index(&self) -> usize {
-        self.index
-    }
-
-    pub fn type_(&self) -> mjtWrap {
-        W::TYPE
-    }
-
-    /// SAFETY: This function should only be used when you are sure that the index is valid for the wrap type `W: Wrap`.
-    pub unsafe fn new_unchecked(index: usize) -> Self {
-        Self {
-            index,
-            _type: std::marker::PhantomData,
-        }
-    }
-}
 pub trait Wrap: private::Sealed { const TYPE: mjtWrap; }
 pub mod wrap {
     pub struct Joint;
@@ -255,21 +234,20 @@ pub mod wrap {
     impl super::private::Sealed for Cylinder {}
     impl super::Wrap for Cylinder { const TYPE: super::mjtWrap = super::mjtWrap::CYLINDER; }
 }
-
-pub struct ObjectId<O: Obj> {
+pub struct WrapObjectId<W: Wrap> {
     index: usize,
-    _type: std::marker::PhantomData<O>,
+    _type: std::marker::PhantomData<W>,
 }
-impl<O: Obj> ObjectId<O> {
+impl<W: Wrap> WrapObjectId<W> {
     pub fn index(&self) -> usize {
         self.index
     }
 
-    pub fn type_(&self) -> mjtObj {
-        O::TYPE
+    pub fn type_(&self) -> mjtWrap {
+        W::TYPE
     }
 
-    /// SAFETY: This function should only be used when you are sure that the index is valid for the object type `O: Obj`.
+    /// SAFETY: This function should only be used when you are sure that the index is valid for the wrap type `W: Wrap`.
     pub unsafe fn new_unchecked(index: usize) -> Self {
         Self {
             index,
@@ -279,7 +257,6 @@ impl<O: Obj> ObjectId<O> {
 }
 
 pub trait Obj: private::Sealed { const TYPE: mjtObj; }
-
 macro_rules! obj_types {
     ($($name:ident as $type_name:ident ($id_bytes:literal)),* $(,)?) => {
         impl mjtObj {
@@ -350,6 +327,28 @@ obj_types! {
     FRAME as Frame(b"frame"),
 }
 
+pub struct ObjectId<O: Obj> {
+    index: usize,
+    _type: std::marker::PhantomData<O>,
+}
+impl<O: Obj> ObjectId<O> {
+    pub fn index(&self) -> usize {
+        self.index
+    }
+
+    pub fn type_(&self) -> mjtObj {
+        O::TYPE
+    }
+
+    /// SAFETY: This function should only be used when you are sure that the index is valid for the object type `O: Obj`.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self {
+            index,
+            _type: std::marker::PhantomData,
+        }
+    }
+}
+
 impl<O: Obj> std::fmt::Debug for ObjectId<O> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "ObjectId<{}>({})", obj::display_name::<O>(), self.index)
@@ -386,5 +385,111 @@ impl<O: Obj> std::cmp::PartialOrd for ObjectId<O> {// not require `O: PartialOrd
 impl<O: Obj> std::cmp::Ord for ObjectId<O> {// not require `O: Ord`
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.index.cmp(&other.index)
+    }
+}
+
+/* TODO:
+remove `Qpos`, `Qvel` and use `[f64; J::QPOS_SIZE]`, `[f64; J::QVEL_SIZE]`
+when `generic_const_exprs` language feature is stabilzed */
+pub trait Joint: private::Sealed {
+    const MJT: mjtJoint;
+    const QPOS_SIZE: usize;
+    const QVEL_SIZE: usize;
+    type Qpos: for<'q> TryFrom<&'q [f64]> + AsRef<[f64]>;
+    type Qvel: for<'q> TryFrom<&'q [f64]> + AsRef<[f64]>;
+}
+pub mod joint {
+    pub struct Free;
+    impl super::private::Sealed for Free {}
+    impl super::Joint for Free {
+        const MJT: super::mjtJoint = super::mjtJoint::FREE;
+        const QPOS_SIZE: usize = 7; // x, y, z, q, qw, qx, qy, qz
+        const QVEL_SIZE: usize = 6; // vx, vy, vz, wx, wy, wz
+        type Qpos = [f64; Self::QPOS_SIZE];
+        type Qvel = [f64; Self::QVEL_SIZE];
+    }
+
+    pub struct Ball;
+    impl super::private::Sealed for Ball {}
+    impl super::Joint for Ball {
+        const MJT: super::mjtJoint = super::mjtJoint::BALL;
+        const QPOS_SIZE: usize = 4; // qw, qx, qy, qz
+        const QVEL_SIZE: usize = 3; // ωx, ωy, ωz
+        type Qpos = [f64; Self::QPOS_SIZE];
+        type Qvel = [f64; Self::QVEL_SIZE];
+    }
+
+    pub struct Hinge;
+    impl super::private::Sealed for Hinge {}
+    impl super::Joint for Hinge {
+        const MJT: super::mjtJoint = super::mjtJoint::HINGE;
+        const QPOS_SIZE: usize = 1; // angle [rad]
+        const QVEL_SIZE: usize = 1; // angular_velocity
+        type Qpos = [f64; Self::QPOS_SIZE];
+        type Qvel = [f64; Self::QVEL_SIZE];
+    }
+
+    pub struct Slide;
+    impl super::private::Sealed for Slide {}
+    impl super::Joint for Slide {
+        const MJT: super::mjtJoint = super::mjtJoint::SLIDE;
+        const QPOS_SIZE: usize = 1; // position [m]
+        const QVEL_SIZE: usize = 1; // linear_velocity
+        type Qpos = [f64; Self::QPOS_SIZE];
+        type Qvel = [f64; Self::QVEL_SIZE];
+    }
+}
+
+pub struct JointObjectId<J: Joint> {
+    index: usize,
+    _type: std::marker::PhantomData<J>,
+}
+impl<J: Joint> JointObjectId<J> {
+    pub fn index(&self) -> usize {
+        self.index
+    }
+
+    pub fn type_(&self) -> mjtJoint {
+        J::MJT
+    }
+
+    /// SAFETY: This function should only be used when you are sure that the index is valid for the joint type `J: Joint`.
+    pub unsafe fn new_unchecked(index: usize) -> Self {
+        Self {
+            index,
+            _type: std::marker::PhantomData,
+        }
+    }
+}
+impl<J: Joint> Into<ObjectId<obj::Joint>> for JointObjectId<J> {
+    fn into(self) -> ObjectId<obj::Joint> {
+        unsafe { ObjectId::new_unchecked(self.index) }
+    }
+}
+
+impl<J: Joint> Clone for JointObjectId<J> {// not require `J: Clone`
+    fn clone(&self) -> Self {
+        Self {
+            index: self.index,
+            _type: std::marker::PhantomData,
+        }
+    }
+}
+impl<J: Joint> Copy for JointObjectId<J> {} // `J: Copy` is not required, as `usize` is always `Copy`
+
+impl<J: Joint> PartialEq for JointObjectId<J> {// not require `J: PartialEq`
+    fn eq(&self, other: &Self) -> bool {
+        self.index == other.index
+    }
+}
+impl<J: Joint> Eq for JointObjectId<J> {} // `J: Eq` is not required, as `usize` is always `Eq`
+
+impl ObjectId<obj::Joint> {
+    pub fn as_joint<J: Joint>(&self, model: &crate::mjModel) -> Option<JointObjectId<J>> {
+        if (unsafe { model.jnt_type.add(self.index).read() }) == J::MJT.0 as i32 {
+            Some(unsafe { JointObjectId::new_unchecked(self.index) })
+        } else {
+            None
+        }
     }
 }
