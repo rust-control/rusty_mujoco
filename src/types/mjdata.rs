@@ -108,8 +108,8 @@ impl mjData {
         let ptr = unsafe { self.qvel.add(model.jnt_dofadr(id).expect("Currently we don't support `weld` in `joint::`, so this will not be None...")) };
         J::Qvel::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QVEL_SIZE) }).ok().unwrap()
     }
-    pub fn set_qvel<J: Joint>(&mut self, id: JointObjectId<J>, qvel: J::Qvel) {
-        let ptr = unsafe { self.qvel.add(id.index()) };
+    pub fn set_qvel<J: Joint>(&mut self, id: JointObjectId<J>, qvel: J::Qvel, model: &mjModel) {
+        let ptr = unsafe { self.qvel.add(model.jnt_dofadr(id).expect("Currently we don't support `weld` in `joint::`, so this will not be None...")) };
         unsafe { std::ptr::copy_nonoverlapping(qvel.as_ref().as_ptr(), ptr, J::QVEL_SIZE) };
     }
 
@@ -154,6 +154,7 @@ impl mjData {
         unsafe { self.eq_active.add(id.index()).write(if value {1} else {0}) };
     }
 
+    /// `None` when the body is not a mocap body.
     pub fn mocap_pos(&self, id: ObjectId<obj::Body>, model: &mjModel) -> Option<[f64; 3]> {
         let offset = model.body_mocapid(id)?.index() * 3;
         Some(std::array::from_fn(|i| unsafe { self.mocap_pos.add(offset + i).read() }))
