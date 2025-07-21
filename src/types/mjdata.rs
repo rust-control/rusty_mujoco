@@ -74,7 +74,7 @@ impl mjData {
     }
 }
 
-use crate::{ObjectId, obj, JointObjectId, Joint};
+use crate::{ObjectId, obj, Joint};
 
 impl mjData {
     pub fn ctrl(&self, id: ObjectId<obj::Actuator>) -> f64 {
@@ -95,20 +95,20 @@ impl mjData {
         Some(())
     }
 
-    pub fn qpos<J: Joint>(&self, id: JointObjectId<J>, model: &mjModel) -> J::Qpos {
+    pub fn qpos<J: Joint>(&self, id: ObjectId<J>, model: &mjModel) -> J::Qpos {
         let ptr = unsafe { self.qpos.add(model.jnt_qposadr(id)) };
         J::Qpos::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QPOS_SIZE) }).ok().unwrap()
     }
-    pub fn set_qpos<J: Joint>(&mut self, id: JointObjectId<J>, qpos: J::Qpos, model: &mjModel) {
+    pub fn set_qpos<J: Joint>(&mut self, id: ObjectId<J>, qpos: J::Qpos, model: &mjModel) {
         let ptr = unsafe { self.qpos.add(model.jnt_qposadr(id)) };
         unsafe { std::ptr::copy_nonoverlapping(qpos.as_ref().as_ptr(), ptr, J::QPOS_SIZE) };
     }
 
-    pub fn qvel<J: Joint>(&self, id: JointObjectId<J>, model: &mjModel) -> J::Qvel {
+    pub fn qvel<J: Joint>(&self, id: ObjectId<J>, model: &mjModel) -> J::Qvel {
         let ptr = unsafe { self.qvel.add(model.jnt_dofadr(id).expect("Currently we don't support `weld` in `joint::`, so this will not be None...")) };
         J::Qvel::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QVEL_SIZE) }).ok().unwrap()
     }
-    pub fn set_qvel<J: Joint>(&mut self, id: JointObjectId<J>, qvel: J::Qvel, model: &mjModel) {
+    pub fn set_qvel<J: Joint>(&mut self, id: ObjectId<J>, qvel: J::Qvel, model: &mjModel) {
         let ptr = unsafe { self.qvel.add(model.jnt_dofadr(id).expect("Currently we don't support `weld` in `joint::`, so this will not be None...")) };
         unsafe { std::ptr::copy_nonoverlapping(qvel.as_ref().as_ptr(), ptr, J::QVEL_SIZE) };
     }

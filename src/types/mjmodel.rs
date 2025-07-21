@@ -112,7 +112,7 @@ pub use crate::bindgen::{
 };
 use crate::{
     helper::Rgba,
-    ObjectId, Obj, obj, JointObjectId, Joint, NodeId, VertexId, BoneId, ElementId, ElementDataId, EdgeId, EdgeDataId, ShellDataId, EvPairId, TexcoordId, FaceId, NormalId, TexDataId, HFieldDataId, BoneVertexId,
+    ObjectId, Obj, obj, Joint, NodeId, VertexId, BoneId, ElementId, ElementDataId, EdgeId, EdgeDataId, ShellDataId, EvPairId, TexcoordId, FaceId, NormalId, TexDataId, HFieldDataId, BoneVertexId,
 };
 use std::{
     slice::from_raw_parts as slice,
@@ -121,26 +121,21 @@ use std::{
 
 impl mjModel {
     pub fn object_id<O: Obj>(&self, name: &str) -> Option<ObjectId<O>> {
-        crate::mj_name2id::<O>(self, name)
-    }
-    
-    pub fn joint_object_id<J: Joint>(&self, name: &str) -> Option<JointObjectId<J>> {
-        let object_id = self.object_id::<obj::Joint>(name)?;
-        object_id.as_joint::<J>(self)
+        O::object_id(self, name)
     }
 }
 
 #[allow(non_snake_case)]
 impl mjModel {
     /// qpos values at default pose
-    pub fn qpos0<J: Joint>(&self, joint_id: JointObjectId<J>) -> J::Qpos {
+    pub fn qpos0<J: Joint>(&self, joint_id: ObjectId<J>) -> J::Qpos {
         unsafe {
             let ptr = self.qpos0.add(self.jnt_qposadr.add(joint_id.index()).read() as usize);
             J::Qpos::try_from(slice(ptr, J::QPOS_SIZE)).ok().unwrap()
         }
     }    
     /// reference pose for springs
-    pub fn qpos_spring<J: Joint>(&self, joint_id: JointObjectId<J>) -> J::Qpos {
+    pub fn qpos_spring<J: Joint>(&self, joint_id: ObjectId<J>) -> J::Qpos {
         unsafe {
             let ptr = self.qpos_spring.add(self.jnt_qposadr.add(joint_id.index()).read() as usize);
             J::Qpos::try_from(slice(ptr, J::QPOS_SIZE)).ok().unwrap()
