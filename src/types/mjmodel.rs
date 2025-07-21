@@ -312,87 +312,87 @@ impl mjModel {
     }
 
     /// type of joint
-    pub fn jnt_type(&self, id: ObjectId<obj::Joint>) -> mjtJoint {
-        mjtJoint((unsafe { self.jnt_type.add(id.index()).read() }) as u32)
+    pub fn jnt_type(&self, id: impl Into<ObjectId<obj::Joint>>) -> mjtJoint {
+        mjtJoint((unsafe { self.jnt_type.add(id.into().index()).read() }) as u32)
     }
     /// start addr in 'qpos' for joint's data
-    pub fn jnt_qposadr(&self, id: ObjectId<obj::Joint>) -> usize {
-        (unsafe { self.jnt_qposadr.add(id.index()).read() }) as usize
+    pub fn jnt_qposadr(&self, id: impl Into<ObjectId<obj::Joint>>) -> usize {
+        (unsafe { self.jnt_qposadr.add(id.into().index()).read() }) as usize
     }
     /// start addr in 'qvel' for joint's data
-    pub fn jnt_dofadr(&self, id: ObjectId<obj::Joint>) -> Option<usize> {
-        (unsafe { self.jnt_dofadr.add(id.index()).read() }).try_into().ok()
+    pub fn jnt_dofadr(&self, id: impl Into<ObjectId<obj::Joint>>) -> Option<usize> {
+        (unsafe { self.jnt_dofadr.add(id.into().index()).read() }).try_into().ok()
     }
     /// id of joint's body
-    pub fn jnt_bodyid(&self, id: ObjectId<obj::Joint>) -> ObjectId<obj::Body> {
-        let index = (unsafe { self.jnt_bodyid.add(id.index()).read() }) as usize;
+    pub fn jnt_bodyid(&self, id: impl Into<ObjectId<obj::Joint>>) -> ObjectId<obj::Body> {
+        let index = (unsafe { self.jnt_bodyid.add(id.into().index()).read() }) as usize;
         unsafe { ObjectId::new_unchecked(index) }
     }
     /// group for visibility
-    pub fn jnt_group(&self, id: ObjectId<obj::Joint>) -> i32 {
-        unsafe { self.jnt_group.add(id.index()).read() }
+    pub fn jnt_group(&self, id: impl Into<ObjectId<obj::Joint>>) -> i32 {
+        unsafe { self.jnt_group.add(id.into().index()).read() }
     }
     /// does joint have limits
-    pub fn jnt_limited(&self, id: ObjectId<obj::Joint>) -> bool {
-        (unsafe { self.jnt_limited.add(id.index()).read() }) != 0
+    pub fn jnt_limited(&self, id: impl Into<ObjectId<obj::Joint>>) -> bool {
+        (unsafe { self.jnt_limited.add(id.into().index()).read() }) != 0
     }
     /// does joint have actuator force limits
-    pub fn jnt_actfrclimited(&self, id: ObjectId<obj::Joint>) -> bool {
-        (unsafe { self.jnt_actfrclimited.add(id.index()).read() }) != 0
+    pub fn jnt_actfrclimited(&self, id: impl Into<ObjectId<obj::Joint>>) -> bool {
+        (unsafe { self.jnt_actfrclimited.add(id.into().index()).read() }) != 0
     }
     /// is gravcomp force applied via actuators
-    pub fn jnt_actgravcomp(&self, id: ObjectId<obj::Joint>) -> bool {
-        (unsafe { self.jnt_actgravcomp.add(id.index()).read() }) != 0
+    pub fn jnt_actgravcomp(&self, id: impl Into<ObjectId<obj::Joint>>) -> bool {
+        (unsafe { self.jnt_actgravcomp.add(id.into().index()).read() }) != 0
     }
     /// constraint solver reference: limit
-    pub fn jnt_solref(&self, id: ObjectId<obj::Joint>) -> [f64; mjNREF] {
+    pub fn jnt_solref(&self, id: impl Into<ObjectId<obj::Joint>>) -> [f64; mjNREF] {
         unsafe {
-            let ptr = self.jnt_solref.add(id.index() * mjNREF);
+            let ptr = self.jnt_solref.add(id.into().index() * mjNREF);
             array(|i| ptr.add(i).read())
         }
     }
     /// constraint solver impedance: limit
-    pub fn jnt_solimp(&self, id: ObjectId<obj::Joint>) -> [f64; mjNIMP] {
+    pub fn jnt_solimp(&self, id: impl Into<ObjectId<obj::Joint>>) -> [f64; mjNIMP] {
         unsafe {
-            let ptr = self.jnt_solimp.add(id.index() * mjNIMP);
+            let ptr = self.jnt_solimp.add(id.into().index() * mjNIMP);
             array(|i| ptr.add(i).read())
         }
     }
     /// local anchor position
-    pub fn jnt_pos(&self, id: ObjectId<obj::Joint>) -> [f64; 3] {
+    pub fn jnt_pos(&self, id: impl Into<ObjectId<obj::Joint>>) -> [f64; 3] {
         unsafe {
-            let ptr = self.jnt_pos.add(id.index() * 3);
+            let ptr = self.jnt_pos.add(id.into().index() * 3);
             array(|i| ptr.add(i).read())
         }
     }
     /// local joint axis
-    pub fn jnt_axis(&self, id: ObjectId<obj::Joint>) -> [f64; 3] {
+    pub fn jnt_axis(&self, id: impl Into<ObjectId<obj::Joint>>) -> [f64; 3] {
         unsafe {
-            let ptr = self.jnt_axis.add(id.index() * 3);
+            let ptr = self.jnt_axis.add(id.into().index() * 3);
             array(|i| ptr.add(i).read())
         }
     }
     /// stiffness coefficient
-    pub fn jnt_stiffness(&self, id: ObjectId<obj::Joint>) -> f64 {
-        unsafe { self.jnt_stiffness.add(id.index()).read() }
+    pub fn jnt_stiffness(&self, id: impl Into<ObjectId<obj::Joint>>) -> f64 {
+        unsafe { self.jnt_stiffness.add(id.into().index()).read() }
     }
     /// joint limits
-    pub fn jnt_range(&self, id: ObjectId<obj::Joint>) -> std::ops::Range<f64> {
+    pub fn jnt_range(&self, id: impl Into<ObjectId<obj::Joint>>) -> std::ops::Range<f64> {
         unsafe {
-            let ptr = self.jnt_range.add(id.index() * 2);
+            let ptr = self.jnt_range.add(id.into().index() * 2);
             ptr.read()..ptr.add(1).read()
         }
     }
     /// range of total actuator force
-    pub fn jnt_actfrcrange(&self, id: ObjectId<obj::Joint>) -> std::ops::Range<f64> {
+    pub fn jnt_actfrcrange(&self, id: impl Into<ObjectId<obj::Joint>>) -> std::ops::Range<f64> {
         unsafe {
-            let ptr = self.jnt_actfrcrange.add(id.index() * 2);
+            let ptr = self.jnt_actfrcrange.add(id.into().index() * 2);
             ptr.read()..ptr.add(1).read()
         }
     }
     /// min distance for limit detection
-    pub fn jnt_margin(&self, id: ObjectId<obj::Joint>) -> f64 {
-        unsafe { self.jnt_margin.add(id.index()).read() }
+    pub fn jnt_margin(&self, id: impl Into<ObjectId<obj::Joint>>) -> f64 {
+        unsafe { self.jnt_margin.add(id.into().index()).read() }
     }
 
     /// id of dof's body

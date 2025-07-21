@@ -74,6 +74,113 @@ impl mjData {
     }
 }
 
+use crate::{ObjectId, obj, JointObjectId, Joint};
+
+impl mjData {
+    pub fn ctrl(&self, id: ObjectId<obj::Actuator>) -> f64 {
+        unsafe { self.ctrl.add(id.index()).read() }
+    }
+    pub fn set_ctrl(&mut self, id: ObjectId<obj::Actuator>, value: f64) {
+        unsafe { self.ctrl.add(id.index()).write(value) };
+    }
+
+    pub fn act(&self, id: ObjectId<obj::Actuator>, model: &mjModel) -> Option<f64> {
+        let offset = model.actuator_actadr(id)?;
+        Some(unsafe { self.act.add(offset).read() })
+    }
+    /// Set the actuator activation value. `None` when the actuator is stateless.
+    pub fn set_act(&mut self, id: ObjectId<obj::Actuator>, value: f64, model: &mjModel) -> Option<()> {
+        let offset = model.actuator_actadr(id)?;
+        unsafe { self.act.add(offset).write(value) };
+        Some(())
+    }
+
+    pub fn qpos<J: Joint>(&self, id: JointObjectId<J>, model: &mjModel) -> J::Qpos {
+        let ptr = unsafe { self.qpos.add(model.jnt_qposadr(id)) };
+        J::Qpos::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QPOS_SIZE) }).ok().unwrap()
+    }
+    pub fn set_qpos<J: Joint>(&mut self, id: JointObjectId<J>, qpos: J::Qpos, model: &mjModel) {
+        let ptr = unsafe { self.qpos.add(model.jnt_qposadr(id)) };
+        unsafe { std::ptr::copy_nonoverlapping(qpos.as_ref().as_ptr(), ptr, J::QPOS_SIZE) };
+    }
+
+    pub fn qvel<J: Joint>(&self, id: JointObjectId<J>, model: &mjModel) -> J::Qvel {
+        let ptr = unsafe { self.qvel.add(model.jnt_dofadr(id).expect("Currently we don't support `weld` in `joint::`, so this will not be None...")) };
+        J::Qvel::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QVEL_SIZE) }).ok().unwrap()
+    }
+    pub fn set_qvel<J: Joint>(&mut self, id: JointObjectId<J>, qvel: J::Qvel) {
+        let ptr = unsafe { self.qvel.add(id.index()) };
+        unsafe { std::ptr::copy_nonoverlapping(qvel.as_ref().as_ptr(), ptr, J::QVEL_SIZE) };
+    }
+
+    pub fn qacc_warmstart(&self, id: ObjectId<obj::Dof>) -> f64 {
+        unsafe { self.qacc_warmstart.add(id.index()).read() }
+    }
+    pub fn set_qacc_warmstart(&mut self, id: ObjectId<obj::Dof>, value: f64) {
+        unsafe { self.qacc_warmstart.add(id.index()).write(value) };
+    }
+
+    pub fn plugin_state(&self, id: ObjectId<obj::Plugin>, model: &mjModel) -> Option<f64> {
+        let offset = model.plugin_stateadr(id)?;
+        Some(unsafe { self.plugin_state.add(offset).read() })
+    }
+    /// Set the plugin state value. Returns `None` when the plugin is stateless.
+    pub fn set_plugin_state(&mut self, id: ObjectId<obj::Plugin>, value: f64, model: &mjModel) -> Option<()> {
+        let offset = model.plugin_stateadr(id)?;
+        unsafe { self.plugin_state.add(offset).write(value) };
+        Some(())
+    }
+
+    pub fn qfrc_applied(&self, id: ObjectId<obj::Dof>) -> f64 {
+        unsafe { self.qfrc_applied.add(id.index()).read() }
+    }
+    pub fn set_qfrc_applied(&mut self, id: ObjectId<obj::Dof>, value: f64) {
+        unsafe { self.qfrc_applied.add(id.index()).write(value) };
+    }
+
+    pub fn xfrc_applied(&self, id: ObjectId<obj::Body>) -> [f64; 6] {
+        let ptr = unsafe { self.xfrc_applied.add(id.index() * 6) };
+        std::array::from_fn(|i| unsafe { ptr.add(i).read() })
+    }
+    pub fn set_xfrc_applied(&mut self, id: ObjectId<obj::Body>, value: [f64; 6]) {
+        let ptr = unsafe { self.xfrc_applied.add(id.index() * 6) };
+        unsafe { std::ptr::copy_nonoverlapping(value.as_ptr(), ptr, value.len()) };
+    }
+
+    pub fn eq_active(&self, id: ObjectId<obj::Equality>) -> bool {
+        (unsafe { self.eq_active.add(id.index()).read() }) != 0
+    }
+    pub fn set_eq_active(&mut self, id: ObjectId<obj::Equality>, value: bool) {
+        unsafe { self.eq_active.add(id.index()).write(if value {1} else {0}) };
+    }
+
+    pub fn mocap_pos(&self, id: ObjectId<obj::Body>, model: &mjModel) -> Option<[f64; 3]> {
+        let offset = model.body_mocapid(id)?.index() * 3;
+        Some(std::array::from_fn(|i| unsafe { self.mocap_pos.add(offset + i).read() }))
+    }
+    /// `None` when the body is not a mocap body.
+    pub fn set_mocap_pos(&mut self, id: ObjectId<obj::Body>, pos: [f64; 3], model: &mjModel) -> Option<()> {
+        let offset = model.body_mocapid(id)?.index() * 3;
+        unsafe { std::ptr::copy_nonoverlapping(pos.as_ptr(), self.mocap_pos.add(offset), pos.len()) };
+        Some(())
+    }
+
+    pub fn mocap_quat(&self, id: ObjectId<obj::Body>, model: &mjModel) -> Option<[f64; 4]> {
+        let offset = model.body_mocapid(id)?.index() * 4;
+        Some(std::array::from_fn(|i| unsafe { self.mocap_quat.add(offset + i).read() }))
+    }
+    /// `None` when the body is not a mocap body.
+    pub fn set_mocap_quat(&mut self, id: ObjectId<obj::Body>, quat: [f64; 4], model: &mjModel) -> Option<()> {
+        let offset = model.body_mocapid(id)?.index() * 4;
+        unsafe { std::ptr::copy_nonoverlapping(quat.as_ptr(), self.mocap_quat.add(offset), quat.len()) };
+        Some(())
+    }
+}
+
+/*
+ * TODO: provide idiomatic accessors also for the following buffers...
+ */
+
 // transmute: `u8` -> `bool`
 macro_rules! buffer_slices_depending_on_model {
     ($($name:ident : [$T:ty; $size:ident $(* $lit:literal)? $(* $var:ident)?] = $description:literal;)*) => {
@@ -116,23 +223,6 @@ macro_rules! buffer_slices_depending_on_model {
 }
 // user-touchable buffers
 buffer_slices_depending_on_model! {
-    // state
-    qpos / qpos_mut: [f64; nq] = "position (nq x 1)";
-    qvel / qvel_mut: [f64; nv] = "velocity (nv x 1)";
-    act / act_mut: [f64; na] = "actuator activation (na x 1)";
-    qacc_warmstart / qacc_warmstart_mut: [f64; nv] = "acceleration used for warmstart (nv x 1)";
-    plugin_state / plugin_state_mut: [f64; npluginstate] = "plugin state (npluginstate x 1)";
-    
-    // control
-    ctrl / ctrl_mut: [f64; nu] = "control (nu x 1)";
-    qfrc_applied / qfrc_applied_mut: [f64; nv] = "applied generalized force (nv x 1)";
-    xfrc_applied / xfrc_applied_mut: [f64; nbody * 6] = "applied Cartesian force/torque (nbody x 6)";
-    eq_active / eq_active_mut: [bool; neq] = "enable/disable constraints (neq x 1)";
-
-    // mocap data
-    mocap_pos / mocap_pos_mut: [f64; nmocap * 3] = "positions of mocap bodies (nmocap x 3)";
-    mocap_quat / mocap_quat_mut: [f64; nmocap * 4] = "orientations of mocap bodies (nmocap x 4)";
-
     // user data
     userdata / userdata_mut: [f64; nuserdata] = "user data, not touched by engine (nuserdata x 1)";
 }
