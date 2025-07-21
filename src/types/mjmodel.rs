@@ -108,7 +108,6 @@ derive_fields_mapping!(mjModel {
 pub use crate::bindgen::{
     mjtSameFrame, mjtJoint, mjtGeom, mjtCamLight, mjtFlexSelf, mjtTexture, mjtEq, mjtObj, mjtWrap, mjtTrn, mjtDyn, mjtGain, mjtBias, mjtSensor, mjtDataType, mjtStage,
     mjNREF, mjNIMP, mjNFLUID, mjNTEXROLE, mjNEQDATA, mjNDYN, mjNGAIN, mjNBIAS,
-    mjMAXVAL, mjMINVAL
 };
 use crate::{
     helper::Rgba,
@@ -372,18 +371,20 @@ impl mjModel {
         unsafe { self.jnt_stiffness.add(id.into().index()).read() }
     }
     /// joint limits
-    pub fn jnt_range(&self, id: impl Into<ObjectId<obj::Joint>>) -> std::ops::Range<f64> {
-        unsafe {
+    pub fn jnt_range(&self, id: impl Into<ObjectId<obj::Joint>>) -> Option<std::ops::Range<f64>> {
+        let range = unsafe {
             let ptr = self.jnt_range.add(id.into().index() * 2);
             ptr.read()..ptr.add(1).read()
-        }
+        };
+        (range != (0.0..0.0)).then_some(range)
     }
     /// range of total actuator force
-    pub fn jnt_actfrcrange(&self, id: impl Into<ObjectId<obj::Joint>>) -> std::ops::Range<f64> {
-        unsafe {
+    pub fn jnt_actfrcrange(&self, id: impl Into<ObjectId<obj::Joint>>) -> Option<std::ops::Range<f64>> {
+        let range = unsafe {
             let ptr = self.jnt_actfrcrange.add(id.into().index() * 2);
             ptr.read()..ptr.add(1).read()
-        }
+        };
+        (range != (0.0..0.0)).then_some(range)
     }
     /// min distance for limit detection
     pub fn jnt_margin(&self, id: impl Into<ObjectId<obj::Joint>>) -> f64 {
@@ -1753,25 +1754,28 @@ impl mjModel {
         (unsafe { self.actuator_actearly.add(id.index()).read() }) != 0
     }
     /// range of controls
-    pub fn actuator_ctrlrange(&self, id: ObjectId<obj::Actuator>) -> std::ops::Range<f64> {
-        unsafe {
+    pub fn actuator_ctrlrange(&self, id: ObjectId<obj::Actuator>) -> Option<std::ops::Range<f64>> {
+        let range = unsafe {
             let ptr = self.actuator_ctrlrange.add(id.index() * 2);
-            ptr.read().max(mjMINVAL)..ptr.add(1).read().min(mjMAXVAL)
-        }
+            ptr.read()..ptr.add(1).read()
+        };
+        (range != (0.0..0.0)).then_some(range)
     }
     /// range of forces
-    pub fn actuator_forcerange(&self, id: ObjectId<obj::Actuator>) -> std::ops::Range<f64> {
-        unsafe {
+    pub fn actuator_forcerange(&self, id: ObjectId<obj::Actuator>) -> Option<std::ops::Range<f64>> {
+        let range = unsafe {
             let ptr = self.actuator_forcerange.add(id.index() * 2);
-            ptr.read().max(mjMINVAL)..ptr.add(1).read().min(mjMAXVAL)
-        }
+            ptr.read()..ptr.add(1).read()
+        };
+        (range != (0.0..0.0)).then_some(range)
     }
     /// range of activations
-    pub fn actuator_actrange(&self, id: ObjectId<obj::Actuator>) -> std::ops::Range<f64> {
-        unsafe {
+    pub fn actuator_actrange(&self, id: ObjectId<obj::Actuator>) -> Option<std::ops::Range<f64>> {
+        let range = unsafe {
             let ptr = self.actuator_actrange.add(id.index() * 2);
-            ptr.read().max(mjMINVAL)..ptr.add(1).read().min(mjMAXVAL)
-        }
+            ptr.read()..ptr.add(1).read()
+        };
+        (range != (0.0..0.0)).then_some(range)
     }
     /// scale length and transmitted force
     pub fn actuator_gear(&self, id: ObjectId<obj::Actuator>) -> [f64; 6] {
@@ -1796,7 +1800,7 @@ impl mjModel {
     pub fn actuator_lengthrange(&self, id: ObjectId<obj::Actuator>) -> std::ops::Range<f64> {
         unsafe {
             let ptr = self.actuator_lengthrange.add(id.index() * 2);
-            ptr.read().max(mjMINVAL)..ptr.add(1).read().min(mjMAXVAL)
+            ptr.read()..ptr.add(1).read()
         }
     }
     /// plugin instance id; None: not a plugin
