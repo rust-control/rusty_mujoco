@@ -42,6 +42,12 @@ jobs:
           source ~/.bashrc
           echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
           echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
+          exec $SHELL -l
+          echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
+          echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
+          source ~/.bashrc
+          echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
+          echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
       
       - name: check succeeds with MUJOCO_LIB
         run: |
