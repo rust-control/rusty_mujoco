@@ -35,12 +35,16 @@ jobs:
           tar -xzf mujoco-3.3.4-linux-x86_64.tar.gz
           echo "export MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.4-linux-x86_64/lib" >> ~/.bashrc
           echo "export LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.4-linux-x86_64/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
+          echo "[DEBUG] ~/.bashrc contents:"
+          cat ~/.bashrc
       
       - name: check succeeds with MUJOCO_LIB
         run: |
+          echo "[DEBUG] ~/.bashrc contents:"
+          cat ~/.bashrc
           source ~/.bashrc
-          echo "[DEBUG] MUJOCO_LIB is set to: $MUJOCO_LIB"
-          echo "[DEBUG] LD_LIBRARY_PATH is set to: $LD_LIBRARY_PATH"
+          echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
+          echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
           if cargo check; then
             echo "cargo check succeeded with mujoco, as expected."
           else
