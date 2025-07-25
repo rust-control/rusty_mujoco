@@ -40,16 +40,27 @@ jobs:
         run: |
           echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
           echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
+          echo "[DEBUG] MUJOCO_LIB has:"
+          ls -al "$MUJOCO_LIB"
+          if [ -f "$MUJOCO_LIB/libmujoco.so" ]; then
+            echo "libmujoco.so found in MUJOCO_LIB ('$MUJOCO_LIB')"
+          else
+            echo "libmujoco.so not found in MUJOCO_LIB ('$MUJOCO_LIB')"
+            exit 1
+          fi
+          MUJOCO_ROOT="$MUJOCO_LIB/.."
           MUJOCO_INCLUDE="$MUJOCO_LIB/../include"
           MUJOCO_INCLUDE_MUJOCO="$MUJOCO_INCLUDE/mujoco"
+          echo "[DEBUG] MUJOCO_ROOT ('$MUJOCO_ROOT') has:"
+          ls -al "$MUJOCO_ROOT"
           echo "[DEBUG] MUJOCO_INCLUDE ('$MUJOCO_INCLUDE') has:"
           ls -al "$MUJOCO_INCLUDE"
           echo "[DEBUG] MUJOCO_INCLUDE_MUJOCO ('$MUJOCO_INCLUDE_MUJOCO') has:"
           ls -al "$MUJOCO_INCLUDE_MUJOCO"
           if [ -f "$MUJOCO_INCLUDE_MUJOCO/mujoco.h" ]; then
-            echo "mujoco.h found in \$MUJOCO_INCLUDE_MUJOCO('$MUJOCO_INCLUDE_MUJOCO')"
+            echo "mujoco.h found in MUJOCO_INCLUDE_MUJOCO ('$MUJOCO_INCLUDE_MUJOCO')"
           else
-            echo "mujoco.h not found in \$MUJOCO_INCLUDE_MUJOCO('$MUJOCO_INCLUDE_MUJOCO')"
+            echo "mujoco.h not found in MUJOCO_INCLUDE_MUJOCO ('$MUJOCO_INCLUDE_MUJOCO')"
             exit 1
           fi
           echo '============================================================='
