@@ -18,4 +18,30 @@ jobs:
 
       - run: rustup update && rustup default ${{ matrix.toolchain }}
 
-      - run: cargo check
+      - name: check fails without MUJOCO_LIB
+        run: |
+          if [ cargo check ]; then
+            echo "Cargo check succeeded without mujoco, which is unexpected."
+            exit 1
+          else
+            echo "Cargo check failed as expected without mujoco."
+          fi
+          
+      - name: install mujoco and set MUJOCO_LIB
+        run: |
+          mkdir -p $HOME/.mujoco
+          cd $HOME/.mujoco
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.4/mujoco-3.3.4-linux-x86_64.tar.gz
+          tar -xzf mujoco-3.3.4-linux-x86_64.tar.gz
+          echo "export MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.4-linux-x86_64/lib" >> ~/.bashrc
+          echo "export LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.4-linux-x86_64/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
+          source ~/.bashrc
+      
+      - name: check succeeds with MUJOCO_LIB
+        run: |
+          if [ cargo check ]; then
+            echo "Cargo check succeeded with mujoco, as expected."
+          else
+            echo "Cargo check failed with mujoco, which is unexpected."
+            exit 1
+          fi
