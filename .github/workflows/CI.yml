@@ -20,11 +20,11 @@ jobs:
 
       - name: check fails without MUJOCO_LIB
         run: |
-          if [ cargo check ]; then
-            echo "Cargo check succeeded without mujoco, which is unexpected."
+          if cargo check; then
+            echo "cargo check succeeded without mujoco, which is unexpected."
             exit 1
           else
-            echo "Cargo check failed as expected without mujoco."
+            echo "cargo check failed as expected without mujoco."
           fi
           
       - name: install mujoco and set MUJOCO_LIB
@@ -39,9 +39,9 @@ jobs:
       
       - name: check succeeds with MUJOCO_LIB
         run: |
-          if [ cargo check ]; then
-            echo "Cargo check succeeded with mujoco, as expected."
+          if cargo check; then
+            echo "cargo check succeeded with mujoco, as expected."
           else
-            echo "Cargo check failed with mujoco, which is unexpected."
+            echo "cargo check failed with mujoco, which is unexpected."
             exit 1
           fi
