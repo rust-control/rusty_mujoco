@@ -33,13 +33,13 @@ jobs:
           cd $HOME/.mujoco
           wget https://github.com/google-deepmind/mujoco/releases/download/3.3.4/mujoco-3.3.4-linux-x86_64.tar.gz
           tar -xzf mujoco-3.3.4-linux-x86_64.tar.gz
-          echo 'export MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.4-linux-x86_64/lib' >> $GITHUB_ENV
-          echo 'export LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.4-linux-x86_64/lib:$LD_LIBRARY_PATH' >> $GITHUB_ENV
+          echo 'MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.4-linux-x86_64/lib' >> $GITHUB_ENV
+          echo 'LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.4-linux-x86_64/lib:$LD_LIBRARY_PATH' >> $GITHUB_ENV
           
       - name: check succeeds with MUJOCO_LIB
         run: |
-          echo "[DEBUG] MUJOCO_LIB is set to: $MUJOCO_LIB"
-          echo "[DEBUG] LD_LIBRARY_PATH is set to: $LD_LIBRARY_PATH"
+          echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
+          echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
           if cargo check; then
             echo 'cargo check succeeded with mujoco, as expected.'
           else
