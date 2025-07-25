@@ -16,7 +16,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: rustup update && rustup default ${{ matrix.toolchain }}
+      - run: |
+          rustup update
+          rustup default ${{ matrix.toolchain }}
+          rustup component add rustfmt  ### required for the build script to work ###
 
       - name: check fails without MUJOCO_LIB
         run: |

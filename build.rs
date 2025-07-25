@@ -35,6 +35,17 @@ impl bindgen::callbacks::ParseCallbacks for MakeMjnConstantsCallbacks {
 fn main() {
     if option_env!("DOCS_RS").is_some() { return }
 
+    /*
+     * The hand-process step after `bindgen` generation assumes that
+     * `cargo fmt` (and then it's automatically applied to the
+     * bindgen's raw output, and the hand-processing correctly works).
+     * This is a **requirement** for the build script to continue.
+     */
+    assert!(
+        std::process::Command::new("cargo").args(["help", "fmt"]).status().is_ok_and(|s| s.success()),
+        "`cargo fmt` is not available; This build script can't continue without it."
+    );
+
     let src_dir = Path::new(&env!("CARGO_MANIFEST_DIR")).join("src");
     let bindgen_h = src_dir.join("bindgen.h").to_str().unwrap().to_owned();
     let bindgen_rs = src_dir.join("bindgen.rs").to_str().unwrap().to_owned();
@@ -72,7 +83,7 @@ fn main() {
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .generate().expect("Failed to generate bindings")
         .write(Box::new(&mut bindings)).expect("Failed to write bindings to file");
-
+    
     /*
         There seems to be no way to:
         
