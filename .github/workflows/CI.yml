@@ -38,6 +38,8 @@ jobs:
           
       - name: check succeeds with MUJOCO_LIB
         run: |
+          echo "[DEBUG] MUJOCO_LIB is set to: $MUJOCO_LIB"
+          echo "[DEBUG] LD_LIBRARY_PATH is set to: $LD_LIBRARY_PATH"
           if cargo check; then
             echo 'cargo check succeeded with mujoco, as expected.'
           else
