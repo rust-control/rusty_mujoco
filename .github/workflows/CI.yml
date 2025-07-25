@@ -21,10 +21,10 @@ jobs:
       - name: check fails without MUJOCO_LIB
         run: |
           if cargo check; then
-            echo "cargo check succeeded without mujoco, which is unexpected."
+            echo 'cargo check succeeded without mujoco, which is unexpected.'
             exit 1
           else
-            echo "cargo check failed as expected without mujoco."
+            echo 'cargo check failed as expected without mujoco.'
           fi
           
       - name: install mujoco and set MUJOCO_LIB
@@ -37,6 +37,11 @@ jobs:
           echo 'export LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.4-linux-x86_64/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
           echo "[DEBUG] ~/.bashrc contents:"
           cat ~/.bashrc
+          echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
+          echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
+          source ~/.bashrc
+          echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
+          echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
       
       - name: check succeeds with MUJOCO_LIB
         run: |
@@ -46,8 +51,8 @@ jobs:
           echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
           echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
           if cargo check; then
-            echo "cargo check succeeded with mujoco, as expected."
+            echo 'cargo check succeeded with mujoco, as expected.'
           else
-            echo "cargo check failed with mujoco, which is unexpected."
+            echo 'cargo check failed with mujoco, which is unexpected.'
             exit 1
           fi
