@@ -31,12 +31,12 @@ jobs:
         run: |
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.4/mujoco-3.3.4-linux-x86_64.tar.gz
-          tar -xzf mujoco-3.3.4-linux-x86_64.tar.gz
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
+          tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
           echo "[DEBUG] `ls -al` here:"
           ls -al
-          echo "MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.4/lib" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.4/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.2/lib" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
       - name: check succeeds with MUJOCO_LIB
         run: |

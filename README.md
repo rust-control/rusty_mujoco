@@ -17,11 +17,11 @@
 
 ## MuJoCo Version
 
-_**3.3.\***_
+_**3.3.2**_
 
 ## Requirements
 
-- [MuJoCo 3.3.*](https://github.com/google-deepmind/mujoco/releases) downloaded and expanded
+- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases) downloaded and expanded
 - `MUJOCO_LIB` environment variable containing the MuJoCo's **`lib` directory** path
 
 ## Note & Tips
