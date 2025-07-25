@@ -66,9 +66,20 @@ jobs:
             exit 1
           fi
           echo '============================================================='
+          if [ -f ./src/bindgen.rs ]; then
+            echo 'bindgen.rs exists, as expected.'
+          else
+            echo 'bindgen.rs does not exist, which is unexpected.'
+            exit 1
+          fi
+          echo "[DEBUG] bindgen.rs content:"
+          cat ./src/bindgen.rs
+          echo '============================================================='
           if cargo build; then
             echo 'cargo check succeeded with mujoco, as expected.'
           else
             echo 'cargo check failed with mujoco, which is unexpected.'
+            echo "[DEBUG] bindgen.rs content:"
+            cat ./src/bindgen.rs
             exit 1
           fi
