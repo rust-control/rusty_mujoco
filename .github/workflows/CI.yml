@@ -40,6 +40,19 @@ jobs:
         run: |
           echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
           echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
+          MUJOCO_INCLUDE="$MUJOCO_LIB/../include"
+          MUJOCO_INCLUDE_MUJOCO="$MUJOCO_INCLUDE/mujoco"
+          echo "[DEBUG] MUJOCO_INCLUDE ('$MUJOCO_INCLUDE') has:"
+          ls -al "$MUJOCO_INCLUDE"
+          echo "[DEBUG] MUJOCO_INCLUDE_MUJOCO ('$MUJOCO_INCLUDE_MUJOCO') has:"
+          ls -al "$MUJOCO_INCLUDE_MUJOCO"
+          if [ -f "$MUJOCO_INCLUDE_MUJOCO/mujoco.h" ]; then
+            echo "mujoco.h found in \$MUJOCO_INCLUDE_MUJOCO('$MUJOCO_INCLUDE_MUJOCO')"
+          else
+            echo "mujoco.h not found in \$MUJOCO_INCLUDE_MUJOCO('$MUJOCO_INCLUDE_MUJOCO')"
+            exit 1
+          fi
+          echo '============================================================='
           if cargo check; then
             echo 'cargo check succeeded with mujoco, as expected.'
           else
