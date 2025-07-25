@@ -1,4 +1,4 @@
-use std::{env, io::BufRead, path::Path};
+use std::{env, io::BufRead, path::Path, process::{Command, Stdio}};
 
 #[derive(Debug)]
 struct TrimUnderscoreCallbacks;
@@ -42,7 +42,7 @@ fn main() {
      * This is a **requirement** for the build script to continue.
      */
     assert!(
-        std::process::Command::new("cargo").args(["help", "fmt"]).status().is_ok_and(|s| s.success()),
+        Command::new("cargo").args(["help", "fmt"]).stdout(Stdio::null()).status().is_ok_and(|s| s.success()),
         "`cargo fmt` is not available; This build script can't continue without it."
     );
 

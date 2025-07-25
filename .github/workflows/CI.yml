@@ -36,53 +36,15 @@ jobs:
           cd $HOME/.mujoco
           wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
           tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
-          echo "[DEBUG] `ls -al` here:"
-          ls -al
           echo "MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.2/lib" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
       - name: check succeeds with MUJOCO_LIB
         run: |
-          echo "[DEBUG] MUJOCO_LIB is set to: '$MUJOCO_LIB'"
-          echo "[DEBUG] LD_LIBRARY_PATH is set to: '$LD_LIBRARY_PATH'"
-          echo "[DEBUG] MUJOCO_LIB has:"
-          ls -al "$MUJOCO_LIB"
-          if [ -f "$MUJOCO_LIB/libmujoco.so" ]; then
-            echo "libmujoco.so found in MUJOCO_LIB ('$MUJOCO_LIB')"
-          else
-            echo "libmujoco.so not found in MUJOCO_LIB ('$MUJOCO_LIB')"
-            exit 1
-          fi
-          MUJOCO_ROOT="$MUJOCO_LIB/.."
-          MUJOCO_INCLUDE="$MUJOCO_LIB/../include"
-          MUJOCO_INCLUDE_MUJOCO="$MUJOCO_INCLUDE/mujoco"
-          echo "[DEBUG] MUJOCO_ROOT ('$MUJOCO_ROOT') has:"
-          ls -al "$MUJOCO_ROOT"
-          echo "[DEBUG] MUJOCO_INCLUDE ('$MUJOCO_INCLUDE') has:"
-          ls -al "$MUJOCO_INCLUDE"
-          echo "[DEBUG] MUJOCO_INCLUDE_MUJOCO ('$MUJOCO_INCLUDE_MUJOCO') has:"
-          ls -al "$MUJOCO_INCLUDE_MUJOCO"
-          if [ -f "$MUJOCO_INCLUDE_MUJOCO/mujoco.h" ]; then
-            echo "mujoco.h found in MUJOCO_INCLUDE_MUJOCO ('$MUJOCO_INCLUDE_MUJOCO')"
-          else
-            echo "mujoco.h not found in MUJOCO_INCLUDE_MUJOCO ('$MUJOCO_INCLUDE_MUJOCO')"
-            exit 1
-          fi
-          echo '============================================================='
-          if [ -f ./src/bindgen.rs ]; then
-            echo 'bindgen.rs exists, as expected.'
-          else
-            echo 'bindgen.rs does not exist, which is unexpected.'
-            exit 1
-          fi
-          echo "[DEBUG] bindgen.rs content:"
-          cat ./src/bindgen.rs
-          echo '============================================================='
           if cargo build; then
             echo 'cargo check succeeded with mujoco, as expected.'
           else
             echo 'cargo check failed with mujoco, which is unexpected.'
-            echo "[DEBUG] bindgen.rs content:"
-            cat ./src/bindgen.rs
+            echo "[DEBUG] bindgen.rs content:" && cat ./src/bindgen.rs
             exit 1
           fi
