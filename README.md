@@ -17,34 +17,36 @@
 
 ## MuJoCo Version
 
-_**3.3.2**_
+[**3.3.2**](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2)
 
 ## Requirements
 
-- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases) downloaded and expanded
+- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2) downloaded and expanded
 - `MUJOCO_LIB` environment variable containing the MuJoCo's **`lib` directory** path
 
 ## Note & Tips
 
-- Generally, install MuJoCo to _a default standard path_ (or in _PATH_ on Windows) and set up your shell config like:
+- Generally, one way to setup is installing MuJoCo to _a default standard path_
+  (or in _PATH_ on Windows) and inserting to your shell config file:
   ```sh
   # Linux example
   export MUJOCO_LIB="/usr/lib/mujoco-3.3.2/lib"
   ```
-  Or if you'd like to avoid to install MuJoCo to a system directory:
+  Or if you'd like to avoid to install MuJoCo to such a system directory:
   ```sh
   # Linux example
   export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.3.2/lib"
-  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$MUJOCO_LIB"
+  export LD_LIBRARY_PATH="$MUJOCO_LIB:$LD_LIBRARY_PATH"
   ```
-- Depending on your setting, be sure to specify `MUJOCO_LIB` when executing your app. (for example `LD_LIBRARY_PATH=$MUJOCO_LIB cargo run` on Linux)
+- Depending on your setting, be sure to specify `MUJOCO_LIB` when executing your app.
+  (for example `LD_LIBRARY_PATH=$MUJOCO_LIB cargo run` on Linux)
 
 ## Usage
 
 *Cargo.toml*
 ```toml
 [dependencies]
-rusty_mujoco = "0.1.0"
+rusty_mujoco = "0.0.1"
 ```
 
 *src/main.rs*
