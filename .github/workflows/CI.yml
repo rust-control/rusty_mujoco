@@ -21,7 +21,7 @@ jobs:
           rustup default ${{ matrix.toolchain }}
           rustup component add rustfmt  ### required for the build script to work ###
 
-      - name: check fails without MUJOCO_LIB
+      - name: check fails without MUJOCO_DIR
         run: |
           if cargo build; then
             echo 'cargo check succeeded without mujoco, which is unexpected.'
@@ -30,16 +30,16 @@ jobs:
             echo 'cargo check failed as expected without mujoco.'
           fi
           
-      - name: install mujoco and set MUJOCO_LIB
+      - name: install mujoco and set MUJOCO_DIR
         run: |
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
           wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
           tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
-          echo "MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.2/lib" >> $GITHUB_ENV
+          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
-      - name: check succeeds with MUJOCO_LIB
+      - name: check succeeds with MUJOCO_DIR
         run: |
           if cargo build; then
             echo 'cargo check succeeded with mujoco, as expected.'

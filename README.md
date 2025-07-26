@@ -21,25 +21,27 @@
 
 ## Requirements
 
-- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2) downloaded and expanded
-- `MUJOCO_LIB` environment variable containing the MuJoCo's **`lib` directory** path
+- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2) downloaded
+  and expanded **as it is** (don't rename or partially move the files)
+- `MUJOCO_DIR` environment variable set to the path of the MuJoCo directory (e.g. `$HOME/.mujoco/mujoco-3.3.2`)
 
 ## Note & Tips
 
-- Generally, one way to setup is installing MuJoCo to _a default standard path_ like `/usr/local/lib/`
-  (or a folder in _PATH_ on Windows) and inserting to your shell config file:
+- One way to setup is to install MuJoCo to _a default standard path_ like `/usr/local/lib/`
+  (or a folder in _PATH_ on Windows), if needed create symlink to `mujoco-3.3.2/lib/libmujoco.so` there,
+  and insert to your shell config file:
   ```sh
   # example on Linux with /usr/local/lib/
-  export MUJOCO_LIB="/usr/local/lib/mujoco-3.3.2/lib"
+  export MUJOCO_DIR="/usr/local/lib/mujoco-3.3.2"
   ```
   Or if you'd like to avoid to install MuJoCo to such a system directory:
   ```sh
   # example on Linux with $HOME/.mujoco/
-  export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.3.2/lib"
-  export LD_LIBRARY_PATH="$MUJOCO_LIB:$LD_LIBRARY_PATH"
+  export MUJOCO_DIR="$HOME/.mujoco/mujoco-3.3.2"
+  export LD_LIBRARY_PATH="$MUJOCO_DIR/lib:$LD_LIBRARY_PATH"
   ```
-- Depending on your setting, be sure to specify `MUJOCO_LIB` when executing your app.
-  (for example `LD_LIBRARY_PATH=$MUJOCO_LIB cargo run` on Linux)
+- Depending on your setting, be sure to specify `$MUJOCO_DIR/lib` as shared library path
+  when executing your app (for example `LD_LIBRARY_PATH=$MUJOCO_DIR/lib cargo run` on Linux)
 
 ## Usage
 

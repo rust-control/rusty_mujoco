@@ -46,15 +46,17 @@ fn main() {
         "`cargo fmt` is not available; This build script can't continue without it."
     );
 
-    let src_dir = Path::new(&env!("CARGO_MANIFEST_DIR")).join("src");
+    let src_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
     let bindgen_h = src_dir.join("bindgen.h").to_str().unwrap().to_owned();
     let bindgen_rs = src_dir.join("bindgen.rs").to_str().unwrap().to_owned();
 
     println!("cargo:rerun-if-changed={bindgen_h}");
 
-    let mujoco_lib = std::env::var("MUJOCO_LIB").expect("MUJOCO_LIB environment variable is not set");
-    let mujoco_include = Path::new(&mujoco_lib).parent().unwrap().join("include").to_str().unwrap().to_owned();
-    let mujoco_include_mujoco = Path::new(&mujoco_include).join("mujoco").to_str().unwrap().to_owned();
+    let mujoco_dir = std::env::var("MUJOCO_DIR").expect("MUJOCO_DIR environment variable is not set");
+    let mujoco_dir = Path::new(&mujoco_dir).canonicalize().expect("MUJOCO_DIR is not a valid path");
+    let mujoco_lib = mujoco_dir.join("lib").to_str().unwrap().to_owned();
+    let mujoco_include = mujoco_dir.join("include").to_str().unwrap().to_owned();
+    let mujoco_include_mujoco = mujoco_dir.join("include").join("mujoco").to_str().unwrap().to_owned();
 
     println!("cargo:rustc-link-search={mujoco_lib}");
     println!("cargo:rustc-link-lib=dylib=mujoco");
