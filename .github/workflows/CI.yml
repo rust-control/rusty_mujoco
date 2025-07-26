@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main, v*]
+
+jobs:
+  CI:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: |
+          rustup update
+          rustup default ${{ matrix.toolchain }}
+          rustup component add rustfmt  ### required for the build script to work ###
+
+      - name: check fails without MUJOCO_LIB
+        run: |
+          if cargo build; then
+            echo 'cargo check succeeded without mujoco, which is unexpected.'
+            exit 1
+          else
+            echo 'cargo check failed as expected without mujoco.'
+          fi
+          
+      - name: install mujoco and set MUJOCO_LIB
+        run: |
+          mkdir -p $HOME/.mujoco
+          cd $HOME/.mujoco
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
+          tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
+          echo "MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.2/lib" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          
+      - name: check succeeds with MUJOCO_LIB
+        run: |
+          if cargo build; then
+            echo 'cargo check succeeded with mujoco, as expected.'
+          else
+            echo 'cargo check failed with mujoco, which is unexpected.'
+            echo "[DEBUG] bindgen.rs content:" && cat ./src/bindgen.rs
+            exit 1
+          fi

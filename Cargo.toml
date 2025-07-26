@@ -1,15 +1,16 @@
 [package]
 name          = "rusty_mujoco"
-version       = "0.1.0"
+version       = "0.0.1"
 edition       = "2024"
 authors       = ["kanarus <kanarus786@gmail.com>"]
 documentation = "https://docs.rs/rusty_mujoco"
 homepage      = "https://crates.io/crates/rusty_mujoco"
-repository    = "https://github.com/kanarus/rusty_mujoco"
+repository    = "https://github.com/rust-control/rusty_mujoco"
 readme        = "README.md"
 license       = "MIT"
-description   = ""
-keywords      = []
-categories    = []
+description   = "Rust bindings for the MuJoCo physics simulator"
+keywords      = ["mujoco", "rl", "ml", "physics", "robotics"]
+categories    = ["api-bindings", "science::robotics", "simulation"]
 
-[dependencies]
+[build-dependencies]
+bindgen = "0.72"

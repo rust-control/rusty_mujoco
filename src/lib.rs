@@ -1,14 +1,16 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+pub mod bindgen;
+pub use bindgen::{mjMAXVAL, mjMINVAL};
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+pub mod types;
+pub use types::*;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
-}
+pub mod functions;
+pub use functions::*;
+
+pub mod helper;
+
+mod error;
+pub use error::MjError;
+
+mod id;
+pub use id::*;
