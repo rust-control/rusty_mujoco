@@ -32,8 +32,8 @@
   wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
   tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
   ```
-  to download & expand MuJoCo 3.3.2.
-  On Windows and macOS, do similar steps with the respective archive files on your system.
+  to download & expand MuJoCo 3.3.2.\
+  On other platforms, do the same with the appropriate archive file for your system.
   
 - One way to setup is to install MuJoCo to _a default standard path_ like `/usr/local/lib/`
   (or a folder in _PATH_ on Windows), then if needed create symlink to `mujoco-3.3.2/lib/libmujoco.so` there,
