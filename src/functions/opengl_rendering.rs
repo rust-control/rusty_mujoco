@@ -27,6 +27,10 @@ pub fn mjr_defaultContext() -> mjrContext {
     unsafe { c.assume_init() }
 }
 impl Default for mjrContext {
+    /// Internally calls [`mjr_defaultContext`].
+    /// 
+    /// **note**: Be sure to call [`mjr_makeContext`] for the returned `mjrContext` to allocate resources
+    ///           before using it in rendering.
     fn default() -> Self {
         mjr_defaultContext()
     }
@@ -42,7 +46,7 @@ pub fn mjr_makeContext(m: &mjModel, con: &mut mjrContext, fontscale: mjtFontScal
     }
 }
 impl mjrContext {
-    /// Create a new `mjrContext` with the default font scale.
+    /// Create a new `mjrContext` with given font scale.
     /// 
     /// This internally calls:
     /// 
