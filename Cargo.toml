@@ -1,6 +1,6 @@
 [package]
 name          = "rusty_mujoco"
-version       = "0.0.1"
+version       = "0.1.0"
 edition       = "2024"
 authors       = ["kanarus <kanarus786@gmail.com>"]
 documentation = "https://docs.rs/rusty_mujoco"
@@ -14,3 +14,6 @@ categories    = ["api-bindings", "science::robotics", "simulation"]
 
 [build-dependencies]
 bindgen = "0.72"
+
+[dev-dependencies]
+glfw = "0.59.0"

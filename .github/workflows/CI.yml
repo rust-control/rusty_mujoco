@@ -6,7 +6,7 @@ on:
     branches: [main, v*]
 
 jobs:
-  CI:
+  build:
     runs-on: ubuntu-latest
 
     strategy:
@@ -48,3 +48,40 @@ jobs:
             echo "[DEBUG] bindgen.rs content:" && cat ./src/bindgen.rs
             exit 1
           fi
+  
+  test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: setup
+        run: |
+          rustup update
+          rustup default ${{ matrix.toolchain }}
+          rustup component add rustfmt  ### required for the build script to work ###
+          mkdir -p $HOME/.mujoco
+          cd $HOME/.mujoco
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
+          tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
+          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+      
+      - name: setup additional dependencies for examples
+        run: |
+          sudo apt update && sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
+          git clone https://github.com/glfw/glfw.git
+          mkdir -p glfw/build && cd glfw/build
+          cmake .. && make && sudo make install
+          
+      - name: run tests
+        run: |
+          cargo test --lib
+          cargo test --doc
+          cargo test --tests
+          cargo test --benches
+          cargo test --examples
