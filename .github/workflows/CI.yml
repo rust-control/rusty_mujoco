@@ -69,7 +69,7 @@ jobs:
       
       - name: setup additional dependencies for examples
         run: |
-          sudo apt update && sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev ibgl1-mesa-dev libxcursor-dev libxi-dev
+          sudo apt update && sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev
           git clone https://github.com/glfw/glfw.git
           mkdir -p glfw/build && cd glfw/build
           cmake .. && make && sudo make install
