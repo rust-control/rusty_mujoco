@@ -26,15 +26,22 @@ jobs:
             fi
           done
           exit 1
-
-      - name: Create release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: (for compiling to pass) install mujoco and set MUJOCO_DIR
         run: |
-          gh release create ${{ github.ref_name }} --generate-notes
+          mkdir -p $HOME/.mujoco && cd $HOME/.mujoco
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
+          tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
+          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
 
       - name: Publish packages
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
         run: |
           cargo publish -p rusty_mujoco
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ github.ref_name }} --generate-notes
