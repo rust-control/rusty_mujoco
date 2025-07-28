@@ -52,6 +52,10 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        toolchain: [stable, nightly]
+
     steps:
       - uses: actions/checkout@v4
 
