@@ -22,7 +22,7 @@
 ## Requirements
 
 - [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2) downloaded
-  and expanded **as it is** (don't rename or partially move the files)
+  and expanded **as it is** (don't partially move/rename the files)
 - `MUJOCO_DIR` environment variable set to the path of the MuJoCo directory (e.g. `$HOME/.mujoco/mujoco-3.3.2`)
 
 ### Note & Tips
