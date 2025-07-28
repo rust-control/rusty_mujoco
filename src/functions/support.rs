@@ -312,16 +312,16 @@ pub fn mj_angmomMat(
 /// ## Example
 /// 
 /// ```
-/// use rusty_mujoco::obj;
+/// use rusty_mujoco::{mj_loadXML, mj_name2id, obj};
 /// 
-/// # fn main() {
-/// let model = rusty_mujoco::mj_loadXML(
+/// # #[cfg(false)]
+/// # fn f() {
+/// let model = mj_loadXML(
 ///     "path/to/model.xml"
 /// ).unwrap();
-/// let body_id = rusty_mujoco::mj_name2id::<obj::Body>(
-///     &model,
-///     "body_name"
-/// );
+/// # }
+/// # fn example(model: &rusty_mujoco::mjModel) {
+/// let body_id = mj_name2id::<obj::Body>(&model, "body_name");
 /// println!("Body ID: {:?}", body_id);
 /// # }
 /// ```

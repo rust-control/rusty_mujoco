@@ -25,10 +25,17 @@
   and expanded **as it is** (don't rename or partially move the files)
 - `MUJOCO_DIR` environment variable set to the path of the MuJoCo directory (e.g. `$HOME/.mujoco/mujoco-3.3.2`)
 
-## Note & Tips
+### Note & Tips
 
+- Example commands to download & expand MuJoCo 3.3.2:
+  ```sh
+  wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-＜YOUR OPTION＞
+  tar -xzf mujoco-3.3.2-＜YOUR OPTION＞
+  ```
+  Replace `＜YOUR OPTION＞` depending on your system.
+  
 - One way to setup is to install MuJoCo to _a default standard path_ like `/usr/local/lib/`
-  (or a folder in _PATH_ on Windows), if needed create symlink to `mujoco-3.3.2/lib/libmujoco.so` there,
+  (or a folder in _PATH_ on Windows), then if needed create symlink to `mujoco-3.3.2/lib/libmujoco.so` there,
   and insert to your shell config file:
   ```sh
   # example on Linux with /usr/local/lib/
@@ -40,6 +47,7 @@
   export MUJOCO_DIR="$HOME/.mujoco/mujoco-3.3.2"
   export LD_LIBRARY_PATH="$MUJOCO_DIR/lib:$LD_LIBRARY_PATH"
   ```
+  
 - Depending on your setting, be sure to specify `$MUJOCO_DIR/lib` as shared library path
   when executing your app (for example `LD_LIBRARY_PATH=$MUJOCO_DIR/lib cargo run` on Linux)
 
@@ -57,6 +65,8 @@ fn main() {
     // TODO DOCUMENT...
 }
 ```
+
+See the [examples](./examples) directory for working examples.
 
 ## License
 
