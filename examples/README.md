@@ -1,3 +1,5 @@
+# `rusty_mujoco` Examples
+
 ## `visualize_left_object.rs`
 
 This example leaves a single object in the scene and visualizes it.
