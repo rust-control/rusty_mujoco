@@ -1,5 +1,5 @@
-use rusty_mujoco::{mj_loadXML, mj_makeData, mj_step};
-use rusty_mujoco::{mjr_makeContext, mjr_render, mjrContext, mjrRect, mjtCatBit, mjtFontScale, mjv_updateScene, mjvCamera, mjvOption, mjvScene};
+use rusty_mujoco::{mj_loadXML, mj_makeData, mj_step, mjr_render, mjv_updateScene};
+use rusty_mujoco::{mjrContext, mjrRect, mjtCatBit, mjtFontScale, mjvCamera, mjvOption, mjvScene};
 
 struct Args {
     xml_path: String,
