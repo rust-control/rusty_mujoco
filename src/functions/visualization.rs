@@ -110,8 +110,10 @@ pub fn mjv_defaultScene() -> mjvScene {
     unsafe { c.assume_init() }
 }
 impl Default for mjvScene {
-    /// **note**: Call [`mjv_makeScene`] to allocate resources in abstract scene
-    ///           before starting a simulation with the `mjvScene`.
+    /// Internally calls [`mjv_defaultScene`].
+    /// 
+    /// **note**: Be sure to call [`mjv_makeScene`] for the returned `mjvScene` to allocate resources in abstract scene
+    ///           before using it in rendering.
     fn default() -> Self {
         mjv_defaultScene()
     }
