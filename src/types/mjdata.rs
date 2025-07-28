@@ -192,7 +192,10 @@ macro_rules! buffer_slices_depending_on_model {
                 #[doc = "\n"]
                 #[doc = "**SAFETY**: `model` must be exactly the same model as the one used to create this `mjData`."]
                 pub unsafe fn $name(&self, model: &mjModel) -> &[$T] {
-                    #[cfg(debug_assertions/* size check */)] let _: $T = unsafe { std::mem::transmute(*self.$name) };
+                    #[cfg(debug_assertions/* size check */)] {
+                        #[allow(unnecessary_transmutes)]
+                        let _: $T = unsafe { std::mem::transmute(*self.$name) };
+                    }
                     unsafe { std::slice::from_raw_parts(self.$name as *const $T, model.$size()$(* $lit)?$(* model.$var())?) }
                 }
             )*
@@ -206,7 +209,10 @@ macro_rules! buffer_slices_depending_on_model {
                 #[doc = "\n"]
                 #[doc = "**SAFETY**: `model` must be exactly the same model as the one used to create this `mjData`."]
                 pub unsafe fn $name(&self, model: &mjModel) -> &[$T] {
-                    #[cfg(debug_assertions/* size check */)] let _: $T = unsafe { std::mem::transmute(*self.$name) };
+                    #[cfg(debug_assertions/* size check */)] {
+                        #[allow(unnecessary_transmutes)]
+                        let _: $T = unsafe { std::mem::transmute(*self.$name) };
+                    }
                     unsafe { std::slice::from_raw_parts(self.$name as *const $T, model.$size()$(* $mul)?) }
                 }
 
@@ -215,7 +221,10 @@ macro_rules! buffer_slices_depending_on_model {
                 #[doc = "\n"]
                 #[doc = "**SAFETY**: `model` must be exactly the same model as the one used to create this `mjData`."]
                 pub unsafe fn $mut_name(&mut self, model: &mjModel) -> &mut [$T] {
-                    #[cfg(debug_assertions/* size check */)] let _: $T = unsafe { std::mem::transmute(*self.$name) };
+                    #[cfg(debug_assertions/* size check */)] {
+                        #[allow(unnecessary_transmutes)]
+                        let _: $T = unsafe { std::mem::transmute(*self.$name) };
+                    }
                     unsafe { std::slice::from_raw_parts_mut(self.$name as *mut $T, model.$size()$(* $mul)?) }
                 }
             )*
@@ -384,7 +393,7 @@ buffer_slices_depending_on_model! {
     dof_island: [i32; nv * 1] = "island id of this dof; -1: none (nv x 1)";
 }
 
-// transmute: `i32` -> `mjtConstraint`, `mjtConstraintState`
+// transmute: `i32` -> `mjtConstraint`, `mjtConstraintState`, `mjContact`
 macro_rules! buffer_slices {
     ($($name:ident : [$T:ty; $size:ident $(* $lit:literal)?] = $description:literal;)*) => {
         #[allow(non_snake_case)]
@@ -392,7 +401,10 @@ macro_rules! buffer_slices {
             $(
                 #[doc = $description]
                 pub fn $name(&self) -> &[$T] {
-                    #[cfg(debug_assertions/* size check */)] let _: $T = unsafe {std::mem::transmute(*self.$name)};
+                    #[cfg(debug_assertions/* size check */)] {
+                        #[allow(unnecessary_transmutes)]
+                        let _: $T = unsafe {std::mem::transmute(*self.$name)};
+                    }
                     unsafe { std::slice::from_raw_parts(self.$name as *const $T, self.$size()) }
                 }
             )*
