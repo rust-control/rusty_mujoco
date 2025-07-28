@@ -8,7 +8,7 @@
         <img alt="license" src="https://img.shields.io/crates/l/rusty_mujoco.svg"/>
     </a>
     <a href="https://github.com/rust-control/rusty_mujoco/actions">
-        <img alt="CI" src="https://github.com/rust-control/rusty_mujoco/workflows/CI/badge.svg?branch=main"/>
+        <img alt="CI" src="https://github.com/rust-control/rusty_mujoco/actions/workflows/CI.yml/badge.svg?branch=main"/>
     </a>
     <a href="https://crates.io/crates/rusty_mujoco">
         <img alt="crates.io" src="https://img.shields.io/crates/v/rusty_mujoco.svg"/>
