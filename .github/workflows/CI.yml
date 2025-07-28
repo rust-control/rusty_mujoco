@@ -93,7 +93,7 @@ jobs:
       
       - name: setup additional dependencies
         run: |
-          apt install -y cmake build-essential libwayland-dev
+          sudo apt install -y cmake build-essential libwayland-dev
           git clone https://github.com/glfw/glfw.git
           mkdir -p glfw/build && cd glfw/build
           cmake .. && make && sudo make install
