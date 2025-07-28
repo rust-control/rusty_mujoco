@@ -83,7 +83,6 @@ jobs:
       - name: setup
         run: |
           rustup update
-          rustup default ${{ matrix.toolchain }}
           rustup component add rustfmt  ### required for the build script to work ###
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
@@ -94,6 +93,7 @@ jobs:
       
       - name: setup additional dependencies
         run: |
+          apt install -y cmake build-essential libwayland-dev
           git clone https://github.com/glfw/glfw.git
           mkdir -p glfw/build && cd glfw/build
           cmake .. && make && sudo make install
