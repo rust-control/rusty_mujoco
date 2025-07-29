@@ -69,6 +69,13 @@ fn main() {
 
 See the [examples](./examples) directory for working examples.
 
+## Previous Works
+
+- [TheButlah/mujoco-rs](https://github.com/TheButlah/mujoco-rs)
+  : archived by the owner on Sep 19, 2021.
+- [MuJoCo-Rust/MuJoCo-Rust](https://github.com/MuJoCo-Rust/MuJoCo-Rust)
+  : seems not maintained anymore (last commit on 2 years ago) and not compatible with MuJoCo 3+.
+
 ## License
 
 rusty_mujoco is licensed under [MIT LICENSE](https://github.com/rust-control/rusty_mujoco/blob/main/LICENSE).
