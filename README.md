@@ -71,7 +71,7 @@ See the [examples](./examples) directory for working examples.
 
 ## Previous Works
 
-- [ThButlah/mujoco-rs](https://github.com/TheButlah/mujoco-rs/)
+- [TheButlah/mujoco-rs](https://github.com/TheButlah/mujoco-rs)
   : archived by the owner on Sep 19, 2021.
 - [MuJoCo-Rust/MuJoCo-Rust](https://github.com/MuJoCo-Rust/MuJoCo-Rust)
   : seems not maintained anymore (last commit on 2 years ago) and not compatible with MuJoCo 3+.
