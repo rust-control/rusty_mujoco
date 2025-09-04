@@ -2141,13 +2141,7 @@ pub type mjfResourceModified = ::core::option::Option<
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjpResourceProvider {
-    pub(crate) prefix: *const ::core::ffi::c_char,
-    pub(crate) open: mjfOpenResource,
-    pub(crate) read: mjfReadResource,
-    pub(crate) close: mjfCloseResource,
-    pub(crate) getdir: mjfGetResourceDir,
-    pub(crate) modified: mjfResourceModified,
-    pub(crate) data: *mut ::core::ffi::c_void,
+    pub _address: u8,
 }
 impl mjtPluginCapabilityBit {
     pub const ACTUATOR: mjtPluginCapabilityBit = mjtPluginCapabilityBit(1);
