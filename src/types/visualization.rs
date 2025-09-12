@@ -10,6 +10,11 @@ pub use crate::bindgen::{
 use crate::{mjtObj, obj, ObjectId, SegmentationId};
 
 pub use crate::bindgen::mjvPerturb;
+impl Default for mjvPerturb {
+    fn default() -> Self {
+        crate::mjv_defaultPerturb()
+    }
+}
 fields_mapping!(mjvPerturb {
     scalars {
         refpos: [f64; 3] = "reference position for selected object";
@@ -54,6 +59,22 @@ impl mjvPerturb {
 }
 
 pub use crate::bindgen::mjvCamera;
+impl Default for mjvCamera {
+    /// Create a new camera with default settings by [`mjv_defaultCamera`](crate::mjv_defaultCamera).
+    /// 
+    /// See [`mjvCamera::default_free`] for a free camera.
+    fn default() -> Self {
+        crate::mjv_defaultCamera()
+    }
+}
+impl mjvCamera {
+    /// Create a new free camera with default settings by [`mjv_defaultFreeCamera`](crate::mjv_defaultFreeCamera).
+    /// 
+    /// See [`mjvCamera::default`] for a camera with default settings.
+    pub fn default_free(m: &crate::MjModel) -> Self {
+        crate::mjv_defaultFreeCamera(m)
+    }
+}
 fields_mapping!(mjvCamera {
     scalars {
         lookat / set_lookat: [f64; 3] = "lookat point";
