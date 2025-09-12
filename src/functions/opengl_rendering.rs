@@ -22,12 +22,12 @@ use crate::{
 /// **note**: [`MjrContext`] calls this function in its `Default` implementation.
 /* void mjr_defaultContext(mjrContext* con); */
 pub fn mjr_defaultContext() -> MjrContext {
-    let mut c = std::mem::MaybeUninit::<crate::bindgen::mjrContext>::uninit();
+    let mut c = std::mem::ManuallyDrop::new(std::mem::MaybeUninit::<crate::bindgen::mjrContext>::uninit());
     unsafe { crate::bindgen::mjr_defaultContext(c.as_mut_ptr()); }
     MjrContext::from_raw(c.as_mut_ptr())
 }
 
-/// Allocate resources in custom OpenGL context; fontscale is mjtFontScale.
+/// Allocate resources in custom OpenGL context; fontscale is [`mjtFontScale`].
 /// 
 /// **note**: [`MjrContext`] calls this function in its `new` implementation.
 /* void mjr_makeContext(const mjModel* m, mjrContext* con, int fontscale); */
