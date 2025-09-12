@@ -37,11 +37,11 @@ pub fn mju_free(ptr: *mut u8) {
 /// High-level warning function: count warnings in mjData, print only the first.
 /* void mj_warning(mjData* d, int warning, int info); */
 pub fn mj_warning(
-    d: &mut crate::mjData,
+    d: &mut crate::MjData,
     warning: crate::bindgen::mjtWarning,
     info: usize,
 ) {
-    unsafe { crate::bindgen::mj_warning(d, warning.0 as i32, info as i32) }
+    unsafe { crate::bindgen::mj_warning(d.0, warning.0 as i32, info as i32) }
 }
 
 /// Write [datetime, type: message] to MUJOCO_LOG.TXT.
@@ -54,8 +54,8 @@ pub fn mju_writeLog(kind: impl Into<String>, msg: impl Into<String>) {
 
 /// Get compiler error message from spec.
 /* const char* mjs_getError(mjSpec* s); */
-pub fn mjs_getError(s: &mut crate::mjSpec) -> Option<String> {
-    let c_ptr = unsafe { crate::bindgen::mjs_getError(s) };
+pub fn mjs_getError(s: &mut crate::MjSpec) -> Option<String> {
+    let c_ptr = unsafe { crate::bindgen::mjs_getError(s.0) };
     if c_ptr.is_null() {
         None
     } else {
@@ -65,10 +65,10 @@ pub fn mjs_getError(s: &mut crate::mjSpec) -> Option<String> {
 
 /// Check if compiler error is a warning.
 /* int mjs_isWarning(mjSpec* s); */
-pub fn mjs_isWarning(s: &mut crate::mjSpec) -> bool {
+pub fn mjs_isWarning(s: &mut crate::MjSpec) -> bool {
     /*
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-isWarning>
     > Returns 1 if the error is a warning.
     */
-    unsafe { crate::bindgen::mjs_isWarning(s) == 1 }
+    unsafe { crate::bindgen::mjs_isWarning(s.0) == 1 }
 }

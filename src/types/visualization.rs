@@ -3,14 +3,14 @@
 //! The names of these struct types are prefixed with `mjv`.
 
 pub use crate::bindgen::{
-    mjvPerturb, mjvCamera, mjvGLCamera, mjvGeom, mjvLight, mjvOption, mjvScene, mjvFigure,
     mjtPertBit, mjtCamera, mjtCatBit, mjtGeom, mjtLabel, mjtFrame, mjtVisFlag, mjtStereo, mjtRndFlag,
     mjNGROUP, mjNVISFLAG, mjNRNDFLAG, mjMAXLIGHT, mjMAXLINE, mjMAXLINEPNT,
 };
 
 use crate::{mjtObj, obj, ObjectId, SegmentationId};
 
-derive_fields_mapping!(mjvPerturb {
+pub use crate::bindgen::mjvPerturb;
+fields_mapping!(mjvPerturb {
     scalars {
         refpos: [f64; 3] = "reference position for selected object";
         refquat: [f64; 4] = "reference orientation for selected object";
@@ -53,7 +53,8 @@ impl mjvPerturb {
     }
 }
 
-derive_fields_mapping!(mjvCamera {
+pub use crate::bindgen::mjvCamera;
+fields_mapping!(mjvCamera {
     scalars {
         lookat / set_lookat: [f64; 3] = "lookat point";
         distance / set_distance: f64 = "distance to lookat point or tracked body";
@@ -96,7 +97,8 @@ impl mjvCamera {
     }
 }
 
-derive_fields_mapping!(mjvGLCamera {
+pub use crate::bindgen::mjvGLCamera;
+fields_mapping!(mjvGLCamera {
     scalars {
         pos / set_pos: [f32; 3] = "position";
         forward / set_forward: [f32; 3] = "forward direction";
@@ -115,7 +117,8 @@ impl mjvGLCamera {
     }
 }
 
-derive_fields_mapping!(mjvGeom {
+pub use crate::bindgen::mjvGeom;
+fields_mapping!(mjvGeom {
     scalars {
         size: [f32; 3] = "size parameters";
         pos: [f32; 3] = "Cartesian position";
@@ -170,7 +173,8 @@ impl mjvGeom {
     }
 }
 
-derive_fields_mapping!(mjvLight {
+pub use crate::bindgen::mjvLight;
+fields_mapping!(mjvLight {
     scalars {
         pos: [f32; 3] = "position relative to body frame";
         dir: [f32; 3] = "direction relative to body frame";
@@ -188,7 +192,8 @@ impl mjvLight {
     pub fn castshadow(&self) -> bool {self.castshadow != 0}
 }
 
-derive_fields_mapping!(mjvOption {
+pub use crate::bindgen::mjvOption;
+fields_mapping!(mjvOption {
     scalars {
         bvh_depth / set_bvh_depth: usize = "depth of the bounding volume hierarchy to be visualized";
         flex_layer / set_flex_layer: usize = "element layer to be visualized for 3D flex";
@@ -243,7 +248,11 @@ impl mjvOption {
     }
 }
 
-derive_fields_mapping!(mjvScene {
+resource_wrapper!(
+    MjvScene for crate::bindgen::mjvScene;
+    drop = crate::mjv_freeScene;
+);
+fields_mapping!(MjvScene {
     scalars {
         maxgeom: usize = "size of allocated geom buffer";
         ngeom: usize = "number of geoms currently in buffer";
@@ -264,7 +273,7 @@ derive_fields_mapping!(mjvScene {
         camera: [mjvGLCamera; 2] = "left and right camera";
     }
 });
-impl mjvScene {
+impl MjvScene {
     fn nflexedge(&self) -> usize {self.flexedgenum().iter().sum::<i32>() as usize}
     fn nflexface(&self) -> usize {self.flexfacenum().iter().sum::<i32>() as usize}
     fn nflexvert(&self) -> usize {self.flexvertnum().iter().sum::<i32>() as usize}
@@ -272,7 +281,7 @@ impl mjvScene {
 }
 macro_rules! buffer_slices {
     ($($name:ident : [$T:ty; $size:ident $(* $mul:literal)?] = $description:literal;)*) => {
-        impl mjvScene {
+        impl MjvScene {
             $(
                 #[doc = $description]
                 pub fn $name(&self) -> &[$T] {
@@ -315,7 +324,7 @@ impl std::ops::IndexMut<mjtRndFlag> for RenderingFlags {
         &mut (unsafe { std::mem::transmute::<_, &mut [bool; mjNRNDFLAG as usize]>(&mut self.0) })[index.0 as usize]
     }
 }
-impl mjvScene {
+impl MjvScene {
     /// copy of mjVIS_FLEXVERT mjvOption flag
     pub fn flexvertopt(&self) -> bool {self.flexvertopt != 0}
     /// copy of mjVIS_FLEXEDGE mjvOption flag
@@ -344,7 +353,8 @@ impl mjvScene {
     }
 }
 
-derive_fields_mapping!(mjvFigure {
+pub use crate::bindgen::mjvFigure;
+fields_mapping!(mjvFigure {
     boolean_flags {
         flg_legend / set_flg_legend = "show legend";
         flg_extend / set_flg_extend = "automatically extend axis ranges to fit data";

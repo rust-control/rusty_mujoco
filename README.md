@@ -25,7 +25,7 @@
   and expanded **as it is** (don't move or rename the files within it)
 - `MUJOCO_DIR` environment variable set to the path of the MuJoCo directory (e.g. `$HOME/.mujoco/mujoco-3.3.2`)
 
-### Note & Tips
+### Note / Tips
 
 - For example on x86_64 Linux, run:
   ```sh
@@ -57,7 +57,7 @@
 *Cargo.toml*
 ```toml
 [dependencies]
-rusty_mujoco = "0.1.0"
+rusty_mujoco = "0.1"
 ```
 
 *src/main.rs*
@@ -68,6 +68,18 @@ fn main() {
 ```
 
 See the [examples](./examples) directory for working examples.
+
+### Note
+
+- Binding policy:
+  - implement based on [rust-lang/bindgen](https://github.com/rust-lang/rust-bindgen).
+  - deny any direct field access to raw-bindgen structs and provide fully-accessible methods.
+  - automatically handle *resource types* that need proper resource management
+    (e.g. calling `mj_deleteModel` for `MjModel` in its `Drop` impl).
+- Naming convention:
+  - *resource types*: PascalCase (`Mj~`)
+  - *other types*: as they are in MuJoCo (`mj~`)
+  - *functions*: as they in MuJoCo (`mj~_~`)
 
 ## Previous Works
 

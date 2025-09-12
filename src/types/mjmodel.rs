@@ -2,9 +2,13 @@
 //! 
 //! This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
 
-pub use crate::bindgen::{mjModel, mjOption, mjVisual, mjStatistic};
+// pub use crate::bindgen::{mjModel, mjOption, mjVisual, mjStatistic};
 
-derive_fields_mapping!(mjModel {
+resource_wrapper!(
+    MjModel for crate::bindgen::mjModel;
+    drop = crate::mj_deleteModel;
+);
+fields_mapping!(MjModel {
     scalars {
         // sizes needed at mjModel construction
         nq: usize = "number of generalized coordinates = dim(qpos)";
@@ -111,6 +115,7 @@ pub use crate::bindgen::{
 };
 use crate::{
     helper::Rgba,
+    mjOption, mjVisual, mjStatistic,
     ObjectId, Obj, obj, Joint, NodeId, VertexId, BoneId, ElementId, ElementDataId, EdgeId, EdgeDataId, ShellDataId, EvPairId, TexcoordId, FaceId, NormalId, TexDataId, HFieldDataId, BoneVertexId,
 };
 use std::{
@@ -118,14 +123,14 @@ use std::{
     array::from_fn as array,
 };
 
-impl mjModel {
+impl MjModel {
     pub fn object_id<O: Obj>(&self, name: &str) -> Option<ObjectId<O>> {
         O::object_id(self, name)
     }
 }
 
 #[allow(non_snake_case)]
-impl mjModel {
+impl MjModel {
     /// qpos values at default pose
     pub fn qpos0<J: Joint>(&self, joint_id: ObjectId<J>) -> J::Qpos {
         unsafe {
