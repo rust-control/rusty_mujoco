@@ -3,7 +3,6 @@
 //! This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
 
 pub use crate::bindgen::{
-    mjContact, mjWarningStat, mjTimerStat, mjSolverStat,
     mjtConstraint, mjtConstraintState,
     mjNSOLVER, mjNISLAND, mjNTIMER, mjNWARNING, mjMAXTHREAD,
 };
@@ -51,15 +50,15 @@ fields_mapping!(MjData {
     }
     structs {
         // disgnostics
-        warning: [mjWarningStat; mjNWARNING] = "warning statistics";
-        timer: [mjTimerStat; mjNTIMER] = "timer statistics";
+        warning: [crate::mjWarningStat; mjNWARNING] = "warning statistics";
+        timer: [crate::mjTimerStat; mjNTIMER] = "timer statistics";
     }
 });
 
 // solver statistics
 impl MjData {
     /// solver statistics per island, per iteration
-    pub fn solver(&self) -> [mjSolverStat; mjNISLAND as usize * mjNSOLVER as usize] {
+    pub fn solver(&self) -> [crate::mjSolverStat; mjNISLAND as usize * mjNSOLVER as usize] {
         self.solver
     }
     /// number of solver iterations, per island
@@ -449,7 +448,7 @@ buffer_slices! {
     efc_R: [f64; nefc] = "inverse constraint mass (nefc x 1)";
 
     // computed by mj_collision
-    contact: [mjContact; ncon] = "array of all detected contacts";
+    contact: [crate::mjContact; ncon] = "array of all detected contacts";
 
     // computed by mj_fwdVelocity/mj_referenceConstraint
     efc_vel: [f64; nefc] = "velocity in constraint space: J*qvel (nefc x 1)";

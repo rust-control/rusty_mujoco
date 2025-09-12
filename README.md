@@ -76,7 +76,7 @@ See the [examples](./examples) directory for working examples.
   - deny any direct field access to raw-bindgen structs and provide fully-accessible methods.
   - automatically handle *resource types* that need proper resource management
     (e.g. calling `mj_deleteModel` for `MjModel` in its `Drop` impl).
-- Naming convention:
+- Naming convention for MuJoCo items:
   - *resource types*: PascalCase (`Mj~`)
   - *other types*: as they are in MuJoCo (`mj~`)
   - *functions*: as they in MuJoCo (`mj~_~`)

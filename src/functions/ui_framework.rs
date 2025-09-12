@@ -2,7 +2,7 @@
 //! 
 //! For a high-level description of the UI framework, see [User Interface](https://mujoco.readthedocs.io/en/stable/programming/ui.html#ui).
 
-use crate::{mjUI, mjrContext, mjuiDef, mjuiItem, mjuiThemeColor, mjuiThemeSpacing};
+use crate::{MjrContext, mjUI, mjuiDef, mjuiItem, mjuiThemeColor, mjuiThemeSpacing};
 
 /// Get builtin UI theme spacing (ind: 0-1).
 /* mjuiThemeSpacing mjui_themeSpacing(int ind); */
@@ -74,8 +74,8 @@ pub fn mjui_addToSection(
 
 /// Compute UI sizes.
 /* void mjui_resize(mjUI* ui, const mjrContext* con); */
-pub fn mjui_resize(ui: &mut mjUI, con: &mjrContext) {
-    unsafe { crate::bindgen::mjui_resize(ui, con) }
+pub fn mjui_resize(ui: &mut mjUI, con: &MjrContext) {
+    unsafe { crate::bindgen::mjui_resize(ui, con.0) }
 }
 
 /// This is the main UI update function. It needs to be called whenever
@@ -94,7 +94,7 @@ pub fn mjui_update(
     item: Option<u32>,
     ui: &mjUI,
     state: &crate::mjuiState,
-    con: &mjrContext,
+    con: &MjrContext,
 ) {
     unsafe {
         crate::bindgen::mjui_update(
@@ -102,7 +102,7 @@ pub fn mjui_update(
             item.map_or(-1, |s| s as i32),
             ui,
             state,
-            con,
+            con.0,
         )
     }
 }
@@ -119,9 +119,9 @@ pub fn mjui_update(
 pub fn mjui_event<'ui>(
     ui: &'ui mut mjUI,
     state: &mut crate::mjuiState,
-    con: &mjrContext,
+    con: &MjrContext,
 ) -> Option<&'ui mut mjuiItem> {
-    let item = unsafe { crate::bindgen::mjui_event(ui, state, con) };
+    let item = unsafe { crate::bindgen::mjui_event(ui, state, con.0) };
     if item.is_null() {None} else {Some(unsafe { &mut *item })}
 }
 
@@ -133,6 +133,6 @@ pub fn mjui_event<'ui>(
 /// while `mjui_update` is called only when changes in the UI take place.
 /// dsffsdg
 /* void mjui_render(mjUI* ui, const mjuiState* state, const mjrContext* con); */
-pub fn mjui_render(ui: &mut mjUI, state: &crate::mjuiState, con: &mjrContext) {
-    unsafe { crate::bindgen::mjui_render(ui, state, con) }
+pub fn mjui_render(ui: &mut mjUI, state: &crate::mjuiState, con: &MjrContext) {
+    unsafe { crate::bindgen::mjui_render(ui, state, con.0) }
 }

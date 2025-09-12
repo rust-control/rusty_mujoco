@@ -159,6 +159,8 @@ pub use crate::bindgen::mjsExclude;
 
 pub use crate::bindgen::mjsDefault;
 
+pub use crate::bindgen::mjsWrap;
+
 pub use crate::bindgen::mjsOrientation;
 impl Default for mjsOrientation {
     fn default() -> Self {

@@ -1,5 +1,5 @@
 use rusty_mujoco::{mj_loadXML, mj_makeData, mj_step, mjr_render, mjv_updateScene};
-use rusty_mujoco::{mjrContext, mjrRect, mjtCatBit, mjtFontScale, mjvCamera, mjvOption, mjvScene};
+use rusty_mujoco::{MjrContext, mjrRect, MjvScene, mjvCamera, mjvOption, mjtCatBit, mjtFontScale};
 
 struct Args {
     xml_path: String,
@@ -48,9 +48,9 @@ fn main() {
     window.set_size_polling(true);
     glfw::Context::make_current(&mut *window);
 
+    let con = MjrContext::new(&model, mjtFontScale::X150);
     let opt = mjvOption::default();
-    let con = mjrContext::new(&model, mjtFontScale::X150);
-    let mut scn = mjvScene::new(&model, 2000);
+    let mut scn = MjvScene::new(&model, 2000);
     let mut cam = mjvCamera::default();
     camera_name.map(|name| cam.set_fixedcamid(model.object_id(&name).expect("No camera of such name in the model")));
     

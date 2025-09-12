@@ -31,6 +31,28 @@ resource_wrapper!(
     MjrContext for crate::bindgen::mjrContext;
     drop = crate::mjr_freeContext;
 );
+impl MjrContext {
+    /// Create a new `mjrContext` with given font scale.
+    /// 
+    /// This internally calls:
+    /// 
+    /// 1. [`mjr_defaultContext`] to set default values for the scene.
+    /// 2. [`mjr_makeContext`] to allocate resources in the scene.
+    pub fn new(m: &crate::MjModel, fontscale: crate::mjtFontScale) -> Self {
+        let mut con = Self::default();
+        crate::mjr_makeContext(m, &mut con, fontscale);
+        con
+    }
+}
+impl Default for MjrContext {
+    /// Internally calls [`mjr_defaultContext`].
+    /// 
+    /// **note**: Be sure to call [`mjr_makeContext`] for the returned `mjrContext` to allocate resources
+    ///           before using it in rendering.
+    fn default() -> Self {
+        crate::mjr_defaultContext()
+    }
+}
 fields_mapping!(MjrContext {
     boolean_flags {
         glInitialized = "is OpenGL initialized";

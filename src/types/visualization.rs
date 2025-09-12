@@ -252,6 +252,28 @@ resource_wrapper!(
     MjvScene for crate::bindgen::mjvScene;
     drop = crate::mjv_freeScene;
 );
+impl MjvScene {
+    /// Create a new abstract scene with resources allocated for `maxgeom` geoms.
+    /// 
+    /// This internally calls:
+    /// 
+    /// 1. [`mjv_defaultScene`](crate::mjv_defaultScene) to set default values for the scene.
+    /// 2. [`mjv_makeScene`](crate::mjv_makeScene) to allocate resources in the scene.
+    pub fn new(model: &crate::MjModel, maxgeom: usize) -> Self {
+        let mut scene = MjvScene::default();
+        crate::mjv_makeScene(model, &mut scene, maxgeom);
+        scene
+    }
+}
+impl Default for MjvScene {
+    /// Internally calls [`mjv_defaultScene`].
+    /// 
+    /// **note**: Be sure to call [`mjv_makeScene`] for the returned `mjvScene` to allocate resources in abstract scene
+    ///           before using it in rendering.
+    fn default() -> Self {
+        crate::mjv_defaultScene()
+    }
+}
 fields_mapping!(MjvScene {
     scalars {
         maxgeom: usize = "size of allocated geom buffer";
