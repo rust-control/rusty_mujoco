@@ -24,7 +24,7 @@ use crate::{
 pub fn mjr_defaultContext() -> MjrContext {
     let mut c = std::mem::MaybeUninit::<crate::bindgen::mjrContext>::uninit();
     unsafe { crate::bindgen::mjr_defaultContext(c.as_mut_ptr()); }
-    MjrContext(c.as_mut_ptr())
+    MjrContext::from_raw(c.as_mut_ptr())
 }
 
 /// Allocate resources in custom OpenGL context; fontscale is mjtFontScale.
@@ -33,7 +33,7 @@ pub fn mjr_defaultContext() -> MjrContext {
 /* void mjr_makeContext(const mjModel* m, mjrContext* con, int fontscale); */
 pub fn mjr_makeContext(m: &MjModel, con: &mut MjrContext, fontscale: mjtFontScale) {
     unsafe {
-        crate::bindgen::mjr_makeContext(m.0, con.0, fontscale.0 as i32);
+        crate::bindgen::mjr_makeContext(m.as_ptr(), con.as_mut_ptr(), fontscale.0 as i32);
     }
 }
 
@@ -41,7 +41,7 @@ pub fn mjr_makeContext(m: &MjModel, con: &mut MjrContext, fontscale: mjtFontScal
 /* void mjr_changeFont(int fontscale, mjrContext* con); */
 pub fn mjr_changeFont(fontscale: mjtFontScale, con: &mut MjrContext) {
     unsafe {
-        crate::bindgen::mjr_changeFont(fontscale.0 as i32, con.0);
+        crate::bindgen::mjr_changeFont(fontscale.0 as i32, con.as_mut_ptr());
     }
 }
 
@@ -55,7 +55,7 @@ pub fn mjr_addAux(
     con: &mut MjrContext,
 ) {
     unsafe {
-        crate::bindgen::mjr_addAux(index as i32, width, height, samples, con.0);
+        crate::bindgen::mjr_addAux(index as i32, width, height, samples, con.as_mut_ptr());
     }
 }
 
@@ -65,7 +65,7 @@ pub fn mjr_addAux(
 /* void mjr_freeContext(mjrContext* con); */
 pub fn mjr_freeContext(con: &mut MjrContext) {
     unsafe {
-        crate::bindgen::mjr_freeContext(con.0);
+        crate::bindgen::mjr_freeContext(con.as_mut_ptr());
     }
 }
 
@@ -73,7 +73,7 @@ pub fn mjr_freeContext(con: &mut MjrContext) {
 /* void mjr_resizeOffscreen(int width, int height, mjrContext* con); */
 pub fn mjr_resizeOffscreen(width: i32, height: i32, con: &mut MjrContext) {
     unsafe {
-        crate::bindgen::mjr_resizeOffscreen(width, height, con.0);
+        crate::bindgen::mjr_resizeOffscreen(width, height, con.as_mut_ptr());
     }
 }
 
@@ -81,7 +81,7 @@ pub fn mjr_resizeOffscreen(width: i32, height: i32, con: &mut MjrContext) {
 /* void mjr_uploadTexture(const mjModel* m, const mjrContext* con, int texid); */
 pub fn mjr_uploadTexture(m: &MjModel, con: &MjrContext, texid: ObjectId<obj::Texture>) {
     unsafe {
-        crate::bindgen::mjr_uploadTexture(m.0, con.0, texid.index() as i32);
+        crate::bindgen::mjr_uploadTexture(m.as_ptr(), con.as_ptr(), texid.index() as i32);
     }
 }
 
@@ -89,7 +89,7 @@ pub fn mjr_uploadTexture(m: &MjModel, con: &MjrContext, texid: ObjectId<obj::Tex
 /* void mjr_uploadMesh(const mjModel* m, const mjrContext* con, int meshid); */
 pub fn mjr_uploadMesh(m: &MjModel, con: &MjrContext, meshid: ObjectId<obj::Mesh>) {
     unsafe {
-        crate::bindgen::mjr_uploadMesh(m.0, con.0, meshid.index() as i32);
+        crate::bindgen::mjr_uploadMesh(m.as_ptr(), con.as_ptr(), meshid.index() as i32);
     }
 }
 
@@ -97,7 +97,7 @@ pub fn mjr_uploadMesh(m: &MjModel, con: &MjrContext, meshid: ObjectId<obj::Mesh>
 /* void mjr_uploadHField(const mjModel* m, const mjrContext* con, int hfieldid); */
 pub fn mjr_uploadHField(m: &MjModel, con: &MjrContext, hfieldid: ObjectId<obj::HField>) {
     unsafe {
-        crate::bindgen::mjr_uploadHField(m.0, con.0, hfieldid.index() as i32);
+        crate::bindgen::mjr_uploadHField(m.as_ptr(), con.as_ptr(), hfieldid.index() as i32);
     }
 }
 
@@ -105,7 +105,7 @@ pub fn mjr_uploadHField(m: &MjModel, con: &MjrContext, hfieldid: ObjectId<obj::H
 /* void mjr_restoreBuffer(const mjrContext* con); */
 pub fn mjr_restoreBuffer(con: &MjrContext) {
     unsafe {
-        crate::bindgen::mjr_restoreBuffer(con.0);
+        crate::bindgen::mjr_restoreBuffer(con.as_ptr());
     }
 }
 
@@ -114,7 +114,7 @@ pub fn mjr_restoreBuffer(con: &MjrContext) {
 /* void mjr_setBuffer(int framebuffer, mjrContext* con); */
 pub fn mjr_setBuffer(framebuffer: mjtFramebuffer, con: &mut MjrContext) {
     unsafe {
-        crate::bindgen::mjr_setBuffer(framebuffer.0 as i32, con.0);
+        crate::bindgen::mjr_setBuffer(framebuffer.0 as i32, con.as_mut_ptr());
     }
 }
 
@@ -135,7 +135,7 @@ pub fn mjr_readPixels(
             rgb.as_mut_ptr(),
             depth.as_mut_ptr(),
             viewport,
-            con.0,
+            con.as_ptr(),
         );
     }
 }
@@ -157,7 +157,7 @@ pub fn mjr_drawPixels(
             rgb.as_ptr(),
             depth.as_ptr(),
             viewport,
-            con.0,
+            con.as_ptr(),
         );
     }
 }
@@ -179,7 +179,7 @@ pub fn mjr_blitBuffer(
             dst,
             if flg_color { 1 } else { 0 },
             if flg_depth { 1 } else { 0 },
-            con.0,
+            con.as_ptr(),
         );
     }
 }
@@ -188,7 +188,7 @@ pub fn mjr_blitBuffer(
 /* void mjr_setAux(int index, const mjrContext* con); */
 pub fn mjr_setAux(index: i32, con: &MjrContext) {
     unsafe {
-        crate::bindgen::mjr_setAux(index, con.0);
+        crate::bindgen::mjr_setAux(index, con.as_ptr());
     }
 }
 
@@ -202,7 +202,7 @@ pub fn mjr_blitAux(
     con: &MjrContext,
 ) {
     unsafe {
-        crate::bindgen::mjr_blitAux(index as i32, src, left, bottom, con.0);
+        crate::bindgen::mjr_blitAux(index as i32, src, left, bottom, con.as_ptr());
     }
 }
 
@@ -222,7 +222,7 @@ pub fn mjr_text(
         crate::bindgen::mjr_text(
             font.0 as i32,
             c_txt.as_ptr(),
-            con.0,
+            con.as_ptr(),
             x,
             y,
             r,
@@ -252,7 +252,7 @@ pub fn mjr_overlay(
             viewport,
             c_overlay.as_ptr(),
             c_overlay2.as_ptr(),
-            con.0,
+            con.as_ptr(),
         );
     }
 }
@@ -260,7 +260,7 @@ pub fn mjr_overlay(
 /// Get maximum viewport for active buffer.
 /* mjrRect mjr_maxViewport(const mjrContext* con); */
 pub fn mjr_maxViewport(con: &MjrContext) -> mjrRect {
-    unsafe { crate::bindgen::mjr_maxViewport(con.0) }
+    unsafe { crate::bindgen::mjr_maxViewport(con.as_ptr()) }
 }
 
 /// Draw rectangle.
@@ -291,7 +291,7 @@ pub fn mjr_label(
             c_txt.as_ptr(),
             text_color.r, text_color.g, text_color.b, text_color.a,
             background_color.r, background_color.g, background_color.b,
-            con.0,
+            con.as_ptr(),
         );
     }
 }
@@ -300,7 +300,7 @@ pub fn mjr_label(
 /* void mjr_figure(mjrRect viewport, mjvFigure* fig, const mjrContext* con); */
 pub fn mjr_figure(viewport: mjrRect, fig: &mut mjvFigure, con: &MjrContext) {
     unsafe {
-        crate::bindgen::mjr_figure(viewport, fig, con.0);
+        crate::bindgen::mjr_figure(viewport, fig, con.as_ptr());
     }
 }
 
@@ -308,7 +308,7 @@ pub fn mjr_figure(viewport: mjrRect, fig: &mut mjvFigure, con: &MjrContext) {
 /* void mjr_render(mjrRect viewport, mjvScene* scn, const mjrContext* con); */
 pub fn mjr_render(viewport: mjrRect, scn: &mut MjvScene, con: &MjrContext) {
     unsafe {
-        crate::bindgen::mjr_render(viewport, scn.0, con.0);
+        crate::bindgen::mjr_render(viewport, scn.as_mut_ptr(), con.as_ptr());
     }
 }
 

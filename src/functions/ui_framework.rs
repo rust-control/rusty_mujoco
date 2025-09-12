@@ -75,7 +75,7 @@ pub fn mjui_addToSection(
 /// Compute UI sizes.
 /* void mjui_resize(mjUI* ui, const mjrContext* con); */
 pub fn mjui_resize(ui: &mut mjUI, con: &MjrContext) {
-    unsafe { crate::bindgen::mjui_resize(ui, con.0) }
+    unsafe { crate::bindgen::mjui_resize(ui, con.as_ptr()) }
 }
 
 /// This is the main UI update function. It needs to be called whenever
@@ -102,7 +102,7 @@ pub fn mjui_update(
             item.map_or(-1, |s| s as i32),
             ui,
             state,
-            con.0,
+            con.as_ptr(),
         )
     }
 }
@@ -121,7 +121,7 @@ pub fn mjui_event<'ui>(
     state: &mut crate::mjuiState,
     con: &MjrContext,
 ) -> Option<&'ui mut mjuiItem> {
-    let item = unsafe { crate::bindgen::mjui_event(ui, state, con.0) };
+    let item = unsafe { crate::bindgen::mjui_event(ui, state, con.as_ptr()) };
     if item.is_null() {None} else {Some(unsafe { &mut *item })}
 }
 
@@ -134,5 +134,5 @@ pub fn mjui_event<'ui>(
 /// dsffsdg
 /* void mjui_render(mjUI* ui, const mjuiState* state, const mjrContext* con); */
 pub fn mjui_render(ui: &mut mjUI, state: &crate::mjuiState, con: &MjrContext) {
-    unsafe { crate::bindgen::mjui_render(ui, state, con.0) }
+    unsafe { crate::bindgen::mjui_render(ui, state, con.as_ptr()) }
 }

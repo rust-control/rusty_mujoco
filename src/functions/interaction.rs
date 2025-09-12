@@ -28,7 +28,7 @@ impl Default for mjvCamera {
 /* void mjv_defaultFreeCamera(const mjModel* m, mjvCamera* cam); */
 pub fn mjv_defaultFreeCamera(m: &MjModel) -> mjvCamera {
     let mut cam = std::mem::MaybeUninit::<mjvCamera>::uninit();
-    unsafe { crate::bindgen::mjv_defaultFreeCamera(m.0, cam.as_mut_ptr()) };
+    unsafe { crate::bindgen::mjv_defaultFreeCamera(m.as_ptr(), cam.as_mut_ptr()) };
     unsafe { cam.assume_init() }
 }
 impl mjvCamera {
@@ -73,7 +73,7 @@ pub fn mjv_room2model(
             &mut modelquat,
             &roompos,
             &roomquat,
-            scn.0,
+            scn.as_ptr(),
         );
     }
 
@@ -98,7 +98,7 @@ pub fn mjv_model2room(
             &mut roomquat,
             &modelpos,
             &modelquat,
-            scn.0,
+            scn.as_ptr(),
         );
     }
 
@@ -119,7 +119,7 @@ pub fn mjv_cameraInModel(scn: &MjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
             &mut headpos,
             &mut forward,
             &mut up,
-            scn.0,
+            scn.as_ptr(),
         );
     }
 
@@ -140,7 +140,7 @@ pub fn mjv_cameraInRoom(scn: &MjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
             &mut headpos,
             &mut forward,
             &mut up,
-            scn.0,
+            scn.as_ptr(),
         );
     }
 
@@ -150,7 +150,7 @@ pub fn mjv_cameraInRoom(scn: &MjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
 /// Get frustum height at unit distance from camera; average left and right OpenGL cameras.
 /* mjtNum mjv_frustumHeight(const mjvScene* scn); */
 pub fn mjv_frustumHeight(scn: &MjvScene) -> f64 {
-    unsafe { crate::bindgen::mjv_frustumHeight(scn.0) }
+    unsafe { crate::bindgen::mjv_frustumHeight(scn.as_ptr()) }
 }
 
 /// Rotate 3D vec in horizontal plane by angle between (0,1) and (forward_x,forward_y).
@@ -180,11 +180,11 @@ pub fn mjv_moveCamera(
 ) {
     unsafe {
         crate::bindgen::mjv_moveCamera(
-            m.0,
+            m.as_ptr(),
             action.0 as i32,
             reldx,
             reldy,
-            scn.0,
+            scn.as_ptr(),
             cam,
         );
     }
@@ -195,7 +195,7 @@ pub fn mjv_moveCamera(
                      mjtNum reldy, const mjvScene* scn, mjvPerturb* pert); */
 pub fn mjv_movePerturb(
     m: &MjModel,
-    d: &mut MjData,
+    d: &MjData,
     action: crate::bindgen::mjtMouse,
     reldx: f64,
     reldy: f64,
@@ -204,12 +204,12 @@ pub fn mjv_movePerturb(
 ) {
     unsafe {
         crate::bindgen::mjv_movePerturb(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             action.0 as i32,
             reldx,
             reldy,
-            scn.0,
+            scn.as_ptr(),
             pert,
         );
     }
@@ -228,12 +228,12 @@ pub fn mjv_moveModel(
 ) {
     unsafe {
         crate::bindgen::mjv_moveModel(
-            m.0,
+            m.as_ptr(),
             action.0 as i32,
             reldx,
             reldy,
             &roomup,
-            scn.0,
+            scn.as_mut_ptr(),
         );
     }
 }
@@ -242,7 +242,7 @@ pub fn mjv_moveModel(
 /* void mjv_initPerturb(const mjModel* m, mjData* d, const mjvScene* scn, mjvPerturb* pert); */
 pub fn mjv_initPerturb(m: &MjModel, d: &mut MjData, scn: &MjvScene, pert: &mut mjvPerturb) {
     unsafe {
-        crate::bindgen::mjv_initPerturb(m.0, d.0, scn.0, pert);
+        crate::bindgen::mjv_initPerturb(m.as_ptr(), d.as_mut_ptr(), scn.as_ptr(), pert);
     }
 }
 
@@ -258,8 +258,8 @@ pub fn mjv_applyPerturbPose(
 ) {
     unsafe {
         crate::bindgen::mjv_applyPerturbPose(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             pert,
             if flg_paused { 1 } else { 0 },
         );
@@ -270,7 +270,7 @@ pub fn mjv_applyPerturbPose(
 /* void mjv_applyPerturbForce(const mjModel* m, mjData* d, const mjvPerturb* pert); */
 pub fn mjv_applyPerturbForce(m: &MjModel, d: &mut MjData, pert: &mjvPerturb) {
     unsafe {
-        crate::bindgen::mjv_applyPerturbForce(m.0, d.0, pert);
+        crate::bindgen::mjv_applyPerturbForce(m.as_ptr(), d.as_mut_ptr(), pert);
     }
 }
 
@@ -328,13 +328,13 @@ pub fn mjv_select(
 
     unsafe {
         crate::bindgen::mjv_select(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             vopt,
             aspectratio,
             relx,
             rely,
-            scn.0,
+            scn.as_ptr(),
             &mut selpnt,
             &mut geomid,
             &mut flexid,

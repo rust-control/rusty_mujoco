@@ -26,7 +26,7 @@ pub fn mj_loadXML(filename: impl Into<String>) -> Result<MjModel, MjError> {
     if c_ptr.is_null() {
         Err(error)
     } else {
-        Ok(MjModel(c_ptr))
+        Ok(MjModel::from_raw(c_ptr))
     }
 }
 
@@ -48,7 +48,7 @@ pub fn mj_parseXML(filename: impl Into<String>) -> Result<MjSpec, MjError> {
     if c_ptr.is_null() {
         Err(error)
     } else {
-        Ok(MjSpec(c_ptr))
+        Ok(MjSpec::from_raw(c_ptr))
     }
 }
 
@@ -70,7 +70,7 @@ pub fn mj_parseXMLString(xml: impl Into<String>) -> Result<MjSpec, MjError> {
     if c_ptr.is_null() {
         Err(error)
     } else {
-        Ok(MjSpec(c_ptr))
+        Ok(MjSpec::from_raw(c_ptr))
     }
 }
 
@@ -78,12 +78,12 @@ pub fn mj_parseXMLString(xml: impl Into<String>) -> Result<MjSpec, MjError> {
 /// returning a new mjModel instance that takes the edits into account.
 /// If compilation fails, `mj_compile` returns NULL; the error can be read with `mjs_getError`.
 pub fn mj_compile(s: &mut MjSpec) -> Option<MjModel> {
-    let c_ptr = unsafe { crate::bindgen::mj_compile(s.0, std::ptr::null()) };
+    let c_ptr = unsafe { crate::bindgen::mj_compile(s.as_mut_ptr(), std::ptr::null()) };
 
     if c_ptr.is_null() {
         None
     } else {
-        Some(MjModel(c_ptr))
+        Some(MjModel::from_raw(c_ptr))
     }
 }
 
@@ -102,10 +102,10 @@ pub fn mj_compile(s: &mut MjSpec) -> Option<MjModel> {
 pub fn mj_recompile(s: &mut MjSpec, m: &mut MjModel, d: &mut MjData) -> Result<(), ()> {
     let status = unsafe {
         crate::bindgen::mj_recompile(
-            s.0,
+            s.as_mut_ptr(),
             std::ptr::null(),
-            m.0,
-            d.0,
+            m.as_mut_ptr(),
+            d.as_mut_ptr(),
         )
     };
 
@@ -132,7 +132,7 @@ pub fn mj_saveLastXML(
         let (err_ptr, err_len) = error.as_parts();
         crate::bindgen::mj_saveLastXML(
             filename.as_ptr(),
-            m.0,
+            m.as_ptr(),
             err_ptr,
             err_len,
         )
@@ -161,7 +161,7 @@ pub fn mj_saveXMLString(s: &MjSpec) -> Result<String, MjError> {
         let status = unsafe {
             let (err_ptr, err_len) = error.as_parts();
             crate::bindgen::mj_saveXMLString(
-                s.0,
+                s.as_ptr(),
                 output_buffer.as_mut_ptr() as *mut std::ffi::c_char,
                 output_buffer.len() as i32,
                 err_ptr,
@@ -211,7 +211,7 @@ pub fn mj_saveXML(
     let status = unsafe {
         let (err_ptr, err_len) = error.as_parts();
         crate::bindgen::mj_saveXML(
-            s.0,
+            s.as_ptr(),
             filename.as_ptr(),
             err_ptr,
             err_len,

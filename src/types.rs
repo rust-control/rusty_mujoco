@@ -5,7 +5,18 @@ macro_rules! resource_wrapper {
         $T:ident for $Bindgen:path;
         drop = $drop:path;
     ) => {
-        pub struct $T(pub(crate) *mut $Bindgen);
+        pub struct $T(*mut $Bindgen);
+        impl $T {
+            pub(crate) fn from_raw(ptr: *mut $Bindgen) -> Self {
+                Self(ptr)
+            }
+            pub(crate) fn as_ptr(&self) -> *const $Bindgen {
+                self.0 as *const _
+            }
+            pub(crate) fn as_mut_ptr(&mut self) -> *mut $Bindgen {
+                self.0
+            }
+        }
         impl std::ops::Deref for $T {
             type Target = $Bindgen;
             fn deref(&self) -> &Self::Target {
@@ -25,7 +36,7 @@ macro_rules! resource_wrapper {
     };
 }
 
-/// Generates getters and setters for fields of a struct for most/simple cases.
+/// Generate getter and/or setter for fields of a struct for most/simple cases.
 /// Write some edge cases by hand if needed.
 macro_rules! fields_mapping {
     ($T:path {

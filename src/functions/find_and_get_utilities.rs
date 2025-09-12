@@ -10,22 +10,22 @@ use crate::{
 /* mjSpec* mjs_getSpec(mjsElement* element); */
 pub fn mjs_getSpec(element: &mut mjsElement) -> Option<MjSpec> {
     let ptr = unsafe { crate::bindgen::mjs_getSpec(element) };
-    if ptr.is_null() {None} else {Some(MjSpec(ptr)) }
+    if ptr.is_null() {None} else {Some(MjSpec::from_raw(ptr)) }
 }
 
 /// Find spec (model asset) by name.
 /* mjSpec* mjs_findSpec(mjSpec* spec, const char* name); */
 pub fn mjs_findSpec<'spec>(spec: &'spec mut MjSpec, name: &str) -> Option<MjSpec> {
     let name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
-    let ptr = unsafe { crate::bindgen::mjs_findSpec(spec.0, name.as_ptr()) };
-    if ptr.is_null() {None} else {Some(MjSpec(ptr)) }
+    let ptr = unsafe { crate::bindgen::mjs_findSpec(spec.as_mut_ptr(), name.as_ptr()) };
+    if ptr.is_null() {None} else {Some(MjSpec::from_raw(ptr)) }
 }
 
 /// Find body in spec by name.
 /* mjsBody* mjs_findBody(mjSpec* s, const char* name); */
 pub fn mjs_findBody<'spec>(spec: &'spec mut MjSpec, name: &str) -> Option<&'spec mut mjsBody> {
     let name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
-    let ptr = unsafe { crate::bindgen::mjs_findBody(spec.0, name.as_ptr()) };
+    let ptr = unsafe { crate::bindgen::mjs_findBody(spec.as_mut_ptr(), name.as_ptr()) };
     if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
 }
 
@@ -37,7 +37,7 @@ pub fn mjs_findElement<'spec>(
     name: &str,
 ) -> Option<&'spec mut mjsElement> {
     let name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
-    let ptr = unsafe { crate::bindgen::mjs_findElement(spec.0, type_, name.as_ptr()) };
+    let ptr = unsafe { crate::bindgen::mjs_findElement(spec.as_mut_ptr(), type_, name.as_ptr()) };
     if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
 }
 
@@ -67,7 +67,7 @@ pub fn mjs_getFrame<'element>(element: &'element mut mjsElement) -> Option<&'ele
 /* mjsFrame* mjs_findFrame(mjSpec* s, const char* name); */
 pub fn mjs_findFrame<'spec>(spec: &'spec mut MjSpec, name: &str) -> Option<&'spec mut mjsFrame> {
     let name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
-    let ptr = unsafe { crate::bindgen::mjs_findFrame(spec.0, name.as_ptr()) };
+    let ptr = unsafe { crate::bindgen::mjs_findFrame(spec.as_mut_ptr(), name.as_ptr()) };
     if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
 }
 
@@ -85,14 +85,14 @@ pub fn mjs_findDefault<'spec>(
     classname: &str,
 ) -> Option<&'spec mut mjsDefault> {
     let classname = std::ffi::CString::new(classname).expect("`classname` must not contain null bytes");
-    let ptr = unsafe { crate::bindgen::mjs_findDefault(spec.0, classname.as_ptr()) };
+    let ptr = unsafe { crate::bindgen::mjs_findDefault(spec.as_mut_ptr(), classname.as_ptr()) };
     if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
 }
 
 /// Get global default from model.
 /* mjsDefault* mjs_getSpecDefault(mjSpec* s); */
 pub fn mjs_getSpecDefault<'spec>(spec: &'spec mut MjSpec) -> Option<&'spec mut mjsDefault> {
-    let ptr = unsafe { crate::bindgen::mjs_getSpecDefault(spec.0) };
+    let ptr = unsafe { crate::bindgen::mjs_getSpecDefault(spec.as_mut_ptr()) };
     if ptr.is_null() {None} else {Some(unsafe { &mut *ptr })}
 }
 
@@ -130,7 +130,7 @@ pub fn mjs_firstElement<'spec>(
     spec: &'spec mut MjSpec,
     type_: mjtObj,
 ) -> Option<&'spec mut mjsElement> {
-    let ptr = unsafe { crate::bindgen::mjs_firstElement(spec.0, type_) };
+    let ptr = unsafe { crate::bindgen::mjs_firstElement(spec.as_mut_ptr(), type_) };
     if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
 }
 
@@ -140,6 +140,6 @@ pub fn mjs_nextElement<'spec>(
     spec: &'spec mut MjSpec,
     element: &mut mjsElement,
 ) -> Option<&'spec mut mjsElement> {
-    let ptr = unsafe { crate::bindgen::mjs_nextElement(spec.0, element) };
+    let ptr = unsafe { crate::bindgen::mjs_nextElement(spec.as_mut_ptr(), element) };
     if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
 }

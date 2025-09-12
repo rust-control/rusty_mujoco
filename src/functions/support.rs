@@ -9,7 +9,7 @@ use crate::{obj, mjContact, MjData, MjModel, ObjectId};
 
 /// Returns the number of mjtNum⁠s required for a given state specification. The bits of the integer spec correspond to element fields of mjtState.
 pub fn mj_stateSize(m: &MjModel, spec: crate::bindgen::mjtState) -> usize {
-    unsafe { crate::bindgen::mj_stateSize(m.0, spec.0 as u32) as _ }
+    unsafe { crate::bindgen::mj_stateSize(m.as_ptr(), spec.0 as u32) as _ }
 }
 
 /// Copy concatenated state components specified by spec from d into state. The bits of the integer spec correspond to element fields of mjtState. Fails with mju_error if spec is invalid.
@@ -24,8 +24,8 @@ pub fn mj_getState(
     }
     unsafe {
         crate::bindgen::mj_getState(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             state.as_mut_ptr(),
             spec.0 as u32,
         )
@@ -44,8 +44,8 @@ pub fn mj_setState(
     }
     unsafe {
         crate::bindgen::mj_setState(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             state.as_ptr(),
             spec.0 as u32,
         )
@@ -53,13 +53,13 @@ pub fn mj_setState(
 }
 
 /// Copy current state to the k-th model keyframe.
-pub fn mj_setKeyframe(m: &mut MjModel, d: &mut MjData, k: usize) {
-    unsafe { crate::bindgen::mj_setKeyframe(m.0, d.0, k as i32) }
+pub fn mj_setKeyframe(m: &mut MjModel, d: &MjData, k: usize) {
+    unsafe { crate::bindgen::mj_setKeyframe(m.as_mut_ptr(), d.as_ptr(), k as i32) }
 }
 
 /// Add contact to d->contact list
 pub fn mj_addContact(m: &MjModel, d: &mut MjData, con: &mjContact) -> Result<(), ()> {
-    let res = unsafe { crate::bindgen::mj_addContact(m.0, d.0, con) };
+    let res = unsafe { crate::bindgen::mj_addContact(m.as_ptr(), d.as_mut_ptr(), con) };
     /*
         https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mj-addcontact
         > return 0 if success; 1 if buffer full.
@@ -69,17 +69,17 @@ pub fn mj_addContact(m: &MjModel, d: &mut MjData, con: &mjContact) -> Result<(),
 
 /// Determine type of friction cone.
 pub fn mj_isPyramidal(m: &MjModel) -> bool {
-    unsafe { crate::bindgen::mj_isPyramidal(m.0) != 0 }
+    unsafe { crate::bindgen::mj_isPyramidal(m.as_ptr()) != 0 }
 }
 
 /// Determine type of constraint Jacobian.
 pub fn mj_isSparse(m: &MjModel) -> bool {
-    unsafe { crate::bindgen::mj_isSparse(m.0) != 0 }
+    unsafe { crate::bindgen::mj_isSparse(m.as_ptr()) != 0 }
 }
 
 /// Determine type of solver (PGS is dual, CG and Newton are primal).
 pub fn mj_isDual(m: &MjModel) -> bool {
-    unsafe { crate::bindgen::mj_isDual(m.0) != 0 }
+    unsafe { crate::bindgen::mj_isDual(m.as_ptr()) != 0 }
 }
 
 /// This function multiplies the constraint Jacobian mjData.efc_J by a vector. Note that the Jacobian can be either dense or sparse; the function is aware of this setting. Multiplication by J maps velocities from joint space to constraint space.
@@ -90,8 +90,8 @@ pub fn mj_mulJacVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
     let mut res = vec![0.0; d.nefc()];
     unsafe {
         crate::bindgen::mj_mulJacVec(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             vec.as_mut_ptr(),
             res.as_mut_ptr(),
         );
@@ -107,8 +107,8 @@ pub fn mj_mulJacTVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
     let mut res = vec![0.0; m.nv()];
     unsafe {
         crate::bindgen::mj_mulJacTVec(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             vec.as_mut_ptr(),
             res.as_mut_ptr(),
         );
@@ -140,7 +140,7 @@ pub fn mj_mulJacTVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
 /// with the current generalized positions mjData.qpos are mj_kinematics followed by mj_comPos.
 pub fn mj_jac(
     m: &MjModel,
-    d: &mut MjData,
+    d: &MjData,
     body: ObjectId<obj::Body>,
     point: [f64; 3],
 ) -> (Vec<f64>, Vec<f64>) {
@@ -148,8 +148,8 @@ pub fn mj_jac(
     let mut jacr = vec![0.0; 3 * m.nv() as usize];
     unsafe {
         crate::bindgen::mj_jac(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
             &point,
@@ -162,15 +162,15 @@ pub fn mj_jac(
 /// This and the remaining variants of the Jacobian function call mj_jac internally, with the center of the body, geom or site. They are just shortcuts; the same can be achieved by calling mj_jac directly.
 pub fn mj_jacBody(
     m: &MjModel,
-    d: &mut MjData,
+    d: &MjData,
     body: ObjectId<obj::Body>,
 ) -> (Vec<f64>, Vec<f64>) {
     let mut jacp = vec![0.0; 3 * m.nv() as usize];
     let mut jacr = vec![0.0; 3 * m.nv() as usize];
     unsafe {
         crate::bindgen::mj_jacBody(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
             body.index() as i32,
@@ -182,15 +182,15 @@ pub fn mj_jacBody(
 /// Compute body center-of-mass end-effector Jacobian.
 pub fn mj_jacBodyCom(
     m: &MjModel,
-    d: &mut MjData,
+    d: &MjData,
     body: ObjectId<obj::Body>,
 ) -> (Vec<f64>, Vec<f64>) {
     let mut jacp = vec![0.0; 3 * m.nv() as usize];
     let mut jacr = vec![0.0; 3 * m.nv() as usize];
     unsafe {
         crate::bindgen::mj_jacBodyCom(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
             body.index() as i32,
@@ -202,15 +202,15 @@ pub fn mj_jacBodyCom(
 // Compute geom end-effector Jacobian.
 pub fn mj_jacGeom(
     m: &MjModel,
-    d: &mut MjData,
+    d: &MjData,
     geom: ObjectId<obj::Geom>,
 ) -> (Vec<f64>, Vec<f64>) {
     let mut jacp = vec![0.0; 3 * m.nv() as usize];
     let mut jacr = vec![0.0; 3 * m.nv() as usize];
     unsafe {
         crate::bindgen::mj_jacGeom(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
             geom.index() as i32,
@@ -222,15 +222,15 @@ pub fn mj_jacGeom(
 /// Compute site end-effector Jacobian.
 pub fn mj_jacSite(
     m: &MjModel,
-    d: &mut MjData,
+    d: &MjData,
     site: ObjectId<obj::Site>,
 ) -> (Vec<f64>, Vec<f64>) {
     let mut jacp = vec![0.0; 3 * m.nv() as usize];
     let mut jacr = vec![0.0; 3 * m.nv() as usize];
     unsafe {
         crate::bindgen::mj_jacSite(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
             site.index() as i32,
@@ -251,8 +251,8 @@ pub fn mj_jacPointAxis(
     let mut jacr = vec![0.0; 3 * m.nv() as usize];
     unsafe {
         crate::bindgen::mj_jacPointAxis(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
             &point,
@@ -267,7 +267,7 @@ pub fn mj_jacPointAxis(
 /// This function computes the time-derivative of an end-effector kinematic Jacobian computed by mj_jac. The minimal pipeline stages required for computation to be consistent with the current generalized positions and velocities mjData.{qpos, qvel} are mj_kinematics, mj_comPos,
 pub fn mj_jacDot(
     m: &MjModel,
-    d: &mut MjData,
+    d: &MjData,
     body: ObjectId<obj::Body>,
     point: [f64; 3],
 ) -> (Vec<f64>, Vec<f64>) {
@@ -275,8 +275,8 @@ pub fn mj_jacDot(
     let mut jacr = vec![0.0; 3 * m.nv() as usize];
     unsafe {
         crate::bindgen::mj_jacDot(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             jacp.as_mut_ptr(),
             jacr.as_mut_ptr(),
             &point,
@@ -298,8 +298,8 @@ pub fn mj_angmomMat(
     let mut res = vec![0.0; 3 * m.nv()];
     unsafe {
         crate::bindgen::mj_angmomMat(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             res.as_mut_ptr(),
             body.index() as i32,
         )
@@ -331,7 +331,7 @@ pub fn mj_name2id<O: crate::Obj>(
 ) -> Option<ObjectId<O>> {
     let c_name = std::ffi::CString::new(name).expect("`name` contains null bytes");
     let index = unsafe {
-        crate::bindgen::mj_name2id(m.0, O::TYPE.0 as i32, c_name.as_ptr())
+        crate::bindgen::mj_name2id(m.as_ptr(), O::TYPE.0 as i32, c_name.as_ptr())
     };
     if index < 0 {None} else {Some(unsafe { ObjectId::<O>::new_unchecked(index as usize) })}
 }
@@ -342,7 +342,7 @@ pub fn mj_id2name<O: crate::Obj>(
     id: ObjectId<O>,
 ) -> String {
     let c_name = unsafe {
-        crate::bindgen::mj_id2name(m.0, O::TYPE.0 as i32, id.index() as i32)
+        crate::bindgen::mj_id2name(m.as_ptr(), O::TYPE.0 as i32, id.index() as i32)
     };
     #[cfg(debug_assertions)] {
         assert!(!c_name.is_null(), "`ObjectId` is always expected to have a valid index for the corresponding object type");
@@ -363,7 +363,7 @@ pub fn mj_fullM(
     let mut res = vec![0.0; m.nv() * m.nv()];
     unsafe {
         crate::bindgen::mj_fullM(
-            m.0,
+            m.as_ptr(),
             res.as_mut_ptr(),
             M.as_ptr(),
         );
@@ -388,8 +388,8 @@ pub fn mj_mulM(
     let mut res = vec![0.0; m.nv()];
     unsafe {
         crate::bindgen::mj_mulM(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             vec.as_mut_ptr(),
             res.as_mut_ptr(),
         );
@@ -409,8 +409,8 @@ pub fn mj_mulM2(
     let mut res = vec![0.0; m.nv()];
     unsafe {
         crate::bindgen::mj_mulM2(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             vec.as_mut_ptr(),
             res.as_mut_ptr(),
         );
@@ -443,8 +443,8 @@ pub fn mj_addM(
     }
     unsafe {
         crate::bindgen::mj_addM(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             dst.as_mut_ptr(),
             rownnz.map_or(std::ptr::null_mut(), |x| x.as_mut_ptr()),
             rowadr.map_or(std::ptr::null_mut(), |x| x.as_mut_ptr()),
@@ -472,8 +472,8 @@ pub fn mj_applyFT(
 ) {
     unsafe {
         crate::bindgen::mj_applyFT(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             &point,
             &force,
             &torque,
@@ -495,8 +495,8 @@ pub fn mj_objectVelocity<O: crate::id::Obj>(
     let mut res = [0.0; 6];
     unsafe {
         crate::bindgen::mj_objectVelocity(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             O::TYPE.0 as i32,
             object.index() as i32,
             &mut res,
@@ -522,8 +522,8 @@ pub fn mj_objectAcceleration<O: crate::id::Obj>(
     let mut res = [0.0; 6];
     unsafe {
         crate::bindgen::mj_objectAcceleration(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             O::TYPE.0 as i32,
             object.index() as i32,
             &mut res,
@@ -549,8 +549,8 @@ pub fn mj_geomDistance(
     let mut fromto = [0.0; 6];
     let dist = unsafe {
         crate::bindgen::mj_geomDistance(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             geom1.index() as i32,
             geom2.index() as i32,
             distmax,
@@ -570,8 +570,8 @@ pub fn mj_contactForce(
     let mut result = [0.0; 6];
     unsafe {
         crate::bindgen::mj_contactForce(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_ptr(),
             contact_id as i32,
             &mut result,
         );
@@ -605,7 +605,7 @@ pub fn mj_differentiatePos(
     let mut qvel = vec![0.0; m.nv()];
     unsafe {
         crate::bindgen::mj_differentiatePos(
-            m.0,
+            m.as_ptr(),
             qvel.as_mut_ptr(),
             dt,
             qpos1.as_ptr(),
@@ -629,7 +629,7 @@ pub fn mj_integratePos(
     }
     unsafe {
         crate::bindgen::mj_integratePos(
-            m.0,
+            m.as_ptr(),
             qpos.as_mut_ptr(),
             qvel.as_ptr(),
             dt,
@@ -647,7 +647,7 @@ pub fn mj_normalizeQuat(
         assert_eq!(qpos.len(), m.nq());
     }
     unsafe {
-        crate::bindgen::mj_normalizeQuat(m.0, qpos.as_mut_ptr());
+        crate::bindgen::mj_normalizeQuat(m.as_ptr(), qpos.as_mut_ptr());
     }
 }
 
@@ -665,7 +665,7 @@ pub fn mj_local2Global(
 ) {
     unsafe {
         crate::bindgen::mj_local2Global(
-            d.0,
+            d.as_mut_ptr(),
             xpos,
             xmat,
             pos,
@@ -678,7 +678,7 @@ pub fn mj_local2Global(
 
 /// Sum all body masses.
 pub fn mj_getTotalmass(m: &MjModel) -> f64 {
-    unsafe { crate::bindgen::mj_getTotalmass(m.0) }
+    unsafe { crate::bindgen::mj_getTotalmass(m.as_ptr()) }
 }
 
 /// Scale body masses and inertias to achieve specified total mass.
@@ -687,7 +687,7 @@ pub fn mj_setTotalmass(
     m: &mut MjModel,
     newmass: f64,
 ) {
-    unsafe { crate::bindgen::mj_setTotalmass(m.0, newmass) }
+    unsafe { crate::bindgen::mj_setTotalmass(m.as_mut_ptr(), newmass) }
 }
 
 /// Return a config attribute value of a plugin instance;
@@ -700,7 +700,7 @@ pub fn mj_getPluginConfig(
 ) -> Option<String> {
     let c_attrib = std::ffi::CString::new(attrib).expect("`attrib` contains null bytes");
     let c_str = unsafe {
-        crate::bindgen::mj_getPluginConfig(m.0, plugin_id.index() as i32, c_attrib.as_ptr())
+        crate::bindgen::mj_getPluginConfig(m.as_ptr(), plugin_id.index() as i32, c_attrib.as_ptr())
     };
     if c_str.is_null() {
         None

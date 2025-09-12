@@ -33,7 +33,7 @@ pub fn mjs_detachBody(s: &mut MjSpec, b: &mut mjsBody) -> Result<(), ()> {
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-detachbody>
     > return 0 on success
     */
-    if unsafe { crate::bindgen::mjs_detachBody(s.0, b) } == 0 {Ok(())} else {Err(())}
+    if unsafe { crate::bindgen::mjs_detachBody(s.as_mut_ptr(), b) } == 0 {Ok(())} else {Err(())}
 }
 
 /// Delete default class and descendants from mjSpec, remove all references.
@@ -43,5 +43,5 @@ pub fn mjs_detachDefault(s: &mut MjSpec, d: &mut mjsDefault) -> Result<(), ()> {
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-detachdefault>
     > return 0 on success
     */
-    if unsafe { crate::bindgen::mjs_detachDefault(s.0, d) } == 0 {Ok(())} else {Err(())}
+    if unsafe { crate::bindgen::mjs_detachDefault(s.as_mut_ptr(), d) } == 0 {Ok(())} else {Err(())}
 }

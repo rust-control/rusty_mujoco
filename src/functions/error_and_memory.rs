@@ -41,7 +41,7 @@ pub fn mj_warning(
     warning: crate::bindgen::mjtWarning,
     info: usize,
 ) {
-    unsafe { crate::bindgen::mj_warning(d.0, warning.0 as i32, info as i32) }
+    unsafe { crate::bindgen::mj_warning(d.as_mut_ptr(), warning.0 as i32, info as i32) }
 }
 
 /// Write [datetime, type: message] to MUJOCO_LOG.TXT.
@@ -55,7 +55,7 @@ pub fn mju_writeLog(kind: impl Into<String>, msg: impl Into<String>) {
 /// Get compiler error message from spec.
 /* const char* mjs_getError(mjSpec* s); */
 pub fn mjs_getError(s: &mut crate::MjSpec) -> Option<String> {
-    let c_ptr = unsafe { crate::bindgen::mjs_getError(s.0) };
+    let c_ptr = unsafe { crate::bindgen::mjs_getError(s.as_mut_ptr()) };
     if c_ptr.is_null() {
         None
     } else {
@@ -70,5 +70,5 @@ pub fn mjs_isWarning(s: &mut crate::MjSpec) -> bool {
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-isWarning>
     > Returns 1 if the error is a warning.
     */
-    unsafe { crate::bindgen::mjs_isWarning(s.0) == 1 }
+    unsafe { crate::bindgen::mjs_isWarning(s.as_mut_ptr()) == 1 }
 }

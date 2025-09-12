@@ -16,7 +16,7 @@ use crate::{
 pub fn mjs_defaultSpec() -> MjSpec {
     let mut c = std::mem::MaybeUninit::<crate::bindgen::mjSpec>::uninit();
     unsafe { crate::bindgen::mjs_defaultSpec(c.as_mut_ptr()); }
-    MjSpec(c.as_mut_ptr())
+    MjSpec::from_raw(c.as_mut_ptr())
 }
 
 /// Set default orientation attributes.

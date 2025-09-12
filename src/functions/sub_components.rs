@@ -5,97 +5,97 @@
 /// Evaluate position-dependent sensors.
 /* void mj_sensorPos(const mjModel* m, mjData* d); */
 pub fn mj_sensorPos(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_sensorPos(m.0, d.0) }
+    unsafe { crate::bindgen::mj_sensorPos(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Evaluate velocity-dependent sensors.
 /* void mj_sensorVel(const mjModel* m, mjData* d); */
 pub fn mj_sensorVel(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_sensorVel(m.0, d.0) }
+    unsafe { crate::bindgen::mj_sensorVel(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Evaluate acceleration and force-dependent sensors.
 /* void mj_sensorAcc(const mjModel* m, mjData* d); */
 pub fn mj_sensorAcc(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_sensorAcc(m.0, d.0) }
+    unsafe { crate::bindgen::mj_sensorAcc(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Evaluate position-dependent energy (potential).
 /* void mj_energyPos(const mjModel* m, mjData* d); */
 pub fn mj_energyPos(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_energyPos(m.0, d.0) }
+    unsafe { crate::bindgen::mj_energyPos(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Evaluate velocity-dependent energy (kinetic).
 /* void mj_energyVel(const mjModel* m, mjData* d); */
 pub fn mj_energyVel(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_energyVel(m.0, d.0) }
+    unsafe { crate::bindgen::mj_energyVel(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Check qpos, reset if any element is too big or nan.
 /* void mj_checkPos(const mjModel* m, mjData* d); */
 pub fn mj_checkPos(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_checkPos(m.0, d.0) }
+    unsafe { crate::bindgen::mj_checkPos(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Check qvel, reset if any element is too big or nan.
 /* void mj_checkVel(const mjModel* m, mjData* d); */
 pub fn mj_checkVel(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_checkVel(m.0, d.0) }
+    unsafe { crate::bindgen::mj_checkVel(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Check qacc, reset if any element is too big or nan.
 /* void mj_checkAcc(const mjModel* m, mjData* d); */
 pub fn mj_checkAcc(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_checkAcc(m.0, d.0) }
+    unsafe { crate::bindgen::mj_checkAcc(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Run forward kinematics.
 /* void mj_kinematics(const mjModel* m, mjData* d); */
 pub fn mj_kinematics(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_kinematics(m.0, d.0) }
+    unsafe { crate::bindgen::mj_kinematics(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Map inertias and motion dofs to global frame centered at CoM.
 /* void mj_comPos(const mjModel* m, mjData* d); */
 pub fn mj_comPos(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_comPos(m.0, d.0) }
+    unsafe { crate::bindgen::mj_comPos(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Compute camera and light positions and orientations.
 /* void mj_camlight(const mjModel* m, mjData* d); */
 pub fn mj_camlight(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_camlight(m.0, d.0) }
+    unsafe { crate::bindgen::mj_camlight(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Compute flex-related quantities.
 /* void mj_flex(const mjModel* m, mjData* d); */
 pub fn mj_flex(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_flex(m.0, d.0) }
+    unsafe { crate::bindgen::mj_flex(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Compute tendon lengths, velocities and moment arms.
 /* void mj_tendon(const mjModel* m, mjData* d); */
 pub fn mj_tendon(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_tendon(m.0, d.0) }
+    unsafe { crate::bindgen::mj_tendon(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Compute actuator transmission lengths and moments.
 /* void mj_transmission(const mjModel* m, mjData* d); */
 pub fn mj_transmission(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_transmission(m.0, d.0) }
+    unsafe { crate::bindgen::mj_transmission(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Run composite rigid body inertia algorithm (CRB).
 /* void mj_crb(const mjModel* m, mjData* d); */
 pub fn mj_crb(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_crb(m.0, d.0) }
+    unsafe { crate::bindgen::mj_crb(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Compute sparse _L^T D L_ factorizaton of inertia matrix.
 /* void mj_factorM(const mjModel* m, mjData* d); */
 pub fn mj_factorM(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_factorM(m.0, d.0) }
+    unsafe { crate::bindgen::mj_factorM(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Solve linear system _M x = y_ using factorization: _x = (L^TDL)^{-1} y_
@@ -111,8 +111,8 @@ pub fn mj_solveM(
     assert_eq!(y.len(), m.nv());
     unsafe {
         crate::bindgen::mj_solveM(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             x.as_mut_ptr(),
             y.as_ptr(),
             n as i32,
@@ -136,8 +136,8 @@ pub fn mj_solveM2(
     assert_eq!(sqrt_inv_d.len(), m.nv());
     unsafe {
         crate::bindgen::mj_solveM2(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             x.as_mut_ptr(),
             y.as_ptr(),
             sqrt_inv_d.as_ptr(),
@@ -149,13 +149,13 @@ pub fn mj_solveM2(
 /// Compute cvel, cdof_dot.
 /* void mj_comVel(const mjModel* m, mjData* d); */
 pub fn mj_comVel(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_comVel(m.0, d.0) }
+    unsafe { crate::bindgen::mj_comVel(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Compute qfrc_passive from spring-dampers, gravity compensation and fluid forces.
 /* void mj_passive(const mjModel* m, mjData* d); */
 pub fn mj_passive(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_passive(m.0, d.0) }
+    unsafe { crate::bindgen::mj_passive(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Sub-tree linear velocity and angular momentum:
@@ -169,7 +169,7 @@ pub fn mj_passive(m: &crate::MjModel, d: &mut crate::MjData) {
 /// “vel”.
 /* void mj_subtreeVel(const mjModel* m, mjData* d); */
 pub fn mj_subtreeVel(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_subtreeVel(m.0, d.0) }
+    unsafe { crate::bindgen::mj_subtreeVel(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Recursive Newton Euler: compute _M(q) \ddot{q} + C(q, \dot{q})_.
@@ -183,8 +183,8 @@ pub fn mj_rne(
     let mut result = vec![0.0; m.nv()];
     unsafe {
         crate::bindgen::mj_rne(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             flg_acc as i32,
             result.as_mut_ptr()
         );
@@ -214,37 +214,37 @@ pub fn mj_rne(
 /// “acc”.
 /* void mj_rnePostConstraint(const mjModel* m, mjData* d); */
 pub fn mj_rnePostConstraint(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_rnePostConstraint(m.0, d.0) }
+    unsafe { crate::bindgen::mj_rnePostConstraint(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Run collision detection.
 /* void mj_collision(const mjModel* m, mjData* d); */
 pub fn mj_collision(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_collision(m.0, d.0) }
+    unsafe { crate::bindgen::mj_collision(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Construct constraints.
 /* void mj_makeConstraint(const mjModel* m, mjData* d); */
 pub fn mj_makeConstraint(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_makeConstraint(m.0, d.0) }
+    unsafe { crate::bindgen::mj_makeConstraint(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Find constraint islands.
 /* void mj_island(const mjModel* m, mjData* d); */
 pub fn mj_island(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_island(m.0, d.0) }
+    unsafe { crate::bindgen::mj_island(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Compute inverse constraint inertia efc_AR.
 /* void mj_projectConstraint(const mjModel* m, mjData* d); */
 pub fn mj_projectConstraint(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_projectConstraint(m.0, d.0) }
+    unsafe { crate::bindgen::mj_projectConstraint(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Compute efc_vel, efc_aref.
 /* void mj_referenceConstraint(const mjModel* m, mjData* d); */
 pub fn mj_referenceConstraint(m: &crate::MjModel, d: &mut crate::MjData) {
-    unsafe { crate::bindgen::mj_referenceConstraint(m.0, d.0) }
+    unsafe { crate::bindgen::mj_referenceConstraint(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Compute `efc_state`, `efc_force`, `qfrc_constraint`, and (optionally) cone Hessians.
@@ -262,8 +262,8 @@ pub fn mj_constraintUpdate(
     let mut cost = [0.0];
     unsafe {
         crate::bindgen::mj_constraintUpdate(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             jar.as_ptr(),
             &mut cost,
             flg_cone_hessian as i32,

@@ -107,7 +107,7 @@ pub fn mjv_connector(
 pub fn mjv_defaultScene() -> MjvScene {
     let mut c = std::mem::MaybeUninit::<crate::bindgen::mjvScene>::uninit();
     unsafe { crate::bindgen::mjv_defaultScene(c.as_mut_ptr()); }
-    MjvScene(c.as_mut_ptr())
+    MjvScene::from_raw(c.as_mut_ptr())
 }
 
 /// Allocate resources in abstract scene.
@@ -121,8 +121,8 @@ pub fn mjv_makeScene(
 ) {
     unsafe {
         crate::bindgen::mjv_makeScene(
-            model.0,
-            scene.0,
+            model.as_ptr(),
+            scene.as_mut_ptr(),
             maxgeom as i32,
         );
     }
@@ -133,7 +133,7 @@ pub fn mjv_makeScene(
 /// **note**: [`MjvScene`] calls this function in its `Drop` implementation.
 /* void mjv_freeScene(mjvScene* scn); */
 pub fn mjv_freeScene(scene: &mut MjvScene) {
-    unsafe { crate::bindgen::mjv_freeScene(scene.0) }
+    unsafe { crate::bindgen::mjv_freeScene(scene.as_mut_ptr()) }
 }
 
 /// Update entire scene given model state.
@@ -150,13 +150,13 @@ pub fn mjv_updateScene(
 ) {
     unsafe {
         crate::bindgen::mjv_updateScene(
-            model.0,
-            data.0,
+            model.as_ptr(),
+            data.as_mut_ptr(),
             opt,
             pert.map_or(std::ptr::null(), |p| p),
             cam,
             catmask.0 as i32,
-            scene.0,
+            scene.as_mut_ptr(),
         );
     }
 }
@@ -164,7 +164,7 @@ pub fn mjv_updateScene(
 /// Copy mjModel, skip large arrays not required for abstract visualization.
 /* void mjv_copyModel(mjModel* dest, const mjModel* src); */
 pub fn mjv_copyModel(dest: &mut MjModel, src: &MjModel) {
-    unsafe { crate::bindgen::mjv_copyModel(dest.0, src.0) }
+    unsafe { crate::bindgen::mjv_copyModel(dest.as_mut_ptr(), src.as_ptr()) }
 }
 
 /// Add geoms from selected categories.
@@ -180,12 +180,12 @@ pub fn mjv_addGeoms(
 ) {
     unsafe {
         crate::bindgen::mjv_addGeoms(
-            model.0,
-            data.0,
+            model.as_ptr(),
+            data.as_mut_ptr(),
             opt,
             pert,
             catmask.0 as i32,
-            scene.0,
+            scene.as_mut_ptr(),
         );
     }
 }
@@ -199,9 +199,9 @@ pub fn mjv_makeLights(
 ) {
     unsafe {
         crate::bindgen::mjv_makeLights(
-            model.0,
-            data.0,
-            scene.0,
+            model.as_ptr(),
+            data.as_ptr(),
+            scene.as_mut_ptr(),
         );
     }
 }
@@ -216,10 +216,10 @@ pub fn mjv_updateCamera(
 ) {
     unsafe {
         crate::bindgen::mjv_updateCamera(
-            model.0,
-            data.0,
+            model.as_ptr(),
+            data.as_ptr(),
             cam,
-            scene.0,
+            scene.as_mut_ptr(),
         );
     }
 }
@@ -233,9 +233,9 @@ pub fn mjv_updateSkin(
 ) {
     unsafe {
         crate::bindgen::mjv_updateSkin(
-            model.0,
-            data.0,
-            scene.0,
+            model.as_ptr(),
+            data.as_ptr(),
+            scene.as_mut_ptr(),
         );
     }
 }

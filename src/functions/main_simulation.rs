@@ -12,27 +12,27 @@ use crate::{MjModel, MjData};
 
 /// Advance simulation, use control callback to obtain external force and control.
 pub fn mj_step(m: &MjModel, d: &mut MjData) {
-    unsafe { crate::bindgen::mj_step(m.0, d.0) }
+    unsafe { crate::bindgen::mj_step(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Advance simulation in two steps: before external force and control is set by user.
 pub fn mj_step1(m: &MjModel, d: &mut MjData) {
-    unsafe { crate::bindgen::mj_step1(m.0, d.0) }
+    unsafe { crate::bindgen::mj_step1(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Advance simulation in two steps: after external force and control is set by user.
 pub fn mj_step2(m: &MjModel, d: &mut MjData) {
-    unsafe { crate::bindgen::mj_step2(m.0, d.0) }
+    unsafe { crate::bindgen::mj_step2(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Forward dynamics: same as mj_step but do not integrate in time.
 pub fn mj_forward(m: &MjModel, d: &mut MjData) {
-    unsafe { crate::bindgen::mj_forward(m.0, d.0) }
+    unsafe { crate::bindgen::mj_forward(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Inverse dynamics: qacc must be set before calling.
 pub fn mj_inverse(m: &MjModel, d: &mut MjData) {
-    unsafe { crate::bindgen::mj_inverse(m.0, d.0) }
+    unsafe { crate::bindgen::mj_inverse(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Forward dynamics with skip
@@ -44,8 +44,8 @@ pub fn mj_forwardSkip(
 ) {
     unsafe {
         crate::bindgen::mj_forwardSkip(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             skipstage.0 as i32,
             skipsensor as i32,
     )}
@@ -60,8 +60,8 @@ pub fn mj_inverseSkip(
 ) {
     unsafe {
         crate::bindgen::mj_inverseSkip(
-            m.0,
-            d.0,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             skipstage.0 as i32,
             skipsensor as i32,
         )
