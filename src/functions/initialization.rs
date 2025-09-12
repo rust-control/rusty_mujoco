@@ -7,7 +7,7 @@ use crate::MjError;
 
 /// Set default options for length range computation.
 /// 
-/// **note**: [`mjLROpt`] calls this function in its `Default` implementation.
+/// **note**: [`mjLROpt`](crate::mjLROpt) calls this function in its `Default` implementation.
 /* void mj_defaultLROpt(mjLROpt* opt); */
 pub fn mj_defaultLROpt() -> crate::mjLROpt {
     let mut c = std::mem::MaybeUninit::<crate::mjLROpt>::uninit();
@@ -29,7 +29,7 @@ pub fn mj_defaultSolRefImp() -> (
 
 /// Set physics options to default values.
 /// 
-/// **note**: [`mjOption`] calls this function in its `Default` implementation.
+/// **note**: [`mjOption`](crate::mjOption) calls this function in its `Default` implementation.
 /* void mj_defaultOption(mjOption* opt); */
 pub fn mj_defaultOption() -> crate::mjOption {
     let mut c = std::mem::MaybeUninit::<crate::mjOption>::uninit();
@@ -39,7 +39,7 @@ pub fn mj_defaultOption() -> crate::mjOption {
 
 /// Set visual options to default values.
 /// 
-/// **note**: [`mjVisual`] calls this function in its `Default` implementation.
+/// **note**: [`mjVisual`](crate::mjVisual) calls this function in its `Default` implementation.
 /* void mj_defaultVisual(mjVisual* vis); */
 pub fn mj_defaultVisual() -> crate::mjVisual {
     let mut c = std::mem::MaybeUninit::<crate::mjVisual>::uninit();
@@ -112,7 +112,7 @@ pub fn mj_loadModel(
 
 /// Free memory allocation in model.
 /// 
-/// **note**: [`mjModel`] calls this function in its `Drop` implementation.
+/// **note**: [`MjModel`](crate::MjModel) calls this function in its `Drop` implementation.
 /* void mj_deleteModel(mjModel* m); */
 pub fn mj_deleteModel(m: &mut crate::MjModel) {
     unsafe { crate::bindgen::mj_deleteModel(m.as_mut_ptr()) };
@@ -210,7 +210,7 @@ pub fn mj_stackAllocInt(d: &mut crate::MjData, size: usize) -> *mut i32 {
 
 /// Free memory allocation in mjData.
 /// 
-/// **note**: [`mjData`] calls this function in its `Drop` implementation.
+/// **note**: [`MjData`](crate::MjData) calls this function in its `Drop` implementation.
 /* void mj_deleteData(mjData* d); */
 pub fn mj_deleteData(d: &mut crate::MjData) {
     unsafe { crate::bindgen::mj_deleteData(d.as_mut_ptr()) };

@@ -31,8 +31,17 @@ resource_wrapper!(
     MjrContext for crate::bindgen::mjrContext;
     drop = crate::mjr_freeContext;
 );
+impl Default for MjrContext {
+    /// Internally calls [`mjr_defaultContext`](crate::mjr_defaultContext).
+    /// 
+    /// **note**: Be sure to call [`mjr_makeContext`](crate::mjr_makeContext) for the returned `MjrContext` to allocate resources
+    ///           before using it in rendering.
+    fn default() -> Self {
+        crate::mjr_defaultContext()
+    }
+}
 impl MjrContext {
-    /// Create a new `mjrContext` with given font scale.
+    /// Create a new `MjrContext` with given font scale.
     /// 
     /// This internally calls:
     /// 
@@ -42,15 +51,6 @@ impl MjrContext {
         let mut con = Self::default();
         crate::mjr_makeContext(m, &mut con, fontscale);
         con
-    }
-}
-impl Default for MjrContext {
-    /// Internally calls [`mjr_defaultContext`](crate::mjr_defaultContext).
-    /// 
-    /// **note**: Be sure to call [`mjr_makeContext`] for the returned `mjrContext` to allocate resources
-    ///           before using it in rendering.
-    fn default() -> Self {
-        crate::mjr_defaultContext()
     }
 }
 fields_mapping!(MjrContext {
