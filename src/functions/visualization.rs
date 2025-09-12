@@ -21,11 +21,6 @@ pub fn mjv_defaultOption() -> mjvOption {
     unsafe { crate::bindgen::mjv_defaultOption(c.as_mut_ptr()); }
     unsafe { c.assume_init() }
 }
-impl Default for mjvOption {
-    fn default() -> Self {
-        mjv_defaultOption()
-    }
-}
 
 /// Set default figure.
 /// 
@@ -35,11 +30,6 @@ pub fn mjv_defaultFigure() -> crate::mjvFigure {
     let mut c = std::mem::MaybeUninit::<mjvFigure>::uninit();
     unsafe { crate::bindgen::mjv_defaultFigure(c.as_mut_ptr()); }
     unsafe { c.assume_init() }
-}
-impl Default for mjvFigure {
-    fn default() -> Self {
-        mjv_defaultFigure()
-    }
 }
 
 /// Initialize given geom fields when not `None`, set the rest to their default values.
@@ -66,11 +56,6 @@ pub fn mjv_initGeom(
         );
     }
     unsafe { c.assume_init() }
-}
-impl mjvGeom {
-    pub fn new(type_: crate::bindgen::mjtGeom) -> Self {
-        mjv_initGeom(type_, None, None, None, None)
-    }
 }
 
 /// Set (type, size, pos, mat) for connector-type geom between given points.

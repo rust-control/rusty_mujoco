@@ -139,6 +139,11 @@ impl mjvGLCamera {
 }
 
 pub use crate::bindgen::mjvGeom;
+impl mjvGeom {
+    pub fn new(type_: crate::bindgen::mjtGeom) -> Self {
+        crate::mjv_initGeom(type_, None, None, None, None)
+    }
+}
 fields_mapping!(mjvGeom {
     scalars {
         size: [f32; 3] = "size parameters";
@@ -214,6 +219,11 @@ impl mjvLight {
 }
 
 pub use crate::bindgen::mjvOption;
+impl Default for mjvOption {
+    fn default() -> Self {
+        crate::mjv_defaultOption()
+    }
+}
 fields_mapping!(mjvOption {
     scalars {
         bvh_depth / set_bvh_depth: usize = "depth of the bounding volume hierarchy to be visualized";
@@ -397,6 +407,11 @@ impl MjvScene {
 }
 
 pub use crate::bindgen::mjvFigure;
+impl Default for mjvFigure {
+    fn default() -> Self {
+        crate::mjv_defaultFigure()
+    }
+}
 fields_mapping!(mjvFigure {
     boolean_flags {
         flg_legend / set_flg_legend = "show legend";
