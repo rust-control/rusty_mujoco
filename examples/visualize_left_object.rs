@@ -40,7 +40,7 @@ fn main() {
     
     let model = mj_loadXML(xml_path).expect("Failed to load XML file");
     let mut data = mj_makeData(&model);
-    
+
     let mut glfw = glfw::init(glfw::fail_on_errors).expect("Failed to initialize GLFW");
     let (mut window, events) = glfw
         .create_window(1200, 900, "Acrobot Simulation", glfw::WindowMode::Windowed)
@@ -53,16 +53,16 @@ fn main() {
     let mut scn = MjvScene::new(&model, 2000);
     let mut cam = mjvCamera::default();
     camera_name.map(|name| cam.set_fixedcamid(model.object_id(&name).expect("No camera of such name in the model")));
-    
-     while !window.should_close() {
-         while data.time() < glfw.get_time() {
-             mj_step(&model, &mut data);
-         }
-         
-         let viewport = {
-             let (width, height) = window.get_framebuffer_size();
-             mjrRect::new(0, 0, width as u32, height as u32)
-         };
+
+    while !window.should_close() {
+        while data.time() < glfw.get_time() {
+            mj_step(&model, &mut data);
+        }
+        
+        let viewport = {
+            let (width, height) = window.get_framebuffer_size();
+            mjrRect::new(0, 0, width as u32, height as u32)
+        };
          
         mjv_updateScene(
             &model,
@@ -88,5 +88,6 @@ fn main() {
                 _ => (),
             }
         }
-     }
+    }
+*/
 }

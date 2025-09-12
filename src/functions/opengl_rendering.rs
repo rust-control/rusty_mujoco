@@ -19,7 +19,7 @@ use crate::{
 
 /// Set default mjrContext.
 /// 
-/// **note**: [`mjrContext`] calls this function in its `Default` implementation.
+/// **note**: [`MjrContext`] calls this function in its `Default` implementation.
 /* void mjr_defaultContext(mjrContext* con); */
 pub fn mjr_defaultContext() -> MjrContext {
     let mut c = std::mem::MaybeUninit::<crate::bindgen::mjrContext>::uninit();
@@ -29,7 +29,7 @@ pub fn mjr_defaultContext() -> MjrContext {
 
 /// Allocate resources in custom OpenGL context; fontscale is mjtFontScale.
 /// 
-/// **note**: [`mjrContext`] calls this function in its `new` implementation.
+/// **note**: [`MjrContext`] calls this function in its `new` implementation.
 /* void mjr_makeContext(const mjModel* m, mjrContext* con, int fontscale); */
 pub fn mjr_makeContext(m: &MjModel, con: &mut MjrContext, fontscale: mjtFontScale) {
     unsafe {
@@ -61,7 +61,7 @@ pub fn mjr_addAux(
 
 /// Free resources in custom OpenGL context, set to default.
 /// 
-/// **note**: [`mjrContext`] calls this function in its `Drop` implementation.
+/// **note**: [`MjrContext`] calls this function in its `Drop` implementation.
 /* void mjr_freeContext(mjrContext* con); */
 pub fn mjr_freeContext(con: &mut MjrContext) {
     unsafe {

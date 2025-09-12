@@ -36,8 +36,8 @@ impl MjrContext {
     /// 
     /// This internally calls:
     /// 
-    /// 1. [`mjr_defaultContext`] to set default values for the scene.
-    /// 2. [`mjr_makeContext`] to allocate resources in the scene.
+    /// 1. [`mjr_defaultContext`](crate::mjr_defaultContext) to set default values for the scene.
+    /// 2. [`mjr_makeContext`](crate::mjr_makeContext) to allocate resources in the scene.
     pub fn new(m: &crate::MjModel, fontscale: crate::mjtFontScale) -> Self {
         let mut con = Self::default();
         crate::mjr_makeContext(m, &mut con, fontscale);
@@ -45,7 +45,7 @@ impl MjrContext {
     }
 }
 impl Default for MjrContext {
-    /// Internally calls [`mjr_defaultContext`].
+    /// Internally calls [`mjr_defaultContext`](crate::mjr_defaultContext).
     /// 
     /// **note**: Be sure to call [`mjr_makeContext`] for the returned `mjrContext` to allocate resources
     ///           before using it in rendering.

@@ -266,7 +266,7 @@ impl MjvScene {
     }
 }
 impl Default for MjvScene {
-    /// Internally calls [`mjv_defaultScene`].
+    /// Internally calls [`mjv_defaultScene`](mjv_defaultScene).
     /// 
     /// **note**: Be sure to call [`mjv_makeScene`] for the returned `mjvScene` to allocate resources in abstract scene
     ///           before using it in rendering.
