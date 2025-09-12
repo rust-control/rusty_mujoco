@@ -55,6 +55,8 @@ fn main() {
     camera_name.map(|name| cam.set_fixedcamid(model.object_id(&name).expect("No camera of such name in the model")));
 
     while !window.should_close() {
+        dbg!(scn.scale());
+         
         while data.time() < glfw.get_time() {
             mj_step(&model, &mut data);
         }
@@ -63,6 +65,8 @@ fn main() {
             let (width, height) = window.get_framebuffer_size();
             mjrRect::new(0, 0, width as u32, height as u32)
         };
+        
+        dbg!(scn.scale());
          
         mjv_updateScene(
             &model,
@@ -73,7 +77,13 @@ fn main() {
             mjtCatBit::ALL,
             &mut scn,
         );
+        
+        dbg!(scn.scale());
+         
         mjr_render(viewport, &mut scn, &con);
+        
+        dbg!(scn.scale());
+         
         glfw::Context::swap_buffers(&mut *window);
         
         glfw.poll_events();
