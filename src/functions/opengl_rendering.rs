@@ -22,7 +22,7 @@ use crate::{
 /// **note**: [`MjrContext`] calls this function in its `Default` implementation.
 /* void mjr_defaultContext(mjrContext* con); */
 pub fn mjr_defaultContext() -> MjrContext {
-    let mut c = std::mem::ManuallyDrop::new(std::mem::MaybeUninit::<crate::bindgen::mjrContext>::uninit());
+    let mut c = std::mem::ManuallyDrop::new(std::mem::ManuallyDrop::new(std::mem::MaybeUninit::<crate::bindgen::mjrContext>::uninit()));
     unsafe { crate::bindgen::mjr_defaultContext(c.as_mut_ptr()); }
     MjrContext::from_raw(c.as_mut_ptr())
 }

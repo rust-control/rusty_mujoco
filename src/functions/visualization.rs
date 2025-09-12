@@ -105,7 +105,7 @@ pub fn mjv_connector(
 /// 
 /* void mjv_defaultScene(mjvScene* scn); */
 pub fn mjv_defaultScene() -> MjvScene {
-    let mut c = std::mem::MaybeUninit::<crate::bindgen::mjvScene>::uninit();
+    let mut c = std::mem::ManuallyDrop::new(std::mem::MaybeUninit::<crate::bindgen::mjvScene>::uninit());
     unsafe { crate::bindgen::mjv_defaultScene(c.as_mut_ptr()); }
     MjvScene::from_raw(c.as_mut_ptr())
 }

@@ -64,7 +64,7 @@ pub unsafe fn mj_copyModel(dest: Option<&mut crate::MjModel>, src: &crate::MjMod
             None
         }
         None => {
-            let mut c = std::mem::MaybeUninit::<crate::bindgen::mjModel>::uninit();
+            let mut c = std::mem::ManuallyDrop::new(std::mem::MaybeUninit::<crate::bindgen::mjModel>::uninit());
             unsafe { crate::bindgen::mj_copyModel(c.as_mut_ptr(), src.as_ptr()) };
             Some(crate::MjModel::from_raw(c.as_mut_ptr()))
         }
