@@ -57,7 +57,7 @@
 *Cargo.toml*
 ```toml
 [dependencies]
-rusty_mujoco = "0.1"
+rusty_mujoco = "0.2"
 ```
 
 *src/main.rs*
