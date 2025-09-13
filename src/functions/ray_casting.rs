@@ -27,8 +27,8 @@ use crate::{obj, ObjectId, VertexId};
                  const mjtByte* geomgroup, mjtByte flg_static, int bodyexclude,
                  int* geomid, mjtNum* dist, int nray, mjtNum cutoff); */
 pub fn mj_multiRay<const N_RAY: usize>(
-    m: &crate::mjModel,
-    d: &mut crate::mjData,
+    m: &crate::MjModel,
+    d: &mut crate::MjData,
     pnt: [f64; 3],
     vec: [[f64; 3]; N_RAY],
     geomgroup: Option<&[u8]>,
@@ -43,8 +43,8 @@ pub fn mj_multiRay<const N_RAY: usize>(
 
     unsafe {
         crate::bindgen::mj_multiRay(
-            m,
-            d,
+            m.as_ptr(),
+            d.as_mut_ptr(),
             &pnt,
             vec.as_ptr(),
             geomgroup.map_or(std::ptr::null(), |g| g.as_ptr()),
@@ -80,8 +80,8 @@ pub fn mj_multiRay<const N_RAY: usize>(
               const mjtByte* geomgroup, mjtByte flg_static, int bodyexclude,
               int geomid[1]); */
 pub fn mj_ray(
-    m: &crate::mjModel,
-    d: &mut crate::mjData,
+    m: &crate::MjModel,
+    d: &crate::MjData,
     pnt: [f64; 3],
     vec: [f64; 3],
     geomgroup: Option<[bool; crate::bindgen::mjNGROUP as usize]>,
@@ -94,8 +94,8 @@ pub fn mj_ray(
     
     let distance = unsafe {
         crate::bindgen::mj_ray(
-            m,
-            d,
+            m.as_ptr(),
+            d.as_ptr(),
             &pnt,
             &vec,
             geomgroup.map_or(std::ptr::null(), |gg| gg.as_ptr()),
@@ -116,16 +116,16 @@ pub fn mj_ray(
 /* mjtNum mj_rayHfield(const mjModel* m, const mjData* d, int geomid,
                     const mjtNum pnt[3], const mjtNum vec[3]); */
 pub fn mj_rayHfield(
-    m: &crate::mjModel,
-    d: &mut crate::mjData,
+    m: &crate::MjModel,
+    d: &crate::MjData,
     geomid: ObjectId<obj::Geom>,
     pnt: [f64; 3],
     vec: [f64; 3],
 ) -> Option<f64> {
     let distance = unsafe {
         crate::bindgen::mj_rayHfield(
-            m,
-            d,
+            m.as_ptr(),
+            d.as_ptr(),
             geomid.index() as i32,
             &pnt,
             &vec,
@@ -143,16 +143,16 @@ pub fn mj_rayHfield(
 /* mjtNum mj_rayMesh(const mjModel* m, const mjData* d, int geomid,
                   const mjtNum pnt[3], const mjtNum vec[3]); */
 pub fn mj_rayMesh(
-    m: &crate::mjModel,
-    d: &mut crate::mjData,
+    m: &crate::MjModel,
+    d: &crate::MjData,
     geomid: ObjectId<obj::Geom>,
     pnt: [f64; 3],
     vec: [f64; 3],
 ) -> Option<f64> {
     let distance = unsafe {
         crate::bindgen::mj_rayMesh(
-            m,
-            d,
+            m.as_ptr(),
+            d.as_ptr(),
             geomid.index() as i32,
             &pnt,
             &vec,
@@ -201,8 +201,8 @@ pub fn mju_rayGeom(
                    mjtByte flg_edge, mjtByte flg_face, mjtByte flg_skin, int flexid,
                    const mjtNum* pnt, const mjtNum* vec, int vertid[1]); */
 pub fn mju_rayFlex(
-    m: &crate::mjModel,
-    d: &mut crate::mjData,
+    m: &crate::MjModel,
+    d: &crate::MjData,
     flex_layer: Option<usize>,
     flg_vert: bool,
     flg_edge: bool,
@@ -216,8 +216,8 @@ pub fn mju_rayFlex(
     
     let distance = unsafe {
         crate::bindgen::mju_rayFlex(
-            m,
-            d,
+            m.as_ptr(),
+            d.as_ptr(),
             flex_layer.map_or(-1, |l| l as i32),
             flg_vert as u8,
             flg_edge as u8,

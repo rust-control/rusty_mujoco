@@ -216,7 +216,7 @@ mod private {
 
 pub trait Obj: Sized + private::Sealed {
     const TYPE: mjtObj;
-    fn object_id(model: &crate::mjModel, name: &str) -> Option<ObjectId<Self>>;
+    fn object_id(model: &crate::MjModel, name: &str) -> Option<ObjectId<Self>>;
 }
 
 pub struct ObjectId<O: Obj> {
@@ -269,7 +269,7 @@ macro_rules! obj_types {
                 impl super::private::Sealed for $type_name {}
                 impl super::Obj for $type_name {
                     const TYPE: super::mjtObj = super::mjtObj::$name;
-                    fn object_id(model: &crate::mjModel, name: &str) -> Option<super::ObjectId<Self>> {
+                    fn object_id(model: &crate::MjModel, name: &str) -> Option<super::ObjectId<Self>> {
                         crate::mj_name2id::<Self>(model, name)
                     }
                 }
@@ -370,7 +370,7 @@ pub mod joint {
     impl super::private::Sealed for Free {}
     impl Obj for Free {
         const TYPE: super::mjtObj = super::mjtObj::JOINT;
-        fn object_id(model: &crate::mjModel, name: &str) -> Option<super::ObjectId<Self>> {
+        fn object_id(model: &crate::MjModel, name: &str) -> Option<super::ObjectId<Self>> {
             let o = obj::Joint::object_id(model, name)?;
             if model.jnt_type(o) != Self::MJT {return None}
             Some(unsafe { super::ObjectId::<Self>::new_unchecked(o.index) })
@@ -388,7 +388,7 @@ pub mod joint {
     impl super::private::Sealed for Ball {}
     impl Obj for Ball {
         const TYPE: super::mjtObj = super::mjtObj::JOINT;
-        fn object_id(model: &crate::mjModel, name: &str) -> Option<super::ObjectId<Self>> {
+        fn object_id(model: &crate::MjModel, name: &str) -> Option<super::ObjectId<Self>> {
             let o = obj::Joint::object_id(model, name)?;
             if model.jnt_type(o) != Self::MJT {return None}
             Some(unsafe { super::ObjectId::<Self>::new_unchecked(o.index) })
@@ -406,7 +406,7 @@ pub mod joint {
     impl super::private::Sealed for Hinge {}
     impl Obj for Hinge {
         const TYPE: super::mjtObj = super::mjtObj::JOINT;
-        fn object_id(model: &crate::mjModel, name: &str) -> Option<super::ObjectId<Self>> {
+        fn object_id(model: &crate::MjModel, name: &str) -> Option<super::ObjectId<Self>> {
             let o = obj::Joint::object_id(model, name)?;
             if model.jnt_type(o) != Self::MJT {return None}
             Some(unsafe { super::ObjectId::<Self>::new_unchecked(o.index) })
@@ -424,7 +424,7 @@ pub mod joint {
     impl super::private::Sealed for Slide {}
     impl Obj for Slide {
         const TYPE: super::mjtObj = super::mjtObj::JOINT;
-        fn object_id(model: &crate::mjModel, name: &str) -> Option<super::ObjectId<Self>> {
+        fn object_id(model: &crate::MjModel, name: &str) -> Option<super::ObjectId<Self>> {
             let o = obj::Joint::object_id(model, name)?;
             if model.jnt_type(o) != Self::MJT {return None}
             Some(unsafe { super::ObjectId::<Self>::new_unchecked(o.index) })

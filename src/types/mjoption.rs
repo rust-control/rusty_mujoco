@@ -5,11 +5,16 @@
 //! One instance of it is embedded in [`mjModel`](crate::mjModel).
 
 pub use crate::bindgen::{
-    mjOption,
     mjtIntegrator, mjtCone, mjtJacobian, mjtSolver, mjtDisableBit, mjtEnableBit
 };
 
-derive_fields_mapping!(mjOption {
+pub use crate::bindgen::mjOption;
+impl Default for mjOption {
+    fn default() -> Self {
+        crate::mj_defaultOption()
+    }
+}
+fields_mapping!(mjOption {
     scalars {
         // timing parameters
         timestep / set_timestep: f64 = "simulation timestep in seconds";

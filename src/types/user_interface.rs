@@ -6,9 +6,6 @@
 //! the main [`mjUI`] struct itself.
 
 pub use crate::bindgen::{
-    mjuiState, mjuiThemeSpacing, mjuiThemeColor,
-    mjuiItem, mjuiItemSingle, mjuiItemMulti, mjuiItemSlider, mjuiItemEdit,
-    mjuiSection, mjuiDef, mjUI,
     mjtButton, mjtEvent, mjtItem, mjtSection,
     mjfItemEnable,
     mjMAXUIRECT, mjMAXUIMULTI, mjMAXUINAME, mjMAXUIEDIT, mjMAXUIITEM, mjMAXUITEXT, mjMAXUISECT,
@@ -20,7 +17,8 @@ use crate::helper::{
     Rgb, copy_str_to_c_chararray,
 };
 
-derive_fields_mapping!(mjuiState {
+pub use crate::bindgen::mjuiState;
+fields_mapping!(mjuiState {
     boolean_flags {
         left / set_left = "is left button down";
         right / set_right = "is right button down";
@@ -72,7 +70,8 @@ impl mjuiState {
     }
 }
 
-derive_fields_mapping!(mjuiThemeSpacing {
+pub use crate::bindgen::mjuiThemeSpacing;
+fields_mapping!(mjuiThemeSpacing {
     scalars {
         total / set_total: u32 = "total width";
         scroll / set_scroll: u32 = "scrollbar width";
@@ -90,6 +89,7 @@ derive_fields_mapping!(mjuiThemeSpacing {
     }
 });
 
+pub use crate::bindgen::mjuiThemeColor;
 macro_rules! mjuiThemeColor_derive_rgb_mapping {
     ($($name:ident / $set_name:ident = $description:literal;)*) => {
         impl mjuiThemeColor {
@@ -140,12 +140,7 @@ mjuiThemeColor_derive_rgb_mapping! {
     cursor / set_cursor = "edit cursor";
 }
 
-// derive_fields_mapping!(mjuiItemSingle {
-//     scalars {
-//         modifier / set_modifier: u32 = "modifier key (0: none, 1: control, 2: shift, 4: alt)";
-//         shortcut / set_shortcut: u32 = "shortcut key (0: undefined)";
-//     }
-// });
+pub use crate::bindgen::mjuiItemSingle;
 pub enum Modifier {
     Control = 1,
     Shift = 2,
@@ -184,7 +179,8 @@ impl mjuiItemSingle {
     }
 }
 
-derive_fields_mapping!(mjuiItemMulti {
+pub use crate::bindgen::mjuiItemMulti;
+fields_mapping!(mjuiItemMulti {
     scalars {
         nelem: usize = "number of elements in group (**must be** < mjMAXUIMULTI)";
     }
@@ -201,7 +197,8 @@ impl mjuiItemMulti {
     }
 }
 
-derive_fields_mapping!(mjuiItemSlider {
+pub use crate::bindgen::mjuiItemSlider;
+fields_mapping!(mjuiItemSlider {
     scalars {
         divisions / set_divisions: f64 = "number of range divisions";
     }
@@ -218,7 +215,8 @@ impl mjuiItemSlider {
     }
 }
 
-derive_fields_mapping!(mjuiItemEdit {
+pub use crate::bindgen::mjuiItemEdit;
+fields_mapping!(mjuiItemEdit {
     scalars {
         nelem: usize = "number of elements in list (**must be** < mjMAXUIEDIT)";
     }
@@ -247,7 +245,8 @@ impl mjuiItemEdit {
     }
 }
 
-derive_fields_mapping!(mjuiItem {
+pub use crate::bindgen::mjuiItem;
+fields_mapping!(mjuiItem {
     scalars {
         state / set_state: i32 = "state (0: disable, 1: enable, 2+: use predicate)";
         sectionid / set_sectionid: i32 = "id of section containing item";
@@ -318,7 +317,8 @@ impl mjuiItem {
     }
 }
 
-derive_fields_mapping!(mjuiSection {
+pub use crate::bindgen::mjuiSection;
+fields_mapping!(mjuiSection {
     scalars {
         lastclick: i32 = "last mouse click over this section";
         modifier / set_modifier: u32 = "modifier key (0: none, 1: control, 2: shift, 4: alt)";
@@ -347,7 +347,8 @@ impl mjuiSection {
     }
 }
 
-derive_fields_mapping!(mjuiDef {
+pub use crate::bindgen::mjuiDef;
+fields_mapping!(mjuiDef {
     scalars {
         type_ / set_type: i32 = "type (mjtItem), -1: section";
         state / set_state: i32 = "state";
@@ -383,7 +384,8 @@ impl mjuiDef {
     }
 }
 
-derive_fields_mapping!(mjUI {
+pub use crate::bindgen::mjUI;
+fields_mapping!(mjUI {
     scalars {
         rectid / set_rectid: usize = "index of this ui rectangle in mjuiState";
         auxid / set_auxid: usize = "aux buffer index of this ui";

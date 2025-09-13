@@ -1,6 +1,49 @@
-/// Generates getters and setters for fields of a struct for most/simple cases.
+//! Types that wrap raw bindgen-generated structs with safe APIs.
+
+macro_rules! resource_wrapper {
+    (
+        $T:ident for $Bindgen:path;
+        drop = $drop:path;
+    ) => {
+        pub struct $T(*mut $Bindgen);
+        impl Drop for $T {
+            fn drop(&mut self) {
+                $drop(self);
+            }
+        }
+        impl $T {
+            pub(crate) fn from_raw(ptr: *mut $Bindgen) -> Self {
+                Self(ptr)
+            }
+            pub(crate) fn as_ptr(&self) -> *const $Bindgen {
+                self.0
+            }
+            pub(crate) fn as_mut_ptr(&mut self) -> *mut $Bindgen {
+                self.0
+            }
+        }
+        impl std::ops::Deref for $T {
+            type Target = $Bindgen;
+            fn deref(&self) -> &Self::Target {
+                unsafe { &*self.0 }
+            }
+        }
+        impl std::ops::DerefMut for $T {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                unsafe { &mut *self.0 }
+            }
+        }
+        impl std::fmt::Debug for $T {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                (**self).fmt(f)
+            }
+        }
+    };
+}
+
+/// Generate getter and/or setter for fields of a struct for most/simple cases.
 /// Write some edge cases by hand if needed.
-macro_rules! derive_fields_mapping {
+macro_rules! fields_mapping {
     ($T:path {
         $(boolean_flags {
             $(
@@ -106,11 +149,4 @@ pub use visualization::*;
 
 pub use crate::bindgen::{
     mjtByte, mjByteVec, mjString, mjStringVec, mjIntVec, mjFloatVec, mjDoubleVec,
-};
-pub use crate::bindgen::{
-    mjsOrientation, mjsBody, mjsFrame, mjsJoint, mjsGeom, mjsSite,
-    mjsCamera, mjsLight, mjsFlex, mjsMesh, mjsHField, mjsSkin, mjsTexture,
-    mjsMaterial, mjsPair, mjsEquality, mjsTendon, mjsActuator, mjsSensor,
-    mjsNumeric, mjsText, mjsTuple, mjsKey, mjsPlugin,
-    mjsDefault, mjsExclude, mjsWrap,
 };

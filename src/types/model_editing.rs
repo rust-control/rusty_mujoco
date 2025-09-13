@@ -5,13 +5,26 @@
 //! For more details, see the [Model Editing](https://mujoco.readthedocs.io/en/stable/programming/modeledit.html) chapter.
 
 pub use crate::bindgen::{
-    mjSpec, mjsElement, mjsCompiler,
     mjtInertiaFromGeom,
 };
 
 use crate::bindgen::{mjOption, mjVisual, mjStatistic, mjString, mjLROpt};
 
-derive_fields_mapping!(mjSpec {
+resource_wrapper!(
+    MjSpec for crate::bindgen::mjSpec;
+    drop = crate::mj_deleteSpec;
+);
+impl Default for MjSpec {
+    fn default() -> Self {
+        crate::mjs_defaultSpec()
+    }
+}
+impl Clone for MjSpec {
+    fn clone(&self) -> Self {
+        crate::mj_copySpec(self)
+    }
+}
+fields_mapping!(MjSpec {
     boolean_flags {
         strippath / set_strippath = "automatically strip paths from mesh files";
         hasImplicitPluginElem = "already encountered an implicit plugin sensor/actuator";
@@ -37,7 +50,7 @@ derive_fields_mapping!(mjSpec {
         stat / stat_mut: mjStatistic = "statistics override (if defined)";
     }
 });
-impl mjSpec {
+impl MjSpec {
     /// element type, do not modify
     pub fn element(&self) -> &mjsElement {unsafe { &*self.element }}
 
@@ -87,6 +100,7 @@ impl mjSpec {
     }
 }
 
+pub use crate::bindgen::mjsElement;
 impl mjsElement {
     /// element type
     pub fn elemtype(&self) -> crate::mjtObj {
@@ -98,7 +112,8 @@ impl mjsElement {
     }
 }
 
-derive_fields_mapping!(mjsCompiler {
+pub use crate::bindgen::mjsCompiler;
+fields_mapping!(mjsCompiler {
     boolean_flags {
         autolimits / set_autolimits = "infer 'limited' attribute based on range";
         balanceinertia / set_balanceinertia = "automatically impose A + B >= C rule";
@@ -133,6 +148,185 @@ impl mjsCompiler {
         assert!(seq.iter().all(char::is_ascii), "eulerseq must contain ASCII characters only");
         self.eulerseq = seq.map(|c| (c as u8).try_into().expect("unexpected char in `eulerseq`"));
         self
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+/// TODO fields mapping...
+///////////////////////////////////////////////////////////////////////////////////
+
+pub use crate::bindgen::mjsExclude;
+
+pub use crate::bindgen::mjsDefault;
+
+pub use crate::bindgen::mjsWrap;
+
+pub use crate::bindgen::mjsOrientation;
+impl Default for mjsOrientation {
+    fn default() -> Self {
+        crate::mjs_defaultOrientation()
+    }
+}
+
+pub use crate::bindgen::mjsBody;
+impl Default for mjsBody {
+    fn default() -> Self {
+        crate::mjs_defaultBody()
+    }
+}
+
+
+pub use crate::bindgen::mjsFrame;
+impl Default for mjsFrame {
+    fn default() -> Self {
+        crate::mjs_defaultFrame()
+    }
+}
+
+pub use crate::bindgen::mjsJoint;
+impl Default for mjsJoint {
+    fn default() -> Self {
+        crate::mjs_defaultJoint()
+    }
+}
+
+pub use crate::bindgen::mjsGeom;
+impl Default for mjsGeom {
+    fn default() -> Self {
+        crate::mjs_defaultGeom()
+    }
+}
+
+pub use crate::bindgen::mjsSite;
+impl Default for mjsSite {
+    fn default() -> Self {
+        crate::mjs_defaultSite()
+    }
+}
+
+pub use crate::bindgen::mjsCamera;
+impl Default for mjsCamera {
+    fn default() -> Self {
+        crate::mjs_defaultCamera()
+    }
+}
+
+pub use crate::bindgen::mjsLight;
+impl Default for mjsLight {
+    fn default() -> Self {
+        crate::mjs_defaultLight()
+    }
+}
+
+pub use crate::bindgen::mjsFlex;
+impl Default for mjsFlex {
+    fn default() -> Self {
+        crate::mjs_defaultFlex()
+    }
+}
+
+pub use crate::bindgen::mjsMesh;
+impl Default for mjsMesh {
+    fn default() -> Self {
+        crate::mjs_defaultMesh()
+    }
+}
+
+pub use crate::bindgen::mjsHField;
+impl Default for mjsHField {
+    fn default() -> Self {
+        crate::mjs_defaultHField()
+    }
+}
+
+pub use crate::bindgen::mjsSkin;
+impl Default for mjsSkin {
+    fn default() -> Self {
+        crate::mjs_defaultSkin()
+    }
+}
+
+pub use crate::bindgen::mjsTexture;
+impl Default for mjsTexture {
+    fn default() -> Self {
+        crate::mjs_defaultTexture()
+    }
+}
+
+pub use crate::bindgen::mjsMaterial;
+impl Default for mjsMaterial {
+    fn default() -> Self {
+        crate::mjs_defaultMaterial()
+    }
+}
+
+pub use crate::bindgen::mjsPair;
+impl Default for mjsPair {
+    fn default() -> Self {
+        crate::mjs_defaultPair()
+    }
+}
+
+pub use crate::bindgen::mjsEquality;
+impl Default for mjsEquality {
+    fn default() -> Self {
+        crate::mjs_defaultEquality()
+    }
+}
+
+pub use crate::bindgen::mjsTendon;
+impl Default for mjsTendon {
+    fn default() -> Self {
+        crate::mjs_defaultTendon()
+    }
+}
+
+pub use crate::bindgen::mjsActuator;
+impl Default for mjsActuator {
+    fn default() -> Self {
+        crate::mjs_defaultActuator()
+    }
+}
+
+pub use crate::bindgen::mjsSensor;
+impl Default for mjsSensor {
+    fn default() -> Self {
+        crate::mjs_defaultSensor()
+    }
+}
+
+pub use crate::bindgen::mjsNumeric;
+impl Default for mjsNumeric {
+    fn default() -> Self {
+        crate::mjs_defaultNumeric()
+    }
+}
+
+pub use crate::bindgen::mjsText;
+impl Default for mjsText {
+    fn default() -> Self {
+        crate::mjs_defaultText()
+    }
+}
+
+pub use crate::bindgen::mjsTuple;
+impl Default for mjsTuple {
+    fn default() -> Self {
+        crate::mjs_defaultTuple()
+    }
+}
+
+pub use crate::bindgen::mjsKey;
+impl Default for mjsKey {
+    fn default() -> Self {
+        crate::mjs_defaultKey()
+    }
+}
+
+pub use crate::bindgen::mjsPlugin;
+impl Default for mjsPlugin {
+    fn default() -> Self {
+        crate::mjs_defaultPlugin()
     }
 }
 

@@ -3,23 +3,24 @@
 //! These structs are all embedded in [`mjData`](crate::mjData),
 //! and collect simulation-related statistics.
 
-pub use crate::bindgen::{mjWarningStat, mjTimerStat, mjSolverStat};
-
-derive_fields_mapping!(mjWarningStat {
+pub use crate::bindgen::mjWarningStat;
+fields_mapping!(mjWarningStat {
     scalars {
         lastinfo: i32 = "info from last warning";
         number: usize = "how many times was warning raised";
     }
 });
 
-derive_fields_mapping!(mjTimerStat {
+pub use crate::bindgen::mjTimerStat;
+fields_mapping!(mjTimerStat {
     scalars {
         duration: f64 = "cumulative duration";
         number: usize = "how many times was timer called";
     }
 });
 
-derive_fields_mapping!(mjSolverStat {
+pub use crate::bindgen::mjSolverStat;
+fields_mapping!(mjSolverStat {
     scalars {
         improvement: f64 = "cost reduction, scaled by 1/trace(M(qpos0))";
         gradient: f64 = "gradient norm (primal only, scaled)";

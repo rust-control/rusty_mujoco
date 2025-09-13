@@ -6,15 +6,20 @@
 //! [`mjVisual`] and [`mjStatistic`] are embedded in [`mjModel`](crate::mjModel),
 //! [`mjContact`] is embedded in [`mjData`](crate::mjData).
 
-use crate::{obj, ObjectId, VertexId, ElementId};
-
 pub use crate::bindgen::{
-    mjVisual, mjStatistic, mjContact, mjLROpt,
     mjtLRMode,
     mjNREF, mjNIMP,
 };
 
-derive_fields_mapping!(mjVisual {
+use crate::{obj, ObjectId, VertexId, ElementId};
+
+pub use crate::bindgen::mjVisual;
+impl Default for mjVisual {
+    fn default() -> Self {
+        crate::mj_defaultVisual()
+    }
+}
+fields_mapping!(mjVisual {
     structs {
         global / global_mut: crate::bindgen::mjVisual___bindgen_ty_1 = "global parameters";
         quality / quality_mut: crate::bindgen::mjVisual___bindgen_ty_2 = "rendering quality";
@@ -24,7 +29,7 @@ derive_fields_mapping!(mjVisual {
         rgba / rgba_mut: crate::bindgen::mjVisual___bindgen_ty_6 = "color of decor elements";
     }
 });
-derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_1 {
+fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_1 {
     scalars {
         fovy / set_fovy: f32 = "y field-of-view of free camera (orthographic ? length : degree)";
         ipd / set_ipd: f32 = "inter-pupilary distance for free camera";
@@ -54,7 +59,7 @@ impl crate::bindgen::mjVisual___bindgen_ty_1 {
         self
     }
 }
-derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_2 {
+fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_2 {
     scalars {
         shadowsize / set_shadowsize: usize = "size of shadowmap texture";
         offsamples / set_offsamples: usize = "number of multisamples for offscreen rendering";
@@ -63,7 +68,7 @@ derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_2 {
         numquads / set_numquads: usize = "number of quads for box rendering";
     }
 });
-derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_3 {
+fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_3 {
     scalars {
         ambient / set_ambient: [f32; 3] = "ambient rgb (alpha=1)";
         diffuse / set_diffuse: [f32; 3] = "diffuse rgb (alpha=1)";
@@ -79,7 +84,7 @@ impl crate::bindgen::mjVisual___bindgen_ty_3 {
         self
     }
 }
-derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_4 {
+fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_4 {
     scalars {
         stiffness / set_stiffness: f32 = "mouse perturbation stiffness (space->force)";
         stiffnessrot / set_stiffnessrot: f32 = "mouse perturbation stiffness (space->torque)";
@@ -96,7 +101,7 @@ derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_4 {
         actuatortendon / set_actuatortendon: f32 = "scale tendon width";
     }
 });
-derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_5 {
+fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_5 {
     scalars {
         forcewidth / set_forcewidth: f32 = "width of force arrow";
         contactwidth / set_contactwidth: f32 = "contact width";
@@ -117,7 +122,7 @@ derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_5 {
         frustum / set_frustum: f32 = "frustum zfar plane";
     }
 });
-derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_6 {
+fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_6 {
     scalars {
         fog / set_fog: [f32; 4] = "fog";
         haze / set_haze: [f32; 4] = "haze";
@@ -146,7 +151,8 @@ derive_fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_6 {
     }
 });
 
-derive_fields_mapping!(mjStatistic {
+pub use crate::bindgen::mjStatistic;
+fields_mapping!(mjStatistic {
     scalars {
         meaninertia / set_meaninertia: f64 = "mean diagonal inertia";
         meanmass / set_meanmass: f64 = "mean body mass";
@@ -155,7 +161,8 @@ derive_fields_mapping!(mjStatistic {
     }
 });
 
-derive_fields_mapping!(mjContact {
+pub use crate::bindgen::mjContact;
+fields_mapping!(mjContact {
     scalars {
         // contact parameters set by near-phase collision function
         dist: f64 = "distance between nearest points; negative means penetration";
@@ -232,7 +239,13 @@ impl mjContact {
     }
 }
 
-derive_fields_mapping!(mjLROpt {
+pub use crate::bindgen::mjLROpt;
+impl Default for mjLROpt {
+    fn default() -> Self {
+        crate::mj_defaultLROpt()
+    }
+}
+fields_mapping!(mjLROpt {
     scalars {
         accel / set_accel: f64 = "target acceleration used to compute force";
         maxforce / set_maxforce: f64 = "maximum force; 0: no limit";

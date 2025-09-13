@@ -1,59 +1,59 @@
 //! # [Non-tree elements](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#non-tree-elements)
 
-use crate::{mjsActuator, mjSpec, mjsDefault, mjsSensor, mjsFlex, mjsPair, mjsExclude, mjsEquality, mjsTendon, mjsWrap, mjsNumeric, mjsText, mjsTuple, mjsKey, mjsPlugin};
+use crate::{MjSpec, mjsActuator, mjsDefault, mjsSensor, mjsFlex, mjsPair, mjsExclude, mjsEquality, mjsTendon, mjsWrap, mjsNumeric, mjsText, mjsTuple, mjsKey, mjsPlugin};
 
 /// Add actuator to mjSpec, return actuator spec.
 /* mjsActuator* mjs_addActuator(mjSpec* s, const mjsDefault* def); */
 pub fn mjs_addActuator<'spec>(
-    s: &'spec mut mjSpec,
+    s: &'spec mut MjSpec,
     def: &mjsDefault,
 ) -> &'spec mut mjsActuator {
-    unsafe { &mut *crate::bindgen::mjs_addActuator(s, def) }
+    unsafe { &mut *crate::bindgen::mjs_addActuator(s.as_mut_ptr(), def) }
 }
 
 /// Add sensor to mjSpec, return sensor spec.
 /* mjsSensor* mjs_addSensor(mjSpec* s); */
-pub fn mjs_addSensor<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsSensor {
-    unsafe { &mut *crate::bindgen::mjs_addSensor(s) }
+pub fn mjs_addSensor<'spec>(s: &'spec mut MjSpec) -> &'spec mut mjsSensor {
+    unsafe { &mut *crate::bindgen::mjs_addSensor(s.as_mut_ptr()) }
 }
 
 /// Add flex to mjSpec, return flex spec.
 /* mjsFlex* mjs_addFlex(mjSpec* s); */
-pub fn mjs_addFlex<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsFlex {
-    unsafe { &mut *crate::bindgen::mjs_addFlex(s) }
+pub fn mjs_addFlex<'spec>(s: &'spec mut MjSpec) -> &'spec mut mjsFlex {
+    unsafe { &mut *crate::bindgen::mjs_addFlex(s.as_mut_ptr()) }
 }
 
 /// Add contact pair to mjSpec, return pair spec.
 /* mjsPair* mjs_addPair(mjSpec* s, const mjsDefault* def); */
 pub fn mjs_addPair<'spec>(
-    s: &'spec mut mjSpec,
+    s: &'spec mut MjSpec,
     def: &mjsDefault,
 ) -> &'spec mut mjsPair {
-    unsafe { &mut *crate::bindgen::mjs_addPair(s, def) }
+    unsafe { &mut *crate::bindgen::mjs_addPair(s.as_mut_ptr(), def) }
 }
 
 /// Add excluded body pair to mjSpec, return exclude spec.
 /* mjsExclude* mjs_addExclude(mjSpec* s); */
-pub fn mjs_addExclude<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsExclude {
-    unsafe { &mut *crate::bindgen::mjs_addExclude(s) }
+pub fn mjs_addExclude<'spec>(s: &'spec mut MjSpec) -> &'spec mut mjsExclude {
+    unsafe { &mut *crate::bindgen::mjs_addExclude(s.as_mut_ptr()) }
 }
 
 /// Add equality to mjSpec, return equality spec.
 /* mjsEquality* mjs_addEquality(mjSpec* s, const mjsDefault* def); */
 pub fn mjs_addEquality<'spec>(
-    s: &'spec mut mjSpec,
+    s: &'spec mut MjSpec,
     def: &mjsDefault,
 ) -> &'spec mut mjsEquality {
-    unsafe { &mut *crate::bindgen::mjs_addEquality(s, def) }
+    unsafe { &mut *crate::bindgen::mjs_addEquality(s.as_mut_ptr(), def) }
 }
 
 /// Add tendon to mjSpec, return tendon spec.
 /* mjsTendon* mjs_addTendon(mjSpec* s, const mjsDefault* def); */
 pub fn mjs_addTendon<'spec>( 
-    s: &'spec mut mjSpec,
+    s: &'spec mut MjSpec,
     def: &mjsDefault,
 ) -> &'spec mut mjsTendon {
-    unsafe { &mut *crate::bindgen::mjs_addTendon(s, def) }
+    unsafe { &mut *crate::bindgen::mjs_addTendon(s.as_mut_ptr(), def) }
 }
 
 /// Wrap site using tendon, return wrap spec.
@@ -100,41 +100,41 @@ pub fn mjs_wrapPulley<'tendon>(
 
 /// Add numeric to mjSpec, return numeric spec.
 /* mjsNumeric* mjs_addNumeric(mjSpec* s); */
-pub fn mjs_addNumeric<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsNumeric {
-    unsafe { &mut *crate::bindgen::mjs_addNumeric(s) }
+pub fn mjs_addNumeric<'spec>(s: &'spec mut MjSpec) -> &'spec mut mjsNumeric {
+    unsafe { &mut *crate::bindgen::mjs_addNumeric(s.as_mut_ptr()) }
 }
 
 /// Add text to mjSpec, return text spec.
 /* mjsText* mjs_addText(mjSpec* s); */
-pub fn mjs_addText<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsText {
-    unsafe { &mut *crate::bindgen::mjs_addText(s) }
+pub fn mjs_addText<'spec>(s: &'spec mut MjSpec) -> &'spec mut mjsText {
+    unsafe { &mut *crate::bindgen::mjs_addText(s.as_mut_ptr()) }
 }
 
 /// Add tuple to mjSpec, return tuple spec.
 /* mjsTuple* mjs_addTuple(mjSpec* s); */
-pub fn mjs_addTuple<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsTuple {
-    unsafe { &mut *crate::bindgen::mjs_addTuple(s) }
+pub fn mjs_addTuple<'spec>(s: &'spec mut MjSpec) -> &'spec mut mjsTuple {
+    unsafe { &mut *crate::bindgen::mjs_addTuple(s.as_mut_ptr()) }
 }
 
 /// Add keyframe to mjSpec, return key spec.
 /* mjsKey* mjs_addKey(mjSpec* s); */
-pub fn mjs_addKey<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsKey {
-    unsafe { &mut *crate::bindgen::mjs_addKey(s) }
+pub fn mjs_addKey<'spec>(s: &'spec mut MjSpec) -> &'spec mut mjsKey {
+    unsafe { &mut *crate::bindgen::mjs_addKey(s.as_mut_ptr()) }
 }
 
 /// Add plugin to mjSpec, return plugin spec.
 /* mjsPlugin* mjs_addPlugin(mjSpec* s); */
-pub fn mjs_addPlugin<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsPlugin {
-    unsafe { &mut *crate::bindgen::mjs_addPlugin(s) }
+pub fn mjs_addPlugin<'spec>(s: &'spec mut MjSpec) -> &'spec mut mjsPlugin {
+    unsafe { &mut *crate::bindgen::mjs_addPlugin(s.as_mut_ptr()) }
 }
 
 /// Add default to mjSpec, return default spec.
 /* mjsDefault* mjs_addDefault(mjSpec* s, const char* classname, const mjsDefault* parent); */
 pub fn mjs_addDefault<'spec>(
-    s: &'spec mut mjSpec,
+    s: &'spec mut MjSpec,
     classname: &str,
     parent: &mjsDefault,
 ) -> &'spec mut mjsDefault {
     let c_classname = std::ffi::CString::new(classname).expect("`classname` must not contain null bytes");
-    unsafe { &mut *crate::bindgen::mjs_addDefault(s, c_classname.as_ptr(), parent) }
+    unsafe { &mut *crate::bindgen::mjs_addDefault(s.as_mut_ptr(), c_classname.as_ptr(), parent) }
 }
