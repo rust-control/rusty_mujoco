@@ -16,7 +16,7 @@ macro_rules! resource_wrapper {
                 Self(ptr)
             }
             pub(crate) fn as_ptr(&self) -> *const $Bindgen {
-                self.0 as *const _
+                self.0
             }
             pub(crate) fn as_mut_ptr(&mut self) -> *mut $Bindgen {
                 self.0
