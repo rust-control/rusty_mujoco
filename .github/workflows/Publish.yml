@@ -46,10 +46,7 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.cratesio_auth.outputs.token }}
         run: |
-          cargo publish --package ohkami_openapi
-          cargo publish --package ohkami_macros
-          cargo publish --package ohkami_lib
-          cargo publish --package ohkami
+          cargo publish --package rusty_mujoco
 
       - name: Create GitHub Release
         env:
