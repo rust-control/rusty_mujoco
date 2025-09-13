@@ -6,6 +6,11 @@ macro_rules! resource_wrapper {
         drop = $drop:path;
     ) => {
         pub struct $T(*mut $Bindgen);
+        impl Drop for $T {
+            fn drop(&mut self) {
+                $drop(self);
+            }
+        }
         impl $T {
             pub(crate) fn from_raw(ptr: *mut $Bindgen) -> Self {
                 Self(ptr)
@@ -28,9 +33,9 @@ macro_rules! resource_wrapper {
                 unsafe { &mut *self.0 }
             }
         }
-        impl Drop for $T {
-            fn drop(&mut self) {
-                $drop(self);
+        impl std::fmt::Debug for $T {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                (**self).fmt(f)
             }
         }
     };

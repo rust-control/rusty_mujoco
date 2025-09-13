@@ -307,11 +307,9 @@ pub fn mjr_figure(viewport: mjrRect, fig: &mut mjvFigure, con: &MjrContext) {
 /// Render 3D scene.
 /* void mjr_render(mjrRect viewport, mjvScene* scn, const mjrContext* con); */
 pub fn mjr_render(viewport: mjrRect, scn: &mut MjvScene, con: &MjrContext) {
-    dbg!(scn.scale());
     unsafe {
         crate::bindgen::mjr_render(viewport, scn.as_mut_ptr(), con.as_ptr());
     }
-    dbg!(scn.scale());
 }
 
 /// Call glFinish.

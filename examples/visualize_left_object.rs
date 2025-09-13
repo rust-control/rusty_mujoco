@@ -42,10 +42,11 @@ fn main() {
     let mut data = mj_makeData(&model);
 
     let mut glfw = glfw::init(glfw::fail_on_errors).expect("Failed to initialize GLFW");
-    let (mut window, events) = glfw
+    let (mut window, _) = glfw
         .create_window(1200, 900, "Acrobot Simulation", glfw::WindowMode::Windowed)
         .expect("Failed to create GLFW window");
     window.set_size_polling(true);
+    window.set_close_polling(true);
     glfw::Context::make_current(&mut *window);
 
     let con = MjrContext::new(&model, mjtFontScale::X150);
@@ -55,8 +56,6 @@ fn main() {
     camera_name.map(|name| cam.set_fixedcamid(model.object_id(&name).expect("No camera of such name in the model")));
 
     while !window.should_close() {
-        dbg!(scn.scale());
-         
         while data.time() < glfw.get_time() {
             mj_step(&model, &mut data);
         }
@@ -66,8 +65,6 @@ fn main() {
             mjrRect::new(0, 0, width as u32, height as u32)
         };
         
-        dbg!(scn.scale());
-         
         mjv_updateScene(
             &model,
             &mut data,
@@ -77,26 +74,9 @@ fn main() {
             mjtCatBit::ALL,
             &mut scn,
         );
-        
-        dbg!(scn.scale());
-         
         mjr_render(viewport, &mut scn, &con);
         
-        dbg!(scn.scale());
-         
         glfw::Context::swap_buffers(&mut *window);
-        
         glfw.poll_events();
-        for (_, event) in glfw::flush_messages(&events) {
-            match event {
-                glfw::WindowEvent::Close => {
-                    window.set_should_close(true);
-                }
-                glfw::WindowEvent::Size(width, height) => {
-                    window.set_size(width, height);
-                }
-                _ => (),
-            }
-        }
     }
 }
