@@ -320,7 +320,7 @@ pub fn mj_angmomMat(
 ///     "path/to/model.xml"
 /// ).unwrap();
 /// # }
-/// # fn example(model: &rusty_mujoco::mjModel) {
+/// # fn example(model: &rusty_mujoco::MjModel) {
 /// let body_id = mj_name2id::<obj::Body>(&model, "body_name");
 /// println!("Body ID: {:?}", body_id);
 /// # }
