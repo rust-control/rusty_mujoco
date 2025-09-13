@@ -90,9 +90,9 @@ pub fn mjv_connector(
 /// 
 /* void mjv_defaultScene(mjvScene* scn); */
 pub fn mjv_defaultScene() -> MjvScene {
-    let mut c = std::mem::ManuallyDrop::new(std::mem::MaybeUninit::<crate::bindgen::mjvScene>::uninit());
+    let mut c = Box::<crate::bindgen::mjvScene>::new_uninit();
     unsafe { crate::bindgen::mjv_defaultScene(c.as_mut_ptr()); }
-    MjvScene::from_raw(c.as_mut_ptr())
+    MjvScene::from_raw(Box::into_raw(unsafe { c.assume_init() }))
 }
 
 /// Allocate resources in abstract scene.
@@ -118,7 +118,8 @@ pub fn mjv_makeScene(
 /// **note**: [`MjvScene`] calls this function in its `Drop` implementation.
 /* void mjv_freeScene(mjvScene* scn); */
 pub fn mjv_freeScene(scene: &mut MjvScene) {
-    unsafe { crate::bindgen::mjv_freeScene(scene.as_mut_ptr()) }
+    unsafe { crate::bindgen::mjv_freeScene(scene.as_mut_ptr()); }
+    drop(unsafe { Box::from_raw(scene.as_mut_ptr()) });
 }
 
 /// Update entire scene given model state.

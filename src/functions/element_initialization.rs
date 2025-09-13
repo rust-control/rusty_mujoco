@@ -14,9 +14,9 @@ use crate::{
 /// **note**: This function is called in the `Default` implementation of [`mjSpec`].
 /* void mjs_defaultSpec(mjSpec* spec); */
 pub fn mjs_defaultSpec() -> MjSpec {
-    let mut c = std::mem::ManuallyDrop::new(std::mem::MaybeUninit::<crate::bindgen::mjSpec>::uninit());
+    let mut c = Box::<crate::bindgen::mjSpec>::new_uninit();
     unsafe { crate::bindgen::mjs_defaultSpec(c.as_mut_ptr()); }
-    MjSpec::from_raw(c.as_mut_ptr())
+    MjSpec::from_raw(Box::into_raw(unsafe { c.assume_init() }))
 }
 
 /// Set default orientation attributes.

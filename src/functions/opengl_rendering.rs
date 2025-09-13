@@ -22,9 +22,9 @@ use crate::{
 /// **note**: [`MjrContext`] calls this function in its `Default` implementation.
 /* void mjr_defaultContext(mjrContext* con); */
 pub fn mjr_defaultContext() -> MjrContext {
-    let mut c = std::mem::ManuallyDrop::new(std::mem::ManuallyDrop::new(std::mem::MaybeUninit::<crate::bindgen::mjrContext>::uninit()));
+    let mut c = Box::<crate::bindgen::mjrContext>::new_uninit();
     unsafe { crate::bindgen::mjr_defaultContext(c.as_mut_ptr()); }
-    MjrContext::from_raw(c.as_mut_ptr())
+    MjrContext::from_raw(Box::into_raw(unsafe { c.assume_init() }))
 }
 
 /// Allocate resources in custom OpenGL context; fontscale is [`mjtFontScale`].
@@ -64,9 +64,8 @@ pub fn mjr_addAux(
 /// **note**: [`MjrContext`] calls this function in its `Drop` implementation.
 /* void mjr_freeContext(mjrContext* con); */
 pub fn mjr_freeContext(con: &mut MjrContext) {
-    unsafe {
-        crate::bindgen::mjr_freeContext(con.as_mut_ptr());
-    }
+    unsafe { crate::bindgen::mjr_freeContext(con.as_mut_ptr()); }
+    drop(unsafe { Box::from_raw(con.as_mut_ptr()) });
 }
 
 /// Resize offscreen buffers.

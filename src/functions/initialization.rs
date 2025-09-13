@@ -33,7 +33,7 @@ pub fn mj_defaultSolRefImp() -> (
 /* void mj_defaultOption(mjOption* opt); */
 pub fn mj_defaultOption() -> crate::mjOption {
     let mut c = std::mem::MaybeUninit::<crate::mjOption>::uninit();
-    unsafe { crate::bindgen::mj_defaultOption(c.as_mut_ptr()) };
+    unsafe { crate::bindgen::mj_defaultOption(c.as_mut_ptr()); }
     unsafe { c.assume_init() }
 }
 
@@ -64,9 +64,9 @@ pub unsafe fn mj_copyModel(dest: Option<&mut crate::MjModel>, src: &crate::MjMod
             None
         }
         None => {
-            let mut c = std::mem::ManuallyDrop::new(std::mem::MaybeUninit::<crate::bindgen::mjModel>::uninit());
-            unsafe { crate::bindgen::mj_copyModel(c.as_mut_ptr(), src.as_ptr()) };
-            Some(crate::MjModel::from_raw(c.as_mut_ptr()))
+            let ptr = std::ptr::null_mut();
+            unsafe { crate::bindgen::mj_copyModel(ptr, src.as_ptr()); }
+            Some(crate::MjModel::from_raw(ptr))
         }
     }
 }
@@ -115,7 +115,7 @@ pub fn mj_loadModel(
 /// **note**: [`MjModel`](crate::MjModel) calls this function in its `Drop` implementation.
 /* void mj_deleteModel(mjModel* m); */
 pub fn mj_deleteModel(m: &mut crate::MjModel) {
-    unsafe { crate::bindgen::mj_deleteModel(m.as_mut_ptr()) };
+    unsafe { crate::bindgen::mj_deleteModel(m.as_mut_ptr()); }
 }
 
 /// Return size of buffer needed to hold model.
@@ -291,6 +291,7 @@ pub fn mj_copySpec(s: &crate::MjSpec) -> crate::MjSpec {
 /* void mj_deleteSpec(mjSpec* s); */
 pub fn mj_deleteSpec(s: &mut crate::MjSpec) {
     unsafe { crate::bindgen::mj_deleteSpec(s.as_mut_ptr()) };
+    drop(unsafe { Box::from_raw(s.as_mut_ptr()) });
 }
 
 /// Activate plugin.
