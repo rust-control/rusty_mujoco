@@ -27,8 +27,8 @@ use crate::{obj, ObjectId, VertexId};
                  const mjtByte* geomgroup, mjtByte flg_static, int bodyexclude,
                  int* geomid, mjtNum* dist, int nray, mjtNum cutoff); */
 pub fn mj_multiRay<const N_RAY: usize>(
-    m: &crate::MjModel,
-    d: &mut crate::MjData,
+    m: &crate::mjModel,
+    d: &mut crate::mjData,
     pnt: [f64; 3],
     vec: [[f64; 3]; N_RAY],
     geomgroup: Option<&[u8]>,
@@ -80,8 +80,8 @@ pub fn mj_multiRay<const N_RAY: usize>(
               const mjtByte* geomgroup, mjtByte flg_static, int bodyexclude,
               int geomid[1]); */
 pub fn mj_ray(
-    m: &crate::MjModel,
-    d: &crate::MjData,
+    m: &crate::mjModel,
+    d: &crate::mjData,
     pnt: [f64; 3],
     vec: [f64; 3],
     geomgroup: Option<[bool; crate::bindgen::mjNGROUP as usize]>,
@@ -116,8 +116,8 @@ pub fn mj_ray(
 /* mjtNum mj_rayHfield(const mjModel* m, const mjData* d, int geomid,
                     const mjtNum pnt[3], const mjtNum vec[3]); */
 pub fn mj_rayHfield(
-    m: &crate::MjModel,
-    d: &crate::MjData,
+    m: &crate::mjModel,
+    d: &crate::mjData,
     geomid: ObjectId<obj::Geom>,
     pnt: [f64; 3],
     vec: [f64; 3],
@@ -143,8 +143,8 @@ pub fn mj_rayHfield(
 /* mjtNum mj_rayMesh(const mjModel* m, const mjData* d, int geomid,
                   const mjtNum pnt[3], const mjtNum vec[3]); */
 pub fn mj_rayMesh(
-    m: &crate::MjModel,
-    d: &crate::MjData,
+    m: &crate::mjModel,
+    d: &crate::mjData,
     geomid: ObjectId<obj::Geom>,
     pnt: [f64; 3],
     vec: [f64; 3],
@@ -201,8 +201,8 @@ pub fn mju_rayGeom(
                    mjtByte flg_edge, mjtByte flg_face, mjtByte flg_skin, int flexid,
                    const mjtNum* pnt, const mjtNum* vec, int vertid[1]); */
 pub fn mju_rayFlex(
-    m: &crate::MjModel,
-    d: &crate::MjData,
+    m: &crate::mjModel,
+    d: &crate::mjData,
     flex_layer: Option<usize>,
     flg_vert: bool,
     flg_edge: bool,

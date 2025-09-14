@@ -1,6 +1,6 @@
 //! # [Attachment](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#attachment)
 
-use crate::{MjSpec, mjsElement, mjsBody, mjsDefault};
+use crate::{mjSpec, mjsElement, mjsBody, mjsDefault};
 
 /// Attach child to a parent, return the attached element if success or `None` otherwise.
 /* mjsElement* mjs_attach(mjsElement* parent, const mjsElement* child,
@@ -28,7 +28,7 @@ pub fn mjs_attach<'element>(
 
 /// Delete body and descendants from mjSpec, remove all references.
 /* int mjs_detachBody(mjSpec* s, mjsBody* b); */
-pub fn mjs_detachBody(s: &mut MjSpec, b: &mut mjsBody) -> Result<(), ()> {
+pub fn mjs_detachBody(s: &mut mjSpec, b: &mut mjsBody) -> Result<(), ()> {
     /*
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-detachbody>
     > return 0 on success
@@ -38,7 +38,7 @@ pub fn mjs_detachBody(s: &mut MjSpec, b: &mut mjsBody) -> Result<(), ()> {
 
 /// Delete default class and descendants from mjSpec, remove all references.
 /* int mjs_detachDefault(mjSpec* s, mjsDefault* d); */
-pub fn mjs_detachDefault(s: &mut MjSpec, d: &mut mjsDefault) -> Result<(), ()> {
+pub fn mjs_detachDefault(s: &mut mjSpec, d: &mut mjsDefault) -> Result<(), ()> {
     /*
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-detachdefault>
     > return 0 on success

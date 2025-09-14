@@ -5,6 +5,7 @@ macro_rules! resource_wrapper {
         $T:ident for $Bindgen:path;
         drop = $drop:path;
     ) => {
+        #[allow(non_camel_case_types)]
         pub struct $T(*mut $Bindgen);
         impl Drop for $T {
             fn drop(&mut self) {

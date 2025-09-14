@@ -1,7 +1,7 @@
 //! # [Element initialization](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#element-initialization)
 
 use crate::{
-    MjSpec, 
+    mjSpec, 
     mjsOrientation, mjsBody, mjsFrame, mjsJoint, mjsGeom, mjsSite,
     mjsCamera, mjsLight, mjsFlex, mjsMesh, mjsHField, mjsSkin,
     mjsTexture, mjsMaterial, mjsPair, mjsEquality, mjsTendon,
@@ -13,10 +13,10 @@ use crate::{
 /// 
 /// **note**: This function is called in the `Default` implementation of [`mjSpec`].
 /* void mjs_defaultSpec(mjSpec* spec); */
-pub fn mjs_defaultSpec() -> MjSpec {
+pub fn mjs_defaultSpec() -> mjSpec {
     let mut c = Box::<crate::bindgen::mjSpec>::new_uninit();
     unsafe { crate::bindgen::mjs_defaultSpec(c.as_mut_ptr()); }
-    MjSpec::from_raw(Box::into_raw(unsafe { c.assume_init() }))
+    mjSpec::from_raw(Box::into_raw(unsafe { c.assume_init() }))
 }
 
 /// Set default orientation attributes.

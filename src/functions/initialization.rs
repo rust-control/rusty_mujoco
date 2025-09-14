@@ -57,7 +57,7 @@ pub fn mj_defaultVisual() -> crate::mjVisual {
 /// (e.g. same `nq`, `nv`, `nbody`, ...)
 /// 
 /* mjModel* mj_copyModel(mjModel* dest, const mjModel* src); */
-pub unsafe fn mj_copyModel(dest: Option<&mut crate::MjModel>, src: &crate::MjModel) -> Option<crate::MjModel> {
+pub unsafe fn mj_copyModel(dest: Option<&mut crate::mjModel>, src: &crate::mjModel) -> Option<crate::mjModel> {
     match dest {
         Some(dest) => {
             unsafe { crate::bindgen::mj_copyModel(dest.as_mut_ptr(), src.as_ptr()) };
@@ -66,7 +66,7 @@ pub unsafe fn mj_copyModel(dest: Option<&mut crate::MjModel>, src: &crate::MjMod
         None => {
             let ptr = std::ptr::null_mut();
             unsafe { crate::bindgen::mj_copyModel(ptr, src.as_ptr()); }
-            Some(crate::MjModel::from_raw(ptr))
+            Some(crate::mjModel::from_raw(ptr))
         }
     }
 }
@@ -76,7 +76,7 @@ pub unsafe fn mj_copyModel(dest: Option<&mut crate::MjModel>, src: &crate::MjMod
 /// The size of the buffer must be at least `mj_sizeModel(m)`.
 /* void mj_saveModel(const mjModel* m, const char* filename, void* buffer, int buffer_sz); */
 pub fn mj_saveModel(
-    m: &crate::MjModel,
+    m: &crate::mjModel,
     filename: Option<impl Into<String>>,
     buffer: Option<&mut [u8]>,
 ) {
@@ -96,7 +96,7 @@ pub fn mj_saveModel(
 /* mjModel* mj_loadModel(const char* filename, const mjVFS* vfs); */
 pub fn mj_loadModel(
     filename: impl Into<String>,
-) -> crate::MjModel {
+) -> crate::mjModel {
     let filename = std::ffi::CString::new(filename.into()).unwrap();
     let c_ptr = unsafe {
         crate::bindgen::mj_loadModel(
@@ -107,32 +107,32 @@ pub fn mj_loadModel(
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to load model from file: {}", filename.to_string_lossy());
     }
-    crate::MjModel::from_raw(c_ptr)
+    crate::mjModel::from_raw(c_ptr)
 }
 
 /// Free memory allocation in model.
 /// 
-/// **note**: [`MjModel`](crate::MjModel) calls this function in its `Drop` implementation.
+/// **note**: [`mjModel`](crate::mjModel) calls this function in its `Drop` implementation.
 /* void mj_deleteModel(mjModel* m); */
-pub fn mj_deleteModel(m: &mut crate::MjModel) {
+pub fn mj_deleteModel(m: &mut crate::mjModel) {
     unsafe { crate::bindgen::mj_deleteModel(m.as_mut_ptr()); }
 }
 
 /// Return size of buffer needed to hold model.
 /* int mj_sizeModel(const mjModel* m); */
-pub fn mj_sizeModel(m: &crate::MjModel) -> usize {
+pub fn mj_sizeModel(m: &crate::mjModel) -> usize {
     unsafe { crate::bindgen::mj_sizeModel(m.as_ptr()) as usize }
 }
 
 /// Allocate mjData corresponding to given model. If the model buffer is unallocated
 /// the initial configuration will not be set.
 /* mjData* mj_makeData(const mjModel* m); */
-pub fn mj_makeData(m: &crate::MjModel) -> crate::MjData {
+pub fn mj_makeData(m: &crate::mjModel) -> crate::mjData {
     let c_ptr = unsafe { crate::bindgen::mj_makeData(m.as_ptr()) };
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to allocate mjData for model");
     }
-    crate::MjData::from_raw(c_ptr)
+    crate::mjData::from_raw(c_ptr)
 }
 
 /// Copy mjData. `m` is only required to contain the size fields from MJMODEL_INTS.
@@ -146,27 +146,27 @@ pub fn mj_makeData(m: &crate::MjModel) -> crate::MjData {
 /// (e.g. same `nq`, `nv`, `nbody`, ...)
 /// 
 /* mjData* mj_copyData(mjData* dest, const mjModel* m, const mjData* src); */
-pub unsafe fn mj_copyData(dest: &mut crate::MjData, m: &crate::MjModel, src: &crate::MjData) {
+pub unsafe fn mj_copyData(dest: &mut crate::mjData, m: &crate::mjModel, src: &crate::mjData) {
     unsafe { crate::bindgen::mj_copyData(dest.as_mut_ptr(), m.as_ptr(), src.as_ptr()) };
 }
 
 /// Reset data to defaults.
 /* void mj_resetData(const mjModel* m, mjData* d); */
-pub fn mj_resetData(m: &crate::MjModel, d: &mut crate::MjData) {
+pub fn mj_resetData(m: &crate::mjModel, d: &mut crate::mjData) {
     unsafe { crate::bindgen::mj_resetData(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Reset data to defaults, fill everything else with debug_value.
 /* void mj_resetDataDebug(const mjModel* m, mjData* d, unsigned char debug_value); */
-pub fn mj_resetDataDebug(m: &crate::MjModel, d: &mut crate::MjData, debug_value: u8) {
+pub fn mj_resetDataDebug(m: &crate::mjModel, d: &mut crate::mjData, debug_value: u8) {
     unsafe { crate::bindgen::mj_resetDataDebug(m.as_ptr(), d.as_mut_ptr(), debug_value) }
 }
 
 /// Reset data. If `key` is given, set fields from specified keyframe.
 /* void mj_resetDataKeyframe(const mjModel* m, mjData* d, int key); */
 pub fn mj_resetDataKeyframe(
-    m: &crate::MjModel,
-    d: &mut crate::MjData,
+    m: &crate::mjModel,
+    d: &mut crate::mjData,
     key: Option<ObjectId<obj::Key>>,
 ) {
     unsafe {
@@ -180,39 +180,39 @@ pub fn mj_resetDataKeyframe(
 
 /// Mark a new frame on the mjData stack.
 /* void mj_markStack(mjData* d); */
-pub fn mj_markStack(d: &mut crate::MjData) {
+pub fn mj_markStack(d: &mut crate::mjData) {
     unsafe { crate::bindgen::mj_markStack(d.as_mut_ptr()) }
 }
 
 /// Free the current mjData stack frame. All pointers returned by `mj_stackAlloc` since the last call to `mj_markStack` must no longer be used afterwards.
 /* void mj_freeStack(mjData* d); */
-pub fn mj_freeStack(d: &mut crate::MjData) {
+pub fn mj_freeStack(d: &mut crate::mjData) {
     unsafe { crate::bindgen::mj_freeStack(d.as_mut_ptr()) }
 }
 
 /// Allocate a number of bytes on mjData stack at a specific alignment. Call `mju_error` on stack overflow.
 /* void* mj_stackAllocByte(mjData* d, size_t bytes, size_t alignment); */
-pub fn mj_stackAllocByte(d: &mut crate::MjData, bytes: usize, alignment: usize) -> *mut u8 {
+pub fn mj_stackAllocByte(d: &mut crate::mjData, bytes: usize, alignment: usize) -> *mut u8 {
     unsafe { crate::bindgen::mj_stackAllocByte(d.as_mut_ptr(), bytes, alignment) as *mut u8 }
 }
 
 /// Allocate array of `mjtNums` on mjData stack. Call `mju_error` on stack overflow.
 /* mjtNum* mj_stackAllocNum(mjData* d, size_t size); */
-pub fn mj_stackAllocNum(d: &mut crate::MjData, size: usize) -> *mut f64 {
+pub fn mj_stackAllocNum(d: &mut crate::mjData, size: usize) -> *mut f64 {
     unsafe { crate::bindgen::mj_stackAllocNum(d.as_mut_ptr(), size) as *mut f64 }
 }
 
 /// Allocate array of `ints` on mjData stack. Call `mju_error` on stack overflow.
 /* int* mj_stackAllocInt(mjData* d, size_t size); */
-pub fn mj_stackAllocInt(d: &mut crate::MjData, size: usize) -> *mut i32 {
+pub fn mj_stackAllocInt(d: &mut crate::mjData, size: usize) -> *mut i32 {
     unsafe { crate::bindgen::mj_stackAllocInt(d.as_mut_ptr(), size) as *mut i32 }
 }
 
 /// Free memory allocation in mjData.
 /// 
-/// **note**: [`MjData`](crate::MjData) calls this function in its `Drop` implementation.
+/// **note**: [`mjData`](crate::mjData) calls this function in its `Drop` implementation.
 /* void mj_deleteData(mjData* d); */
-pub fn mj_deleteData(d: &mut crate::MjData) {
+pub fn mj_deleteData(d: &mut crate::mjData) {
     unsafe { crate::bindgen::mj_deleteData(d.as_mut_ptr()) };
 }
 
@@ -224,7 +224,7 @@ pub fn mj_resetCallbacks() {
 
 /// Set constant fields of mjModel, corresponding to `qpos0` configuration.
 /* void mj_setConst(mjModel* m, mjData* d); */
-pub fn mj_setConst(m: &mut crate::MjModel, d: &mut crate::MjData) {
+pub fn mj_setConst(m: &mut crate::mjModel, d: &mut crate::mjData) {
     unsafe { crate::bindgen::mj_setConst(m.as_mut_ptr(), d.as_mut_ptr()) };
 }
 
@@ -232,8 +232,8 @@ pub fn mj_setConst(m: &mut crate::MjModel, d: &mut crate::MjData) {
 /* int mj_setLengthRange(mjModel* m, mjData* d, int index,
                       const mjLROpt* opt, char* error, int error_sz); */
 pub fn mj_setLengthRange(
-    m: &mut crate::MjModel,
-    d: &mut crate::MjData,
+    m: &mut crate::mjModel,
+    d: &mut crate::mjData,
     index: ObjectId<obj::Actuator>,
     opt: &crate::mjLROpt,
 ) -> Result<(), MjError> {
@@ -265,38 +265,38 @@ pub fn mj_setLengthRange(
 /// 
 /// **note**: [`mjSpec`] calls this function in its `Default` implementation.
 /* mjSpec* mj_makeSpec(void); */
-pub fn mj_makeSpec() -> crate::MjSpec {
+pub fn mj_makeSpec() -> crate::mjSpec {
     let c_ptr = unsafe { crate::bindgen::mj_makeSpec() };
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to create empty mjSpec");
     }
-    crate::MjSpec::from_raw(c_ptr)
+    crate::mjSpec::from_raw(c_ptr)
 }
 
 /// Copy spec.
 /// 
 /// **note**: [`mjSpec`] calls this function in its `Clone` implementation.
 /* mjSpec* mj_copySpec(const mjSpec* s); */
-pub fn mj_copySpec(s: &crate::MjSpec) -> crate::MjSpec {
+pub fn mj_copySpec(s: &crate::mjSpec) -> crate::mjSpec {
     let c_ptr = unsafe { crate::bindgen::mj_copySpec(s.as_ptr()) };
     #[cfg(debug_assertions)] {
         assert!(!c_ptr.is_null(), "Failed to copy mjSpec");
     }
-    crate::MjSpec::from_raw(c_ptr)
+    crate::mjSpec::from_raw(c_ptr)
 }
 
 /// Free memory allocation in mjSpec.
 /// 
 /// **note**: [`mjSpec`] calls this function in its `Drop` implementation.
 /* void mj_deleteSpec(mjSpec* s); */
-pub fn mj_deleteSpec(s: &mut crate::MjSpec) {
+pub fn mj_deleteSpec(s: &mut crate::mjSpec) {
     unsafe { crate::bindgen::mj_deleteSpec(s.as_mut_ptr()) };
     drop(unsafe { Box::from_raw(s.as_mut_ptr()) });
 }
 
 /// Activate plugin.
 /* int mjs_activatePlugin(mjSpec* s, const char* name); */
-pub fn mjs_activatePlugin(s: &mut crate::MjSpec, name: impl Into<String>) -> Result<(), MjError> {
+pub fn mjs_activatePlugin(s: &mut crate::mjSpec, name: impl Into<String>) -> Result<(), MjError> {
     let name = std::ffi::CString::new(name.into()).unwrap();
     let status = unsafe { crate::bindgen::mjs_activatePlugin(s.as_mut_ptr(), name.as_ptr()) };
     
@@ -313,7 +313,7 @@ pub fn mjs_activatePlugin(s: &mut crate::MjSpec, name: impl Into<String>) -> Res
 
 /// Turn deep copy on or off attach.
 /* int mjs_setDeepCopy(mjSpec* s, int deepcopy); */
-pub fn mjs_setDeepCopy(s: &mut crate::MjSpec, deepcopy: bool) -> Result<(), MjError> {
+pub fn mjs_setDeepCopy(s: &mut crate::mjSpec, deepcopy: bool) -> Result<(), MjError> {
     let status = unsafe { crate::bindgen::mjs_setDeepCopy(s.as_mut_ptr(), deepcopy as i32) };
     
     /*
