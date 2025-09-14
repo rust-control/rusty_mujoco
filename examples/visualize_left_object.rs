@@ -1,4 +1,4 @@
-use rusty_mujoco::{mj_loadXML, mj_makeData, mj_step, mjr_render, mjv_updateScene};
+use rusty_mujoco::{mj_loadXML, mj_makeData, mj_name2id, mj_step, mjr_render, mjv_updateScene};
 use rusty_mujoco::{mjrContext, mjrRect, mjvScene, mjvCamera, mjvOption, mjtCatBit, mjtFontScale};
 
 struct Args {
@@ -53,7 +53,7 @@ fn main() {
     let opt = mjvOption::default();
     let mut scn = mjvScene::new(&model, 2000);
     let mut cam = mjvCamera::default();
-    camera_name.map(|name| cam.set_fixedcamid(model.object_id(&name).expect("No camera of such name in the model")));
+    camera_name.map(|name| cam.set_fixedcamid(mj_name2id(&model, &name).expect("No camera of such name in the model")));
 
     while !window.should_close() {
         while data.time() < glfw.get_time() {

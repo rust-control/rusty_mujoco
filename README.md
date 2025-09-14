@@ -52,24 +52,62 @@
 - Depending on your setting, be sure to specify `$MUJOCO_DIR/lib` as shared library path
   when executing your app (for example `LD_LIBRARY_PATH=$MUJOCO_DIR/lib cargo run` on Linux)
 
-## Usage
+## Example
 
-*Cargo.toml*
 ```toml
 [dependencies]
 rusty_mujoco = "0.1"
+glfw = "0.60"
 ```
 
-*src/main.rs*
 ```rust
-fn main() {
-    // TODO DOCUMENT...
+let model = mj_loadXML(xml_path).expect("Failed to load XML file");
+let mut data = mj_makeData(&model);
+
+let mut glfw = glfw::init(glfw::fail_on_errors).expect("Failed to initialize GLFW");
+let (mut window, _) = glfw
+    .create_window(1200, 900, "Acrobot Simulation", glfw::WindowMode::Windowed)
+    .expect("Failed to create GLFW window");
+window.set_size_polling(true);
+window.set_close_polling(true);
+glfw::Context::make_current(&mut *window);
+
+let con = mjrContext::new(&model, mjtFontScale::X150);
+let opt = mjvOption::default();
+let mut scn = mjvScene::new(&model, 2000);
+let mut cam = mjvCamera::default();
+camera_name.map(|name| cam.set_fixedcamid(mj_name2id(&model, &name).expect("No camera of such name in the model")));
+
+while !window.should_close() {
+    while data.time() < glfw.get_time() {
+        mj_step(&model, &mut data);
+    }
+    
+    let viewport = {
+        let (width, height) = window.get_framebuffer_size();
+        mjrRect::new(0, 0, width as u32, height as u32)
+    };
+    
+    mjv_updateScene(
+        &model,
+        &mut data,
+        &opt,
+        None, /* No perturbation */
+        &mut cam,
+        mjtCatBit::ALL,
+        &mut scn,
+    );
+    mjr_render(viewport, &mut scn, &con);
+    
+    glfw::Context::swap_buffers(&mut *window);
+    glfw.poll_events();
 }
 ```
 
-See the [examples](./examples) directory for working examples.
+See [examples/visualize_left_object.rs](./examples/visualize_left_object.rs) for full example
+and [examples/README.md](./examples/README.md) for the description.
 
-###  Binding Philosophy:
+##  Binding Philosophy:
   - implement based on [rust-lang/bindgen](https://github.com/rust-lang/rust-bindgen).
   - deny any direct field access to raw-bindgen structs and provide fully-accessible methods.
   - automatically handle *resource types* that need proper resource management

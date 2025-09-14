@@ -16,4 +16,4 @@ categories    = ["api-bindings", "science::robotics", "simulation"]
 bindgen = "0.72"
 
 [dev-dependencies]
-glfw = "0.59.0"
+glfw = "0.60"
