@@ -3,7 +3,7 @@
 //! These functions implement abstract mouse interactions, allowing control over cameras and perturbations.
 //! Their use is well illustrated in [simulate](https://mujoco.readthedocs.io/en/stable/programming/samples.html#sasimulate).
 
-use crate::{MjModel, MjData, MjvScene, mjvCamera, mjvGLCamera, mjvPerturb, mjvOption};
+use crate::{mjModel, mjData, mjvScene, mjvCamera, mjvGLCamera, mjvPerturb, mjvOption};
 use crate::{ObjectId, obj};
 
 /// Set default camera.
@@ -18,7 +18,7 @@ pub fn mjv_defaultCamera() -> mjvCamera {
 
 /// Set default free camera.
 /* void mjv_defaultFreeCamera(const mjModel* m, mjvCamera* cam); */
-pub fn mjv_defaultFreeCamera(m: &MjModel) -> mjvCamera {
+pub fn mjv_defaultFreeCamera(m: &mjModel) -> mjvCamera {
     let mut cam = std::mem::MaybeUninit::<mjvCamera>::uninit();
     unsafe { crate::bindgen::mjv_defaultFreeCamera(m.as_ptr(), cam.as_mut_ptr()) };
     unsafe { cam.assume_init() }
@@ -41,7 +41,7 @@ pub fn mjv_defaultPerturb() -> mjvPerturb {
 pub fn mjv_room2model(
     roompos: [f64; 3],
     roomquat: [f64; 4],
-    scn: &MjvScene,
+    scn: &mjvScene,
 ) -> ([f64; 3], [f64; 4]) {
     let mut modelpos = [0.0; 3];
     let mut modelquat = [0.0; 4];
@@ -66,7 +66,7 @@ pub fn mjv_room2model(
 pub fn mjv_model2room(
     modelpos: [f64; 3],
     modelquat: [f64; 4],
-    scn: &MjvScene,
+    scn: &mjvScene,
 ) -> ([f64; 3], [f64; 4]) {
     let mut roompos = [0.0; 3];
     let mut roomquat = [0.0; 4];
@@ -88,7 +88,7 @@ pub fn mjv_model2room(
 /// returning `(headpos, forward, up)`.
 /* void mjv_cameraInModel(mjtNum headpos[3], mjtNum forward[3], mjtNum up[3],
                        const mjvScene* scn); */
-pub fn mjv_cameraInModel(scn: &MjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
+pub fn mjv_cameraInModel(scn: &mjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
     let mut headpos = [0.0; 3];
     let mut forward = [0.0; 3];
     let mut up = [0.0; 3];
@@ -109,7 +109,7 @@ pub fn mjv_cameraInModel(scn: &MjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
 /// returning `(headpos, forward, up)`.
 /* void mjv_cameraInRoom(mjtNum headpos[3], mjtNum forward[3], mjtNum up[3],
                       const mjvScene* scn); */
-pub fn mjv_cameraInRoom(scn: &MjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
+pub fn mjv_cameraInRoom(scn: &mjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
     let mut headpos = [0.0; 3];
     let mut forward = [0.0; 3];
     let mut up = [0.0; 3];
@@ -128,7 +128,7 @@ pub fn mjv_cameraInRoom(scn: &MjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
 
 /// Get frustum height at unit distance from camera; average left and right OpenGL cameras.
 /* mjtNum mjv_frustumHeight(const mjvScene* scn); */
-pub fn mjv_frustumHeight(scn: &MjvScene) -> f64 {
+pub fn mjv_frustumHeight(scn: &mjvScene) -> f64 {
     unsafe { crate::bindgen::mjv_frustumHeight(scn.as_ptr()) }
 }
 
@@ -150,11 +150,11 @@ pub fn mjv_alignToCamera(vec: [f64; 3], forward: [f64; 3]) -> [f64; 3] {
 /* void mjv_moveCamera(const mjModel* m, int action, mjtNum reldx, mjtNum reldy,
                     const mjvScene* scn, mjvCamera* cam); */
 pub fn mjv_moveCamera(
-    m: &MjModel,
+    m: &mjModel,
     action: crate::bindgen::mjtMouse,
     reldx: f64,
     reldy: f64,
-    scn: &MjvScene,
+    scn: &mjvScene,
     cam: &mut mjvCamera,
 ) {
     unsafe {
@@ -173,12 +173,12 @@ pub fn mjv_moveCamera(
 /* void mjv_movePerturb(const mjModel* m, const mjData* d, int action, mjtNum reldx,
                      mjtNum reldy, const mjvScene* scn, mjvPerturb* pert); */
 pub fn mjv_movePerturb(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     action: crate::bindgen::mjtMouse,
     reldx: f64,
     reldy: f64,
-    scn: &MjvScene,
+    scn: &mjvScene,
     pert: &mut mjvPerturb,
 ) {
     unsafe {
@@ -198,12 +198,12 @@ pub fn mjv_movePerturb(
 /* void mjv_moveModel(const mjModel* m, int action, mjtNum reldx, mjtNum reldy,
                    const mjtNum roomup[3], mjvScene* scn); */
 pub fn mjv_moveModel(
-    m: &MjModel,
+    m: &mjModel,
     action: crate::bindgen::mjtMouse,
     reldx: f64,
     reldy: f64,
     roomup: [f64; 3],
-    scn: &mut MjvScene,
+    scn: &mut mjvScene,
 ) {
     unsafe {
         crate::bindgen::mjv_moveModel(
@@ -219,7 +219,7 @@ pub fn mjv_moveModel(
 
 /// Copy perturb pos,quat from selected body; set scale for perturbation.
 /* void mjv_initPerturb(const mjModel* m, mjData* d, const mjvScene* scn, mjvPerturb* pert); */
-pub fn mjv_initPerturb(m: &MjModel, d: &mut MjData, scn: &MjvScene, pert: &mut mjvPerturb) {
+pub fn mjv_initPerturb(m: &mjModel, d: &mut mjData, scn: &mjvScene, pert: &mut mjvPerturb) {
     unsafe {
         crate::bindgen::mjv_initPerturb(m.as_ptr(), d.as_mut_ptr(), scn.as_ptr(), pert);
     }
@@ -230,8 +230,8 @@ pub fn mjv_initPerturb(m: &MjModel, d: &mut MjData, scn: &MjvScene, pert: &mut m
 /* void mjv_applyPerturbPose(const mjModel* m, mjData* d, const mjvPerturb* pert,
                           int flg_paused); */
 pub fn mjv_applyPerturbPose(
-    m: &MjModel,
-    d: &mut MjData,
+    m: &mjModel,
+    d: &mut mjData,
     pert: &mjvPerturb,
     flg_paused: bool,
 ) {
@@ -247,7 +247,7 @@ pub fn mjv_applyPerturbPose(
 
 /// Set perturb force,torque in d->xfrc_applied, if selected body is dynamic.
 /* void mjv_applyPerturbForce(const mjModel* m, mjData* d, const mjvPerturb* pert); */
-pub fn mjv_applyPerturbForce(m: &MjModel, d: &mut MjData, pert: &mjvPerturb) {
+pub fn mjv_applyPerturbForce(m: &mjModel, d: &mut mjData, pert: &mjvPerturb) {
     unsafe {
         crate::bindgen::mjv_applyPerturbForce(m.as_ptr(), d.as_mut_ptr(), pert);
     }
@@ -292,13 +292,13 @@ mod mjv_select {
                const mjvScene* scn, mjtNum selpnt[3],
                int geomid[1], int flexid[1], int skinid[1]); */
 pub fn mjv_select(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     vopt: &mjvOption,
     aspectratio: f64,
     relx: f64,
     rely: f64,
-    scn: &MjvScene,
+    scn: &mjvScene,
 ) -> mjv_select::SelectResult {
     let mut geomid = [-1];
     let mut flexid = [-1];

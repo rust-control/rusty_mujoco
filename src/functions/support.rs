@@ -5,17 +5,17 @@
 //! Support functions are called within the simulator but
 //! some of them can also be useful for custom computations.
 
-use crate::{obj, mjContact, MjData, MjModel, ObjectId};
+use crate::{obj, mjContact, mjData, mjModel, ObjectId};
 
 /// Returns the number of mjtNum⁠s required for a given state specification. The bits of the integer spec correspond to element fields of mjtState.
-pub fn mj_stateSize(m: &MjModel, spec: crate::bindgen::mjtState) -> usize {
+pub fn mj_stateSize(m: &mjModel, spec: crate::bindgen::mjtState) -> usize {
     unsafe { crate::bindgen::mj_stateSize(m.as_ptr(), spec.0 as u32) as _ }
 }
 
 /// Copy concatenated state components specified by spec from d into state. The bits of the integer spec correspond to element fields of mjtState. Fails with mju_error if spec is invalid.
 pub fn mj_getState(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     state: &mut [f64],
     spec: crate::bindgen::mjtState,
 ) {
@@ -34,8 +34,8 @@ pub fn mj_getState(
 
 /// Copy concatenated state components specified by spec from state into d. The bits of the integer spec correspond to element fields of mjtState. Fails with mju_error if spec is invalid.
 pub fn mj_setState(
-    m: &MjModel,
-    d: &mut MjData,
+    m: &mjModel,
+    d: &mut mjData,
     state: &[f64],
     spec: crate::bindgen::mjtState,
 ) {
@@ -53,12 +53,12 @@ pub fn mj_setState(
 }
 
 /// Copy current state to the k-th model keyframe.
-pub fn mj_setKeyframe(m: &mut MjModel, d: &MjData, k: usize) {
+pub fn mj_setKeyframe(m: &mut mjModel, d: &mjData, k: usize) {
     unsafe { crate::bindgen::mj_setKeyframe(m.as_mut_ptr(), d.as_ptr(), k as i32) }
 }
 
 /// Add contact to d->contact list
-pub fn mj_addContact(m: &MjModel, d: &mut MjData, con: &mjContact) -> Result<(), ()> {
+pub fn mj_addContact(m: &mjModel, d: &mut mjData, con: &mjContact) -> Result<(), ()> {
     let res = unsafe { crate::bindgen::mj_addContact(m.as_ptr(), d.as_mut_ptr(), con) };
     /*
         https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mj-addcontact
@@ -68,22 +68,22 @@ pub fn mj_addContact(m: &MjModel, d: &mut MjData, con: &mjContact) -> Result<(),
 }
 
 /// Determine type of friction cone.
-pub fn mj_isPyramidal(m: &MjModel) -> bool {
+pub fn mj_isPyramidal(m: &mjModel) -> bool {
     unsafe { crate::bindgen::mj_isPyramidal(m.as_ptr()) != 0 }
 }
 
 /// Determine type of constraint Jacobian.
-pub fn mj_isSparse(m: &MjModel) -> bool {
+pub fn mj_isSparse(m: &mjModel) -> bool {
     unsafe { crate::bindgen::mj_isSparse(m.as_ptr()) != 0 }
 }
 
 /// Determine type of solver (PGS is dual, CG and Newton are primal).
-pub fn mj_isDual(m: &MjModel) -> bool {
+pub fn mj_isDual(m: &mjModel) -> bool {
     unsafe { crate::bindgen::mj_isDual(m.as_ptr()) != 0 }
 }
 
 /// This function multiplies the constraint Jacobian mjData.efc_J by a vector. Note that the Jacobian can be either dense or sparse; the function is aware of this setting. Multiplication by J maps velocities from joint space to constraint space.
-pub fn mj_mulJacVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
+pub fn mj_mulJacVec(m: &mjModel, d: &mjData, mut vec: Vec<f64>) -> Vec<f64> {
     #[cfg(debug_assertions)] {
         assert_eq!(vec.len(), m.nv());
     }
@@ -100,7 +100,7 @@ pub fn mj_mulJacVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
 }
 
 /// Same as mj_mulJacVec but multiplies by the transpose of the Jacobian. This maps forces from constraint space to joint space.
-pub fn mj_mulJacTVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
+pub fn mj_mulJacTVec(m: &mjModel, d: &mjData, mut vec: Vec<f64>) -> Vec<f64> {
     #[cfg(debug_assertions)] {
         assert_eq!(vec.len(), d.nefc());
     }
@@ -139,8 +139,8 @@ pub fn mj_mulJacTVec(m: &MjModel, d: &MjData, mut vec: Vec<f64>) -> Vec<f64> {
 /// The minimal pipeline stages required for Jacobian computations to be consistent
 /// with the current generalized positions mjData.qpos are mj_kinematics followed by mj_comPos.
 pub fn mj_jac(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     body: ObjectId<obj::Body>,
     point: [f64; 3],
 ) -> (Vec<f64>, Vec<f64>) {
@@ -161,8 +161,8 @@ pub fn mj_jac(
 
 /// This and the remaining variants of the Jacobian function call mj_jac internally, with the center of the body, geom or site. They are just shortcuts; the same can be achieved by calling mj_jac directly.
 pub fn mj_jacBody(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     body: ObjectId<obj::Body>,
 ) -> (Vec<f64>, Vec<f64>) {
     let mut jacp = vec![0.0; 3 * m.nv() as usize];
@@ -181,8 +181,8 @@ pub fn mj_jacBody(
 
 /// Compute body center-of-mass end-effector Jacobian.
 pub fn mj_jacBodyCom(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     body: ObjectId<obj::Body>,
 ) -> (Vec<f64>, Vec<f64>) {
     let mut jacp = vec![0.0; 3 * m.nv() as usize];
@@ -201,8 +201,8 @@ pub fn mj_jacBodyCom(
 
 // Compute geom end-effector Jacobian.
 pub fn mj_jacGeom(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     geom: ObjectId<obj::Geom>,
 ) -> (Vec<f64>, Vec<f64>) {
     let mut jacp = vec![0.0; 3 * m.nv() as usize];
@@ -221,8 +221,8 @@ pub fn mj_jacGeom(
 
 /// Compute site end-effector Jacobian.
 pub fn mj_jacSite(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     site: ObjectId<obj::Site>,
 ) -> (Vec<f64>, Vec<f64>) {
     let mut jacp = vec![0.0; 3 * m.nv() as usize];
@@ -241,8 +241,8 @@ pub fn mj_jacSite(
 
 /// Compute translation end-effector Jacobian of point, and rotation Jacobian of axis.
 pub fn mj_jacPointAxis(
-    m: &MjModel,
-    d: &mut MjData,
+    m: &mjModel,
+    d: &mut mjData,
     body: ObjectId<obj::Body>,
     point: [f64; 3],
     axis: [f64; 3],
@@ -266,8 +266,8 @@ pub fn mj_jacPointAxis(
 
 /// This function computes the time-derivative of an end-effector kinematic Jacobian computed by mj_jac. The minimal pipeline stages required for computation to be consistent with the current generalized positions and velocities mjData.{qpos, qvel} are mj_kinematics, mj_comPos,
 pub fn mj_jacDot(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     body: ObjectId<obj::Body>,
     point: [f64; 3],
 ) -> (Vec<f64>, Vec<f64>) {
@@ -291,8 +291,8 @@ pub fn mj_jacDot(
 /// More precisely if *h* is the subtree angular momentum of body id in mjData.subtree_angmom (reported by the subtreeangmom sensor)
 /// and *qdot* ​is the generalized velocity mjData.qvel, then *h = H qdot*
 pub fn mj_angmomMat(
-    m: &MjModel,
-    d: &mut MjData,
+    m: &mjModel,
+    d: &mut mjData,
     body: ObjectId<obj::Body>,
 ) -> Vec<f64> {
     let mut res = vec![0.0; 3 * m.nv()];
@@ -320,13 +320,13 @@ pub fn mj_angmomMat(
 ///     "path/to/model.xml"
 /// ).unwrap();
 /// # }
-/// # fn example(model: &rusty_mujoco::MjModel) {
+/// # fn example(model: &rusty_mujoco::mjModel) {
 /// let body_id = mj_name2id::<obj::Body>(&model, "body_name");
 /// println!("Body ID: {:?}", body_id);
 /// # }
 /// ```
 pub fn mj_name2id<O: crate::Obj>(
-    m: &MjModel,
+    m: &mjModel,
     name: &str,
 ) -> Option<ObjectId<O>> {
     let c_name = std::ffi::CString::new(name).expect("`name` contains null bytes");
@@ -338,7 +338,7 @@ pub fn mj_name2id<O: crate::Obj>(
 
 /// Get name of object with the specified mjtObj type and id, returns `None` if name not found.
 pub fn mj_id2name<O: crate::Obj>(
-    m: &MjModel,
+    m: &mjModel,
     id: ObjectId<O>,
 ) -> String {
     let c_name = unsafe {
@@ -354,7 +354,7 @@ pub fn mj_id2name<O: crate::Obj>(
 /// `M` must be of the same size as mjData.`qM`.
 /// Returned one is of size `nv x nv`,
 pub fn mj_fullM(
-    m: &MjModel,
+    m: &mjModel,
     M: &[f64],
 ) -> Vec<f64> {
     #[cfg(debug_assertions)] {
@@ -378,8 +378,8 @@ pub fn mj_fullM(
 /// and then user regular matrix-vector multiplication,
 /// but this is slower because it no longer benefits from sparsity.
 pub fn mj_mulM(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     mut vec: Vec<f64>,
 ) -> Vec<f64> {
     #[cfg(debug_assertions)] {
@@ -399,8 +399,8 @@ pub fn mj_mulM(
 
 /// Multiply vector by (inertia matrix)^(1/2).
 pub fn mj_mulM2(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     mut vec: Vec<f64>,
 ) -> Vec<f64> {
     #[cfg(debug_assertions)] {
@@ -422,8 +422,8 @@ pub fn mj_mulM2(
 /// Destination can be sparse or dense when all int are `None`.
 /* void mj_addM(const mjModel* m, mjData* d, mjtNum* dst, int* rownnz, int* rowadr, int* colind); */
 pub fn mj_addM(
-    m: &MjModel,
-    d: &mut MjData,
+    m: &mjModel,
+    d: &mut mjData,
     dst: &mut [f64],
     rownnz: Option<&mut [i32]>,
     rowadr: Option<&mut [i32]>,
@@ -462,8 +462,8 @@ pub fn mj_addM(
     const mjtNum force[3], const mjtNum torque[3], const mjtNum point[3],
     int body, mjtNum* qfrc_target); */
 pub fn mj_applyFT(
-    m: &MjModel,
-    d: &mut MjData,
+    m: &mjModel,
+    d: &mut mjData,
     body: ObjectId<obj::Body>,
     point: [f64; 3],
     force: [f64; 3],
@@ -487,8 +487,8 @@ pub fn mj_applyFT(
 /* void mj_objectVelocity(const mjModel* m, const mjData* d,
                        int objtype, int objid, mjtNum res[6], int flg_local); */
 pub fn mj_objectVelocity<O: crate::id::Obj>(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     object: ObjectId<O>,
     local: bool,
 ) -> [f64; 6] {
@@ -514,8 +514,8 @@ pub fn mj_objectVelocity<O: crate::id::Obj>(
 /* void mj_objectAcceleration(const mjModel* m, const mjData* d,
                            int objtype, int objid, mjtNum res[6], int flg_local); */
 pub fn mj_objectAcceleration<O: crate::id::Obj>(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     object: ObjectId<O>,
     local: bool,
 ) -> [f64; 6] {
@@ -540,8 +540,8 @@ pub fn mj_objectAcceleration<O: crate::id::Obj>(
 /* mjtNum mj_geomDistance(const mjModel* m, const mjData* d, int geom1, int geom2,
                        mjtNum distmax, mjtNum fromto[6]); */
 pub fn mj_geomDistance(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     geom1: ObjectId<obj::Geom>,
     geom2: ObjectId<obj::Geom>,
     distmax: f64,
@@ -563,8 +563,8 @@ pub fn mj_geomDistance(
 /// Extract 6D force:torque given contact id, in the contact frame.
 /* void mj_contactForce(const mjModel* m, const mjData* d, int id, mjtNum result[6]); */
 pub fn mj_contactForce(
-    m: &MjModel,
-    d: &MjData,
+    m: &mjModel,
+    d: &mjData,
     contact_id: usize,
 ) -> [f64; 6] {
     let mut result = [0.0; 6];
@@ -593,7 +593,7 @@ void mj_differentiatePos(const mjModel* m, mjtNum* qvel, mjtNum dt,
                          const mjtNum* qpos1, const mjtNum* qpos2);
 */
 pub fn mj_differentiatePos(
-    m: &MjModel,
+    m: &mjModel,
     qpos1: &[f64],
     qpos2: &[f64],
     dt: f64,
@@ -618,7 +618,7 @@ pub fn mj_differentiatePos(
 /// This is the opposite of mj_differentiatePos. It adds a vector in the format of qvel (scaled by dt) to a vector in the format of qpos.
 /* void mj_integratePos(const mjModel* m, mjtNum* qpos, const mjtNum* qvel, mjtNum dt); */
 pub fn mj_integratePos(
-    m: &MjModel,
+    m: &mjModel,
     qpos: &mut [f64],
     qvel: &[f64],
     dt: f64,
@@ -640,7 +640,7 @@ pub fn mj_integratePos(
 /// Normalize all quaternions in qpos-type vector.
 /* void mj_normalizeQuat(const mjModel* m, mjtNum* qpos); */
 pub fn mj_normalizeQuat(
-    m: &MjModel,
+    m: &mjModel,
     qpos: &mut [f64],
 ) {
     #[cfg(debug_assertions)] {
@@ -655,7 +655,7 @@ pub fn mj_normalizeQuat(
 /* void mj_local2Global(mjData* d, mjtNum xpos[3], mjtNum xmat[9], const mjtNum pos[3],
                      const mjtNum quat[4], int body, mjtByte sameframe); */
 pub fn mj_local2Global(
-    d: &mut MjData,
+    d: &mut mjData,
     xpos: &mut [f64; 3],
     xmat: &mut [f64; 9],
     pos: &[f64; 3],
@@ -677,14 +677,14 @@ pub fn mj_local2Global(
 }
 
 /// Sum all body masses.
-pub fn mj_getTotalmass(m: &MjModel) -> f64 {
+pub fn mj_getTotalmass(m: &mjModel) -> f64 {
     unsafe { crate::bindgen::mj_getTotalmass(m.as_ptr()) }
 }
 
 /// Scale body masses and inertias to achieve specified total mass.
 /* void mj_setTotalmass(mjModel* m, mjtNum newmass); */
 pub fn mj_setTotalmass(
-    m: &mut MjModel,
+    m: &mut mjModel,
     newmass: f64,
 ) {
     unsafe { crate::bindgen::mj_setTotalmass(m.as_mut_ptr(), newmass) }
@@ -694,7 +694,7 @@ pub fn mj_setTotalmass(
 /// `None`: invalid plugin instance ID or attribute name
 /* const char* mj_getPluginConfig(const mjModel* m, int plugin_id, const char* attrib); */
 pub fn mj_getPluginConfig(
-    m: &MjModel,
+    m: &mjModel,
     plugin_id: ObjectId<obj::Plugin>,
     attrib: &str,
 ) -> Option<String> {

@@ -8,37 +8,37 @@
 //! 
 //! The skip version of `mj_forward` and `mj_inverse` are useful for example when qpos was unchanged but qvel was changed (usually in the context of finite differencing). Then there is no point repeating the computations that only depend on qpos. Calling the dynamics with skipstage = mjSTAGE_POS will achieve these savings.
 
-use crate::{MjModel, MjData};
+use crate::{mjModel, mjData};
 
 /// Advance simulation, use control callback to obtain external force and control.
-pub fn mj_step(m: &MjModel, d: &mut MjData) {
+pub fn mj_step(m: &mjModel, d: &mut mjData) {
     unsafe { crate::bindgen::mj_step(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Advance simulation in two steps: before external force and control is set by user.
-pub fn mj_step1(m: &MjModel, d: &mut MjData) {
+pub fn mj_step1(m: &mjModel, d: &mut mjData) {
     unsafe { crate::bindgen::mj_step1(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Advance simulation in two steps: after external force and control is set by user.
-pub fn mj_step2(m: &MjModel, d: &mut MjData) {
+pub fn mj_step2(m: &mjModel, d: &mut mjData) {
     unsafe { crate::bindgen::mj_step2(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Forward dynamics: same as mj_step but do not integrate in time.
-pub fn mj_forward(m: &MjModel, d: &mut MjData) {
+pub fn mj_forward(m: &mjModel, d: &mut mjData) {
     unsafe { crate::bindgen::mj_forward(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Inverse dynamics: qacc must be set before calling.
-pub fn mj_inverse(m: &MjModel, d: &mut MjData) {
+pub fn mj_inverse(m: &mjModel, d: &mut mjData) {
     unsafe { crate::bindgen::mj_inverse(m.as_ptr(), d.as_mut_ptr()) }
 }
 
 /// Forward dynamics with skip
 pub fn mj_forwardSkip(
-    m: &MjModel,
-    d: &mut MjData,
+    m: &mjModel,
+    d: &mut mjData,
     skipstage: crate::bindgen::mjtStage,
     skipsensor: bool,
 ) {
@@ -53,8 +53,8 @@ pub fn mj_forwardSkip(
 
 /// Inverse dynamics with skip
 pub fn mj_inverseSkip(
-    m: &MjModel,
-    d: &mut MjData,
+    m: &mjModel,
+    d: &mut mjData,
     skipstage: crate::bindgen::mjtStage,
     skipsensor: bool,
 ) {

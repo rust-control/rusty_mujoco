@@ -57,7 +57,7 @@
 *Cargo.toml*
 ```toml
 [dependencies]
-rusty_mujoco = "0.2"
+rusty_mujoco = "0.1"
 ```
 
 *src/main.rs*
@@ -69,17 +69,11 @@ fn main() {
 
 See the [examples](./examples) directory for working examples.
 
-### Note
-
-- Binding policy:
+###  Binding Philosophy:
   - implement based on [rust-lang/bindgen](https://github.com/rust-lang/rust-bindgen).
   - deny any direct field access to raw-bindgen structs and provide fully-accessible methods.
   - automatically handle *resource types* that need proper resource management
     (e.g. calling `mj_deleteModel` for `MjModel` in its `Drop` impl).
-- Naming convention for MuJoCo items:
-  - *resource types*: PascalCase (`Mj~`)
-  - *other types*: as they are in MuJoCo (`mj~`)
-  - *functions*: as they in MuJoCo (`mj~_~`)
 
 ## Previous Works
 

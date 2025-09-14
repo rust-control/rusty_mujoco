@@ -71,7 +71,7 @@ impl mjvCamera {
     /// Create a new free camera with default settings by [`mjv_defaultFreeCamera`](crate::mjv_defaultFreeCamera).
     /// 
     /// See [`mjvCamera::default`] for a camera with default settings.
-    pub fn default_free(m: &crate::MjModel) -> Self {
+    pub fn default_free(m: &crate::mjModel) -> Self {
         crate::mjv_defaultFreeCamera(m)
     }
 }
@@ -280,32 +280,32 @@ impl mjvOption {
 }
 
 resource_wrapper!(
-    MjvScene for crate::bindgen::mjvScene;
+    mjvScene for crate::bindgen::mjvScene;
     drop = crate::mjv_freeScene;
 );
-impl MjvScene {
+impl mjvScene {
     /// Create a new abstract scene with resources allocated for `maxgeom` geoms.
     /// 
     /// This internally calls:
     /// 
     /// 1. [`mjv_defaultScene`](crate::mjv_defaultScene) to set default values for the scene.
     /// 2. [`mjv_makeScene`](crate::mjv_makeScene) to allocate resources in the scene.
-    pub fn new(model: &crate::MjModel, maxgeom: usize) -> Self {
+    pub fn new(model: &crate::mjModel, maxgeom: usize) -> Self {
         let mut scene = crate::mjv_defaultScene();
         crate::mjv_makeScene(model, &mut scene, maxgeom);
         scene
     }
 }
-impl Default for MjvScene {
+impl Default for mjvScene {
     /// Internally calls [`mjv_defaultScene`](crate::mjv_defaultScene).
     /// 
-    /// **note**: Be sure to call [`mjv_makeScene`](crate::mjv_makeScene) for the returned `MjvScene`
+    /// **note**: Be sure to call [`mjv_makeScene`](crate::mjv_makeScene) for the returned `mjvScene`
     ///           to allocate resources in abstract scene before using it in rendering.
     fn default() -> Self {
         crate::mjv_defaultScene()
     }
 }
-fields_mapping!(MjvScene {
+fields_mapping!(mjvScene {
     scalars {
         maxgeom: usize = "size of allocated geom buffer";
         ngeom: usize = "number of geoms currently in buffer";
@@ -326,7 +326,7 @@ fields_mapping!(MjvScene {
         camera: [mjvGLCamera; 2] = "left and right camera";
     }
 });
-impl MjvScene {
+impl mjvScene {
     fn nflexedge(&self) -> usize {self.flexedgenum().iter().sum::<i32>() as usize}
     fn nflexface(&self) -> usize {self.flexfacenum().iter().sum::<i32>() as usize}
     fn nflexvert(&self) -> usize {self.flexvertnum().iter().sum::<i32>() as usize}
@@ -334,7 +334,7 @@ impl MjvScene {
 }
 macro_rules! buffer_slices {
     ($($name:ident : [$T:ty; $size:ident $(* $mul:literal)?] = $description:literal;)*) => {
-        impl MjvScene {
+        impl mjvScene {
             $(
                 #[doc = $description]
                 pub fn $name(&self) -> &[$T] {
@@ -377,7 +377,7 @@ impl std::ops::IndexMut<mjtRndFlag> for RenderingFlags {
         &mut (unsafe { std::mem::transmute::<_, &mut [bool; mjNRNDFLAG as usize]>(&mut self.0) })[index.0 as usize]
     }
 }
-impl MjvScene {
+impl mjvScene {
     /// copy of mjVIS_FLEXVERT mjvOption flag
     pub fn flexvertopt(&self) -> bool {self.flexvertopt != 0}
     /// copy of mjVIS_FLEXEDGE mjvOption flag

@@ -8,10 +8,10 @@ pub use crate::bindgen::{
 };
 
 resource_wrapper!(
-    MjData for crate::bindgen::mjData;
+    mjData for crate::bindgen::mjData;
     drop = crate::mj_deleteData;
 );
-fields_mapping!(MjData {
+fields_mapping!(mjData {
     scalars {
         // constant sizes
         narena: usize = "size of the arena in bytes (inclusive of the stack)";
@@ -56,7 +56,7 @@ fields_mapping!(MjData {
 });
 
 // solver statistics
-impl MjData {
+impl mjData {
     /// solver statistics per island, per iteration
     pub fn solver(&self) -> [crate::mjSolverStat; mjNISLAND as usize * mjNSOLVER as usize] {
         self.solver
@@ -75,9 +75,9 @@ impl MjData {
     }
 }
 
-use crate::{MjModel, ObjectId, obj, Joint};
+use crate::{mjModel, ObjectId, obj, Joint};
 
-impl MjData {
+impl mjData {
     pub fn ctrl(&self, id: ObjectId<obj::Actuator>) -> f64 {
         unsafe { self.ctrl.add(id.index()).read() }
     }
@@ -85,31 +85,31 @@ impl MjData {
         unsafe { self.ctrl.add(id.index()).write(value) };
     }
 
-    pub fn act(&self, id: ObjectId<obj::Actuator>, model: &MjModel) -> Option<f64> {
+    pub fn act(&self, id: ObjectId<obj::Actuator>, model: &mjModel) -> Option<f64> {
         let offset = model.actuator_actadr(id)?;
         Some(unsafe { self.act.add(offset).read() })
     }
     /// Set the actuator activation value. `None` when the actuator is stateless.
-    pub fn set_act(&mut self, id: ObjectId<obj::Actuator>, value: f64, model: &MjModel) -> Option<()> {
+    pub fn set_act(&mut self, id: ObjectId<obj::Actuator>, value: f64, model: &mjModel) -> Option<()> {
         let offset = model.actuator_actadr(id)?;
         unsafe { self.act.add(offset).write(value) };
         Some(())
     }
 
-    pub fn qpos<J: Joint>(&self, id: ObjectId<J>, model: &MjModel) -> J::Qpos {
+    pub fn qpos<J: Joint>(&self, id: ObjectId<J>, model: &mjModel) -> J::Qpos {
         let ptr = unsafe { self.qpos.add(model.jnt_qposadr(id)) };
         J::Qpos::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QPOS_SIZE) }).ok().unwrap()
     }
-    pub fn set_qpos<J: Joint>(&mut self, id: ObjectId<J>, qpos: J::Qpos, model: &MjModel) {
+    pub fn set_qpos<J: Joint>(&mut self, id: ObjectId<J>, qpos: J::Qpos, model: &mjModel) {
         let ptr = unsafe { self.qpos.add(model.jnt_qposadr(id)) };
         unsafe { std::ptr::copy_nonoverlapping(qpos.as_ref().as_ptr(), ptr, J::QPOS_SIZE) };
     }
 
-    pub fn qvel<J: Joint>(&self, id: ObjectId<J>, model: &MjModel) -> J::Qvel {
+    pub fn qvel<J: Joint>(&self, id: ObjectId<J>, model: &mjModel) -> J::Qvel {
         let ptr = unsafe { self.qvel.add(model.jnt_dofadr(id).expect("Currently we don't support `weld` in `joint::`, so this will not be None...")) };
         J::Qvel::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QVEL_SIZE) }).ok().unwrap()
     }
-    pub fn set_qvel<J: Joint>(&mut self, id: ObjectId<J>, qvel: J::Qvel, model: &MjModel) {
+    pub fn set_qvel<J: Joint>(&mut self, id: ObjectId<J>, qvel: J::Qvel, model: &mjModel) {
         let ptr = unsafe { self.qvel.add(model.jnt_dofadr(id).expect("Currently we don't support `weld` in `joint::`, so this will not be None...")) };
         unsafe { std::ptr::copy_nonoverlapping(qvel.as_ref().as_ptr(), ptr, J::QVEL_SIZE) };
     }
@@ -121,12 +121,12 @@ impl MjData {
         unsafe { self.qacc_warmstart.add(id.index()).write(value) };
     }
 
-    pub fn plugin_state(&self, id: ObjectId<obj::Plugin>, model: &MjModel) -> Option<f64> {
+    pub fn plugin_state(&self, id: ObjectId<obj::Plugin>, model: &mjModel) -> Option<f64> {
         let offset = model.plugin_stateadr(id)?;
         Some(unsafe { self.plugin_state.add(offset).read() })
     }
     /// Set the plugin state value. Returns `None` when the plugin is stateless.
-    pub fn set_plugin_state(&mut self, id: ObjectId<obj::Plugin>, value: f64, model: &MjModel) -> Option<()> {
+    pub fn set_plugin_state(&mut self, id: ObjectId<obj::Plugin>, value: f64, model: &mjModel) -> Option<()> {
         let offset = model.plugin_stateadr(id)?;
         unsafe { self.plugin_state.add(offset).write(value) };
         Some(())
@@ -156,23 +156,23 @@ impl MjData {
     }
 
     /// `None` when the body is not a mocap body.
-    pub fn mocap_pos(&self, id: ObjectId<obj::Body>, model: &MjModel) -> Option<[f64; 3]> {
+    pub fn mocap_pos(&self, id: ObjectId<obj::Body>, model: &mjModel) -> Option<[f64; 3]> {
         let offset = model.body_mocapid(id)?.index() * 3;
         Some(std::array::from_fn(|i| unsafe { self.mocap_pos.add(offset + i).read() }))
     }
     /// `None` when the body is not a mocap body.
-    pub fn set_mocap_pos(&mut self, id: ObjectId<obj::Body>, pos: [f64; 3], model: &MjModel) -> Option<()> {
+    pub fn set_mocap_pos(&mut self, id: ObjectId<obj::Body>, pos: [f64; 3], model: &mjModel) -> Option<()> {
         let offset = model.body_mocapid(id)?.index() * 3;
         unsafe { std::ptr::copy_nonoverlapping(pos.as_ptr(), self.mocap_pos.add(offset), pos.len()) };
         Some(())
     }
 
-    pub fn mocap_quat(&self, id: ObjectId<obj::Body>, model: &MjModel) -> Option<[f64; 4]> {
+    pub fn mocap_quat(&self, id: ObjectId<obj::Body>, model: &mjModel) -> Option<[f64; 4]> {
         let offset = model.body_mocapid(id)?.index() * 4;
         Some(std::array::from_fn(|i| unsafe { self.mocap_quat.add(offset + i).read() }))
     }
     /// `None` when the body is not a mocap body.
-    pub fn set_mocap_quat(&mut self, id: ObjectId<obj::Body>, quat: [f64; 4], model: &MjModel) -> Option<()> {
+    pub fn set_mocap_quat(&mut self, id: ObjectId<obj::Body>, quat: [f64; 4], model: &mjModel) -> Option<()> {
         let offset = model.body_mocapid(id)?.index() * 4;
         unsafe { std::ptr::copy_nonoverlapping(quat.as_ptr(), self.mocap_quat.add(offset), quat.len()) };
         Some(())
@@ -187,12 +187,12 @@ impl MjData {
 macro_rules! buffer_slices_depending_on_model {
     ($($name:ident : [$T:ty; $size:ident $(* $lit:literal)? $(* $var:ident)?] = $description:literal;)*) => {
         #[allow(non_snake_case)]
-        impl MjData {
+        impl mjData {
             $(
                 #[doc = $description]
                 #[doc = "\n"]
                 #[doc = "**SAFETY**: `model` must be exactly the same model as the one used to create this `mjData`."]
-                pub unsafe fn $name(&self, model: &MjModel) -> &[$T] {
+                pub unsafe fn $name(&self, model: &mjModel) -> &[$T] {
                     #[cfg(debug_assertions/* size check */)] {
                         #[allow(unnecessary_transmutes)]
                         let _: $T = unsafe { std::mem::transmute(*self.$name) };
@@ -204,12 +204,12 @@ macro_rules! buffer_slices_depending_on_model {
     };
     ($($name:ident / $mut_name:ident : [$T:ty; $size:ident $(* $mul:literal)?] = $description:literal;)*) => {
         #[allow(non_snake_case)]
-        impl MjData {
+        impl mjData {
             $(
                 #[doc = $description]
                 #[doc = "\n"]
                 #[doc = "**SAFETY**: `model` must be exactly the same model as the one used to create this `mjData`."]
-                pub unsafe fn $name(&self, model: &MjModel) -> &[$T] {
+                pub unsafe fn $name(&self, model: &mjModel) -> &[$T] {
                     #[cfg(debug_assertions/* size check */)] {
                         #[allow(unnecessary_transmutes)]
                         let _: $T = unsafe { std::mem::transmute(*self.$name) };
@@ -221,7 +221,7 @@ macro_rules! buffer_slices_depending_on_model {
                 #[doc = $description]
                 #[doc = "\n"]
                 #[doc = "**SAFETY**: `model` must be exactly the same model as the one used to create this `mjData`."]
-                pub unsafe fn $mut_name(&mut self, model: &MjModel) -> &mut [$T] {
+                pub unsafe fn $mut_name(&mut self, model: &mjModel) -> &mut [$T] {
                     #[cfg(debug_assertions/* size check */)] {
                         #[allow(unnecessary_transmutes)]
                         let _: $T = unsafe { std::mem::transmute(*self.$name) };
@@ -398,7 +398,7 @@ buffer_slices_depending_on_model! {
 macro_rules! buffer_slices {
     ($($name:ident : [$T:ty; $size:ident $(* $lit:literal)?] = $description:literal;)*) => {
         #[allow(non_snake_case)]
-        impl MjData {
+        impl mjData {
             $(
                 #[doc = $description]
                 pub fn $name(&self) -> &[$T] {

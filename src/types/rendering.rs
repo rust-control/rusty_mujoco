@@ -28,32 +28,32 @@ impl mjrRect {
 }
 
 resource_wrapper!(
-    MjrContext for crate::bindgen::mjrContext;
+    mjrContext for crate::bindgen::mjrContext;
     drop = crate::mjr_freeContext;
 );
-impl Default for MjrContext {
+impl Default for mjrContext {
     /// Internally calls [`mjr_defaultContext`](crate::mjr_defaultContext).
     /// 
-    /// **note**: Be sure to call [`mjr_makeContext`](crate::mjr_makeContext) for the returned `MjrContext` to allocate resources
+    /// **note**: Be sure to call [`mjr_makeContext`](crate::mjr_makeContext) for the returned `mjrContext` to allocate resources
     ///           before using it in rendering.
     fn default() -> Self {
         crate::mjr_defaultContext()
     }
 }
-impl MjrContext {
-    /// Create a new `MjrContext` with given font scale.
+impl mjrContext {
+    /// Create a new `mjrContext` with given font scale.
     /// 
     /// This internally calls:
     /// 
     /// 1. [`mjr_defaultContext`](crate::mjr_defaultContext) to set default values for the scene.
     /// 2. [`mjr_makeContext`](crate::mjr_makeContext) to allocate resources in the scene.
-    pub fn new(m: &crate::MjModel, fontscale: crate::mjtFontScale) -> Self {
+    pub fn new(m: &crate::mjModel, fontscale: crate::mjtFontScale) -> Self {
         let mut con = crate::mjr_defaultContext();
         crate::mjr_makeContext(m, &mut con, fontscale);
         con
     }
 }
-fields_mapping!(MjrContext {
+fields_mapping!(mjrContext {
     boolean_flags {
         glInitialized = "is OpenGL initialized";
         windowAvailable = "is default/window framebuffer available";
@@ -113,7 +113,7 @@ fields_mapping!(MjrContext {
     }
 });
 #[allow(non_snake_case)]
-impl MjrContext {
+impl mjrContext {
     /// default color pixel format for `mjr_readPixels`
     pub fn readPixelFormat(&self) -> i32 {
         self.readPixelFormat

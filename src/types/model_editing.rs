@@ -11,20 +11,20 @@ pub use crate::bindgen::{
 use crate::bindgen::{mjOption, mjVisual, mjStatistic, mjString, mjLROpt};
 
 resource_wrapper!(
-    MjSpec for crate::bindgen::mjSpec;
+    mjSpec for crate::bindgen::mjSpec;
     drop = crate::mj_deleteSpec;
 );
-impl Default for MjSpec {
+impl Default for mjSpec {
     fn default() -> Self {
         crate::mjs_defaultSpec()
     }
 }
-impl Clone for MjSpec {
+impl Clone for mjSpec {
     fn clone(&self) -> Self {
         crate::mj_copySpec(self)
     }
 }
-fields_mapping!(MjSpec {
+fields_mapping!(mjSpec {
     boolean_flags {
         strippath / set_strippath = "automatically strip paths from mesh files";
         hasImplicitPluginElem = "already encountered an implicit plugin sensor/actuator";
@@ -50,7 +50,7 @@ fields_mapping!(MjSpec {
         stat / stat_mut: mjStatistic = "statistics override (if defined)";
     }
 });
-impl MjSpec {
+impl mjSpec {
     /// element type, do not modify
     pub fn element(&self) -> &mjsElement {unsafe { &*self.element }}
 

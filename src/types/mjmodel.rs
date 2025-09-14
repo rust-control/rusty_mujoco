@@ -5,10 +5,10 @@
 // pub use crate::bindgen::{mjModel, mjOption, mjVisual, mjStatistic};
 
 resource_wrapper!(
-    MjModel for crate::bindgen::mjModel;
+    mjModel for crate::bindgen::mjModel;
     drop = crate::mj_deleteModel;
 );
-fields_mapping!(MjModel {
+fields_mapping!(mjModel {
     scalars {
         // sizes needed at mjModel construction
         nq: usize = "number of generalized coordinates = dim(qpos)";
@@ -103,9 +103,9 @@ fields_mapping!(MjModel {
         signature: u64 = "model signature, used to detect changes in model";
     }
     structs {
-        opt: mjOption = "physics options\n\n**note**: _read-only_. To dynamically mutate this, consider building `MjModel` via `MjSpec`.";
-        vis: mjVisual = "visualization options\n\n**note**: _read-only_. To dynamically mutate this, consider building `MjModel` via `MjSpec`.";
-        stat: mjStatistic = "model statistics\n\n**note**: _read-only_. To dynamically mutate this, consider building `MjModel` via `MjSpec`.";
+        opt: mjOption = "physics options\n\n**note**: _read-only_. To dynamically mutate this, consider building `mjModel` via `mjSpec`.";
+        vis: mjVisual = "visualization options\n\n**note**: _read-only_. To dynamically mutate this, consider building `mjModel` via `mjSpec`.";
+        stat: mjStatistic = "model statistics\n\n**note**: _read-only_. To dynamically mutate this, consider building `mjModel` via `mjSpec`.";
     }
 });
 
@@ -123,14 +123,14 @@ use std::{
     array::from_fn as array,
 };
 
-impl MjModel {
+impl mjModel {
     pub fn object_id<O: Obj>(&self, name: &str) -> Option<ObjectId<O>> {
         O::object_id(self, name)
     }
 }
 
 #[allow(non_snake_case)]
-impl MjModel {
+impl mjModel {
     /// qpos values at default pose
     pub fn qpos0<J: Joint>(&self, joint_id: ObjectId<J>) -> J::Qpos {
         unsafe {
