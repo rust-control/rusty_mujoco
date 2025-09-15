@@ -58,18 +58,12 @@ jobs:
             exit 1
           fi
           
-  tester:
-    runs-on: ubuntu-latest
-    outputs:
-      arch: ${{ steps.determine_arch.outputs.arch }}
-    steps:
-      - id: determine_arch
-        run: echo "${{ matrix.arch }}" >> $GITHUB_OUTPUT
-
-  test-x86_64:
+  test-linux-x86_64:
     runs-on: ubuntu-24.04
-    needs: tester
-    if: needs.tester.outputs.arch == 'x86_64'
+    
+    strategy:
+      matrix:
+        toolchain: ['stable', 'nightly']
     
     steps:
       - uses: actions/checkout@v5
@@ -82,10 +76,9 @@ jobs:
           
       - name: setup MuJoCo
         run: |
-          mkdir -p $HOME/.mujoco
-          cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
-          tar -xzf mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
+          mkdir -p $HOME/.mujoco && cd $HOME/.mujoco
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
+          tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
@@ -104,10 +97,12 @@ jobs:
           cargo test --benches
           cargo test --examples
 
-  test-aarch64:
+  test-linux-aarch64:
     runs-on: ubuntu-24.04-arm
-    needs: tester
-    if: needs.tester.outputs.arch == 'aarch64'
+    
+    strategy:
+      matrix:
+        toolchain: ['stable', 'nightly']
     
     steps:
       - uses: actions/checkout@v5
@@ -120,10 +115,9 @@ jobs:
           
       - name: setup MuJoCo
         run: |
-          mkdir -p $HOME/.mujoco
-          cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
-          tar -xzf mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
+          mkdir -p $HOME/.mujoco && cd $HOME/.mujoco
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-aarch64.tar.gz
+          tar -xzf mujoco-3.3.2-linux-aarch64.tar.gz
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
