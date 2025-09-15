@@ -456,7 +456,7 @@ macro_rules! chars {
                     let bytes = $name.as_bytes();
                     let (len, limit) = (bytes.len(), self.$name.len() - 1);
                     assert!(len <= limit, "{}: `{len}` is too long, max {limit} bytes", stringify!($name));
-                    bytes.iter().enumerate().for_each(|(i, &b)| self.$name[i] = b as i8);
+                    bytes.iter().enumerate().for_each(|(i, &b)| self.$name[i] = b as std::ffi::c_char);
                     self.$name[bytes.len()] = 0; // null-terminate
                     self
                 }
@@ -481,7 +481,7 @@ impl mjvFigure {
         assert!(index < mjMAXLINE, "`set_linename`: too large index `{index}`, must be index < {mjMAXLINE}");
         let (len, limit) = (name.as_bytes().len(), self.linename[index].len() - 1);
         assert!(len <= limit, "Line name `{name}` is too long, max {limit} bytes");
-        name.as_bytes().iter().enumerate().for_each(|(i, &b)| self.linename[index][i] = b as i8);
+        name.as_bytes().iter().enumerate().for_each(|(i, &b)| self.linename[index][i] = b as std::ffi::c_char);
         self.linename[index][len] = 0; // null-terminate
         self
     }
