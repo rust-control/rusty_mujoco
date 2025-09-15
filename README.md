@@ -60,7 +60,13 @@ rusty_mujoco = "0.1"
 glfw = "0.60"
 ```
 
-```rust
+```rust,no_run
+use rusty_mujoco::{mj_loadXML, mj_makeData, mj_name2id, mj_step, mjr_render, mjv_updateScene};
+use rusty_mujoco::{mjrContext, mjrRect, mjvScene, mjvCamera, mjvOption, mjtCatBit, mjtFontScale};
+
+let xml_path: String = todo!();
+let camera_name: Option<String> = todo!();
+
 let model = mj_loadXML(xml_path).expect("Failed to load XML file");
 let mut data = mj_makeData(&model);
 
@@ -108,10 +114,15 @@ See [examples/visualize_left_object.rs](./examples/visualize_left_object.rs) for
 and [examples/README.md](./examples/README.md) for the description.
 
 ##  Binding Philosophy:
-  - implement based on [rust-lang/bindgen](https://github.com/rust-lang/rust-bindgen).
-  - deny any direct field access to raw-bindgen structs and provide fully-accessible methods.
-  - automatically handle *resource types* that need proper resource management
-    (e.g. calling `mj_deleteModel` for `MjModel` in its `Drop` impl).
+
+- provide direct Rusty binding to all MuJoCo APIs.
+- offer as much type-safety and efficiency as possible.
+  (e.g. `mj_name2id` and many other functions or methods handle `ObjectId<T>`
+  instead of primitive integer, requiring only once `mj_name2id` call per object and
+  assuring the object id to be valid in entire a simulation)
+- deny direct field access to raw-bindgen structs and provide fully-accessible getter/setter methods.
+- automatically handle resource management of some types with heap allocation.
+  (e.g. calling `mj_deleteModel` for `mjModel` in its `Drop` impl)
 
 ## Previous Works
 
