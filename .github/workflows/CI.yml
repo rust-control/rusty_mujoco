@@ -22,15 +22,15 @@ jobs:
       - run: |
           rustup update
           rustup default ${{ matrix.toolchain }}
-          rustup component add rustfmt   ### required for the build script to work ###
           rustup target add ${{ matrix.arch }}-unknown-linux-gnu
+          rustup component add rustfmt   ### required for the build script to work ###
 
       - name: check fails without MUJOCO_DIR
-        env:
-          CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
-          C_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
-          CPLUS_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
         run: |
+          if [ "${{ matrix.arch }}" = 'aarch64' ]; then
+            export C_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
+            export CPLUS_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
+          fi
           if cargo build; then
             echo 'cargo check succeeded without mujoco, which is unexpected.'
             exit 1
@@ -50,9 +50,11 @@ jobs:
       - name: check succeeds with MUJOCO_DIR
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
-          C_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
-          CPLUS_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
         run: |
+          if [ "${{ matrix.arch }}" = 'aarch64' ]; then
+            export C_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
+            export CPLUS_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
+          fi
           if cargo build; then
             echo 'cargo check succeeded with mujoco, as expected.'
           else
@@ -76,8 +78,8 @@ jobs:
         run: |
           rustup update
           rustup default ${{ matrix.toolchain }}
+          rustup target add ${{ matrix.arch }}-unknown-linux-gnu
           rustup component add rustfmt   ### required for the build script to work ###
-          rustup target add ${{ matrix.arch }}
           
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
@@ -96,9 +98,11 @@ jobs:
       - name: run tests
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
-          C_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
-          CPLUS_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
         run: |
+          if [ "${{ matrix.arch }}" = 'aarch64' ]; then
+            export C_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
+            export CPLUS_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
+          fi
           cargo test --lib
           cargo test --doc
           cargo test --tests
