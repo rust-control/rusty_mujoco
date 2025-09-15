@@ -57,11 +57,19 @@ jobs:
             echo "[DEBUG] bindgen.rs content:" && cat ./src/bindgen.rs
             exit 1
           fi
+          
+  tester:
+    runs-on: ubuntu-latest
+    outputs:
+      arch: ${{ steps.determine_arch.outputs.arch }}
+    steps:
+      - id: determine_arch
+        run: echo "${{ matrix.arch }}" >> $GITHUB_OUTPUT
 
   test-x86_64:
-    if: matrix.arch == 'x86_64'
-    
     runs-on: ubuntu-24.04
+    needs: tester
+    if: needs.tester.outputs.arch == 'x86_64'
     
     steps:
       - uses: actions/checkout@v5
@@ -97,9 +105,9 @@ jobs:
           cargo test --examples
 
   test-aarch64:
-    if: matrix.arch == 'aarch64'
-    
     runs-on: ubuntu-24.04-arm
+    needs: tester
+    if: needs.tester.outputs.arch == 'aarch64'
     
     steps:
       - uses: actions/checkout@v5
