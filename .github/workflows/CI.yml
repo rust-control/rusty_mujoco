@@ -14,7 +14,7 @@ jobs:
     strategy:
       matrix:
         toolchain: ['stable', 'nightly']
-        platform: ['x86_64-unknown-linux-gnu', 'aarch64-unknown-linux-gnu']
+        arch: ['x86_64', 'aarch64']
 
     steps:
       - uses: actions/checkout@v5
@@ -23,11 +23,13 @@ jobs:
           rustup update
           rustup default ${{ matrix.toolchain }}
           rustup component add rustfmt   ### required for the build script to work ###
-          rustup target add ${{ matrix.platform }}
+          rustup target add ${{ matrix.arch }}-unknown-linux-gnu
 
       - name: check fails without MUJOCO_DIR
         env:
-          CARGO_BUILD_TARGET: ${{ matrix.platform }}
+          CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
+          C_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
+          CPLUS_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
         run: |
           if cargo build; then
             echo 'cargo check succeeded without mujoco, which is unexpected.'
@@ -40,19 +42,16 @@ jobs:
         run: |
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
-          if [ "${{ matrix.platform }}" = "x86_64-unknown-linux-gnu" ]; then
-            wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
-            tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
-          elif [ "${{ matrix.platform }}" = "aarch64-unknown-linux-gnu" ]; then
-            wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-aarch64.tar.gz
-            tar -xzf mujoco-3.3.2-linux-aarch64.tar.gz
-          fi
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
+          tar -xzf mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
       - name: check succeeds with MUJOCO_DIR
         env:
-          CARGO_BUILD_TARGET: ${{ matrix.platform }}
+          CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
+          C_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
+          CPLUS_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
         run: |
           if cargo build; then
             echo 'cargo check succeeded with mujoco, as expected.'
@@ -68,7 +67,7 @@ jobs:
     strategy:
       matrix:
         toolchain: [stable, nightly]
-        platform: ['x86_64-unknown-linux-gnu', 'aarch64-unknown-linux-gnu']
+        arch: ['x86_64', 'aarch64']
 
     steps:
       - uses: actions/checkout@v5
@@ -78,17 +77,12 @@ jobs:
           rustup update
           rustup default ${{ matrix.toolchain }}
           rustup component add rustfmt   ### required for the build script to work ###
-          rustup target add ${{ matrix.platform }}
+          rustup target add ${{ matrix.arch }}
           
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
-          if [ "${{ matrix.platform }}" = "x86_64-unknown-linux-gnu" ]; then
-            wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
-            tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
-          elif [ "${{ matrix.platform }}" = "aarch64-unknown-linux-gnu" ]; then
-            wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-aarch64.tar.gz
-            tar -xzf mujoco-3.3.2-linux-aarch64.tar.gz
-          fi
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
+          tar -xzf mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
       
@@ -101,7 +95,9 @@ jobs:
           
       - name: run tests
         env:
-          CARGO_BUILD_TARGET: ${{ matrix.platform }}
+          CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
+          C_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
+          CPLUS_INCLUDE_PATH: /usr/include/${{ matrix.arch }}-linux-gnu
         run: |
           cargo test --lib
           cargo test --doc
