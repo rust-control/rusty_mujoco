@@ -57,25 +57,23 @@ jobs:
             echo "[DEBUG] bindgen.rs content:" && cat ./src/bindgen.rs
             exit 1
           fi
-  
-  test:
-    runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        toolchain: ['stable', 'nightly']
-        arch: ['x86_64', 'aarch64']
 
+  test-x86_64:
+    if: matrix.arch == 'x86_64'
+    
+    runs-on: ubuntu-24.04
+    
     steps:
       - uses: actions/checkout@v5
-
-      - name: setup
+      
+      - name: setup Rust
         run: |
           rustup update
           rustup default ${{ matrix.toolchain }}
-          rustup target add ${{ matrix.arch }}-unknown-linux-gnu
           rustup component add rustfmt   ### required for the build script to work ###
           
+      - name: setup MuJoCo
+        run: |
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
           wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
@@ -83,40 +81,128 @@ jobs:
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
-          if [ "${{ matrix.arch }}" = 'aarch64' ]; then
-            sudo apt update && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu pkg-config
-            echo "PKG_CONFIG=aarch64-linux-gnu-pkg-config" >> $GITHUB_ENV
-            echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig:/usr/local/share/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
-          fi
-      
       - name: setup additional dependencies for examples
         run: |
           git clone https://github.com/glfw/glfw.git
           mkdir -p glfw/build && cd glfw/build
-          if [ "${{ matrix.arch }}" = 'x86_64' ]; then
-            sudo apt update
-            sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
-            cmake .. -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
-            make && sudo make install
-          elif [ "${{ matrix.arch }}" = 'aarch64' ]; then
-            sudo dpkg --add-architecture arm64
-            echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse" | sudo tee /etc/apt/sources.list.d/ports.list
-            echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports.list
-            echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-security main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports.list
-            echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports.list
-            sudo apt update || :   ### fails to fetch some security repositories that don't support arm64, but it doesn't matter ###
-            sudo apt install -y cmake build-essential libwayland-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
-            sudo apt install -y wayland-protocols
-            cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
-            make && sudo make install
-          fi
-          
+          sudo apt update && sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
+          cmake .. && make && sudo make install
+
       - name: run tests
-        env:
-          CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
         run: |
           cargo test --lib
           cargo test --doc
           cargo test --tests
           cargo test --benches
           cargo test --examples
+
+  test-aarch64:
+    if: matrix.arch == 'aarch64'
+    
+    runs-on: ubuntu-24.04-arm
+    
+    steps:
+      - uses: actions/checkout@v5
+      
+      - name: setup Rust
+        run: |
+          rustup update
+          rustup default ${{ matrix.toolchain }}
+          rustup component add rustfmt   ### required for the build script to work ###
+          
+      - name: setup MuJoCo
+        run: |
+          mkdir -p $HOME/.mujoco
+          cd $HOME/.mujoco
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
+          tar -xzf mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
+          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          
+      - name: setup additional dependencies for examples
+        run: |
+          git clone https://github.com/glfw/glfw.git
+          mkdir -p glfw/build && cd glfw/build
+          sudo apt update && sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
+          cmake .. && make && sudo make install
+
+      - name: run tests
+        run: |
+          cargo test --lib
+          cargo test --doc
+          cargo test --tests
+          cargo test --benches
+          cargo test --examples
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+#  test:
+#    runs-on: ubuntu-latest
+#    
+#    strategy:
+#      matrix:
+#        toolchain: ['stable', 'nightly']
+#        arch: ['x86_64', 'aarch64']
+#
+#    steps:
+#      - uses: actions/checkout@v5
+#
+#      - name: setup
+#        run: |
+#          rustup update
+#          rustup default ${{ matrix.toolchain }}
+#          rustup target add ${{ matrix.arch }}-unknown-linux-gnu
+#          rustup component add rustfmt   ### required for the build script to work ###
+#          
+#          mkdir -p $HOME/.mujoco
+#          cd $HOME/.mujoco
+#          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
+#          tar -xzf mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
+#          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
+#          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+#          
+#          if [ "${{ matrix.arch }}" = 'aarch64' ]; then
+#            sudo apt update && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu pkg-config
+#            echo "PKG_CONFIG=aarch64-linux-gnu-pkg-config" >> $GITHUB_ENV
+#            echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig:/usr/local/lib/aarch64-linux-gnu/pkgconfig:/usr/local/share/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
+#          fi
+#      
+#      - name: setup additional dependencies for examples
+#        run: |
+#          git clone https://github.com/glfw/glfw.git
+#          mkdir -p glfw/build && cd glfw/build
+#          if [ "${{ matrix.arch }}" = 'x86_64' ]; then
+#            sudo apt update
+#            sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
+#            cmake .. -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
+#            make && sudo make install
+#          elif [ "${{ matrix.arch }}" = 'aarch64' ]; then
+#            sudo dpkg --add-architecture arm64
+#            echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble main restricted universe multiverse" | sudo tee /etc/apt/sources.list.d/ports.list
+#            echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports.list
+#            echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-security main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports.list
+#            echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports.list
+#            sudo apt update || :   ### fails to fetch some security repositories that don't support arm64, but it doesn't matter ###
+#            sudo apt install -y cmake build-essential libwayland-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
+#            sudo apt install -y wayland-protocols
+#            cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
+#            make && sudo make install
+#          fi
+#          
+#      - name: run tests
+#        env:
+#          CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
+#        run: |
+#          cargo test --lib
+#          cargo test --doc
+#          cargo test --tests
+#          cargo test --benches
+#          cargo test --examples
+#
