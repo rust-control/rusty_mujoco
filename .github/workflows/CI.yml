@@ -94,15 +94,14 @@ jobs:
             cmake ..
             make && sudo make install
           elif [ "${{ matrix.arch }}" = 'aarch64' ]; then
-            set -x
-            sudo dpkg --add-architecture arm64
             echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
+            sudo dpkg --add-architecture arm64
+            sudo sed -i -e 's/deb http:\/\/security.ubuntu.com/deb [arch=amd64] http:\/\/security.ubuntu.com/g' /etc/apt/sources.list   ### restrict security repository to amd64, as it doesn't support arm64 ###
             sudo apt update
             sudo apt install -y cmake:arm64 build-essential:arm64 libwayland-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
             sudo apt install -y wayland-protocols
             cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
             make && sudo make install
-            set +x
           fi
 #      - name: setup additional dependencies for examples (x86_64)
 #        if: matrix.arch == 'x86_64'
