@@ -46,7 +46,7 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ steps.cratesio_auth.outputs.token }}
         run: |
-          cargo publish --package rusty_mujoco
+          cargo publish --package rusty_mujoco --no-verify
 
       - name: Create GitHub Release
         env:
