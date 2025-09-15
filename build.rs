@@ -47,7 +47,7 @@ fn bindgen(mujoco_dir: impl AsRef<std::path::Path>) {
     }
 
     /*
-     * The hand-process step after `bindgen` generation assumes that
+     * The hand-processing step after `bindgen` generation requires
      * `cargo fmt` (and then it's automatically applied to the
      * bindgen's raw output, and the hand-processing correctly works).
      * This is a **requirement** for the build script to continue.
@@ -108,7 +108,7 @@ fn bindgen(mujoco_dir: impl AsRef<std::path::Path>) {
 
         using bindgen, so we do them manually...
     */
-    let bindings = io::BufRead::lines(bindings)
+    let bindings = std::io::BufRead::lines(&*bindings)
         .map(Result::unwrap)
         .fold(Vec::with_capacity(bindings.len()), |mut new, line| {
             if line.starts_with("pub struct mjt") {
