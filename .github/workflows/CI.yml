@@ -40,8 +40,13 @@ jobs:
         run: |
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
-          tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
+          if [ "${{ matrix.platform }}" = "x86_64-unknown-linux-gnu" ]; then
+            wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
+            tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
+          elif [ "${{ matrix.platform }}" = "aarch64-unknown-linux-gnu" ]; then
+            wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-aarch64.tar.gz
+            tar -xzf mujoco-3.3.2-linux-aarch64.tar.gz
+          fi
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
@@ -77,8 +82,13 @@ jobs:
           
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
-          tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
+          if [ "${{ matrix.platform }}" = "x86_64-unknown-linux-gnu" ]; then
+            wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
+            tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
+          elif [ "${{ matrix.platform }}" = "aarch64-unknown-linux-gnu" ]; then
+            wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-aarch64.tar.gz
+            tar -xzf mujoco-3.3.2-linux-aarch64.tar.gz
+          fi
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
       
