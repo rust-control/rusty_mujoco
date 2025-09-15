@@ -30,6 +30,7 @@ jobs:
           if [ "${{ matrix.arch }}" = 'aarch64' ]; then
             export C_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
             export CPLUS_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
+            export BINDGEN_EXTRA_CLANG_ARGS=-I/usr/aarch64-linux-gnu/include
           fi
           if cargo build; then
             echo 'cargo check succeeded without mujoco, which is unexpected.'
@@ -54,6 +55,7 @@ jobs:
           if [ "${{ matrix.arch }}" = 'aarch64' ]; then
             export C_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
             export CPLUS_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
+            export BINDGEN_EXTRA_CLANG_ARGS=-I/usr/aarch64-linux-gnu/include
           fi
           if cargo build; then
             echo 'cargo check succeeded with mujoco, as expected.'
@@ -102,6 +104,7 @@ jobs:
           if [ "${{ matrix.arch }}" = 'aarch64' ]; then
             export C_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
             export CPLUS_INCLUDE_PATH=/usr/aarch64-linux-gnu/include
+            export BINDGEN_EXTRA_CLANG_ARGS=-I/usr/aarch64-linux-gnu/include
           fi
           cargo test --lib
           cargo test --doc
