@@ -24,7 +24,7 @@ jobs:
           rustup default ${{ matrix.toolchain }}
           rustup target add ${{ matrix.arch }}-unknown-linux-gnu
           rustup component add rustfmt   ### required for the build script to work ###
-          [ "${{ matrix.arch }}" = 'aarch64' ] && sudo apt update && sudo apt install -y g++-aarch64-linux-gnu
+          [ "${{ matrix.arch }}" = 'aarch64' ] && sudo apt update && sudo apt install -y g++-aarch64-linux-gnu || :
 
       - name: check fails without MUJOCO_DIR
         env:
@@ -75,7 +75,7 @@ jobs:
           rustup default ${{ matrix.toolchain }}
           rustup target add ${{ matrix.arch }}-unknown-linux-gnu
           rustup component add rustfmt   ### required for the build script to work ###
-          [ "${{ matrix.arch }}" = 'aarch64' ] && sudo apt update && sudo apt install -y g++-aarch64-linux-gnu
+          [ "${{ matrix.arch }}" = 'aarch64' ] && sudo apt update && sudo apt install -y g++-aarch64-linux-gnu || :
           
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
