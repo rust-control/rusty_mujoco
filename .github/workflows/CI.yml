@@ -13,7 +13,8 @@ jobs:
     
     strategy:
       matrix:
-        toolchain: [stable, nightly]
+        toolchain: ['stable', 'nightly']
+        platform: ['x86_64-unknown-linux-gnu', 'aarch64-unknown-linux-gnu']
 
     steps:
       - uses: actions/checkout@v5
@@ -21,9 +22,12 @@ jobs:
       - run: |
           rustup update
           rustup default ${{ matrix.toolchain }}
-          rustup component add rustfmt  ### required for the build script to work ###
+          rustup component add rustfmt   ### required for the build script to work ###
+          rustup target add ${{ matrix.platform }}
 
       - name: check fails without MUJOCO_DIR
+        env:
+          CARGO_BUILD_TARGET: ${{ matrix.platform }}
         run: |
           if cargo build; then
             echo 'cargo check succeeded without mujoco, which is unexpected.'
@@ -42,6 +46,8 @@ jobs:
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
       - name: check succeeds with MUJOCO_DIR
+        env:
+          CARGO_BUILD_TARGET: ${{ matrix.platform }}
         run: |
           if cargo build; then
             echo 'cargo check succeeded with mujoco, as expected.'
@@ -57,15 +63,18 @@ jobs:
     strategy:
       matrix:
         toolchain: [stable, nightly]
+        platform: ['x86_64-unknown-linux-gnu', 'aarch64-unknown-linux-gnu']
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: setup
         run: |
           rustup update
           rustup default ${{ matrix.toolchain }}
-          rustup component add rustfmt  ### required for the build script to work ###
+          rustup component add rustfmt   ### required for the build script to work ###
+          rustup target add ${{ matrix.platform }}
+          
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
           wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
@@ -81,6 +90,8 @@ jobs:
           cmake .. && make && sudo make install
           
       - name: run tests
+        env:
+          CARGO_BUILD_TARGET: ${{ matrix.platform }}
         run: |
           cargo test --lib
           cargo test --doc
