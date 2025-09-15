@@ -84,22 +84,28 @@ jobs:
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
       
-#      - name: setup additional dependencies for examples
+      - name: setup additional dependencies for examples
+        run: |
+          if [ "${{ matrix.arch }}" = 'x86_64' ]; then
+            sudo apt update && sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
+          elif [ "${{ matrix.arch }}" = 'aarch64' ]; then
+            sudo dpkg --add-architecture arm64
+            echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
+            sudo apt update && sudo apt install -y cmake:arm64 build-essential:arm64 libwayland-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
+          fi
+          git clone https://github.com/glfw/glfw.git
+          mkdir -p glfw/build && cd glfw/build
+          cmake .. && make && sudo make install
+#      - name: setup additional dependencies for examples (x86_64)
+#        if: matrix.arch == 'x86_64'
 #        run: |
-#          sudo apt update && sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
-#          git clone https://github.com/glfw/glfw.git
-#          mkdir -p glfw/build && cd glfw/build
-#          cmake .. && make && sudo make install
-      - name: setup additional dependencies for examples (x86_64)
-        if: matrix.arch == 'x86_64'
-        run: |
-          sudo apt-get update && sudo apt-get install -y libglfw3 libglfw3-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
-      - name: setup additional dependencies for examples (aarch64)
-        if: matrix.arch == 'aarch64'
-        run: |
-          sudo dpkg --add-architecture arm64
-          sudo apt-get update && sudo apt-get install -y libglfw3:arm64 libglfw3-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
-          echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
+#          sudo apt-get update && sudo apt-get install -y libglfw3 libglfw3-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
+#      - name: setup additional dependencies for examples (aarch64)
+#        if: matrix.arch == 'aarch64'
+#        run: |
+#          sudo dpkg --add-architecture arm64
+#          sudo apt-get update && sudo apt-get install -y libglfw3:arm64 libglfw3-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
+#          echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
           
       - name: run tests
         env:
