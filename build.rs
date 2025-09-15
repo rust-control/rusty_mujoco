@@ -1,21 +1,6 @@
 fn main() {
     if option_env!("DOCS_RS").is_some() { return }
 
-    /*
-     * The hand-process step after `bindgen` generation assumes that
-     * `cargo fmt` (and then it's automatically applied to the
-     * bindgen's raw output, and the hand-processing correctly works).
-     * This is a **requirement** for the build script to continue.
-     */
-    assert!(
-        std::process::Command::new("cargo")
-            .args(["help", "fmt"])
-            .stdout(std::process::Stdio::null())
-            .status()
-            .is_ok_and(|s| s.success()),
-        "`cargo fmt` is not available; This build script can't continue without it."
-    );
-
     let mujoco_dir = std::env::var("MUJOCO_DIR").expect("MUJOCO_DIR environment variable is not set");
     let mujoco_dir = std::path::Path::new(&mujoco_dir).canonicalize().expect("MUJOCO_DIR is not a valid path");
     let mujoco_lib = mujoco_dir.join("lib").to_str().unwrap().to_owned();
@@ -60,6 +45,21 @@ fn bindgen(mujoco_dir: impl AsRef<std::path::Path>) {
             original_variant_name.starts_with("mjN").then_some(bindgen::callbacks::EnumVariantCustomBehavior::Constify)
         }
     }
+
+    /*
+     * The hand-process step after `bindgen` generation assumes that
+     * `cargo fmt` (and then it's automatically applied to the
+     * bindgen's raw output, and the hand-processing correctly works).
+     * This is a **requirement** for the build script to continue.
+     */
+    assert!(
+        std::process::Command::new("cargo")
+            .args(["help", "fmt"])
+            .stdout(std::process::Stdio::null())
+            .status()
+            .is_ok_and(|s| s.success()),
+        "`cargo fmt` is not available; This build script can't continue without it."
+    );
 
     let mujoco_dir = mujoco_dir.as_ref();
     let mujoco_include = mujoco_dir.join("include").to_str().unwrap().to_owned();
