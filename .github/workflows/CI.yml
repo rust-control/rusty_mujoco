@@ -98,7 +98,7 @@ jobs:
         if: matrix.arch == 'aarch64'
         run: |
           sudo dpkg --add-architecture arm64
-          sudo apt-get update && sudo apt-get install -y libglfw3 libglfw3-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
+          sudo apt-get update && sudo apt-get install -y libglfw3:arm64 libglfw3-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
           echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
           
       - name: run tests
