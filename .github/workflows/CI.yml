@@ -85,7 +85,7 @@ jobs:
           
           if [ "${{ matrix.arch }}" = 'aarch64' ]; then
             sudo apt update && sudo apt install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-            echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
+            echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig:$PKG_CONFIG_PATH" >> $GITHUB_ENV
           fi
       
       - name: setup additional dependencies for examples
@@ -103,22 +103,12 @@ jobs:
             echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-updates main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports.list
             echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-security main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports.list
             echo "deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports noble-backports main restricted universe multiverse" | sudo tee -a /etc/apt/sources.list.d/ports.list
-            sudo apt update || :   ### fails to some fetch security repositories that don't support arm64, but it doesn't matter ###
+            sudo apt update || :   ### fails to fetch some security repositories that don't support arm64, but it doesn't matter ###
             sudo apt install -y cmake build-essential libwayland-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
             sudo apt install -y wayland-protocols
             cmake .. -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF
             make && sudo make install
           fi
-#      - name: setup additional dependencies for examples (x86_64)
-#        if: matrix.arch == 'x86_64'
-#        run: |
-#          sudo apt-get update && sudo apt-get install -y libglfw3 libglfw3-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
-#      - name: setup additional dependencies for examples (aarch64)
-#        if: matrix.arch == 'aarch64'
-#        run: |
-#          sudo dpkg --add-architecture arm64
-#          sudo apt-get update && sudo apt-get install -y libglfw3:arm64 libglfw3-dev:arm64 libxkbcommon-x11-dev:arm64 libgl1-mesa-dev:arm64 libxcursor-dev:arm64 libxi-dev:arm64 libxinerama-dev:arm64 libxrandr-dev:arm64
-#          echo "PKG_CONFIG_PATH=/usr/lib/aarch64-linux-gnu/pkgconfig" >> $GITHUB_ENV
           
       - name: run tests
         env:
