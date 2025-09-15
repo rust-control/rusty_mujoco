@@ -6,7 +6,7 @@
 
 <br>
 
-- Offers safe, direct Rust wrappers for the entire MuJoCo API.
+- Offers safe, low-level Rust wrappers for the entire MuJoCo API.
 - Provides getters for all struct fields and setters for user-modifiable fields,
   instead of allowing direct field access.
 - Implements automatic resource management via Rust's RAII pattern.
