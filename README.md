@@ -1,7 +1,20 @@
 <div align="center">
     <h1>Rusty MuJoCo Binding</h1>
     <p>Rust bindings for the <a href="https://mujoco.org">MuJoCo</a> physics simulator</p>
+    <p>MuJoCo Version: <a href="https://github.com/google-deepmind/mujoco/releases/tag/3.3.2"><strong>3.3.2</strong></a></p>
 </div>
+
+<br>
+
+- Provides direct Rusty binding to all MuJoCo APIs.
+- Provides getter methods for all struct fields and setter methods for all fields
+  intended to be user-modifiable, instead of direct field access.
+- Offers as much type-safety and efficiency as possible on the lean binding interface.
+  (e.g. `mj_name2id` and many other functions or methods handle `ObjectId<T>`
+  instead of primitive integer, requiring only once `mj_name2id` call per object and
+  assuring the object id to be valid in entire a simulation)
+- Automatically handles resource management of some types with heap allocation.
+  (e.g. calling `mj_deleteModel` for `mjModel` in its `Drop` impl)
 
 <div align="right">
     <a href="https://github.com/rust-control/rusty_mujoco/blob/main/LICENSE">
@@ -15,9 +28,7 @@
     </a>
 </div>
 
-## MuJoCo Version
-
-[**3.3.2**](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2)
+<br>
 
 ## Requirements
 
@@ -60,7 +71,13 @@ rusty_mujoco = "0.1"
 glfw = "0.60"
 ```
 
-```rust
+```rust,no_run
+use rusty_mujoco::{mj_loadXML, mj_makeData, mj_name2id, mj_step, mjr_render, mjv_updateScene};
+use rusty_mujoco::{mjrContext, mjrRect, mjvScene, mjvCamera, mjvOption, mjtCatBit, mjtFontScale};
+
+let xml_path: String = todo!();
+let camera_name: Option<String> = todo!();
+
 let model = mj_loadXML(xml_path).expect("Failed to load XML file");
 let mut data = mj_makeData(&model);
 
@@ -106,12 +123,6 @@ while !window.should_close() {
 
 See [examples/visualize_left_object.rs](./examples/visualize_left_object.rs) for full example
 and [examples/README.md](./examples/README.md) for the description.
-
-##  Binding Philosophy:
-  - implement based on [rust-lang/bindgen](https://github.com/rust-lang/rust-bindgen).
-  - deny any direct field access to raw-bindgen structs and provide fully-accessible methods.
-  - automatically handle *resource types* that need proper resource management
-    (e.g. calling `mj_deleteModel` for `MjModel` in its `Drop` impl).
 
 ## Previous Works
 
