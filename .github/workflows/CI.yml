@@ -26,15 +26,15 @@ jobs:
           rustup component add rustfmt   ### required for the build script to work ###
           [ "${{ matrix.arch }}" = 'aarch64' ] && sudo apt update && sudo apt install -y g++-aarch64-linux-gnu || :
 
-      - name: check fails without MUJOCO_DIR
+      - name: build fails without MUJOCO_DIR
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
         run: |
           if cargo build; then
-            echo 'cargo check succeeded without mujoco, which is unexpected.'
+            echo 'cargo build succeeded without MUJOCO_DIR, which is unexpected.'
             exit 1
           else
-            echo 'cargo check failed as expected without mujoco.'
+            echo 'cargo build failed as expected without mujoco.'
           fi
           
       - name: install mujoco and set MUJOCO_DIR
@@ -46,17 +46,12 @@ jobs:
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
-      - name: check succeeds with MUJOCO_DIR
+      - name: build succeeds with MUJOCO_DIR
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
         run: |
-          if cargo build; then
-            echo 'cargo check succeeded with mujoco, as expected.'
-          else
-            echo 'cargo check failed with mujoco, which is unexpected.'
-            echo "[DEBUG] bindgen.rs content:" && cat ./src/bindgen.rs
-            exit 1
-          fi
+          cargo build
+          cargo build --features bindgen
 
   test:
     strategy:

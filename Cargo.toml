@@ -13,7 +13,10 @@ keywords      = ["mujoco", "rl", "ml", "physics", "robotics"]
 categories    = ["api-bindings", "science::robotics", "simulation"]
 
 [build-dependencies]
-bindgen = "0.72"
+bindgen = { optional = true, version = "0.72" }
 
 [dev-dependencies]
 glfw = "0.60"
+
+[features]
+bindgen = ["dep:bindgen"]  # run bindgen at build time, instead of using pre-generated bindgen.rs
