@@ -57,13 +57,14 @@ jobs:
             echo "[DEBUG] bindgen.rs content:" && cat ./src/bindgen.rs
             exit 1
           fi
-          
-  test-linux-x86_64:
-    runs-on: ubuntu-24.04
-    
+
+  test:
     strategy:
       matrix:
         toolchain: ['stable', 'nightly']
+        os: ['ubuntu-24.04', 'ubuntu-24.04-arm']
+    
+    runs-on: ${{ matrix.os }}
     
     steps:
       - uses: actions/checkout@v5
@@ -76,48 +77,15 @@ jobs:
           
       - name: setup MuJoCo
         run: |
+          MUJOCO_FILENAME='mujoco-3.3.2'
+          if [ "${{ matrix.os }}" = 'ubuntu-24.04' ]; then
+            MUJOCO_FILENAME+='-linux-x86_64.tar.gz'
+          elif [ "${{ matrix.os }}" = 'ubuntu-24.04-arm' ]; then
+            MUJOCO_FILENAME+='-linux-aarch64.tar.gz'
+          fi
           mkdir -p $HOME/.mujoco && cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
-          tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
-          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
-          
-      - name: setup additional dependencies for examples
-        run: |
-          git clone https://github.com/glfw/glfw.git
-          mkdir -p glfw/build && cd glfw/build
-          sudo apt update && sudo apt install -y cmake build-essential libwayland-dev libxkbcommon-x11-dev libgl1-mesa-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
-          cmake .. && make && sudo make install
-
-      - name: run tests
-        run: |
-          cargo test --lib
-          cargo test --doc
-          cargo test --tests
-          cargo test --benches
-          cargo test --examples
-
-  test-linux-aarch64:
-    runs-on: ubuntu-24.04-arm
-    
-    strategy:
-      matrix:
-        toolchain: ['stable', 'nightly']
-    
-    steps:
-      - uses: actions/checkout@v5
-      
-      - name: setup Rust
-        run: |
-          rustup update
-          rustup default ${{ matrix.toolchain }}
-          rustup component add rustfmt   ### required for the build script to work ###
-          
-      - name: setup MuJoCo
-        run: |
-          mkdir -p $HOME/.mujoco && cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-aarch64.tar.gz
-          tar -xzf mujoco-3.3.2-linux-aarch64.tar.gz
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/$MUJOCO_FILENAME
+          tar -xzf $MUJOCO_FILENAME
           echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
