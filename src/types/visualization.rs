@@ -7,7 +7,7 @@ pub use crate::bindgen::{
     mjNGROUP, mjNVISFLAG, mjNRNDFLAG, mjMAXLIGHT, mjMAXLINE, mjMAXLINEPNT,
 };
 
-use crate::{mjtObj, obj, ObjectId, SegmentationId};
+use crate::{helper, mjtObj, obj, ObjectId, SegmentationId};
 
 pub use crate::bindgen::mjvPerturb;
 impl Default for mjvPerturb {
@@ -453,11 +453,7 @@ macro_rules! chars {
                 #[doc = "set "]
                 #[doc = $description]
                 pub fn $set_name(&mut self, $name: &str) -> &mut Self {
-                    let bytes = $name.as_bytes();
-                    let (len, limit) = (bytes.len(), self.$name.len() - 1);
-                    assert!(len <= limit, "{}: `{len}` is too long, max {limit} bytes", stringify!($name));
-                    bytes.iter().enumerate().for_each(|(i, &b)| self.$name[i] = b as std::ffi::c_char);
-                    self.$name[bytes.len()] = 0; // null-terminate
+                    helper::copy_str_to_c_chararray($name, &mut self.$name);
                     self
                 }
             )*
@@ -479,10 +475,7 @@ impl mjvFigure {
     /// set line name for legend of index `index` \in `0..mjMAXLINE`
     pub fn set_linename(&mut self, index: usize, name: &str) -> &mut Self {
         assert!(index < mjMAXLINE, "`set_linename`: too large index `{index}`, must be index < {mjMAXLINE}");
-        let (len, limit) = (name.as_bytes().len(), self.linename[index].len() - 1);
-        assert!(len <= limit, "Line name `{name}` is too long, max {limit} bytes");
-        name.as_bytes().iter().enumerate().for_each(|(i, &b)| self.linename[index][i] = b as std::ffi::c_char);
-        self.linename[index][len] = 0; // null-terminate
+        helper::copy_str_to_c_chararray(name, &mut self.linename[index]);
         self
     }
 
