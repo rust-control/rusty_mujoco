@@ -1,20 +1,20 @@
 <div align="center">
     <h1>Rusty MuJoCo Binding</h1>
     <p>Rust bindings for the <a href="https://mujoco.org">MuJoCo</a> physics simulator</p>
-    <p>MuJoCo Version: <a href="https://github.com/google-deepmind/mujoco/releases/tag/3.3.2"><strong>3.3.2</strong></a></p>
+    <p>MuJoCo Version: <a href="https://github.com/google-deepmind/mujoco/releases/tag/3.3.2">3.3.2</a></p>
 </div>
 
 <br>
 
-- Provides direct Rusty binding to all MuJoCo APIs.
-- Provides getter methods for all struct fields and setter methods for all fields
-  intended to be user-modifiable, instead of direct field access.
-- Offers as much type-safety and efficiency as possible on the lean binding interface.
-  (e.g. `mj_name2id` and many other functions or methods handle `ObjectId<T>`
-  instead of primitive integer, requiring only once `mj_name2id` call per object and
-  assuring the object id to be valid in entire a simulation)
-- Automatically handles resource management of some types with heap allocation.
-  (e.g. calling `mj_deleteModel` for `mjModel` in its `Drop` impl)
+- Offers safe, direct Rust wrappers for the entire MuJoCo API.
+- Provides getters for all struct fields and setters for user-modifiable fields,
+  instead of allowing direct field access.
+- Implements automatic resource management via Rust's RAII pattern.
+  For example, `mjModel` automatically calls `mj_deleteModel` in its `Drop` implementation, preventing memory leaks.
+- Emphasizes type-safety and efficiency within a lean binding interface.
+  For instance, the `ObjectId<T>` type system replaces raw integer IDs to:
+    - Ensure compile-time safety for all object-related operations.
+    - Improve performance by eliminating the need for repeated `mj_name2id` lookups.
 
 <div align="right">
     <a href="https://github.com/rust-control/rusty_mujoco/blob/main/LICENSE">
