@@ -1,65 +1,75 @@
-use std::{env, io::BufRead, path::Path, process::{Command, Stdio}};
-
-#[derive(Debug)]
-struct TrimUnderscoreCallbacks;
-impl bindgen::callbacks::ParseCallbacks for TrimUnderscoreCallbacks {
-    fn item_name(&self, item_info: bindgen::callbacks::ItemInfo) -> Option<String> {
-        /*
-            This finally oversets non-suffixed name (like `mjData`)
-            to/over its original name (like `mjData_`).
-        */
-        item_info.name.strip_suffix('_').map(str::to_owned)
-    }
-}
-
-#[derive(Debug)]
-struct MakeMjnConstantsCallbacks;
-impl bindgen::callbacks::ParseCallbacks for MakeMjnConstantsCallbacks {
-    fn enum_variant_behavior(
-        &self,
-        _enum_name: Option<&str>,
-        original_variant_name: &str,
-        _variant_value: bindgen::callbacks::EnumVariantValue,
-    ) -> Option<bindgen::callbacks::EnumVariantCustomBehavior> {
-        /*
-            This generates const like:            
-            ```
-            pub const mjNTEXROLE: mjtTextureRole = mjtTextureRole::mjNTEXROLE;
-            ```
-            at module top for `mjN*` variants.
-        */
-        original_variant_name.starts_with("mjN").then_some(bindgen::callbacks::EnumVariantCustomBehavior::Constify)
-    }
-}
-
 fn main() {
     if option_env!("DOCS_RS").is_some() { return }
 
+    let mujoco_dir = std::env::var("MUJOCO_DIR").expect("MUJOCO_DIR environment variable is not set");
+    let mujoco_dir = std::path::Path::new(&mujoco_dir).canonicalize().expect("MUJOCO_DIR is not a valid path");
+    let mujoco_lib = mujoco_dir.join("lib").to_str().unwrap().to_owned();
+    
+    println!("cargo:rustc-link-search={mujoco_lib}");
+    println!("cargo:rustc-link-lib=dylib=mujoco");
+    
+    #[cfg(feature = "bindgen")]
+    bindgen(mujoco_dir);
+}
+
+#[cfg(feature = "bindgen")]
+fn bindgen(mujoco_dir: impl AsRef<std::path::Path>) {
+    #[derive(Debug)]
+    struct TrimUnderscoreCallbacks;
+    impl bindgen::callbacks::ParseCallbacks for TrimUnderscoreCallbacks {
+        fn item_name(&self, item_info: bindgen::callbacks::ItemInfo) -> Option<String> {
+            /*
+                This finally oversets non-suffixed name (like `mjData`)
+                to/over its original name (like `mjData_`).
+            */
+            item_info.name.strip_suffix('_').map(str::to_owned)
+        }
+    }
+    
+    #[derive(Debug)]
+    struct MakeMjnConstantsCallbacks;
+    impl bindgen::callbacks::ParseCallbacks for MakeMjnConstantsCallbacks {
+        fn enum_variant_behavior(
+            &self,
+            _enum_name: Option<&str>,
+            original_variant_name: &str,
+            _variant_value: bindgen::callbacks::EnumVariantValue,
+        ) -> Option<bindgen::callbacks::EnumVariantCustomBehavior> {
+            /*
+                This generates const like:            
+                ```
+                pub const mjNTEXROLE: mjtTextureRole = mjtTextureRole::mjNTEXROLE;
+                ```
+                at module top for `mjN*` variants.
+            */
+            original_variant_name.starts_with("mjN").then_some(bindgen::callbacks::EnumVariantCustomBehavior::Constify)
+        }
+    }
+
     /*
-     * The hand-process step after `bindgen` generation assumes that
+     * The hand-processing step after `bindgen` generation requires
      * `cargo fmt` (and then it's automatically applied to the
      * bindgen's raw output, and the hand-processing correctly works).
      * This is a **requirement** for the build script to continue.
      */
     assert!(
-        Command::new("cargo").args(["help", "fmt"]).stdout(Stdio::null()).status().is_ok_and(|s| s.success()),
+        std::process::Command::new("cargo")
+            .args(["help", "fmt"])
+            .stdout(std::process::Stdio::null())
+            .status()
+            .is_ok_and(|s| s.success()),
         "`cargo fmt` is not available; This build script can't continue without it."
     );
 
-    let src_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
+    let mujoco_dir = mujoco_dir.as_ref();
+    let mujoco_include = mujoco_dir.join("include").to_str().unwrap().to_owned();
+    let mujoco_include_mujoco = mujoco_dir.join("include").join("mujoco").to_str().unwrap().to_owned();
+
+    let src_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
     let bindgen_h = src_dir.join("bindgen.h").to_str().unwrap().to_owned();
     let bindgen_rs = src_dir.join("bindgen.rs").to_str().unwrap().to_owned();
 
     println!("cargo:rerun-if-changed={bindgen_h}");
-
-    let mujoco_dir = std::env::var("MUJOCO_DIR").expect("MUJOCO_DIR environment variable is not set");
-    let mujoco_dir = Path::new(&mujoco_dir).canonicalize().expect("MUJOCO_DIR is not a valid path");
-    let mujoco_lib = mujoco_dir.join("lib").to_str().unwrap().to_owned();
-    let mujoco_include = mujoco_dir.join("include").to_str().unwrap().to_owned();
-    let mujoco_include_mujoco = mujoco_dir.join("include").join("mujoco").to_str().unwrap().to_owned();
-
-    println!("cargo:rustc-link-search={mujoco_lib}");
-    println!("cargo:rustc-link-lib=dylib=mujoco");
 
     let mut bindings = Vec::new();
     bindgen::builder()
@@ -98,8 +108,7 @@ fn main() {
 
         using bindgen, so we do them manually...
     */
-    let bindings = bindings
-        .lines()
+    let bindings = std::io::BufRead::lines(&*bindings)
         .map(Result::unwrap)
         .fold(Vec::with_capacity(bindings.len()), |mut new, line| {
             if line.starts_with("pub struct mjt") {
