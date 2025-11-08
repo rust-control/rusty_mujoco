@@ -32,11 +32,10 @@
 
 ## Requirements
 
-- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2) downloaded
-  and expanded **as it is** (don't move or rename the files within it)
-- `MUJOCO_LIB` environment variable set to the path of a directory containing
-  `libmujoco.so` or `mujoco.lib` of MuJoCo 3.3.2
-  (e.g. `$HOME/.mujoco/mujoco-3.3.2/lib` when you placed the official release above in `~/.mujoco`)
+- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2) downloaded and installed
+- Additionally, if you place mujoco library in a non-standard directory of the platform,
+  you need `MUJOCO_LIB` environment variable set to the path of the directory containing
+  `libmujoco.so` or `mujoco.lib` (e.g. `$HOME/.mujoco/mujoco-3.3.2/lib` when you placed the official release above in `~/.mujoco`)
 
 ### Note / Tips
 
@@ -47,7 +46,7 @@
   ```
   to download & expand MuJoCo 3.3.2.\
   On other platforms, do the same with the appropriate archive file for your system.
-  
+
 - One way to setup is to install MuJoCo to _a default standard path_ like `/usr/local/lib/`
   (or a folder in _PATH_ on Windows), then if needed create symlink to `mujoco-3.3.2/lib/libmujoco.so` there,
   and insert to your shell config file:
@@ -61,7 +60,9 @@
   export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.3.2/lib"
   export LD_LIBRARY_PATH="$MUJOCO_LIB:$LD_LIBRARY_PATH"
   ```
-  
+
+- Or, you can get MuJoCo library through Python toolchain like `uv` or `pip`.
+    
 - Depending on your setting, be sure to specify `$MUJOCO_LIB` as shared library path
   when executing your app (for example `LD_LIBRARY_PATH=$MUJOCO_LIB cargo run` on Linux)
 
