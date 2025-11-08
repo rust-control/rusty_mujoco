@@ -48,8 +48,9 @@ jobs:
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
         run: |
+          export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.3.2/lib"
           cargo clean  ### clean up the build cache to assure the build script is re-run ###
-          MUJOCO_LIB="$HOME/.mujoco/mujoco-3.3.2/lib" cargo build
+          cargo build
           cargo build --features bindgen
           git diff --exit-code ./src/bindgen.rs || (echo "bindgen.rs changed after build with bindgen feature."; exit 1)
       
@@ -57,9 +58,9 @@ jobs:
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
         run: |
-          cargo clean  ### clean up the build cache to assure the build script is re-run ###
           sudo cp $HOME/.mujoco/mujoco-3.3.2/lib/libmujoco.so /usr/local/lib/
           sudo ldconfig
+          cargo clean  ### clean up the build cache to assure the build script is re-run ###
           cargo build
           cargo build --features bindgen
           git diff --exit-code ./src/bindgen.rs || (echo "bindgen.rs changed after build with bindgen feature."; exit 1)
