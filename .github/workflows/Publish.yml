@@ -32,13 +32,6 @@ jobs:
           done
           exit 1
       
-      - name: install MuJoCo and set MUJOCO_DIR (for compiling to pass)
-        run: |
-          mkdir -p $HOME/.mujoco && cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-x86_64.tar.gz
-          tar -xzf mujoco-3.3.2-linux-x86_64.tar.gz
-          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
-
       - uses: rust-lang/crates-io-auth-action@v1
         id: cratesio_auth
       
