@@ -14,9 +14,13 @@ categories    = ["api-bindings", "science::robotics", "simulation"]
 
 [build-dependencies]
 bindgen = { optional = true, version = "=0.72.1" }
+cc      = "1.2.45"
 
 [dev-dependencies]
 glfw = "0.60"
 
 [features]
 bindgen = ["dep:bindgen"]  # run bindgen at build time, instead of using pre-generated bindgen.rs
+
+# internal
+DEBUG = []
