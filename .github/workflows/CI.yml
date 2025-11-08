@@ -26,30 +26,41 @@ jobs:
           rustup component add rustfmt   ### required for the build script to work ###
           [ "${{ matrix.arch }}" = 'aarch64' ] && sudo apt update && sudo apt install -y g++-aarch64-linux-gnu || :
 
-      - name: build fails without MUJOCO_DIR
+      - name: build fails without mujoco
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
         run: |
           if cargo build; then
-            echo 'cargo build succeeded without MUJOCO_DIR, which is unexpected.'
+            echo 'cargo build **unexpectedly** succeeded without mujoco.'
             exit 1
           else
             echo 'cargo build failed as expected without mujoco.'
           fi
           
-      - name: install mujoco and set MUJOCO_DIR
+      - name: install mujoco
         run: |
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
           wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
           tar -xzf mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
-          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
-      - name: build succeeds with MUJOCO_DIR
+      - name: build succeeds with MUJOCO_LIB
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
         run: |
+          export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.3.2/lib"
+          cargo clean  ### clean up the build cache to assure the build script is re-run ###
+          cargo build
+          cargo build --features bindgen
+          git diff --exit-code ./src/bindgen.rs || (echo "bindgen.rs changed after build with bindgen feature."; exit 1)
+      
+      - name: build succeeds using system mujoco without MUJOCO_LIB
+        env:
+          CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
+        run: |
+          sudo cp $HOME/.mujoco/mujoco-3.3.2/lib/libmujoco.so /usr/local/lib/
+          sudo ldconfig
+          cargo clean  ### clean up the build cache to assure the build script is re-run ###
           cargo build
           cargo build --features bindgen
           git diff --exit-code ./src/bindgen.rs || (echo "bindgen.rs changed after build with bindgen feature."; exit 1)
@@ -81,7 +92,8 @@ jobs:
           mkdir -p $HOME/.mujoco && cd $HOME/.mujoco
           wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/$MUJOCO_FILENAME
           tar -xzf $MUJOCO_FILENAME
-          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
+          ### Set `MUJOCO_LIB` and `LD_LIBRARY_PATH` for the test jobs ###
+          echo "MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.2/lib" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
       - name: setup additional dependencies for examples

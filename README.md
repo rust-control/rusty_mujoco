@@ -32,9 +32,10 @@
 
 ## Requirements
 
-- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2) downloaded
-  and expanded **as it is** (don't move or rename the files within it)
-- `MUJOCO_DIR` environment variable set to the path of the MuJoCo directory (e.g. `$HOME/.mujoco/mujoco-3.3.2`)
+- [MuJoCo 3.3.2](https://github.com/google-deepmind/mujoco/releases/tag/3.3.2) downloaded and installed
+- Additionally, if you place mujoco library in a non-standard directory of the platform,
+  you need `MUJOCO_LIB` environment variable set to the path of the directory containing
+  `libmujoco.so` or `mujoco.lib` (e.g. `$HOME/.mujoco/mujoco-3.3.2/lib` when you placed the official release above in `~/.mujoco`)
 
 ### Note / Tips
 
@@ -45,29 +46,31 @@
   ```
   to download & expand MuJoCo 3.3.2.\
   On other platforms, do the same with the appropriate archive file for your system.
-  
+
 - One way to setup is to install MuJoCo to _a default standard path_ like `/usr/local/lib/`
   (or a folder in _PATH_ on Windows), then if needed create symlink to `mujoco-3.3.2/lib/libmujoco.so` there,
   and insert to your shell config file:
   ```sh
   # example on Linux with /usr/local/lib/
-  export MUJOCO_DIR="/usr/local/lib/mujoco-3.3.2"
+  export MUJOCO_LIB="/usr/local/lib/mujoco-3.3.2/lib"
   ```
   Or if you'd like to avoid to install MuJoCo to such a system directory:
   ```sh
   # example on Linux with $HOME/.mujoco/
-  export MUJOCO_DIR="$HOME/.mujoco/mujoco-3.3.2"
-  export LD_LIBRARY_PATH="$MUJOCO_DIR/lib:$LD_LIBRARY_PATH"
+  export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.3.2/lib"
+  export LD_LIBRARY_PATH="$MUJOCO_LIB:$LD_LIBRARY_PATH"
   ```
-  
-- Depending on your setting, be sure to specify `$MUJOCO_DIR/lib` as shared library path
-  when executing your app (for example `LD_LIBRARY_PATH=$MUJOCO_DIR/lib cargo run` on Linux)
+
+- Or, you can get MuJoCo library through Python toolchain like `uv` or `pip`.
+    
+- Depending on your setting, be sure to specify `$MUJOCO_LIB` as shared library path
+  when executing your app (for example `LD_LIBRARY_PATH=$MUJOCO_LIB cargo run` on Linux)
 
 ## Example
 
 ```toml
 [dependencies]
-rusty_mujoco = "0.1"
+rusty_mujoco = "0.2"
 glfw = "0.60"
 ```
 
