@@ -24,10 +24,10 @@ Options:
   If not provided, the default camera will be used.
   - example: `--camera side` for the humanoid model
 
-Depending on your system, you may need to give:
+Depending on your system, you may need to specify:
 
-- `MUJOCO_DIR` environment variable, to the MuJoCo directory path (e.g. `$HOME/.mujoco/mujoco-3.3.2`)
+- `MUJOCO_LIB` environment variable, to the MuJoCo directory path (e.g. `$HOME/.mujoco/mujoco-3.3.2/lib`)
 - `LD_LIBRARY_PATH` (Linux), `DYLD_LIBRARY_PATH` (macOS), or `PATH` (Windows) configuration
   for searching the MuJoCo library path
 
-like `LD_LIBRARY_PATH="$MUJOCO_DIR/lib" cargo run --example visualize_left_object -- $MUJOCO_DIR/model/humanoid.xml`
+like `LD_LIBRARY_PATH="$MUJOCO_LIB" cargo run --example visualize_left_object -- $MUJOCO_LIB/../model/humanoid.xml`
