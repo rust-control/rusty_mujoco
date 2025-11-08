@@ -52,6 +52,7 @@ jobs:
         run: |
           cargo build
           cargo build --features bindgen
+          git diff --exit-code ./src/bindgen.rs || (echo "bindgen.rs changed after build with bindgen feature."; exit 1)
 
   test:
     strategy:

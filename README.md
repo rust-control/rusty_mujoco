@@ -133,4 +133,4 @@ and [examples/README.md](./examples/README.md) for the description.
 
 ## License
 
-rusty_mujoco is licensed under [MIT LICENSE](https://github.com/rust-control/rusty_mujoco/blob/main/LICENSE).
+rusty_mujoco is licensed under [Apache Lisense, Version 2.0)](https://github.com/rust-control/rusty_mujoco/blob/main/LICENSE).
