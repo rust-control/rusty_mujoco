@@ -92,7 +92,8 @@ jobs:
           mkdir -p $HOME/.mujoco && cd $HOME/.mujoco
           wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/$MUJOCO_FILENAME
           tar -xzf $MUJOCO_FILENAME
-          echo "MUJOCO_DIR=$HOME/.mujoco/mujoco-3.3.2" >> $GITHUB_ENV
+          ### Set `MUJOCO_LIB` and `LD_LIBRARY_PATH` for the test jobs ###
+          echo "MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.2/lib" >> $GITHUB_ENV
           echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
       - name: setup additional dependencies for examples
