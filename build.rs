@@ -66,14 +66,11 @@ fn bindgen() {
     let vendor_include_mujoco = vendor_dir.join("include").join("mujoco").to_str().unwrap().to_owned();
 
     let src_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
-    let bindgen_h = src_dir.join("bindgen.h").to_str().unwrap().to_owned();
     let bindgen_rs = src_dir.join("bindgen.rs").to_str().unwrap().to_owned();
-
-    println!("cargo:rerun-if-changed={bindgen_h}");
 
     let mut bindings = Vec::new();
     bindgen::builder()
-        .header(bindgen_h)
+        .header_contents("bindgen.h", "#include \"mujoco.h\"")
         .clang_args([format!("-I{vendor_include}"), format!("-I{vendor_include_mujoco}")])
         .use_core()
         .raw_line("#![allow(unused, non_camel_case_types, non_snake_case, non_upper_case_globals)]")
