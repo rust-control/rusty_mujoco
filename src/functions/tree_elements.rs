@@ -1,6 +1,6 @@
 //! # [Tree elements](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#tree-elements)
 
-use crate::{mjsBody, mjsDefault, mjsSite, mjsJoint, mjsGeom, mjsCamera, mjsLight, mjsFrame, mjsElement};
+use crate::{mjsBody, mjsDefault, mjsSite, mjsJoint, mjsGeom, mjsCamera, mjsLight, mjsFrame, mjsElement, mjSpec};
 
 /// Add child body to body, return child.
 /* mjsBody* mjs_addBody(mjsBody* body, const mjsDefault* def); */
@@ -72,11 +72,11 @@ pub fn mjs_addFrame<'body>(
 }
 
 /// Delete object corresponding to the given element.
-/* int mjs_delete(mjsElement* element); */
-pub fn mjs_delete(element: &mut mjsElement) -> Result<(), ()> {
+/* int mjs_delete(mjSpec* spec, mjsElement* element); */
+pub fn mjs_delete(spec: &mut mjSpec, element: &mut mjsElement) -> Result<(), ()> {
     /*
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-delete>
     > return 0 on success
     */
-    if unsafe { crate::bindgen::mjs_delete(element) } == 0 {Ok(())} else {Err(())}
+    if unsafe { crate::bindgen::mjs_delete(spec.as_mut_ptr(), element) } == 0 {Ok(())} else {Err(())}
 }

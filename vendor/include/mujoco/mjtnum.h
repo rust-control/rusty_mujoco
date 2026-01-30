@@ -15,6 +15,9 @@
 #ifndef MUJOCO_INCLUDE_MJTNUM_H_
 #define MUJOCO_INCLUDE_MJTNUM_H_
 
+#include <stdint.h>
+
+
 //---------------------------------- floating-point definition -------------------------------------
 
 // floating point data type and minval
@@ -31,6 +34,12 @@
 //-------------------------------------- byte definition -------------------------------------------
 
 typedef unsigned char mjtByte;    // used for true/false
+
+
+
+//-------------------------------------- size definition ---------------------------------------------
+
+typedef int64_t mjtSize;          // used for buffer sizes
 
 
 

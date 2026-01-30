@@ -163,7 +163,7 @@ fn bindgen() {
         .header_contents("bindgen.h", "#include \"mujoco.h\"")
         .clang_args([format!("-I{vendor_include}"), format!("-I{vendor_include_mujoco}")])
         .use_core()
-        .raw_line("#![allow(unused, non_camel_case_types, non_snake_case, non_upper_case_globals)]")
+        .raw_line("#![allow(unused, non_camel_case_types, non_snake_case, non_upper_case_globals, clippy::all)]")
         .respect_cxx_access_specs(false)
         .default_visibility(bindgen::FieldVisibilityKind::PublicCrate)
         .newtype_enum("_?mjt.+[^Bit]")

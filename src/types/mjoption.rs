@@ -18,7 +18,6 @@ fields_mapping!(mjOption {
     scalars {
         // timing parameters
         timestep / set_timestep: f64 = "simulation timestep in seconds";
-        apirate / set_apirate: f64 = "update rate for remote API in Hz";
 
         // solver parameters
         impratio / set_impratio: f64 = "ratio of friction-to-normal contact impedance";
@@ -26,6 +25,7 @@ fields_mapping!(mjOption {
         ls_tolerance / set_ls_tolerance: f64 = "CG/Newton linesearch tolerance";
         noslip_tolerance / set_noslip_tolerance: f64 = "noslip solver tolerance";
         ccd_tolerance / set_ccd_tolerance: f64 = "convex collision solver tolerance";
+        sleep_tolerance / set_sleep_tolerance: f64 = "sleep velocity tolerance";
 
         // physical constants
         gravity / set_gravity: [f64; 3] = "gravitational acceleration";
