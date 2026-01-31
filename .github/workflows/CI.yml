@@ -17,7 +17,7 @@ jobs:
         arch: ['x86_64', 'aarch64']
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
 
       - run: |
           rustup update
@@ -41,14 +41,14 @@ jobs:
         run: |
           mkdir -p $HOME/.mujoco
           cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
-          tar -xzf mujoco-3.3.2-linux-${{ matrix.arch }}.tar.gz
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.4.0/mujoco-3.4.0-linux-${{ matrix.arch }}.tar.gz
+          tar -xzf mujoco-3.4.0-linux-${{ matrix.arch }}.tar.gz
           
       - name: build succeeds with MUJOCO_LIB
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
         run: |
-          export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.3.2/lib"
+          export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.4.0/lib"
           cargo clean  ### clean up the build cache to assure the build script is re-run ###
           cargo build
           cargo build --features bindgen
@@ -58,7 +58,7 @@ jobs:
         env:
           CARGO_BUILD_TARGET: ${{ matrix.arch }}-unknown-linux-gnu
         run: |
-          sudo cp $HOME/.mujoco/mujoco-3.3.2/lib/libmujoco.so /usr/local/lib/
+          sudo cp $HOME/.mujoco/mujoco-3.4.0/lib/libmujoco.so /usr/local/lib/
           sudo ldconfig
           cargo clean  ### clean up the build cache to assure the build script is re-run ###
           cargo build
@@ -74,7 +74,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       
       - name: setup Rust
         run: |
@@ -85,16 +85,16 @@ jobs:
       - name: setup MuJoCo
         run: |
           if [ "${{ matrix.os }}" = 'ubuntu-24.04' ]; then
-            MUJOCO_FILENAME='mujoco-3.3.2-linux-x86_64.tar.gz'
+            MUJOCO_FILENAME='mujoco-3.4.0-linux-x86_64.tar.gz'
           elif [ "${{ matrix.os }}" = 'ubuntu-24.04-arm' ]; then
-            MUJOCO_FILENAME='mujoco-3.3.2-linux-aarch64.tar.gz'
+            MUJOCO_FILENAME='mujoco-3.4.0-linux-aarch64.tar.gz'
           fi
           mkdir -p $HOME/.mujoco && cd $HOME/.mujoco
-          wget https://github.com/google-deepmind/mujoco/releases/download/3.3.2/$MUJOCO_FILENAME
+          wget https://github.com/google-deepmind/mujoco/releases/download/3.4.0/$MUJOCO_FILENAME
           tar -xzf $MUJOCO_FILENAME
           ### Set `MUJOCO_LIB` and `LD_LIBRARY_PATH` for the test jobs ###
-          echo "MUJOCO_LIB=$HOME/.mujoco/mujoco-3.3.2/lib" >> $GITHUB_ENV
-          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.3.2/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
+          echo "MUJOCO_LIB=$HOME/.mujoco/mujoco-3.4.0/lib" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$HOME/.mujoco/mujoco-3.4.0/lib:$LD_LIBRARY_PATH" >> $GITHUB_ENV
           
       - name: setup additional dependencies for examples
         run: |
