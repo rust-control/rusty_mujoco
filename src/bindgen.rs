@@ -2261,7 +2261,7 @@ impl ::core::ops::BitOrAssign for mjtCatBit {
     #[inline]
     fn bitor_assign(&mut self, rhs: mjtCatBit) {
         self.0 |= rhs.0;
-}
+    }
 }
 impl ::core::ops::BitAnd<mjtCatBit> for mjtCatBit {
     type Output = Self;
