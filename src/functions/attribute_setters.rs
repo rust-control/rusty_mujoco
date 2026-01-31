@@ -66,6 +66,7 @@ pub fn mjs_setDouble(dest: &mut mjDoubleVec, array: &[f64]) {
 }
 
 /// Set plugin attributes.
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn mjs_setPluginAttributes(plugin: &mut mjsPlugin, attributes: *mut std::ffi::c_void) {
     unsafe { crate::bindgen::mjs_setPluginAttributes(plugin, attributes); }
 }

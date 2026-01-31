@@ -14,8 +14,8 @@ resource_wrapper!(
 fields_mapping!(mjData {
     scalars {
         // constant sizes
-        narena: usize = "size of the arena in bytes (inclusive of the stack)";
-        nbuffer: usize = "size of main buffer in bytes";
+        narena: crate::bindgen::mjtSize = "size of the arena in bytes (inclusive of the stack)";
+        nbuffer: crate::bindgen::mjtSize = "size of main buffer in bytes";
         nplugin: usize = "number of plugin instances";
 
         // stack pointer
@@ -26,9 +26,9 @@ fields_mapping!(mjData {
         parena: usize = "first available byte in arena";
 
         // memory utilization statistics
-        maxuse_stack: usize = "maximum stack allocation in bytes";
-        maxuse_threadstack: [usize; mjMAXTHREAD] = "maximum stack allocation per thread in bytes";
-        maxuse_arena: usize = "maximum arena allocation in bytes";
+        maxuse_stack: crate::bindgen::mjtSize = "maximum stack allocation in bytes";
+        maxuse_threadstack: [crate::bindgen::mjtSize; mjMAXTHREAD] = "maximum stack allocation per thread in bytes";
+        maxuse_arena: crate::bindgen::mjtSize = "maximum arena allocation in bytes";
         maxuse_con: usize = "maximum number of contacts";
         maxuse_efc: usize = "maximum number of scalar constraints";
 
@@ -371,24 +371,6 @@ buffer_slices_depending_on_model! {
 
     // computed by mj_makeConstraint
     tendon_efcadr: [i32; ntendon * 1] = "first efc address involving tendon; -1: none (ntendon x 1)";
-    efc_JT_rownnz: [i32; nv * 1] = "number of non-zeros in constraint Jacobian row (nv x 1)";
-    efc_JT_rowadr: [i32; nv * 1] = "row start address in colind array (nv x 1)";
-    efc_JT_rowsuper: [i32; nv * 1] = "number of subsequent rows in supernode (nv x 1)";
-
-    // computed by mj_resetData
-    B_rownnz: [i32; nbody * 1] = "body-dof: non-zeros in each row (nbody x 1)";
-    B_rowadr: [i32; nbody * 1] = "body-dof: address of each row in B_colind (nbody x 1)";
-    B_colind: [i32; nB * 1] = "body-dof: column indices of non-zeros (nB x 1)";
-    M_rownnz: [i32; nv * 1] = "reduced inertia: non-zeros in each row (nv x 1)";
-    M_rowadr: [i32; nv * 1] = "reduced inertia: address of each row in M_colind (nv x 1)";
-    M_colind: [i32; nC * 1] = "reduced inertia: column indices of non-zeros (nC x 1)";
-    mapM2M: [i32; nC * 1] = "index mapping from qM to M (nC x 1)";
-    D_rownnz: [i32; nv * 1] = "full inertia: non-zeros in each row (nv x 1)";
-    D_rowadr: [i32; nv * 1] = "full inertia: address of each row in D_colind (nv x 1)";
-    D_diag: [i32; nv * 1] = "full inertia: index of diagonal element in each row (nv x 1)";
-    D_colind: [i32; nD * 1] = "full inertia: column indices of non-zeros (nD x 1)";
-    mapM2D: [i32; nD * 1] = "index mapping from qM to D (nD x 1)";
-    mapD2M: [i32; nM * 1] = "index mapping from D to qM (nM x 1)";
 
     // computed by mj_island (island dof structure)
     dof_island: [i32; nv * 1] = "island id of this dof; -1: none (nv x 1)";
@@ -436,9 +418,7 @@ buffer_slices! {
     efc_J_rowadr: [i32; nefc] = "row start address in colind array (nefc x 1)";
     efc_J_rowsuper: [i32; nefc] = "number of subsequent rows in supernode (nefc x 1)";
     efc_J_colind: [i32; nJ] = "column indices in constraint Jacobian (nJ x 1)";
-    efc_JT_colind: [i32; nJ] = "column indices in constraint Jacobian transposed (nJ x 1)";
     efc_J: [f64; nJ] = "constraint Jacobian (nJ x 1)";
-    efc_JT: [f64; nJ] = "constraint Jacobian transposed (nJ x 1)";
     efc_pos: [f64; nefc] = "constraint position (equality, contact) (nefc x 1)";
     efc_margin: [f64; nefc] = "inclusion margin (contact) (nefc x 1)";
     efc_frictionloss: [f64; nefc] = "frictionloss (friction) (nefc x 1)";
@@ -452,4 +432,62 @@ buffer_slices! {
 
     // computed by mj_fwdVelocity/mj_referenceConstraint
     efc_vel: [f64; nefc] = "velocity in constraint space: J*qvel (nefc x 1)";
+}
+
+#[allow(non_snake_case)]
+impl mjData {
+    /// body-dof: non-zeros in each row (nbody x 1)
+    pub unsafe fn B_rownnz<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.B_rownnz()
+    }
+    /// body-dof: row addresses (nbody x 1)
+    pub unsafe fn B_rowadr<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.B_rowadr()
+    }
+    /// body-dof: column indices (nB x 1)
+    pub unsafe fn B_colind<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.B_colind()
+    }
+
+    /// reduced inertia: non-zeros in each row (nv x 1)
+    pub unsafe fn M_rownnz<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.M_rownnz()
+    }
+    /// reduced inertia: row addresses (nv x 1)
+    pub unsafe fn M_rowadr<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.M_rowadr()
+    }
+    /// reduced inertia: column indices (nC x 1)
+    pub unsafe fn M_colind<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.M_colind()
+    }
+    /// index mapping from qM to M (nC x 1)
+    pub unsafe fn mapM2M<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.mapM2M()
+    }
+
+    /// full inertia: non-zeros in each row (nv x 1)
+    pub unsafe fn D_rownnz<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.D_rownnz()
+    }
+    /// full inertia: row addresses (nv x 1)
+    pub unsafe fn D_rowadr<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.D_rowadr()
+    }
+    /// full inertia: index of diagonal element in each row (nv x 1)
+    pub unsafe fn D_diag<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.D_diag()
+    }
+    /// full inertia: column indices (nD x 1)
+    pub unsafe fn D_colind<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.D_colind()
+    }
+    /// index mapping from M to D (nD x 1)
+    pub unsafe fn mapM2D<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.mapM2D()
+    }
+    /// index mapping from D to M (nC x 1)
+    pub unsafe fn mapD2M<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.mapD2M()
+    }
 }

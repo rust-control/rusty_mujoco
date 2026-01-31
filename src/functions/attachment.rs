@@ -27,21 +27,21 @@ pub fn mjs_attach<'element>(
 }
 
 /// Delete body and descendants from mjSpec, remove all references.
-/* int mjs_detachBody(mjSpec* s, mjsBody* b); */
+/* int mjs_delete(mjSpec* spec, mjsElement* element); */
 pub fn mjs_detachBody(s: &mut mjSpec, b: &mut mjsBody) -> Result<(), ()> {
     /*
-    <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-detachbody>
+    <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-delete>
     > return 0 on success
     */
-    if unsafe { crate::bindgen::mjs_detachBody(s.as_mut_ptr(), b) } == 0 {Ok(())} else {Err(())}
+    if unsafe { crate::bindgen::mjs_delete(s.as_mut_ptr(), b.element) } == 0 {Ok(())} else {Err(())}
 }
 
 /// Delete default class and descendants from mjSpec, remove all references.
-/* int mjs_detachDefault(mjSpec* s, mjsDefault* d); */
+/* int mjs_delete(mjSpec* spec, mjsElement* element); */
 pub fn mjs_detachDefault(s: &mut mjSpec, d: &mut mjsDefault) -> Result<(), ()> {
     /*
-    <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-detachdefault>
+    <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-delete>
     > return 0 on success
     */
-    if unsafe { crate::bindgen::mjs_detachDefault(s.as_mut_ptr(), d) } == 0 {Ok(())} else {Err(())}
+    if unsafe { crate::bindgen::mjs_delete(s.as_mut_ptr(), d.element) } == 0 {Ok(())} else {Err(())}
 }

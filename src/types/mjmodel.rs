@@ -19,6 +19,7 @@ fields_mapping!(mjModel {
         nbvh: usize = "number of total bounding volumes in all bodies";
         nbvhstatic: usize = "number of static bounding volumes (aabb stored in mjModel)";
         nbvhdynamic: usize = "number of dynamic bounding volumes (aabb stored in mjData)";
+        noct: usize = "number of total octree cells in all meshes";
         njnt: usize = "number of joints";
         ngeom: usize = "number of geoms";
         nsite: usize = "number of sites";
@@ -97,8 +98,8 @@ fields_mapping!(mjModel {
         nsensordata: usize = "number of mjtNums in sensor data vector";
         npluginstate: usize = "number of mjtNums in plugin state vector";
 
-        narena: usize = "number of bytes in the mjData arena (inclusive of stack)";
-        nbuffer: usize = "number of bytes in buffer";
+        narena: crate::bindgen::mjtSize = "number of bytes in the mjData arena (inclusive of stack)";
+        nbuffer: crate::bindgen::mjtSize = "number of bytes in buffer";
 
         signature: u64 = "model signature, used to detect changes in model";
     }
@@ -1956,4 +1957,62 @@ impl mjModel {
     }
     
     /* TODO: *name* */
+}
+
+#[allow(non_snake_case)]
+impl mjModel {
+    /// body-dof: non-zeros in each row (nbody x 1)
+    pub fn B_rownnz(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).B_rownnz as *const i32, self.nbody()) }
+    }
+    /// body-dof: row addresses (nbody x 1)
+    pub fn B_rowadr(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).B_rowadr as *const i32, self.nbody()) }
+    }
+    /// body-dof: column indices (nB x 1)
+    pub fn B_colind(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).B_colind as *const i32, self.nB()) }
+    }
+
+    /// reduced inertia: non-zeros in each row (nv x 1)
+    pub fn M_rownnz(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).M_rownnz as *const i32, self.nv()) }
+    }
+    /// reduced inertia: row addresses (nv x 1)
+    pub fn M_rowadr(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).M_rowadr as *const i32, self.nv()) }
+    }
+    /// reduced inertia: column indices (nC x 1)
+    pub fn M_colind(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).M_colind as *const i32, self.nC()) }
+    }
+    /// index mapping from qM to M (nC x 1)
+    pub fn mapM2M(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).mapM2M as *const i32, self.nC()) }
+    }
+
+    /// full inertia: non-zeros in each row (nv x 1)
+    pub fn D_rownnz(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).D_rownnz as *const i32, self.nv()) }
+    }
+    /// full inertia: row addresses (nv x 1)
+    pub fn D_rowadr(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).D_rowadr as *const i32, self.nv()) }
+    }
+    /// full inertia: index of diagonal element in each row (nv x 1)
+    pub fn D_diag(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).D_diag as *const i32, self.nv()) }
+    }
+    /// full inertia: column indices (nD x 1)
+    pub fn D_colind(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).D_colind as *const i32, self.nD()) }
+    }
+    /// index mapping from M to D (nD x 1)
+    pub fn mapM2D(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).mapM2D as *const i32, self.nD()) }
+    }
+    /// index mapping from D to M (nC x 1)
+    pub fn mapD2M(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).mapD2M as *const i32, self.nC()) }
+    }
 }

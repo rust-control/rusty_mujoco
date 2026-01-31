@@ -83,20 +83,24 @@ impl mjSpec {
 
     /// mesh and hfield directory
     pub fn meshdir(&self) -> Option<&mjString> {
-        if self.meshdir.is_null() {None} else {Some(unsafe { &*self.meshdir })}
+        let meshdir = unsafe { (*self.as_ptr()).compiler.meshdir };
+        if meshdir.is_null() {None} else {Some(unsafe { &*meshdir })}
     }
     /// mutable mesh and hfield directory
     pub fn meshdir_mut(&mut self) -> Option<&mut mjString> {
-        if self.meshdir.is_null() {None} else {Some(unsafe { &mut *self.meshdir })}
+        let meshdir = unsafe { (*self.as_mut_ptr()).compiler.meshdir };
+        if meshdir.is_null() {None} else {Some(unsafe { &mut *meshdir })}
     }
 
     /// texture directory
     pub fn texturedir(&self) -> Option<&mjString> {
-        if self.texturedir.is_null() {None} else {Some(unsafe { &*self.texturedir })}
+        let texturedir = unsafe { (*self.as_ptr()).compiler.texturedir };
+        if texturedir.is_null() {None} else {Some(unsafe { &*texturedir })}
     }
     /// mutable texture directory
     pub fn texturedir_mut(&mut self) -> Option<&mut mjString> {
-        if self.texturedir.is_null() {None} else {Some(unsafe { &mut *self.texturedir })}
+        let texturedir = unsafe { (*self.as_mut_ptr()).compiler.texturedir };
+        if texturedir.is_null() {None} else {Some(unsafe { &mut *texturedir })}
     }
 }
 

@@ -36,8 +36,6 @@ pub fn mj_multiRay<const N_RAY: usize>(
     bodyexclude: i32,
     cutoff: f64,
 ) -> Vec<Option<(ObjectId::<obj::Geom>, f64)>> {
-    let vec: &[f64] = array_flatslice(&vec);
-
     let mut geomid = vec![-1; N_RAY];
     let mut dist = vec![-1.0; N_RAY];
 
@@ -224,8 +222,8 @@ pub fn mju_rayFlex(
             flg_face as u8,
             flg_skin as u8,
             flexid.index() as i32,
-            pnt.as_ptr(),
-            vec.as_ptr(),
+            &pnt,
+            &vec,
             &mut vertid,
         )
     };
