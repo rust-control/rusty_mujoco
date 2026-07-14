@@ -1,7 +1,7 @@
 //! # [Attribute setters](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#attribute-setters)
 
 use crate::{
-    mjtByte, mjByteVec, mjString, mjStringVec, mjIntVec, mjFloatVec, mjDoubleVec,
+    mjByteVec, mjString, mjStringVec, mjIntVec, mjFloatVec, mjDoubleVec,
     mjsPlugin,
 };
 
@@ -29,7 +29,7 @@ pub fn mjs_setStringVec(dest: &mut mjStringVec, text: &str) {
 }
 
 /// Set entry in string vector.
-pub fn mjs_setInStringVec(dest: &mut mjStringVec, i: usize, text: &str) -> mjtByte {
+pub fn mjs_setInStringVec(dest: &mut mjStringVec, i: usize, text: &str) -> bool {
     let text = std::ffi::CString::new(text).expect("`text` must not contain null bytes");
     unsafe { crate::bindgen::mjs_setInStringVec(dest, i as i32, text.as_ptr()) }
 }

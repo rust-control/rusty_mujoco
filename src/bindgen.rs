@@ -2,7 +2,7 @@
 
 #![allow(unused, non_camel_case_types, non_snake_case, non_upper_case_globals, clippy::all)]
 
-pub const mjVERSION_HEADER: u32 = 340;
+pub const mjVERSION_HEADER: u32 = 3010000;
 pub const mjMINVAL: f64 = 0.000000000000001;
 pub const mjPI: f64 = 3.141592653589793;
 pub const mjMAXVAL: f64 = 10000000000.0;
@@ -20,10 +20,10 @@ pub const mjNBIAS: usize = 10;
 pub const mjNFLUID: usize = 12;
 pub const mjNREF: usize = 2;
 pub const mjNIMP: usize = 5;
+pub const mjNPOLY: usize = 2;
 pub const mjNSENS: usize = 3;
 pub const mjNSOLVER: usize = 200;
 pub const mjNISLAND: usize = 20;
-pub const mjMAXTHREAD: usize = 128;
 pub const mjNGROUP: usize = 6;
 pub const mjMAXLIGHT: usize = 100;
 pub const mjMAXOVERLAY: usize = 500;
@@ -72,6 +72,7 @@ pub const mjKEY_NUMPAD_0: u32 = 320;
 pub const mjKEY_NUMPAD_9: u32 = 329;
 pub type mjtNum = f64;
 pub type mjtByte = ::core::ffi::c_uchar;
+pub type mjtBool = bool;
 pub type mjtSize = i64;
 pub const mjNDISABLE: usize = mjtDisableBit::mjNDISABLE.0 as usize;
 impl mjtDisableBit {
@@ -94,7 +95,8 @@ impl mjtDisableBit {
     pub const AUTORESET: mjtDisableBit = mjtDisableBit(65536);
     pub const NATIVECCD: mjtDisableBit = mjtDisableBit(131072);
     pub const ISLAND: mjtDisableBit = mjtDisableBit(262144);
-    const mjNDISABLE: mjtDisableBit = mjtDisableBit(19);
+    pub const MULTICCD: mjtDisableBit = mjtDisableBit(524288);
+    const mjNDISABLE: mjtDisableBit = mjtDisableBit(20);
 }
 impl ::core::ops::BitOr<mjtDisableBit> for mjtDisableBit {
     type Output = Self;
@@ -131,8 +133,8 @@ impl mjtEnableBit {
     pub const ENERGY: mjtEnableBit = mjtEnableBit(2);
     pub const FWDINV: mjtEnableBit = mjtEnableBit(4);
     pub const INVDISCRETE: mjtEnableBit = mjtEnableBit(8);
-    pub const MULTICCD: mjtEnableBit = mjtEnableBit(16);
-    pub const SLEEP: mjtEnableBit = mjtEnableBit(32);
+    pub const SLEEP: mjtEnableBit = mjtEnableBit(16);
+    pub const DIAGEXACT: mjtEnableBit = mjtEnableBit(32);
     const mjNENABLE: mjtEnableBit = mjtEnableBit(6);
 }
 impl ::core::ops::BitOr<mjtEnableBit> for mjtEnableBit {
@@ -199,6 +201,13 @@ impl mjtGeom {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtGeom(pub(crate) ::core::ffi::c_uint);
+impl mjtProjection {
+    pub const PERSPECTIVE: mjtProjection = mjtProjection(0);
+    pub const ORTHOGRAPHIC: mjtProjection = mjtProjection(1);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtProjection(pub(crate) ::core::ffi::c_uint);
 impl mjtCamLight {
     pub const FIXED: mjtCamLight = mjtCamLight(0);
     pub const TRACK: mjtCamLight = mjtCamLight(1);
@@ -289,7 +298,9 @@ impl mjtEq {
     pub const JOINT: mjtEq = mjtEq(2);
     pub const TENDON: mjtEq = mjtEq(3);
     pub const FLEX: mjtEq = mjtEq(4);
-    pub const DISTANCE: mjtEq = mjtEq(5);
+    pub const FLEXVERT: mjtEq = mjtEq(5);
+    pub const FLEXSTRAIN: mjtEq = mjtEq(6);
+    pub const DISTANCE: mjtEq = mjtEq(7);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -323,7 +334,8 @@ impl mjtDyn {
     pub const FILTER: mjtDyn = mjtDyn(2);
     pub const FILTEREXACT: mjtDyn = mjtDyn(3);
     pub const MUSCLE: mjtDyn = mjtDyn(4);
-    pub const USER: mjtDyn = mjtDyn(5);
+    pub const DCMOTOR: mjtDyn = mjtDyn(5);
+    pub const USER: mjtDyn = mjtDyn(6);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -332,7 +344,8 @@ impl mjtGain {
     pub const FIXED: mjtGain = mjtGain(0);
     pub const AFFINE: mjtGain = mjtGain(1);
     pub const MUSCLE: mjtGain = mjtGain(2);
-    pub const USER: mjtGain = mjtGain(3);
+    pub const DCMOTOR: mjtGain = mjtGain(3);
+    pub const USER: mjtGain = mjtGain(4);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -341,7 +354,8 @@ impl mjtBias {
     pub const NONE: mjtBias = mjtBias(0);
     pub const AFFINE: mjtBias = mjtBias(1);
     pub const MUSCLE: mjtBias = mjtBias(2);
-    pub const USER: mjtBias = mjtBias(3);
+    pub const DCMOTOR: mjtBias = mjtBias(3);
+    pub const USER: mjtBias = mjtBias(4);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -468,6 +482,57 @@ impl mjtConDataField {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtConDataField(pub(crate) ::core::ffi::c_uint);
+pub const mjNRAYDATA: usize = mjtRayDataField::mjNRAYDATA.0 as usize;
+impl mjtRayDataField {
+    pub const DIST: mjtRayDataField = mjtRayDataField(0);
+    pub const DIR: mjtRayDataField = mjtRayDataField(1);
+    pub const ORIGIN: mjtRayDataField = mjtRayDataField(2);
+    pub const POINT: mjtRayDataField = mjtRayDataField(3);
+    pub const NORMAL: mjtRayDataField = mjtRayDataField(4);
+    pub const DEPTH: mjtRayDataField = mjtRayDataField(5);
+    const mjNRAYDATA: mjtRayDataField = mjtRayDataField(6);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtRayDataField(pub(crate) ::core::ffi::c_uint);
+pub const mjNCAMOUT: usize = mjtCamOutBit::mjNCAMOUT.0 as usize;
+impl mjtCamOutBit {
+    pub const RGB: mjtCamOutBit = mjtCamOutBit(1);
+    pub const DEPTH: mjtCamOutBit = mjtCamOutBit(2);
+    pub const DIST: mjtCamOutBit = mjtCamOutBit(4);
+    pub const NORMAL: mjtCamOutBit = mjtCamOutBit(8);
+    pub const SEG: mjtCamOutBit = mjtCamOutBit(16);
+    const mjNCAMOUT: mjtCamOutBit = mjtCamOutBit(5);
+}
+impl ::core::ops::BitOr<mjtCamOutBit> for mjtCamOutBit {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        mjtCamOutBit(self.0 | other.0)
+    }
+}
+impl ::core::ops::BitOrAssign for mjtCamOutBit {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: mjtCamOutBit) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::core::ops::BitAnd<mjtCamOutBit> for mjtCamOutBit {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        mjtCamOutBit(self.0 & other.0)
+    }
+}
+impl ::core::ops::BitAndAssign for mjtCamOutBit {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: mjtCamOutBit) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtCamOutBit(pub(crate) ::core::ffi::c_uint);
 impl mjtSameFrame {
     pub const NONE: mjtSameFrame = mjtSameFrame(0);
     pub const BODY: mjtSameFrame = mjtSameFrame(1);
@@ -517,6 +582,138 @@ impl mjtSDFType {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtSDFType(pub(crate) ::core::ffi::c_uint);
+pub const mjNSTATE: usize = mjtState::mjNSTATE.0 as usize;
+impl mjtState {
+    pub const TIME: mjtState = mjtState(1);
+    pub const QPOS: mjtState = mjtState(2);
+    pub const QVEL: mjtState = mjtState(4);
+    pub const ACT: mjtState = mjtState(8);
+    pub const HISTORY: mjtState = mjtState(16);
+    pub const WARMSTART: mjtState = mjtState(32);
+    pub const CTRL: mjtState = mjtState(64);
+    pub const QFRC_APPLIED: mjtState = mjtState(128);
+    pub const XFRC_APPLIED: mjtState = mjtState(256);
+    pub const EQ_ACTIVE: mjtState = mjtState(512);
+    pub const MOCAP_POS: mjtState = mjtState(1024);
+    pub const MOCAP_QUAT: mjtState = mjtState(2048);
+    pub const USERDATA: mjtState = mjtState(4096);
+    pub const PLUGIN: mjtState = mjtState(8192);
+    pub const PHYSICS: mjtState = mjtState(30);
+    pub const FULLPHYSICS: mjtState = mjtState(8223);
+    pub const USER: mjtState = mjtState(8128);
+    pub const INTEGRATION: mjtState = mjtState(16383);
+    const mjNSTATE: mjtState = mjtState(14);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtState(pub(crate) ::core::ffi::c_uint);
+impl mjtConstraint {
+    pub const EQUALITY: mjtConstraint = mjtConstraint(0);
+    pub const FRICTION_DOF: mjtConstraint = mjtConstraint(1);
+    pub const FRICTION_TENDON: mjtConstraint = mjtConstraint(2);
+    pub const LIMIT_JOINT: mjtConstraint = mjtConstraint(3);
+    pub const LIMIT_TENDON: mjtConstraint = mjtConstraint(4);
+    pub const CONTACT_FRICTIONLESS: mjtConstraint = mjtConstraint(5);
+    pub const CONTACT_PYRAMIDAL: mjtConstraint = mjtConstraint(6);
+    pub const CONTACT_ELLIPTIC: mjtConstraint = mjtConstraint(7);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtConstraint(pub(crate) ::core::ffi::c_uint);
+impl mjtConstraintState {
+    pub const SATISFIED: mjtConstraintState = mjtConstraintState(0);
+    pub const QUADRATIC: mjtConstraintState = mjtConstraintState(1);
+    pub const LINEARNEG: mjtConstraintState = mjtConstraintState(2);
+    pub const LINEARPOS: mjtConstraintState = mjtConstraintState(3);
+    pub const CONE: mjtConstraintState = mjtConstraintState(4);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtConstraintState(pub(crate) ::core::ffi::c_uint);
+pub const mjNWARNING: usize = mjtWarning::mjNWARNING.0 as usize;
+impl mjtWarning {
+    pub const INERTIA: mjtWarning = mjtWarning(0);
+    pub const CONTACTFULL: mjtWarning = mjtWarning(1);
+    pub const CNSTRFULL: mjtWarning = mjtWarning(2);
+    pub const BADQPOS: mjtWarning = mjtWarning(3);
+    pub const BADQVEL: mjtWarning = mjtWarning(4);
+    pub const BADQACC: mjtWarning = mjtWarning(5);
+    pub const BADCTRL: mjtWarning = mjtWarning(6);
+    const mjNWARNING: mjtWarning = mjtWarning(7);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtWarning(pub(crate) ::core::ffi::c_uint);
+pub const mjNTIMER: usize = mjtTimer::mjNTIMER.0 as usize;
+impl mjtTimer {
+    pub const STEP: mjtTimer = mjtTimer(0);
+    pub const FORWARD: mjtTimer = mjtTimer(1);
+    pub const INVERSE: mjtTimer = mjtTimer(2);
+    pub const POSITION: mjtTimer = mjtTimer(3);
+    pub const VELOCITY: mjtTimer = mjtTimer(4);
+    pub const ACTUATION: mjtTimer = mjtTimer(5);
+    pub const CONSTRAINT: mjtTimer = mjtTimer(6);
+    pub const ADVANCE: mjtTimer = mjtTimer(7);
+    pub const POS_KINEMATICS: mjtTimer = mjtTimer(8);
+    pub const POS_INERTIA: mjtTimer = mjtTimer(9);
+    pub const POS_COLLISION: mjtTimer = mjtTimer(10);
+    pub const POS_MAKE: mjtTimer = mjtTimer(11);
+    pub const POS_PROJECT: mjtTimer = mjtTimer(12);
+    pub const COL_BROAD: mjtTimer = mjtTimer(13);
+    pub const COL_NARROW: mjtTimer = mjtTimer(14);
+    const mjNTIMER: mjtTimer = mjtTimer(15);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtTimer(pub(crate) ::core::ffi::c_uint);
+impl mjtSleepState {
+    pub const STATIC: mjtSleepState = mjtSleepState(-1);
+    pub const ASLEEP: mjtSleepState = mjtSleepState(0);
+    pub const AWAKE: mjtSleepState = mjtSleepState(1);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtSleepState(pub(crate) ::core::ffi::c_int);
+impl mjtLogLevel {
+    pub const DEBUG: mjtLogLevel = mjtLogLevel(0);
+    pub const INFO: mjtLogLevel = mjtLogLevel(1);
+    pub const WARNING: mjtLogLevel = mjtLogLevel(2);
+    pub const ERROR: mjtLogLevel = mjtLogLevel(3);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtLogLevel(pub(crate) ::core::ffi::c_uint);
+impl mjtLogTopic {
+    pub const NONE: mjtLogTopic = mjtLogTopic(0);
+    pub const TIME_STP: mjtLogTopic = mjtLogTopic(1);
+    pub const TIME_CMP: mjtLogTopic = mjtLogTopic(2);
+    pub const SLEEP: mjtLogTopic = mjtLogTopic(3);
+    const mjNTOPIC: mjtLogTopic = mjtLogTopic(3);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtLogTopic(pub(crate) ::core::ffi::c_uint);
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct mjLogMessage {
+    pub(crate) level: ::core::ffi::c_int,
+    pub(crate) topic: ::core::ffi::c_int,
+    pub(crate) subject: [::core::ffi::c_char; 1024usize],
+    pub(crate) body: *const ::core::ffi::c_char,
+    pub(crate) func: *const ::core::ffi::c_char,
+    pub(crate) file: *const ::core::ffi::c_char,
+    pub(crate) line: ::core::ffi::c_int,
+    pub(crate) timestamp: mjtBool,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct mjLogConfig {
+    pub(crate) logto_console: mjtBool,
+    pub(crate) logto_file: mjtBool,
+    pub(crate) logfile: [::core::ffi::c_char; 1024usize],
+    pub(crate) topics: ::core::ffi::c_int,
+}
+pub type mjfLogHandler = ::core::option::Option<unsafe extern "C" fn(arg1: *const mjLogMessage)>;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjLROpt {
@@ -697,90 +894,96 @@ pub struct mjStatistic {
 #[repr(C)]
 #[derive(Debug)]
 pub struct mjModel {
-    pub(crate) nq: ::core::ffi::c_int,
-    pub(crate) nv: ::core::ffi::c_int,
-    pub(crate) nu: ::core::ffi::c_int,
-    pub(crate) na: ::core::ffi::c_int,
-    pub(crate) nbody: ::core::ffi::c_int,
-    pub(crate) nbvh: ::core::ffi::c_int,
-    pub(crate) nbvhstatic: ::core::ffi::c_int,
-    pub(crate) nbvhdynamic: ::core::ffi::c_int,
-    pub(crate) noct: ::core::ffi::c_int,
-    pub(crate) njnt: ::core::ffi::c_int,
-    pub(crate) ntree: ::core::ffi::c_int,
-    pub(crate) nM: ::core::ffi::c_int,
-    pub(crate) nB: ::core::ffi::c_int,
-    pub(crate) nC: ::core::ffi::c_int,
-    pub(crate) nD: ::core::ffi::c_int,
-    pub(crate) ngeom: ::core::ffi::c_int,
-    pub(crate) nsite: ::core::ffi::c_int,
-    pub(crate) ncam: ::core::ffi::c_int,
-    pub(crate) nlight: ::core::ffi::c_int,
-    pub(crate) nflex: ::core::ffi::c_int,
-    pub(crate) nflexnode: ::core::ffi::c_int,
-    pub(crate) nflexvert: ::core::ffi::c_int,
-    pub(crate) nflexedge: ::core::ffi::c_int,
-    pub(crate) nflexelem: ::core::ffi::c_int,
-    pub(crate) nflexelemdata: ::core::ffi::c_int,
-    pub(crate) nflexelemedge: ::core::ffi::c_int,
-    pub(crate) nflexshelldata: ::core::ffi::c_int,
-    pub(crate) nflexevpair: ::core::ffi::c_int,
-    pub(crate) nflextexcoord: ::core::ffi::c_int,
-    pub(crate) nmesh: ::core::ffi::c_int,
-    pub(crate) nmeshvert: ::core::ffi::c_int,
-    pub(crate) nmeshnormal: ::core::ffi::c_int,
-    pub(crate) nmeshtexcoord: ::core::ffi::c_int,
-    pub(crate) nmeshface: ::core::ffi::c_int,
-    pub(crate) nmeshgraph: ::core::ffi::c_int,
-    pub(crate) nmeshpoly: ::core::ffi::c_int,
-    pub(crate) nmeshpolyvert: ::core::ffi::c_int,
-    pub(crate) nmeshpolymap: ::core::ffi::c_int,
-    pub(crate) nskin: ::core::ffi::c_int,
-    pub(crate) nskinvert: ::core::ffi::c_int,
-    pub(crate) nskintexvert: ::core::ffi::c_int,
-    pub(crate) nskinface: ::core::ffi::c_int,
-    pub(crate) nskinbone: ::core::ffi::c_int,
-    pub(crate) nskinbonevert: ::core::ffi::c_int,
-    pub(crate) nhfield: ::core::ffi::c_int,
-    pub(crate) nhfielddata: ::core::ffi::c_int,
-    pub(crate) ntex: ::core::ffi::c_int,
-    pub(crate) ntexdata: ::core::ffi::c_int,
-    pub(crate) nmat: ::core::ffi::c_int,
-    pub(crate) npair: ::core::ffi::c_int,
-    pub(crate) nexclude: ::core::ffi::c_int,
-    pub(crate) neq: ::core::ffi::c_int,
-    pub(crate) ntendon: ::core::ffi::c_int,
-    pub(crate) nwrap: ::core::ffi::c_int,
-    pub(crate) nsensor: ::core::ffi::c_int,
-    pub(crate) nnumeric: ::core::ffi::c_int,
-    pub(crate) nnumericdata: ::core::ffi::c_int,
-    pub(crate) ntext: ::core::ffi::c_int,
-    pub(crate) ntextdata: ::core::ffi::c_int,
-    pub(crate) ntuple: ::core::ffi::c_int,
-    pub(crate) ntupledata: ::core::ffi::c_int,
-    pub(crate) nkey: ::core::ffi::c_int,
-    pub(crate) nmocap: ::core::ffi::c_int,
-    pub(crate) nplugin: ::core::ffi::c_int,
-    pub(crate) npluginattr: ::core::ffi::c_int,
-    pub(crate) nuser_body: ::core::ffi::c_int,
-    pub(crate) nuser_jnt: ::core::ffi::c_int,
-    pub(crate) nuser_geom: ::core::ffi::c_int,
-    pub(crate) nuser_site: ::core::ffi::c_int,
-    pub(crate) nuser_cam: ::core::ffi::c_int,
-    pub(crate) nuser_tendon: ::core::ffi::c_int,
-    pub(crate) nuser_actuator: ::core::ffi::c_int,
-    pub(crate) nuser_sensor: ::core::ffi::c_int,
-    pub(crate) nnames: ::core::ffi::c_int,
-    pub(crate) npaths: ::core::ffi::c_int,
-    pub(crate) nnames_map: ::core::ffi::c_int,
-    pub(crate) nJmom: ::core::ffi::c_int,
-    pub(crate) ngravcomp: ::core::ffi::c_int,
-    pub(crate) nemax: ::core::ffi::c_int,
-    pub(crate) njmax: ::core::ffi::c_int,
-    pub(crate) nconmax: ::core::ffi::c_int,
-    pub(crate) nuserdata: ::core::ffi::c_int,
-    pub(crate) nsensordata: ::core::ffi::c_int,
-    pub(crate) npluginstate: ::core::ffi::c_int,
+    pub(crate) nq: mjtSize,
+    pub(crate) nv: mjtSize,
+    pub(crate) nu: mjtSize,
+    pub(crate) na: mjtSize,
+    pub(crate) nbody: mjtSize,
+    pub(crate) nbvh: mjtSize,
+    pub(crate) nbvhstatic: mjtSize,
+    pub(crate) nbvhdynamic: mjtSize,
+    pub(crate) noct: mjtSize,
+    pub(crate) njnt: mjtSize,
+    pub(crate) ntree: mjtSize,
+    pub(crate) nM: mjtSize,
+    pub(crate) nB: mjtSize,
+    pub(crate) nC: mjtSize,
+    pub(crate) nD: mjtSize,
+    pub(crate) ngeom: mjtSize,
+    pub(crate) nsite: mjtSize,
+    pub(crate) ncam: mjtSize,
+    pub(crate) nlight: mjtSize,
+    pub(crate) nflex: mjtSize,
+    pub(crate) nflexnode: mjtSize,
+    pub(crate) nflexvert: mjtSize,
+    pub(crate) nflexedge: mjtSize,
+    pub(crate) nflexelem: mjtSize,
+    pub(crate) nflexelemdata: mjtSize,
+    pub(crate) nflexstiffness: mjtSize,
+    pub(crate) nflexbending: mjtSize,
+    pub(crate) nflexelemedge: mjtSize,
+    pub(crate) nflexshelldata: mjtSize,
+    pub(crate) nflexevpair: mjtSize,
+    pub(crate) nflextexcoord: mjtSize,
+    pub(crate) nJfe: mjtSize,
+    pub(crate) nJfv: mjtSize,
+    pub(crate) nmesh: mjtSize,
+    pub(crate) nmeshvert: mjtSize,
+    pub(crate) nmeshnormal: mjtSize,
+    pub(crate) nmeshtexcoord: mjtSize,
+    pub(crate) nmeshface: mjtSize,
+    pub(crate) nmeshgraph: mjtSize,
+    pub(crate) nmeshpoly: mjtSize,
+    pub(crate) nmeshpolyvert: mjtSize,
+    pub(crate) nmeshpolymap: mjtSize,
+    pub(crate) nskin: mjtSize,
+    pub(crate) nskinvert: mjtSize,
+    pub(crate) nskintexvert: mjtSize,
+    pub(crate) nskinface: mjtSize,
+    pub(crate) nskinbone: mjtSize,
+    pub(crate) nskinbonevert: mjtSize,
+    pub(crate) nhfield: mjtSize,
+    pub(crate) nhfielddata: mjtSize,
+    pub(crate) ntex: mjtSize,
+    pub(crate) ntexdata: mjtSize,
+    pub(crate) nmat: mjtSize,
+    pub(crate) npair: mjtSize,
+    pub(crate) nexclude: mjtSize,
+    pub(crate) neq: mjtSize,
+    pub(crate) ntendon: mjtSize,
+    pub(crate) nJten: mjtSize,
+    pub(crate) nwrap: mjtSize,
+    pub(crate) nsensor: mjtSize,
+    pub(crate) nnumeric: mjtSize,
+    pub(crate) nnumericdata: mjtSize,
+    pub(crate) ntext: mjtSize,
+    pub(crate) ntextdata: mjtSize,
+    pub(crate) ntuple: mjtSize,
+    pub(crate) ntupledata: mjtSize,
+    pub(crate) nkey: mjtSize,
+    pub(crate) nmocap: mjtSize,
+    pub(crate) nplugin: mjtSize,
+    pub(crate) npluginattr: mjtSize,
+    pub(crate) nuser_body: mjtSize,
+    pub(crate) nuser_jnt: mjtSize,
+    pub(crate) nuser_geom: mjtSize,
+    pub(crate) nuser_site: mjtSize,
+    pub(crate) nuser_cam: mjtSize,
+    pub(crate) nuser_tendon: mjtSize,
+    pub(crate) nuser_actuator: mjtSize,
+    pub(crate) nuser_sensor: mjtSize,
+    pub(crate) nnames: mjtSize,
+    pub(crate) npaths: mjtSize,
+    pub(crate) nnames_map: mjtSize,
+    pub(crate) nJmom: mjtSize,
+    pub(crate) ngravcomp: mjtSize,
+    pub(crate) nemax: mjtSize,
+    pub(crate) njmax: mjtSize,
+    pub(crate) nconmax: mjtSize,
+    pub(crate) nuserdata: mjtSize,
+    pub(crate) nsensordata: mjtSize,
+    pub(crate) npluginstate: mjtSize,
+    pub(crate) nhistory: mjtSize,
     pub(crate) narena: mjtSize,
     pub(crate) nbuffer: mjtSize,
     pub(crate) opt: mjOption,
@@ -830,15 +1033,17 @@ pub struct mjModel {
     pub(crate) jnt_qposadr: *mut ::core::ffi::c_int,
     pub(crate) jnt_dofadr: *mut ::core::ffi::c_int,
     pub(crate) jnt_bodyid: *mut ::core::ffi::c_int,
+    pub(crate) jnt_actuatorid: *mut ::core::ffi::c_int,
     pub(crate) jnt_group: *mut ::core::ffi::c_int,
-    pub(crate) jnt_limited: *mut mjtByte,
-    pub(crate) jnt_actfrclimited: *mut mjtByte,
-    pub(crate) jnt_actgravcomp: *mut mjtByte,
+    pub(crate) jnt_limited: *mut mjtBool,
+    pub(crate) jnt_actfrclimited: *mut mjtBool,
+    pub(crate) jnt_actgravcomp: *mut mjtBool,
     pub(crate) jnt_solref: *mut mjtNum,
     pub(crate) jnt_solimp: *mut mjtNum,
     pub(crate) jnt_pos: *mut mjtNum,
     pub(crate) jnt_axis: *mut mjtNum,
     pub(crate) jnt_stiffness: *mut mjtNum,
+    pub(crate) jnt_stiffnesspoly: *mut mjtNum,
     pub(crate) jnt_range: *mut mjtNum,
     pub(crate) jnt_actfrcrange: *mut mjtNum,
     pub(crate) jnt_margin: *mut mjtNum,
@@ -854,6 +1059,7 @@ pub struct mjModel {
     pub(crate) dof_frictionloss: *mut mjtNum,
     pub(crate) dof_armature: *mut mjtNum,
     pub(crate) dof_damping: *mut mjtNum,
+    pub(crate) dof_dampingpoly: *mut mjtNum,
     pub(crate) dof_invweight0: *mut mjtNum,
     pub(crate) dof_M0: *mut mjtNum,
     pub(crate) dof_length: *mut mjtNum,
@@ -905,10 +1111,11 @@ pub struct mjModel {
     pub(crate) cam_poscom0: *mut mjtNum,
     pub(crate) cam_pos0: *mut mjtNum,
     pub(crate) cam_mat0: *mut mjtNum,
-    pub(crate) cam_orthographic: *mut ::core::ffi::c_int,
+    pub(crate) cam_projection: *mut ::core::ffi::c_int,
     pub(crate) cam_fovy: *mut mjtNum,
     pub(crate) cam_ipd: *mut mjtNum,
     pub(crate) cam_resolution: *mut ::core::ffi::c_int,
+    pub(crate) cam_output: *mut ::core::ffi::c_int,
     pub(crate) cam_sensorsize: *mut f32,
     pub(crate) cam_intrinsic: *mut f32,
     pub(crate) cam_user: *mut mjtNum,
@@ -917,11 +1124,11 @@ pub struct mjModel {
     pub(crate) light_targetbodyid: *mut ::core::ffi::c_int,
     pub(crate) light_type: *mut ::core::ffi::c_int,
     pub(crate) light_texid: *mut ::core::ffi::c_int,
-    pub(crate) light_castshadow: *mut mjtByte,
+    pub(crate) light_castshadow: *mut mjtBool,
     pub(crate) light_bulbradius: *mut f32,
     pub(crate) light_intensity: *mut f32,
     pub(crate) light_range: *mut f32,
-    pub(crate) light_active: *mut mjtByte,
+    pub(crate) light_active: *mut mjtBool,
     pub(crate) light_pos: *mut mjtNum,
     pub(crate) light_dir: *mut mjtNum,
     pub(crate) light_poscom0: *mut mjtNum,
@@ -943,7 +1150,7 @@ pub struct mjModel {
     pub(crate) flex_friction: *mut mjtNum,
     pub(crate) flex_margin: *mut mjtNum,
     pub(crate) flex_gap: *mut mjtNum,
-    pub(crate) flex_internal: *mut mjtByte,
+    pub(crate) flex_internal: *mut mjtBool,
     pub(crate) flex_selfcollide: *mut ::core::ffi::c_int,
     pub(crate) flex_activelayers: *mut ::core::ffi::c_int,
     pub(crate) flex_passive: *mut ::core::ffi::c_int,
@@ -951,6 +1158,7 @@ pub struct mjModel {
     pub(crate) flex_matid: *mut ::core::ffi::c_int,
     pub(crate) flex_group: *mut ::core::ffi::c_int,
     pub(crate) flex_interp: *mut ::core::ffi::c_int,
+    pub(crate) flex_cellnum: *mut ::core::ffi::c_int,
     pub(crate) flex_nodeadr: *mut ::core::ffi::c_int,
     pub(crate) flex_nodenum: *mut ::core::ffi::c_int,
     pub(crate) flex_vertadr: *mut ::core::ffi::c_int,
@@ -960,7 +1168,9 @@ pub struct mjModel {
     pub(crate) flex_elemadr: *mut ::core::ffi::c_int,
     pub(crate) flex_elemnum: *mut ::core::ffi::c_int,
     pub(crate) flex_elemdataadr: *mut ::core::ffi::c_int,
+    pub(crate) flex_stiffnessadr: *mut ::core::ffi::c_int,
     pub(crate) flex_elemedgeadr: *mut ::core::ffi::c_int,
+    pub(crate) flex_bendingadr: *mut ::core::ffi::c_int,
     pub(crate) flex_shellnum: *mut ::core::ffi::c_int,
     pub(crate) flex_shelldataadr: *mut ::core::ffi::c_int,
     pub(crate) flex_evpairadr: *mut ::core::ffi::c_int,
@@ -968,6 +1178,9 @@ pub struct mjModel {
     pub(crate) flex_texcoordadr: *mut ::core::ffi::c_int,
     pub(crate) flex_nodebodyid: *mut ::core::ffi::c_int,
     pub(crate) flex_vertbodyid: *mut ::core::ffi::c_int,
+    pub(crate) flex_vertedgeadr: *mut ::core::ffi::c_int,
+    pub(crate) flex_vertedgenum: *mut ::core::ffi::c_int,
+    pub(crate) flex_vertedge: *mut ::core::ffi::c_int,
     pub(crate) flex_edge: *mut ::core::ffi::c_int,
     pub(crate) flex_edgeflap: *mut ::core::ffi::c_int,
     pub(crate) flex_elem: *mut ::core::ffi::c_int,
@@ -978,23 +1191,31 @@ pub struct mjModel {
     pub(crate) flex_evpair: *mut ::core::ffi::c_int,
     pub(crate) flex_vert: *mut mjtNum,
     pub(crate) flex_vert0: *mut mjtNum,
+    pub(crate) flex_vertmetric: *mut mjtNum,
     pub(crate) flex_node: *mut mjtNum,
     pub(crate) flex_node0: *mut mjtNum,
     pub(crate) flexedge_length0: *mut mjtNum,
     pub(crate) flexedge_invweight0: *mut mjtNum,
     pub(crate) flex_radius: *mut mjtNum,
+    pub(crate) flex_size: *mut mjtNum,
     pub(crate) flex_stiffness: *mut mjtNum,
     pub(crate) flex_bending: *mut mjtNum,
     pub(crate) flex_damping: *mut mjtNum,
     pub(crate) flex_edgestiffness: *mut mjtNum,
     pub(crate) flex_edgedamping: *mut mjtNum,
-    pub(crate) flex_edgeequality: *mut mjtByte,
-    pub(crate) flex_rigid: *mut mjtByte,
-    pub(crate) flexedge_rigid: *mut mjtByte,
-    pub(crate) flex_centered: *mut mjtByte,
-    pub(crate) flex_flatskin: *mut mjtByte,
+    pub(crate) flex_edgeequality: *mut ::core::ffi::c_int,
+    pub(crate) flex_rigid: *mut mjtBool,
+    pub(crate) flexedge_rigid: *mut mjtBool,
+    pub(crate) flex_centered: *mut mjtBool,
+    pub(crate) flex_flatskin: *mut mjtBool,
     pub(crate) flex_bvhadr: *mut ::core::ffi::c_int,
     pub(crate) flex_bvhnum: *mut ::core::ffi::c_int,
+    pub(crate) flexedge_J_rownnz: *mut ::core::ffi::c_int,
+    pub(crate) flexedge_J_rowadr: *mut ::core::ffi::c_int,
+    pub(crate) flexedge_J_colind: *mut ::core::ffi::c_int,
+    pub(crate) flexvert_J_rownnz: *mut ::core::ffi::c_int,
+    pub(crate) flexvert_J_rowadr: *mut ::core::ffi::c_int,
+    pub(crate) flexvert_J_colind: *mut ::core::ffi::c_int,
     pub(crate) flex_rgba: *mut f32,
     pub(crate) flex_texcoord: *mut f32,
     pub(crate) mesh_vertadr: *mut ::core::ffi::c_int,
@@ -1063,11 +1284,11 @@ pub struct mjModel {
     pub(crate) tex_height: *mut ::core::ffi::c_int,
     pub(crate) tex_width: *mut ::core::ffi::c_int,
     pub(crate) tex_nchannel: *mut ::core::ffi::c_int,
-    pub(crate) tex_adr: *mut ::core::ffi::c_int,
+    pub(crate) tex_adr: *mut mjtSize,
     pub(crate) tex_data: *mut mjtByte,
     pub(crate) tex_pathadr: *mut ::core::ffi::c_int,
     pub(crate) mat_texid: *mut ::core::ffi::c_int,
-    pub(crate) mat_texuniform: *mut mjtByte,
+    pub(crate) mat_texuniform: *mut mjtBool,
     pub(crate) mat_texrepeat: *mut f32,
     pub(crate) mat_emission: *mut f32,
     pub(crate) mat_specular: *mut f32,
@@ -1091,18 +1312,22 @@ pub struct mjModel {
     pub(crate) eq_obj1id: *mut ::core::ffi::c_int,
     pub(crate) eq_obj2id: *mut ::core::ffi::c_int,
     pub(crate) eq_objtype: *mut ::core::ffi::c_int,
-    pub(crate) eq_active0: *mut mjtByte,
+    pub(crate) eq_active0: *mut mjtBool,
     pub(crate) eq_solref: *mut mjtNum,
     pub(crate) eq_solimp: *mut mjtNum,
     pub(crate) eq_data: *mut mjtNum,
     pub(crate) tendon_adr: *mut ::core::ffi::c_int,
     pub(crate) tendon_num: *mut ::core::ffi::c_int,
     pub(crate) tendon_matid: *mut ::core::ffi::c_int,
+    pub(crate) tendon_actuatorid: *mut ::core::ffi::c_int,
     pub(crate) tendon_group: *mut ::core::ffi::c_int,
     pub(crate) tendon_treenum: *mut ::core::ffi::c_int,
     pub(crate) tendon_treeid: *mut ::core::ffi::c_int,
-    pub(crate) tendon_limited: *mut mjtByte,
-    pub(crate) tendon_actfrclimited: *mut mjtByte,
+    pub(crate) ten_J_rownnz: *mut ::core::ffi::c_int,
+    pub(crate) ten_J_rowadr: *mut ::core::ffi::c_int,
+    pub(crate) ten_J_colind: *mut ::core::ffi::c_int,
+    pub(crate) tendon_limited: *mut mjtBool,
+    pub(crate) tendon_actfrclimited: *mut mjtBool,
     pub(crate) tendon_width: *mut mjtNum,
     pub(crate) tendon_solref_lim: *mut mjtNum,
     pub(crate) tendon_solimp_lim: *mut mjtNum,
@@ -1112,7 +1337,9 @@ pub struct mjModel {
     pub(crate) tendon_actfrcrange: *mut mjtNum,
     pub(crate) tendon_margin: *mut mjtNum,
     pub(crate) tendon_stiffness: *mut mjtNum,
+    pub(crate) tendon_stiffnesspoly: *mut mjtNum,
     pub(crate) tendon_damping: *mut mjtNum,
+    pub(crate) tendon_dampingpoly: *mut mjtNum,
     pub(crate) tendon_armature: *mut mjtNum,
     pub(crate) tendon_frictionloss: *mut mjtNum,
     pub(crate) tendon_lengthspring: *mut mjtNum,
@@ -1128,16 +1355,22 @@ pub struct mjModel {
     pub(crate) actuator_gaintype: *mut ::core::ffi::c_int,
     pub(crate) actuator_biastype: *mut ::core::ffi::c_int,
     pub(crate) actuator_trnid: *mut ::core::ffi::c_int,
+    pub(crate) actuator_damping: *mut mjtNum,
+    pub(crate) actuator_dampingpoly: *mut mjtNum,
+    pub(crate) actuator_armature: *mut mjtNum,
     pub(crate) actuator_actadr: *mut ::core::ffi::c_int,
     pub(crate) actuator_actnum: *mut ::core::ffi::c_int,
     pub(crate) actuator_group: *mut ::core::ffi::c_int,
-    pub(crate) actuator_ctrllimited: *mut mjtByte,
-    pub(crate) actuator_forcelimited: *mut mjtByte,
-    pub(crate) actuator_actlimited: *mut mjtByte,
+    pub(crate) actuator_history: *mut ::core::ffi::c_int,
+    pub(crate) actuator_historyadr: *mut ::core::ffi::c_int,
+    pub(crate) actuator_delay: *mut mjtNum,
+    pub(crate) actuator_ctrllimited: *mut mjtBool,
+    pub(crate) actuator_forcelimited: *mut mjtBool,
+    pub(crate) actuator_actlimited: *mut mjtBool,
     pub(crate) actuator_dynprm: *mut mjtNum,
     pub(crate) actuator_gainprm: *mut mjtNum,
     pub(crate) actuator_biasprm: *mut mjtNum,
-    pub(crate) actuator_actearly: *mut mjtByte,
+    pub(crate) actuator_actearly: *mut mjtBool,
     pub(crate) actuator_ctrlrange: *mut mjtNum,
     pub(crate) actuator_forcerange: *mut mjtNum,
     pub(crate) actuator_actrange: *mut mjtNum,
@@ -1160,6 +1393,10 @@ pub struct mjModel {
     pub(crate) sensor_adr: *mut ::core::ffi::c_int,
     pub(crate) sensor_cutoff: *mut mjtNum,
     pub(crate) sensor_noise: *mut mjtNum,
+    pub(crate) sensor_history: *mut ::core::ffi::c_int,
+    pub(crate) sensor_historyadr: *mut ::core::ffi::c_int,
+    pub(crate) sensor_delay: *mut mjtNum,
+    pub(crate) sensor_interval: *mut mjtNum,
     pub(crate) sensor_user: *mut mjtNum,
     pub(crate) sensor_plugin: *mut ::core::ffi::c_int,
     pub(crate) plugin: *mut ::core::ffi::c_int,
@@ -1226,121 +1463,14 @@ pub struct mjModel {
     pub(crate) mapD2M: *mut ::core::ffi::c_int,
     pub(crate) signature: u64,
 }
-impl mjtTaskStatus {
-    pub const NEW: mjtTaskStatus = mjtTaskStatus(0);
-    pub const QUEUED: mjtTaskStatus = mjtTaskStatus(1);
-    pub const COMPLETED: mjtTaskStatus = mjtTaskStatus(2);
-}
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct mjtTaskStatus(pub(crate) ::core::ffi::c_uint);
-pub type mjfTask = ::core::option::Option<
-    unsafe extern "C" fn(arg1: *mut ::core::ffi::c_void) -> *mut ::core::ffi::c_void,
->;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub struct mjThreadPool {
-    pub(crate) nworker: ::core::ffi::c_int,
+pub struct mjPreContact {
+    pub(crate) dist: mjtNum,
+    pub(crate) pos: [mjtNum; 3usize],
+    pub(crate) normal: [mjtNum; 3usize],
+    pub(crate) tangent: [mjtNum; 3usize],
 }
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct mjTask {
-    pub(crate) func: mjfTask,
-    pub(crate) args: *mut ::core::ffi::c_void,
-    pub(crate) status: ::core::ffi::c_int,
-}
-pub const mjNSTATE: usize = mjtState::mjNSTATE.0 as usize;
-impl mjtState {
-    pub const TIME: mjtState = mjtState(1);
-    pub const QPOS: mjtState = mjtState(2);
-    pub const QVEL: mjtState = mjtState(4);
-    pub const ACT: mjtState = mjtState(8);
-    pub const WARMSTART: mjtState = mjtState(16);
-    pub const CTRL: mjtState = mjtState(32);
-    pub const QFRC_APPLIED: mjtState = mjtState(64);
-    pub const XFRC_APPLIED: mjtState = mjtState(128);
-    pub const EQ_ACTIVE: mjtState = mjtState(256);
-    pub const MOCAP_POS: mjtState = mjtState(512);
-    pub const MOCAP_QUAT: mjtState = mjtState(1024);
-    pub const USERDATA: mjtState = mjtState(2048);
-    pub const PLUGIN: mjtState = mjtState(4096);
-    pub const PHYSICS: mjtState = mjtState(14);
-    pub const FULLPHYSICS: mjtState = mjtState(4111);
-    pub const USER: mjtState = mjtState(4064);
-    pub const INTEGRATION: mjtState = mjtState(8191);
-    const mjNSTATE: mjtState = mjtState(13);
-}
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct mjtState(pub(crate) ::core::ffi::c_uint);
-impl mjtConstraint {
-    pub const EQUALITY: mjtConstraint = mjtConstraint(0);
-    pub const FRICTION_DOF: mjtConstraint = mjtConstraint(1);
-    pub const FRICTION_TENDON: mjtConstraint = mjtConstraint(2);
-    pub const LIMIT_JOINT: mjtConstraint = mjtConstraint(3);
-    pub const LIMIT_TENDON: mjtConstraint = mjtConstraint(4);
-    pub const CONTACT_FRICTIONLESS: mjtConstraint = mjtConstraint(5);
-    pub const CONTACT_PYRAMIDAL: mjtConstraint = mjtConstraint(6);
-    pub const CONTACT_ELLIPTIC: mjtConstraint = mjtConstraint(7);
-}
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct mjtConstraint(pub(crate) ::core::ffi::c_uint);
-impl mjtConstraintState {
-    pub const SATISFIED: mjtConstraintState = mjtConstraintState(0);
-    pub const QUADRATIC: mjtConstraintState = mjtConstraintState(1);
-    pub const LINEARNEG: mjtConstraintState = mjtConstraintState(2);
-    pub const LINEARPOS: mjtConstraintState = mjtConstraintState(3);
-    pub const CONE: mjtConstraintState = mjtConstraintState(4);
-}
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct mjtConstraintState(pub(crate) ::core::ffi::c_uint);
-pub const mjNWARNING: usize = mjtWarning::mjNWARNING.0 as usize;
-impl mjtWarning {
-    pub const INERTIA: mjtWarning = mjtWarning(0);
-    pub const CONTACTFULL: mjtWarning = mjtWarning(1);
-    pub const CNSTRFULL: mjtWarning = mjtWarning(2);
-    pub const VGEOMFULL: mjtWarning = mjtWarning(3);
-    pub const BADQPOS: mjtWarning = mjtWarning(4);
-    pub const BADQVEL: mjtWarning = mjtWarning(5);
-    pub const BADQACC: mjtWarning = mjtWarning(6);
-    pub const BADCTRL: mjtWarning = mjtWarning(7);
-    const mjNWARNING: mjtWarning = mjtWarning(8);
-}
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct mjtWarning(pub(crate) ::core::ffi::c_uint);
-pub const mjNTIMER: usize = mjtTimer::mjNTIMER.0 as usize;
-impl mjtTimer {
-    pub const STEP: mjtTimer = mjtTimer(0);
-    pub const FORWARD: mjtTimer = mjtTimer(1);
-    pub const INVERSE: mjtTimer = mjtTimer(2);
-    pub const POSITION: mjtTimer = mjtTimer(3);
-    pub const VELOCITY: mjtTimer = mjtTimer(4);
-    pub const ACTUATION: mjtTimer = mjtTimer(5);
-    pub const CONSTRAINT: mjtTimer = mjtTimer(6);
-    pub const ADVANCE: mjtTimer = mjtTimer(7);
-    pub const POS_KINEMATICS: mjtTimer = mjtTimer(8);
-    pub const POS_INERTIA: mjtTimer = mjtTimer(9);
-    pub const POS_COLLISION: mjtTimer = mjtTimer(10);
-    pub const POS_MAKE: mjtTimer = mjtTimer(11);
-    pub const POS_PROJECT: mjtTimer = mjtTimer(12);
-    pub const COL_BROAD: mjtTimer = mjtTimer(13);
-    pub const COL_NARROW: mjtTimer = mjtTimer(14);
-    const mjNTIMER: mjtTimer = mjtTimer(15);
-}
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct mjtTimer(pub(crate) ::core::ffi::c_uint);
-impl mjtSleepState {
-    pub const STATIC: mjtSleepState = mjtSleepState(-1);
-    pub const ASLEEP: mjtSleepState = mjtSleepState(0);
-    pub const AWAKE: mjtSleepState = mjtSleepState(1);
-}
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct mjtSleepState(pub(crate) ::core::ffi::c_int);
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjContact {
@@ -1396,8 +1526,9 @@ pub struct mjData {
     pub(crate) pstack: usize,
     pub(crate) pbase: usize,
     pub(crate) parena: usize,
+    pub(crate) threadpool: usize,
+    pub(crate) threadlock: mjtBool,
     pub(crate) maxuse_stack: mjtSize,
-    pub(crate) maxuse_threadstack: [mjtSize; 128usize],
     pub(crate) maxuse_arena: mjtSize,
     pub(crate) maxuse_con: ::core::ffi::c_int,
     pub(crate) maxuse_efc: ::core::ffi::c_int,
@@ -1405,7 +1536,7 @@ pub struct mjData {
     pub(crate) solver_niter: [::core::ffi::c_int; 20usize],
     pub(crate) solver_nnz: [::core::ffi::c_int; 20usize],
     pub(crate) solver_fwdinv: [mjtNum; 2usize],
-    pub(crate) warning: [mjWarningStat; 8usize],
+    pub(crate) warning: [mjWarningStat; 7usize],
     pub(crate) timer: [mjTimerStat; 15usize],
     pub(crate) ncon: ::core::ffi::c_int,
     pub(crate) ne: ::core::ffi::c_int,
@@ -1413,6 +1544,7 @@ pub struct mjData {
     pub(crate) nl: ::core::ffi::c_int,
     pub(crate) nefc: ::core::ffi::c_int,
     pub(crate) nJ: ::core::ffi::c_int,
+    pub(crate) nY: ::core::ffi::c_int,
     pub(crate) nA: ::core::ffi::c_int,
     pub(crate) nisland: ::core::ffi::c_int,
     pub(crate) nidof: ::core::ffi::c_int,
@@ -1420,6 +1552,10 @@ pub struct mjData {
     pub(crate) nbody_awake: ::core::ffi::c_int,
     pub(crate) nparent_awake: ::core::ffi::c_int,
     pub(crate) nv_awake: ::core::ffi::c_int,
+    pub(crate) flg_energypos: mjtBool,
+    pub(crate) flg_energyvel: mjtBool,
+    pub(crate) flg_subtreevel: mjtBool,
+    pub(crate) flg_rnepost: mjtBool,
     pub(crate) time: mjtNum,
     pub(crate) energy: [mjtNum; 2usize],
     pub(crate) buffer: *mut ::core::ffi::c_void,
@@ -1427,12 +1563,13 @@ pub struct mjData {
     pub(crate) qpos: *mut mjtNum,
     pub(crate) qvel: *mut mjtNum,
     pub(crate) act: *mut mjtNum,
+    pub(crate) history: *mut mjtNum,
     pub(crate) qacc_warmstart: *mut mjtNum,
     pub(crate) plugin_state: *mut mjtNum,
     pub(crate) ctrl: *mut mjtNum,
     pub(crate) qfrc_applied: *mut mjtNum,
     pub(crate) xfrc_applied: *mut mjtNum,
-    pub(crate) eq_active: *mut mjtByte,
+    pub(crate) eq_active: *mut mjtBool,
     pub(crate) mocap_pos: *mut mjtNum,
     pub(crate) mocap_quat: *mut mjtNum,
     pub(crate) qacc: *mut mjtNum,
@@ -1462,17 +1599,13 @@ pub struct mjData {
     pub(crate) cinert: *mut mjtNum,
     pub(crate) flexvert_xpos: *mut mjtNum,
     pub(crate) flexelem_aabb: *mut mjtNum,
-    pub(crate) flexedge_J_rownnz: *mut ::core::ffi::c_int,
-    pub(crate) flexedge_J_rowadr: *mut ::core::ffi::c_int,
-    pub(crate) flexedge_J_colind: *mut ::core::ffi::c_int,
     pub(crate) flexedge_J: *mut mjtNum,
     pub(crate) flexedge_length: *mut mjtNum,
+    pub(crate) flexvert_J: *mut mjtNum,
+    pub(crate) flexvert_length: *mut mjtNum,
     pub(crate) bvh_aabb_dyn: *mut mjtNum,
     pub(crate) ten_wrapadr: *mut ::core::ffi::c_int,
     pub(crate) ten_wrapnum: *mut ::core::ffi::c_int,
-    pub(crate) ten_J_rownnz: *mut ::core::ffi::c_int,
-    pub(crate) ten_J_rowadr: *mut ::core::ffi::c_int,
-    pub(crate) ten_J_colind: *mut ::core::ffi::c_int,
     pub(crate) ten_J: *mut mjtNum,
     pub(crate) ten_length: *mut mjtNum,
     pub(crate) wrap_obj: *mut ::core::ffi::c_int,
@@ -1487,7 +1620,7 @@ pub struct mjData {
     pub(crate) M: *mut mjtNum,
     pub(crate) qLD: *mut mjtNum,
     pub(crate) qLDiagInv: *mut mjtNum,
-    pub(crate) bvh_active: *mut mjtByte,
+    pub(crate) bvh_active: *mut mjtBool,
     pub(crate) tree_awake: *mut ::core::ffi::c_int,
     pub(crate) body_awake: *mut ::core::ffi::c_int,
     pub(crate) body_awake_ind: *mut ::core::ffi::c_int,
@@ -1530,7 +1663,7 @@ pub struct mjData {
     pub(crate) efc_pos: *mut mjtNum,
     pub(crate) efc_margin: *mut mjtNum,
     pub(crate) efc_frictionloss: *mut mjtNum,
-    pub(crate) efc_diagApprox: *mut mjtNum,
+    pub(crate) efc_diagA: *mut mjtNum,
     pub(crate) efc_KBIP: *mut mjtNum,
     pub(crate) efc_D: *mut mjtNum,
     pub(crate) efc_R: *mut mjtNum,
@@ -1547,12 +1680,6 @@ pub struct mjData {
     pub(crate) map_idof2dof: *mut ::core::ffi::c_int,
     pub(crate) ifrc_smooth: *mut mjtNum,
     pub(crate) iacc_smooth: *mut mjtNum,
-    pub(crate) iM_rownnz: *mut ::core::ffi::c_int,
-    pub(crate) iM_rowadr: *mut ::core::ffi::c_int,
-    pub(crate) iM_colind: *mut ::core::ffi::c_int,
-    pub(crate) iM: *mut mjtNum,
-    pub(crate) iLD: *mut mjtNum,
-    pub(crate) iLDiagInv: *mut mjtNum,
     pub(crate) iacc: *mut mjtNum,
     pub(crate) efc_island: *mut ::core::ffi::c_int,
     pub(crate) island_ne: *mut ::core::ffi::c_int,
@@ -1563,14 +1690,13 @@ pub struct mjData {
     pub(crate) map_iefc2efc: *mut ::core::ffi::c_int,
     pub(crate) iefc_type: *mut ::core::ffi::c_int,
     pub(crate) iefc_id: *mut ::core::ffi::c_int,
-    pub(crate) iefc_J_rownnz: *mut ::core::ffi::c_int,
-    pub(crate) iefc_J_rowadr: *mut ::core::ffi::c_int,
-    pub(crate) iefc_J_rowsuper: *mut ::core::ffi::c_int,
-    pub(crate) iefc_J_colind: *mut ::core::ffi::c_int,
-    pub(crate) iefc_J: *mut mjtNum,
     pub(crate) iefc_frictionloss: *mut mjtNum,
     pub(crate) iefc_D: *mut mjtNum,
     pub(crate) iefc_R: *mut mjtNum,
+    pub(crate) efc_Y_rownnz: *mut ::core::ffi::c_int,
+    pub(crate) efc_Y_rowadr: *mut ::core::ffi::c_int,
+    pub(crate) efc_Y_colind: *mut ::core::ffi::c_int,
+    pub(crate) efc_Y: *mut mjtNum,
     pub(crate) efc_AR_rownnz: *mut ::core::ffi::c_int,
     pub(crate) efc_AR_rowadr: *mut ::core::ffi::c_int,
     pub(crate) efc_AR_colind: *mut ::core::ffi::c_int,
@@ -1584,7 +1710,6 @@ pub struct mjData {
     pub(crate) efc_state: *mut ::core::ffi::c_int,
     pub(crate) efc_force: *mut mjtNum,
     pub(crate) ifrc_constraint: *mut mjtNum,
-    pub(crate) threadpool: usize,
     pub(crate) signature: u64,
 }
 pub type mjfGeneric =
@@ -1607,8 +1732,8 @@ pub type mjfAct = ::core::option::Option<
 pub type mjfCollision = ::core::option::Option<
     unsafe extern "C" fn(
         m: *const mjModel,
-        d: *const mjData,
-        con: *mut mjContact,
+        d: *mut mjData,
+        con: *mut mjPreContact,
         g1: ::core::ffi::c_int,
         g2: ::core::ffi::c_int,
         margin: mjtNum,
@@ -1703,6 +1828,30 @@ impl mjtOrientation {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtOrientation(pub(crate) ::core::ffi::c_uint);
+impl mjtConflict {
+    pub const WARNING: mjtConflict = mjtConflict(0);
+    pub const MERGE: mjtConflict = mjtConflict(1);
+    pub const ERROR: mjtConflict = mjtConflict(2);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtConflict(pub(crate) ::core::ffi::c_uint);
+pub const mjNCTIMER: usize = mjtCTimer::mjNCTIMER.0 as usize;
+impl mjtCTimer {
+    pub const TOTAL: mjtCTimer = mjtCTimer(0);
+    pub const ASSETS: mjtCTimer = mjtCTimer(1);
+    pub const TEXTURE: mjtCTimer = mjtCTimer(2);
+    pub const MESH_LOAD: mjtCTimer = mjtCTimer(3);
+    pub const MESH_HULL: mjtCTimer = mjtCTimer(4);
+    pub const MESH_POLYGON: mjtCTimer = mjtCTimer(5);
+    pub const MESH_INERTIA: mjtCTimer = mjtCTimer(6);
+    pub const MESH_BVH: mjtCTimer = mjtCTimer(7);
+    pub const MESH_OCTREE: mjtCTimer = mjtCTimer(8);
+    const mjNCTIMER: mjtCTimer = mjtCTimer(9);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtCTimer(pub(crate) ::core::ffi::c_uint);
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjsElement {
@@ -1727,9 +1876,25 @@ pub struct mjsCompiler {
     pub(crate) inertiagrouprange: [::core::ffi::c_int; 2usize],
     pub(crate) saveinertial: mjtByte,
     pub(crate) alignfree: ::core::ffi::c_int,
+    pub(crate) conflict: ::core::ffi::c_int,
     pub(crate) LRopt: mjLROpt,
     pub(crate) meshdir: *mut mjString,
     pub(crate) texturedir: *mut mjString,
+    pub(crate) authored: u64,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct mjsAuthored {
+    pub(crate) option: u64,
+    pub(crate) disableflags: ::core::ffi::c_int,
+    pub(crate) enableflags: ::core::ffi::c_int,
+    pub(crate) disableactuator: ::core::ffi::c_int,
+    pub(crate) visual_global: u64,
+    pub(crate) visual_quality: u64,
+    pub(crate) visual_headlight: u64,
+    pub(crate) visual_map: u64,
+    pub(crate) visual_scale: u64,
+    pub(crate) visual_rgba: u64,
 }
 #[repr(C)]
 #[derive(Debug)]
@@ -1759,6 +1924,7 @@ pub struct mjSpec {
     pub(crate) comment: *mut mjString,
     pub(crate) modelfiledir: *mut mjString,
     pub(crate) hasImplicitPluginElem: mjtByte,
+    pub(crate) authored: mjsAuthored,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1819,7 +1985,7 @@ pub struct mjsJoint {
     pub(crate) axis: [f64; 3usize],
     pub(crate) ref_: f64,
     pub(crate) align: ::core::ffi::c_int,
-    pub(crate) stiffness: f64,
+    pub(crate) stiffness: [f64; 3usize],
     pub(crate) springref: f64,
     pub(crate) springdamper: [f64; 2usize],
     pub(crate) limited: ::core::ffi::c_int,
@@ -1830,7 +1996,7 @@ pub struct mjsJoint {
     pub(crate) actfrclimited: ::core::ffi::c_int,
     pub(crate) actfrcrange: [f64; 2usize],
     pub(crate) armature: f64,
-    pub(crate) damping: f64,
+    pub(crate) damping: [f64; 3usize],
     pub(crate) frictionloss: f64,
     pub(crate) solref_friction: [mjtNum; 2usize],
     pub(crate) solimp_friction: [mjtNum; 5usize],
@@ -1899,12 +2065,13 @@ pub struct mjsCamera {
     pub(crate) alt: mjsOrientation,
     pub(crate) mode: mjtCamLight,
     pub(crate) targetbody: *mut mjString,
-    pub(crate) orthographic: ::core::ffi::c_int,
+    pub(crate) proj: mjtProjection,
+    pub(crate) resolution: [::core::ffi::c_int; 2usize],
+    pub(crate) output: ::core::ffi::c_int,
     pub(crate) fovy: f64,
     pub(crate) ipd: f64,
     pub(crate) intrinsic: [f32; 4usize],
     pub(crate) sensor_size: [f32; 2usize],
-    pub(crate) resolution: [f32; 2usize],
     pub(crate) focal_length: [f32; 2usize],
     pub(crate) focal_pixel: [f32; 2usize],
     pub(crate) principal_length: [f32; 2usize],
@@ -1951,10 +2118,10 @@ pub struct mjsFlex {
     pub(crate) gap: f64,
     pub(crate) dim: ::core::ffi::c_int,
     pub(crate) radius: f64,
+    pub(crate) size: [f64; 3usize],
     pub(crate) internal: mjtByte,
     pub(crate) flatskin: mjtByte,
     pub(crate) selfcollide: ::core::ffi::c_int,
-    pub(crate) vertcollide: ::core::ffi::c_int,
     pub(crate) passive: ::core::ffi::c_int,
     pub(crate) activelayers: ::core::ffi::c_int,
     pub(crate) group: ::core::ffi::c_int,
@@ -1967,6 +2134,8 @@ pub struct mjsFlex {
     pub(crate) damping: f64,
     pub(crate) thickness: f64,
     pub(crate) elastic2d: ::core::ffi::c_int,
+    pub(crate) cellcount: [::core::ffi::c_int; 3usize],
+    pub(crate) order: ::core::ffi::c_int,
     pub(crate) nodebody: *mut mjStringVec,
     pub(crate) vertbody: *mut mjStringVec,
     pub(crate) node: *mut mjDoubleVec,
@@ -1997,6 +2166,7 @@ pub struct mjsMesh {
     pub(crate) userfacetexcoord: *mut mjIntVec,
     pub(crate) plugin: mjsPlugin,
     pub(crate) material: *mut mjString,
+    pub(crate) octree_maxdepth: ::core::ffi::c_int,
     pub(crate) info: *mut mjString,
 }
 #[repr(C)]
@@ -2112,9 +2282,9 @@ pub struct mjsEquality {
 #[derive(Debug, Copy, Clone)]
 pub struct mjsTendon {
     pub(crate) element: *mut mjsElement,
-    pub(crate) stiffness: f64,
+    pub(crate) stiffness: [f64; 3usize],
     pub(crate) springlength: [f64; 2usize],
-    pub(crate) damping: f64,
+    pub(crate) damping: [f64; 3usize],
     pub(crate) frictionloss: f64,
     pub(crate) solref_friction: [mjtNum; 2usize],
     pub(crate) solimp_friction: [mjtNum; 5usize],
@@ -2160,6 +2330,8 @@ pub struct mjsActuator {
     pub(crate) cranklength: f64,
     pub(crate) lengthrange: [f64; 2usize],
     pub(crate) inheritrange: f64,
+    pub(crate) damping: [f64; 3usize],
+    pub(crate) armature: f64,
     pub(crate) ctrllimited: ::core::ffi::c_int,
     pub(crate) ctrlrange: [f64; 2usize],
     pub(crate) forcelimited: ::core::ffi::c_int,
@@ -2167,6 +2339,9 @@ pub struct mjsActuator {
     pub(crate) actlimited: ::core::ffi::c_int,
     pub(crate) actrange: [f64; 2usize],
     pub(crate) group: ::core::ffi::c_int,
+    pub(crate) nsample: ::core::ffi::c_int,
+    pub(crate) interp: ::core::ffi::c_int,
+    pub(crate) delay: f64,
     pub(crate) userdata: *mut mjDoubleVec,
     pub(crate) plugin: mjsPlugin,
     pub(crate) info: *mut mjString,
@@ -2186,6 +2361,10 @@ pub struct mjsSensor {
     pub(crate) dim: ::core::ffi::c_int,
     pub(crate) cutoff: f64,
     pub(crate) noise: f64,
+    pub(crate) nsample: ::core::ffi::c_int,
+    pub(crate) interp: ::core::ffi::c_int,
+    pub(crate) delay: f64,
+    pub(crate) interval: [f64; 2usize],
     pub(crate) userdata: *mut mjDoubleVec,
     pub(crate) plugin: mjsPlugin,
     pub(crate) info: *mut mjString,
@@ -2420,10 +2599,11 @@ impl mjtRndFlag {
     pub const SKYBOX: mjtRndFlag = mjtRndFlag(4);
     pub const FOG: mjtRndFlag = mjtRndFlag(5);
     pub const HAZE: mjtRndFlag = mjtRndFlag(6);
-    pub const SEGMENT: mjtRndFlag = mjtRndFlag(7);
-    pub const IDCOLOR: mjtRndFlag = mjtRndFlag(8);
-    pub const CULL_FACE: mjtRndFlag = mjtRndFlag(9);
-    const mjNRNDFLAG: mjtRndFlag = mjtRndFlag(10);
+    pub const DEPTH: mjtRndFlag = mjtRndFlag(7);
+    pub const SEGMENT: mjtRndFlag = mjtRndFlag(8);
+    pub const IDCOLOR: mjtRndFlag = mjtRndFlag(9);
+    pub const CULL_FACE: mjtRndFlag = mjtRndFlag(10);
+    const mjNRNDFLAG: mjtRndFlag = mjtRndFlag(11);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -2575,7 +2755,7 @@ pub struct mjvScene {
     pub(crate) rotate: [f32; 4usize],
     pub(crate) scale: f32,
     pub(crate) stereo: ::core::ffi::c_int,
-    pub(crate) flags: [mjtByte; 10usize],
+    pub(crate) flags: [mjtByte; 11usize],
     pub(crate) framewidth: ::core::ffi::c_int,
     pub(crate) framergb: [f32; 3usize],
     pub(crate) status: ::core::ffi::c_int,
@@ -2622,6 +2802,7 @@ pub struct mjvFigure {
 pub struct mjResource {
     pub(crate) name: *mut ::core::ffi::c_char,
     pub(crate) data: *mut ::core::ffi::c_void,
+    pub(crate) vfs: *mut mjVFS,
     pub(crate) timestamp: [::core::ffi::c_char; 512usize],
     pub(crate) provider: *const mjpResourceProvider,
 }
@@ -2634,13 +2815,10 @@ pub type mjfReadResource = ::core::option::Option<
     ) -> ::core::ffi::c_int,
 >;
 pub type mjfCloseResource = ::core::option::Option<unsafe extern "C" fn(resource: *mut mjResource)>;
-pub type mjfGetResourceDir = ::core::option::Option<
-    unsafe extern "C" fn(
-        resource: *mut mjResource,
-        dir: *mut *const ::core::ffi::c_char,
-        ndir: *mut ::core::ffi::c_int,
-    ),
->;
+pub type mjfMountResource =
+    ::core::option::Option<unsafe extern "C" fn(resource: *mut mjResource) -> ::core::ffi::c_int>;
+pub type mjfUnmountResource =
+    ::core::option::Option<unsafe extern "C" fn(resource: *mut mjResource) -> ::core::ffi::c_int>;
 pub type mjfResourceModified = ::core::option::Option<
     unsafe extern "C" fn(
         resource: *const mjResource,
@@ -2654,12 +2832,14 @@ pub struct mjpResourceProvider {
     pub(crate) open: mjfOpenResource,
     pub(crate) read: mjfReadResource,
     pub(crate) close: mjfCloseResource,
-    pub(crate) getdir: mjfGetResourceDir,
+    pub(crate) mount: mjfMountResource,
+    pub(crate) unmount: mjfUnmountResource,
     pub(crate) modified: mjfResourceModified,
     pub(crate) data: *mut ::core::ffi::c_void,
 }
-pub type mjfDecode =
-    ::core::option::Option<unsafe extern "C" fn(resource: *const mjResource) -> *mut mjSpec>;
+pub type mjfDecode = ::core::option::Option<
+    unsafe extern "C" fn(resource: *mut mjResource, vfs: *const mjVFS) -> *mut mjSpec,
+>;
 pub type mjfCanDecode =
     ::core::option::Option<unsafe extern "C" fn(resource: *const mjResource) -> ::core::ffi::c_int>;
 #[repr(C)]
@@ -2669,6 +2849,22 @@ pub struct mjpDecoder {
     pub(crate) extension: *const ::core::ffi::c_char,
     pub(crate) can_decode: mjfCanDecode,
     pub(crate) decode: mjfDecode,
+}
+pub type mjfEncode = ::core::option::Option<
+    unsafe extern "C" fn(
+        s: *const mjSpec,
+        m: *const mjModel,
+        vfs: *const mjVFS,
+        resource: *mut mjResource,
+    ) -> ::core::ffi::c_int,
+>;
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct mjpEncoder {
+    pub(crate) content_type: *const ::core::ffi::c_char,
+    pub(crate) extension: *const ::core::ffi::c_char,
+    pub(crate) encode: mjfEncode,
+    pub(crate) close_resource: mjfCloseResource,
 }
 impl mjtPluginCapabilityBit {
     pub const ACTUATOR: mjtPluginCapabilityBit = mjtPluginCapabilityBit(1);
@@ -2863,6 +3059,31 @@ impl mjtFont {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtFont(pub(crate) ::core::ffi::c_uint);
+pub const mjPIXEL_FORMAT_UNKNOWN: mjrPixelFormat = 0;
+pub const mjPIXEL_FORMAT_R8: mjrPixelFormat = 1;
+pub const mjPIXEL_FORMAT_RGB8: mjrPixelFormat = 2;
+pub const mjPIXEL_FORMAT_RGBA8: mjrPixelFormat = 3;
+pub const mjPIXEL_FORMAT_R32F: mjrPixelFormat = 4;
+pub const mjPIXEL_FORMAT_DEPTH32F: mjrPixelFormat = 5;
+pub const mjPIXEL_FORMAT_KTX: mjrPixelFormat = 6;
+pub type mjrPixelFormat = ::core::ffi::c_uint;
+pub const mjVERTEX_ATTRIBUTE_USAGE_POSITION: mjrVertexAttributeUsage = 0;
+pub const mjVERTEX_ATTRIBUTE_USAGE_NORMAL: mjrVertexAttributeUsage = 1;
+pub const mjVERTEX_ATTRIBUTE_USAGE_TANGENTS: mjrVertexAttributeUsage = 2;
+pub const mjVERTEX_ATTRIBUTE_USAGE_UV: mjrVertexAttributeUsage = 3;
+pub const mjVERTEX_ATTRIBUTE_USAGE_COLOR: mjrVertexAttributeUsage = 4;
+pub type mjrVertexAttributeUsage = ::core::ffi::c_uint;
+pub const mjVERTEX_ATTRIBUTE_TYPE_FLOAT2: mjrVertexAttributeType = 0;
+pub const mjVERTEX_ATTRIBUTE_TYPE_FLOAT3: mjrVertexAttributeType = 1;
+pub const mjVERTEX_ATTRIBUTE_TYPE_FLOAT4: mjrVertexAttributeType = 2;
+pub const mjVERTEX_ATTRIBUTE_TYPE_UBYTE4: mjrVertexAttributeType = 3;
+pub type mjrVertexAttributeType = ::core::ffi::c_uint;
+pub const mjINDEX_TYPE_U16: mjrIndexType = 0;
+pub const mjINDEX_TYPE_U32: mjrIndexType = 1;
+pub type mjrIndexType = ::core::ffi::c_uint;
+pub const mjMESH_PRIMITIVE_TYPE_TRIANGLES: mjrMeshPrimitiveType = 0;
+pub const mjMESH_PRIMITIVE_TYPE_LINES: mjrMeshPrimitiveType = 1;
+pub type mjrMeshPrimitiveType = ::core::ffi::c_uint;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjrRect {
@@ -2871,6 +3092,17 @@ pub struct mjrRect {
     pub(crate) width: ::core::ffi::c_int,
     pub(crate) height: ::core::ffi::c_int,
 }
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct mjrVertexAttribute {
+    pub(crate) bytes: *const ::core::ffi::c_void,
+    pub(crate) usage: ::core::ffi::c_int,
+    pub(crate) type_: ::core::ffi::c_int,
+}
+pub use self::mjtColorSpace as mjrColorSpace;
+pub use self::mjtLightType as mjrLightType;
+pub use self::mjtTexture as mjrSamplerType;
+pub type mjrCamera = mjvGLCamera;
 #[repr(C)]
 #[derive(Debug)]
 pub struct mjrContext {
@@ -3174,14 +3406,14 @@ pub struct mjuiDef {
     pub(crate) otherint: ::core::ffi::c_int,
 }
 unsafe extern "C" {
-    pub static mut mju_user_error:
-        ::core::option::Option<unsafe extern "C" fn(arg1: *const ::core::ffi::c_char)>;
-    pub static mut mju_user_warning:
-        ::core::option::Option<unsafe extern "C" fn(arg1: *const ::core::ffi::c_char)>;
     pub static mut mju_user_malloc:
         ::core::option::Option<unsafe extern "C" fn(arg1: usize) -> *mut ::core::ffi::c_void>;
     pub static mut mju_user_free:
         ::core::option::Option<unsafe extern "C" fn(arg1: *mut ::core::ffi::c_void)>;
+    pub static mut mju_user_error:
+        ::core::option::Option<unsafe extern "C" fn(arg1: *const ::core::ffi::c_char)>;
+    pub static mut mju_user_warning:
+        ::core::option::Option<unsafe extern "C" fn(arg1: *const ::core::ffi::c_char)>;
     pub static mut mjcb_passive: mjfGeneric;
     pub static mut mjcb_control: mjfGeneric;
     pub static mut mjcb_contactfilter: mjfConFilt;
@@ -3191,14 +3423,24 @@ unsafe extern "C" {
     pub static mut mjcb_act_gain: mjfAct;
     pub static mut mjcb_act_bias: mjfAct;
     pub static mut mjCOLLISIONFUNC: [[mjfCollision; 9usize]; 9usize];
-    pub static mut mjDISABLESTRING: [*const ::core::ffi::c_char; 19usize];
+    pub static mut mjDISABLESTRING: [*const ::core::ffi::c_char; 20usize];
     pub static mut mjENABLESTRING: [*const ::core::ffi::c_char; 6usize];
     pub static mut mjTIMERSTRING: [*const ::core::ffi::c_char; 15usize];
     pub static mut mjLABELSTRING: [*const ::core::ffi::c_char; 17usize];
     pub static mut mjFRAMESTRING: [*const ::core::ffi::c_char; 8usize];
     pub static mut mjVISSTRING: [[*const ::core::ffi::c_char; 3usize]; 31usize];
-    pub static mut mjRNDSTRING: [[*const ::core::ffi::c_char; 3usize]; 10usize];
+    pub static mut mjRNDSTRING: [[*const ::core::ffi::c_char; 3usize]; 11usize];
+    pub static mut mjTOPICSTRING: [*const ::core::ffi::c_char; 3usize];
     pub fn mj_defaultVFS(vfs: *mut mjVFS);
+    pub fn mj_mountVFS(
+        vfs: *mut mjVFS,
+        filepath: *const ::core::ffi::c_char,
+        provider: *const mjpResourceProvider,
+    ) -> ::core::ffi::c_int;
+    pub fn mj_unmountVFS(
+        vfs: *mut mjVFS,
+        filename: *const ::core::ffi::c_char,
+    ) -> ::core::ffi::c_int;
     pub fn mj_addFileVFS(
         vfs: *mut mjVFS,
         directory: *const ::core::ffi::c_char,
@@ -3212,6 +3454,15 @@ unsafe extern "C" {
     ) -> ::core::ffi::c_int;
     pub fn mj_deleteFileVFS(
         vfs: *mut mjVFS,
+        filename: *const ::core::ffi::c_char,
+    ) -> ::core::ffi::c_int;
+    pub fn mj_containsBufferVFS(
+        vfs: *mut mjVFS,
+        name: *const ::core::ffi::c_char,
+    ) -> ::core::ffi::c_int;
+    pub fn mj_containsFileVFS(
+        vfs: *mut mjVFS,
+        directory: *const ::core::ffi::c_char,
         filename: *const ::core::ffi::c_char,
     ) -> ::core::ffi::c_int;
     pub fn mj_deleteVFS(vfs: *mut mjVFS);
@@ -3245,6 +3496,15 @@ unsafe extern "C" {
         error: *mut ::core::ffi::c_char,
         error_sz: ::core::ffi::c_int,
     ) -> *mut mjSpec;
+    pub fn mj_encode(
+        s: *const mjSpec,
+        m: *const mjModel,
+        filename: *const ::core::ffi::c_char,
+        content_type: *const ::core::ffi::c_char,
+        vfs: *const mjVFS,
+        error: *mut ::core::ffi::c_char,
+        error_sz: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_int;
     pub fn mj_compile(s: *mut mjSpec, vfs: *const mjVFS) -> *mut mjModel;
     pub fn mj_copyBack(s: *mut mjSpec, m: *const mjModel) -> ::core::ffi::c_int;
     pub fn mj_recompile(
@@ -3306,6 +3566,10 @@ unsafe extern "C" {
         buffer_sz: ::core::ffi::c_int,
     );
     pub fn mj_loadModel(filename: *const ::core::ffi::c_char, vfs: *const mjVFS) -> *mut mjModel;
+    pub fn mj_loadModelBuffer(
+        buffer: *const ::core::ffi::c_void,
+        buffer_sz: ::core::ffi::c_int,
+    ) -> *mut mjModel;
     pub fn mj_deleteModel(m: *mut mjModel);
     pub fn mj_sizeModel(m: *const mjModel) -> mjtSize;
     pub fn mj_makeData(m: *const mjModel) -> *mut mjData;
@@ -3431,6 +3695,12 @@ unsafe extern "C" {
         result: *mut mjtNum,
     );
     pub fn mj_rnePostConstraint(m: *const mjModel, d: *mut mjData);
+    pub fn mj_maxContact(
+        m: *const mjModel,
+        g1: ::core::ffi::c_int,
+        g2: ::core::ffi::c_int,
+        has_margin: ::core::ffi::c_int,
+    ) -> ::core::ffi::c_int;
     pub fn mj_collision(m: *const mjModel, d: *mut mjData);
     pub fn mj_makeConstraint(m: *const mjModel, d: *mut mjData);
     pub fn mj_island(m: *const mjModel, d: *mut mjData);
@@ -3443,31 +3713,61 @@ unsafe extern "C" {
         cost: *mut [mjtNum; 1usize],
         flg_coneHessian: ::core::ffi::c_int,
     );
-    pub fn mj_stateSize(m: *const mjModel, sig: ::core::ffi::c_uint) -> ::core::ffi::c_int;
+    pub fn mj_stateSize(m: *const mjModel, sig: ::core::ffi::c_int) -> ::core::ffi::c_int;
     pub fn mj_getState(
         m: *const mjModel,
         d: *const mjData,
         state: *mut mjtNum,
-        sig: ::core::ffi::c_uint,
+        sig: ::core::ffi::c_int,
     );
     pub fn mj_extractState(
         m: *const mjModel,
         src: *const mjtNum,
-        srcsig: ::core::ffi::c_uint,
+        srcsig: ::core::ffi::c_int,
         dst: *mut mjtNum,
-        dstsig: ::core::ffi::c_uint,
+        dstsig: ::core::ffi::c_int,
     );
     pub fn mj_setState(
         m: *const mjModel,
         d: *mut mjData,
         state: *const mjtNum,
-        sig: ::core::ffi::c_uint,
+        sig: ::core::ffi::c_int,
     );
     pub fn mj_copyState(
         m: *const mjModel,
         src: *const mjData,
         dst: *mut mjData,
-        sig: ::core::ffi::c_uint,
+        sig: ::core::ffi::c_int,
+    );
+    pub fn mj_readCtrl(
+        m: *const mjModel,
+        d: *const mjData,
+        id: ::core::ffi::c_int,
+        time: mjtNum,
+        interp: ::core::ffi::c_int,
+    ) -> mjtNum;
+    pub fn mj_readSensor(
+        m: *const mjModel,
+        d: *const mjData,
+        id: ::core::ffi::c_int,
+        time: mjtNum,
+        result: *mut mjtNum,
+        interp: ::core::ffi::c_int,
+    ) -> *const mjtNum;
+    pub fn mj_initCtrlHistory(
+        m: *const mjModel,
+        d: *mut mjData,
+        id: ::core::ffi::c_int,
+        times: *const mjtNum,
+        values: *const mjtNum,
+    );
+    pub fn mj_initSensorHistory(
+        m: *const mjModel,
+        d: *mut mjData,
+        id: ::core::ffi::c_int,
+        times: *const mjtNum,
+        values: *const mjtNum,
+        phase: mjtNum,
     );
     pub fn mj_setKeyframe(m: *mut mjModel, d: *const mjData, k: ::core::ffi::c_int);
     pub fn mj_addContact(
@@ -3555,7 +3855,7 @@ unsafe extern "C" {
         type_: ::core::ffi::c_int,
         id: ::core::ffi::c_int,
     ) -> *const ::core::ffi::c_char;
-    pub fn mj_fullM(m: *const mjModel, dst: *mut mjtNum, M: *const mjtNum);
+    pub fn mj_fullM(m: *const mjModel, d: *const mjData, dst: *mut mjtNum);
     pub fn mj_mulM(m: *const mjModel, d: *const mjData, res: *mut mjtNum, vec: *const mjtNum);
     pub fn mj_mulM2(m: *const mjModel, d: *const mjData, res: *mut mjtNum, vec: *const mjtNum);
     pub fn mj_addM(
@@ -3593,7 +3893,7 @@ unsafe extern "C" {
     );
     pub fn mj_geomDistance(
         m: *const mjModel,
-        d: *const mjData,
+        d: *mut mjData,
         geom1: ::core::ffi::c_int,
         geom2: ::core::ffi::c_int,
         distmax: mjtNum,
@@ -3637,35 +3937,38 @@ unsafe extern "C" {
     );
     pub fn mj_version() -> ::core::ffi::c_int;
     pub fn mj_versionString() -> *const ::core::ffi::c_char;
-    pub fn mj_multiRay(
-        m: *const mjModel,
-        d: *mut mjData,
-        pnt: *const [mjtNum; 3usize],
-        vec: *const [mjtNum; 3usize],
-        geomgroup: *const mjtByte,
-        flg_static: mjtByte,
-        bodyexclude: ::core::ffi::c_int,
-        geomid: *mut ::core::ffi::c_int,
-        dist: *mut mjtNum,
-        nray: ::core::ffi::c_int,
-        cutoff: mjtNum,
-    );
     pub fn mj_ray(
         m: *const mjModel,
         d: *const mjData,
         pnt: *const [mjtNum; 3usize],
         vec: *const [mjtNum; 3usize],
         geomgroup: *const mjtByte,
-        flg_static: mjtByte,
+        flg_static: mjtBool,
         bodyexclude: ::core::ffi::c_int,
         geomid: *mut [::core::ffi::c_int; 1usize],
+        normal: *mut [mjtNum; 3usize],
     ) -> mjtNum;
+    pub fn mj_multiRay(
+        m: *const mjModel,
+        d: *mut mjData,
+        pnt: *const [mjtNum; 3usize],
+        vec: *const mjtNum,
+        geomgroup: *const mjtByte,
+        flg_static: mjtBool,
+        bodyexclude: ::core::ffi::c_int,
+        geomid: *mut ::core::ffi::c_int,
+        dist: *mut mjtNum,
+        normal: *mut mjtNum,
+        nray: ::core::ffi::c_int,
+        cutoff: mjtNum,
+    );
     pub fn mj_rayHfield(
         m: *const mjModel,
         d: *const mjData,
         geomid: ::core::ffi::c_int,
         pnt: *const [mjtNum; 3usize],
         vec: *const [mjtNum; 3usize],
+        normal: *mut [mjtNum; 3usize],
     ) -> mjtNum;
     pub fn mj_rayMesh(
         m: *const mjModel,
@@ -3673,6 +3976,7 @@ unsafe extern "C" {
         geomid: ::core::ffi::c_int,
         pnt: *const [mjtNum; 3usize],
         vec: *const [mjtNum; 3usize],
+        normal: *mut [mjtNum; 3usize],
     ) -> mjtNum;
     pub fn mju_rayGeom(
         pos: *const [mjtNum; 3usize],
@@ -3681,19 +3985,21 @@ unsafe extern "C" {
         pnt: *const [mjtNum; 3usize],
         vec: *const [mjtNum; 3usize],
         geomtype: ::core::ffi::c_int,
+        normal: *mut [mjtNum; 3usize],
     ) -> mjtNum;
-    pub fn mju_rayFlex(
+    pub fn mj_rayFlex(
         m: *const mjModel,
         d: *const mjData,
         flex_layer: ::core::ffi::c_int,
-        flg_vert: mjtByte,
-        flg_edge: mjtByte,
-        flg_face: mjtByte,
-        flg_skin: mjtByte,
+        flg_vert: mjtBool,
+        flg_edge: mjtBool,
+        flg_face: mjtBool,
+        flg_skin: mjtBool,
         flexid: ::core::ffi::c_int,
         pnt: *const [mjtNum; 3usize],
         vec: *const [mjtNum; 3usize],
         vertid: *mut [::core::ffi::c_int; 1usize],
+        normal: *mut [mjtNum; 3usize],
     ) -> mjtNum;
     pub fn mju_raySkin(
         nface: ::core::ffi::c_int,
@@ -3966,18 +4272,25 @@ unsafe extern "C" {
     ) -> *mut mjuiItem;
     pub fn mjui_render(ui: *mut mjUI, state: *const mjuiState, con: *const mjrContext);
     pub fn mju_error(msg: *const ::core::ffi::c_char, ...);
-    pub fn mju_error_i(msg: *const ::core::ffi::c_char, i: ::core::ffi::c_int);
-    pub fn mju_error_s(msg: *const ::core::ffi::c_char, text: *const ::core::ffi::c_char);
     pub fn mju_warning(msg: *const ::core::ffi::c_char, ...);
-    pub fn mju_warning_i(msg: *const ::core::ffi::c_char, i: ::core::ffi::c_int);
-    pub fn mju_warning_s(msg: *const ::core::ffi::c_char, text: *const ::core::ffi::c_char);
     pub fn mju_clearHandlers();
+    pub fn mju_setLogHandler(handler: mjfLogHandler) -> mjfLogHandler;
+    pub fn mju_getLogConfig() -> mjLogConfig;
+    pub fn mju_setLogConfig(config: mjLogConfig);
+    pub fn mju_info(topic: ::core::ffi::c_int, msg: *const ::core::ffi::c_char, ...);
+    pub fn mju_message(msg: *const mjLogMessage);
     pub fn mju_malloc(size: usize) -> *mut ::core::ffi::c_void;
     pub fn mju_free(ptr: *mut ::core::ffi::c_void);
     pub fn mj_warning(d: *mut mjData, warning: ::core::ffi::c_int, info: ::core::ffi::c_int);
     pub fn mju_writeLog(type_: *const ::core::ffi::c_char, msg: *const ::core::ffi::c_char);
     pub fn mjs_getError(s: *mut mjSpec) -> *const ::core::ffi::c_char;
+    pub fn mjs_getTimer(s: *mut mjSpec) -> *const f64;
     pub fn mjs_isWarning(s: *mut mjSpec) -> ::core::ffi::c_int;
+    pub fn mjs_numWarnings(spec: *const mjSpec) -> ::core::ffi::c_int;
+    pub fn mjs_getWarning(
+        spec: *const mjSpec,
+        index: ::core::ffi::c_int,
+    ) -> *const ::core::ffi::c_char;
     pub fn mju_zero3(res: *mut [mjtNum; 3usize]);
     pub fn mju_copy3(res: *mut [mjtNum; 3usize], data: *const [mjtNum; 3usize]);
     pub fn mju_scl3(res: *mut [mjtNum; 3usize], vec: *const [mjtNum; 3usize], scl: mjtNum);
@@ -4140,6 +4453,14 @@ unsafe extern "C" {
         rowadr: *const ::core::ffi::c_int,
         colind: *const ::core::ffi::c_int,
     );
+    pub fn mju_sym2dense(
+        res: *mut mjtNum,
+        mat: *const mjtNum,
+        n: ::core::ffi::c_int,
+        rownnz: *const ::core::ffi::c_int,
+        rowadr: *const ::core::ffi::c_int,
+        colind: *const ::core::ffi::c_int,
+    );
     pub fn mju_rotVecQuat(
         res: *mut [mjtNum; 3usize],
         vec: *const [mjtNum; 3usize],
@@ -4248,7 +4569,7 @@ unsafe extern "C" {
         ntotal: ::core::ffi::c_int,
         nband: ::core::ffi::c_int,
         ndense: ::core::ffi::c_int,
-        flg_sym: mjtByte,
+        flg_sym: mjtBool,
     );
     pub fn mju_dense2Band(
         res: *mut mjtNum,
@@ -4265,7 +4586,7 @@ unsafe extern "C" {
         nband: ::core::ffi::c_int,
         ndense: ::core::ffi::c_int,
         nvec: ::core::ffi::c_int,
-        flg_sym: mjtByte,
+        flg_sym: mjtBool,
     );
     pub fn mju_bandDiag(
         i: ::core::ffi::c_int,
@@ -4375,7 +4696,7 @@ unsafe extern "C" {
         m: *const mjModel,
         d: *mut mjData,
         eps: mjtNum,
-        flg_centered: mjtByte,
+        flg_centered: mjtBool,
         A: *mut mjtNum,
         B: *mut mjtNum,
         C: *mut mjtNum,
@@ -4385,7 +4706,7 @@ unsafe extern "C" {
         m: *const mjModel,
         d: *mut mjData,
         eps: mjtNum,
-        flg_actuation: mjtByte,
+        flg_actuation: mjtBool,
         DfDq: *mut mjtNum,
         DfDv: *mut mjtNum,
         DfDa: *mut mjtNum,
@@ -4429,12 +4750,39 @@ unsafe extern "C" {
         resource: *const mjResource,
         content_type: *const ::core::ffi::c_char,
     ) -> *const mjpDecoder;
-    pub fn mju_threadPoolCreate(number_of_threads: usize) -> *mut mjThreadPool;
-    pub fn mju_bindThreadPool(d: *mut mjData, thread_pool: *mut ::core::ffi::c_void);
-    pub fn mju_threadPoolEnqueue(thread_pool: *mut mjThreadPool, task: *mut mjTask);
-    pub fn mju_threadPoolDestroy(thread_pool: *mut mjThreadPool);
-    pub fn mju_defaultTask(task: *mut mjTask);
-    pub fn mju_taskJoin(task: *mut mjTask);
+    pub fn mjp_registerEncoder(encoder: *const mjpEncoder);
+    pub fn mjp_defaultEncoder(encoder: *mut mjpEncoder);
+    pub fn mjp_findEncoder(
+        filename: *const ::core::ffi::c_char,
+        content_type: *const ::core::ffi::c_char,
+    ) -> *const mjpEncoder;
+    pub fn mju_openResource(
+        dir: *const ::core::ffi::c_char,
+        name: *const ::core::ffi::c_char,
+        vfs: *const mjVFS,
+        error: *mut ::core::ffi::c_char,
+        nerror: usize,
+    ) -> *mut mjResource;
+    pub fn mju_closeResource(resource: *mut mjResource);
+    pub fn mju_readResource(
+        resource: *mut mjResource,
+        buffer: *mut *const ::core::ffi::c_void,
+    ) -> ::core::ffi::c_int;
+    pub fn mju_getResourceDir(
+        resource: *mut mjResource,
+        dir: *mut *const ::core::ffi::c_char,
+        ndir: *mut ::core::ffi::c_int,
+    );
+    pub fn mju_isModifiedResource(
+        resource: *const mjResource,
+        timestamp: *const ::core::ffi::c_char,
+    ) -> ::core::ffi::c_int;
+    pub fn mju_decodeResource(
+        resource: *mut mjResource,
+        content_type: *const ::core::ffi::c_char,
+        vfs: *const mjVFS,
+    ) -> *mut mjSpec;
+    pub fn mju_threadpool(d: *mut mjData, nthread: ::core::ffi::c_int);
     pub fn mjs_attach(
         parent: *mut mjsElement,
         child: *const mjsElement,
@@ -4453,6 +4801,29 @@ unsafe extern "C" {
     pub fn mjs_addActuator(s: *mut mjSpec, def: *const mjsDefault) -> *mut mjsActuator;
     pub fn mjs_addSensor(s: *mut mjSpec) -> *mut mjsSensor;
     pub fn mjs_addFlex(s: *mut mjSpec) -> *mut mjsFlex;
+    pub fn mjs_makeFlex(
+        body: *mut mjsBody,
+        name: *const ::core::ffi::c_char,
+        type_: *const ::core::ffi::c_char,
+        dim: ::core::ffi::c_int,
+        dof: *const ::core::ffi::c_char,
+        count: *const [::core::ffi::c_int; 3usize],
+        cellcount: *const [::core::ffi::c_int; 3usize],
+        spacing: *const [f64; 3usize],
+        scale: *const [f64; 3usize],
+        radius: f64,
+        mass: f64,
+        inertiabox: f64,
+        equality: ::core::ffi::c_int,
+        rigid: ::core::ffi::c_int,
+        flatskin: ::core::ffi::c_int,
+        elastic2d: ::core::ffi::c_int,
+        pos: *const [f64; 3usize],
+        quat: *const [f64; 4usize],
+        origin: *const [f64; 3usize],
+        file: *const ::core::ffi::c_char,
+        vfs: *const mjVFS,
+    ) -> *mut mjsFlex;
     pub fn mjs_addPair(s: *mut mjSpec, def: *const mjsDefault) -> *mut mjsPair;
     pub fn mjs_addExclude(s: *mut mjSpec) -> *mut mjsExclude;
     pub fn mjs_addEquality(s: *mut mjSpec, def: *const mjsDefault) -> *mut mjsEquality;
@@ -4519,6 +4890,19 @@ unsafe extern "C" {
         fvmax: f64,
     ) -> *const ::core::ffi::c_char;
     pub fn mjs_setToAdhesion(actuator: *mut mjsActuator, gain: f64) -> *const ::core::ffi::c_char;
+    pub fn mjs_setToDCMotor(
+        actuator: *mut mjsActuator,
+        motorconst: *mut [f64; 2usize],
+        resistance: f64,
+        nominal: *mut [f64; 3usize],
+        saturation: *mut [f64; 3usize],
+        inductance: *mut [f64; 2usize],
+        cogging: *mut [f64; 3usize],
+        controller: *mut [f64; 6usize],
+        thermal: *mut [f64; 6usize],
+        lugre: *mut [f64; 5usize],
+        input_mode: ::core::ffi::c_int,
+    ) -> *const ::core::ffi::c_char;
     pub fn mjs_addMesh(s: *mut mjSpec, def: *const mjsDefault) -> *mut mjsMesh;
     pub fn mjs_addHField(s: *mut mjSpec) -> *mut mjsHField;
     pub fn mjs_addSkin(s: *mut mjSpec) -> *mut mjsSkin;
@@ -4530,41 +4914,43 @@ unsafe extern "C" {
         params: *mut f64,
         nparams: ::core::ffi::c_int,
     ) -> ::core::ffi::c_int;
-    pub fn mjs_getSpec(element: *mut mjsElement) -> *mut mjSpec;
-    pub fn mjs_findSpec(spec: *mut mjSpec, name: *const ::core::ffi::c_char) -> *mut mjSpec;
-    pub fn mjs_findBody(s: *mut mjSpec, name: *const ::core::ffi::c_char) -> *mut mjsBody;
+    pub fn mjs_getSpec(element: *const mjsElement) -> *mut mjSpec;
+    pub fn mjs_getOriginSpec(element: *const mjsElement) -> *mut mjSpec;
+    pub fn mjs_getCompiler(element: *const mjsElement) -> *mut mjsCompiler;
+    pub fn mjs_findSpec(spec: *const mjSpec, name: *const ::core::ffi::c_char) -> *mut mjSpec;
+    pub fn mjs_findBody(s: *const mjSpec, name: *const ::core::ffi::c_char) -> *mut mjsBody;
     pub fn mjs_findElement(
-        s: *mut mjSpec,
+        s: *const mjSpec,
         type_: mjtObj,
         name: *const ::core::ffi::c_char,
     ) -> *mut mjsElement;
-    pub fn mjs_findChild(body: *mut mjsBody, name: *const ::core::ffi::c_char) -> *mut mjsBody;
-    pub fn mjs_getParent(element: *mut mjsElement) -> *mut mjsBody;
-    pub fn mjs_getFrame(element: *mut mjsElement) -> *mut mjsFrame;
-    pub fn mjs_findFrame(s: *mut mjSpec, name: *const ::core::ffi::c_char) -> *mut mjsFrame;
-    pub fn mjs_getDefault(element: *mut mjsElement) -> *mut mjsDefault;
+    pub fn mjs_findChild(body: *const mjsBody, name: *const ::core::ffi::c_char) -> *mut mjsBody;
+    pub fn mjs_getParent(element: *const mjsElement) -> *mut mjsBody;
+    pub fn mjs_getFrame(element: *const mjsElement) -> *mut mjsFrame;
+    pub fn mjs_findFrame(s: *const mjSpec, name: *const ::core::ffi::c_char) -> *mut mjsFrame;
+    pub fn mjs_getDefault(element: *const mjsElement) -> *mut mjsDefault;
     pub fn mjs_findDefault(
-        s: *mut mjSpec,
+        s: *const mjSpec,
         classname: *const ::core::ffi::c_char,
     ) -> *mut mjsDefault;
-    pub fn mjs_getSpecDefault(s: *mut mjSpec) -> *mut mjsDefault;
-    pub fn mjs_getId(element: *mut mjsElement) -> ::core::ffi::c_int;
+    pub fn mjs_getSpecDefault(s: *const mjSpec) -> *mut mjsDefault;
+    pub fn mjs_getId(element: *const mjsElement) -> ::core::ffi::c_int;
     pub fn mjs_firstChild(
-        body: *mut mjsBody,
+        body: *const mjsBody,
         type_: mjtObj,
         recurse: ::core::ffi::c_int,
     ) -> *mut mjsElement;
     pub fn mjs_nextChild(
-        body: *mut mjsBody,
-        child: *mut mjsElement,
+        body: *const mjsBody,
+        child: *const mjsElement,
         recurse: ::core::ffi::c_int,
     ) -> *mut mjsElement;
-    pub fn mjs_firstElement(s: *mut mjSpec, type_: mjtObj) -> *mut mjsElement;
-    pub fn mjs_nextElement(s: *mut mjSpec, element: *mut mjsElement) -> *mut mjsElement;
-    pub fn mjs_getWrapTarget(wrap: *mut mjsWrap) -> *mut mjsElement;
-    pub fn mjs_getWrapSideSite(wrap: *mut mjsWrap) -> *mut mjsSite;
-    pub fn mjs_getWrapDivisor(wrap: *mut mjsWrap) -> f64;
-    pub fn mjs_getWrapCoef(wrap: *mut mjsWrap) -> f64;
+    pub fn mjs_firstElement(s: *const mjSpec, type_: mjtObj) -> *mut mjsElement;
+    pub fn mjs_nextElement(s: *const mjSpec, element: *const mjsElement) -> *mut mjsElement;
+    pub fn mjs_getWrapTarget(wrap: *const mjsWrap) -> *mut mjsElement;
+    pub fn mjs_getWrapSideSite(wrap: *const mjsWrap) -> *mut mjsSite;
+    pub fn mjs_getWrapDivisor(wrap: *const mjsWrap) -> f64;
+    pub fn mjs_getWrapCoef(wrap: *const mjsWrap) -> f64;
     pub fn mjs_setName(
         element: *mut mjsElement,
         name: *const ::core::ffi::c_char,
@@ -4580,7 +4966,7 @@ unsafe extern "C" {
         dest: *mut mjStringVec,
         i: ::core::ffi::c_int,
         text: *const ::core::ffi::c_char,
-    ) -> mjtByte;
+    ) -> mjtBool;
     pub fn mjs_appendString(dest: *mut mjStringVec, text: *const ::core::ffi::c_char);
     pub fn mjs_setInt(
         dest: *mut mjIntVec,

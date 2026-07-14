@@ -35,6 +35,7 @@ fields_mapping!(mjModel {
         nflexshelldata: usize = "number of shell fragment vertex ids in all flexes";
         nflexevpair: usize = "number of element-vertex pairs in all flexes";
         nflextexcoord: usize = "number of vertices with texture coordinates";
+        nJfe: usize = "number of non-zeros in sparse flex edge Jacobian";
         nmesh: usize = "number of meshes";
         nmeshvert: usize = "number of vertices in all meshes";
         nmeshnormal: usize = "number of normals in all meshes";
@@ -59,6 +60,7 @@ fields_mapping!(mjModel {
         nexclude: usize = "number of excluded geom pairs";
         neq: usize = "number of equality constraints";
         ntendon: usize = "number of tendons";
+        nJten: usize = "number of non-zeros in sparse tendon Jacobian";
         nwrap: usize = "number of wrap objects in all tendon paths";
         nsensor: usize = "number of sensors";
         nnumeric: usize = "number of numeric custom fields";
@@ -111,7 +113,7 @@ fields_mapping!(mjModel {
 });
 
 pub use crate::bindgen::{
-    mjtSameFrame, mjtJoint, mjtGeom, mjtCamLight, mjtFlexSelf, mjtTexture, mjtEq, mjtObj, mjtWrap, mjtTrn, mjtDyn, mjtGain, mjtBias, mjtSensor, mjtDataType, mjtStage,
+    mjtSameFrame, mjtJoint, mjtGeom, mjtCamLight, mjtProjection, mjtFlexSelf, mjtTexture, mjtEq, mjtObj, mjtWrap, mjtTrn, mjtDyn, mjtGain, mjtBias, mjtSensor, mjtDataType, mjtStage,
     mjNREF, mjNIMP, mjNFLUID, mjNTEXROLE, mjNEQDATA, mjNDYN, mjNGAIN, mjNBIAS,
 };
 use crate::{
@@ -334,15 +336,15 @@ impl mjModel {
     }
     /// does joint have limits
     pub fn jnt_limited(&self, id: impl Into<ObjectId<obj::Joint>>) -> bool {
-        (unsafe { self.jnt_limited.add(id.into().index()).read() }) != 0
+        unsafe { self.jnt_limited.add(id.into().index()).read() }
     }
     /// does joint have actuator force limits
     pub fn jnt_actfrclimited(&self, id: impl Into<ObjectId<obj::Joint>>) -> bool {
-        (unsafe { self.jnt_actfrclimited.add(id.into().index()).read() }) != 0
+        unsafe { self.jnt_actfrclimited.add(id.into().index()).read() }
     }
     /// is gravcomp force applied via actuators
     pub fn jnt_actgravcomp(&self, id: impl Into<ObjectId<obj::Joint>>) -> bool {
-        (unsafe { self.jnt_actgravcomp.add(id.into().index()).read() }) != 0
+        unsafe { self.jnt_actgravcomp.add(id.into().index()).read() }
     }
     /// constraint solver reference: limit
     pub fn jnt_solref(&self, id: impl Into<ObjectId<obj::Joint>>) -> [f64; mjNREF] {
@@ -698,9 +700,9 @@ impl mjModel {
             ]
         }
     }
-    /// orthographic camera
-    pub fn cam_orthographic(&self, id: ObjectId<obj::Camera>) -> bool {
-        (unsafe { self.cam_orthographic.add(id.index()).read() }) != 0
+    /// camera projection type
+    pub fn cam_projection(&self, id: ObjectId<obj::Camera>) -> mjtProjection {
+        mjtProjection(unsafe { self.cam_projection.add(id.index()).read() } as u32)
     }
     /// y field-of-view (ortho ? len : deg)
     pub fn cam_fovy(&self, id: ObjectId<obj::Camera>) -> f64 {
@@ -748,7 +750,7 @@ impl mjModel {
     }
     /// does light cast shadows
     pub fn light_castshadow(&self, id: ObjectId<obj::Light>) -> bool {
-        (unsafe { self.light_castshadow.add(id.index()).read() }) != 0
+        unsafe { self.light_castshadow.add(id.index()).read() }
     }
     /// light radius for soft shadows
     pub fn light_bulbradius(&self, id: ObjectId<obj::Light>) -> f32 {
@@ -756,7 +758,7 @@ impl mjModel {
     }
     /// is light on
     pub fn light_active(&self, id: ObjectId<obj::Light>) -> bool {
-        (unsafe { self.light_active.add(id.index()).read() }) != 0
+        unsafe { self.light_active.add(id.index()).read() }
     }
     /// position relative to body frame
     pub fn light_pos(&self, id: ObjectId<obj::Light>) -> [f64; 3] {
@@ -881,7 +883,7 @@ impl mjModel {
     }
     /// internal flex collision enabled
     pub fn flex_internal(&self, id: ObjectId<obj::Flex>) -> bool {
-        (unsafe { self.flex_internal.add(id.index()).read() }) != 0
+        unsafe { self.flex_internal.add(id.index()).read() }
     }
     /// self collision mode (mjtFlexSelf)
     pub fn flex_selfcollide(&self, id: ObjectId<obj::Flex>) -> mjtFlexSelf {
@@ -1080,19 +1082,19 @@ impl mjModel {
     }
     /// are all verices in the same body
     pub fn flex_rigid(&self, id: ObjectId<obj::Flex>) -> bool {
-        (unsafe { self.flex_rigid.add(id.index()).read() }) != 0
+        unsafe { self.flex_rigid.add(id.index()).read() }
     }
     /// are both edge vertices in same body
     pub fn flexedge_rigid(&self, id: EdgeId<obj::Flex>) -> bool {
-        (unsafe { self.flexedge_rigid.add(id.index()).read() }) != 0
+        unsafe { self.flexedge_rigid.add(id.index()).read() }
     }
     /// are all vertex coordinates (0,0,0)
     pub fn flex_centered(&self, id: ObjectId<obj::Flex>) -> bool {
-        (unsafe { self.flex_centered.add(id.index()).read() }) != 0
+        unsafe { self.flex_centered.add(id.index()).read() }
     }
     /// render flex skin with flat shading
     pub fn flex_flatskin(&self, id: ObjectId<obj::Flex>) -> bool {
-        (unsafe { self.flex_flatskin.add(id.index()).read() }) != 0
+        unsafe { self.flex_flatskin.add(id.index()).read() }
     }
     /// address of bvh root
     pub fn flex_bvhadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
@@ -1396,7 +1398,7 @@ impl mjModel {
     }
     /// make texture cube uniform
     pub fn mat_texuniform(&self, id: ObjectId<obj::Material>) -> bool {
-        (unsafe { self.mat_texuniform.add(id.index()).read() }) != 0
+        unsafe { self.mat_texuniform.add(id.index()).read() }
     }
     /// texture repetition for 2d mapping
     pub fn mat_texrepeat(&self, id: ObjectId<obj::Material>) -> [f32; 2] {
@@ -1521,7 +1523,7 @@ impl mjModel {
     }
     /// initial enable/disable constraint state
     pub fn eq_active0(&self, id: ObjectId<obj::Equality>) -> bool {
-        (unsafe { self.eq_active0.add(id.index()).read() }) != 0
+        unsafe { self.eq_active0.add(id.index()).read() }
     }
     /// constraint solver reference
     pub fn eq_solref(&self, id: ObjectId<obj::Equality>) -> [f64; mjNREF] {
@@ -1564,11 +1566,11 @@ impl mjModel {
     }
     /// does tendon have length limits
     pub fn tendon_limited(&self, id: ObjectId<obj::Tendon>) -> bool {
-        (unsafe { self.tendon_limited.add(id.index()).read() }) != 0
+        unsafe { self.tendon_limited.add(id.index()).read() }
     }
     /// does tendon have actuator force limits
     pub fn tendon_actfrclimited(&self, id: ObjectId<obj::Tendon>) -> bool {
-        (unsafe { self.tendon_actfrclimited.add(id.index()).read() }) != 0
+        unsafe { self.tendon_actfrclimited.add(id.index()).read() }
     }
     /// width for rendering
     pub fn tendon_width(&self, id: ObjectId<obj::Tendon>) -> f64 {
@@ -1724,15 +1726,15 @@ impl mjModel {
     }
     /// is control limited
     pub fn actuator_ctrllimited(&self, id: ObjectId<obj::Actuator>) -> bool {
-        (unsafe { self.actuator_ctrllimited.add(id.index()).read() }) != 0
+        unsafe { self.actuator_ctrllimited.add(id.index()).read() }
     }
     /// is force limited
     pub fn actuator_forcelimited(&self, id: ObjectId<obj::Actuator>) -> bool {
-        (unsafe { self.actuator_forcelimited.add(id.index()).read() }) != 0
+        unsafe { self.actuator_forcelimited.add(id.index()).read() }
     }
     /// is activation limited
     pub fn actuator_actlimited(&self, id: ObjectId<obj::Actuator>) -> bool {
-        (unsafe { self.actuator_actlimited.add(id.index()).read() }) != 0
+        unsafe { self.actuator_actlimited.add(id.index()).read() }
     }
     /// dynamics parameters
     pub fn actuator_dynprm(&self, id: ObjectId<obj::Actuator>) -> [f64; mjNDYN] {
@@ -1757,7 +1759,7 @@ impl mjModel {
     }
     /// step activation before force
     pub fn actuator_actearly(&self, id: ObjectId<obj::Actuator>) -> bool {
-        (unsafe { self.actuator_actearly.add(id.index()).read() }) != 0
+        unsafe { self.actuator_actearly.add(id.index()).read() }
     }
     /// range of controls
     pub fn actuator_ctrlrange(&self, id: ObjectId<obj::Actuator>) -> Option<std::ops::Range<f64>> {
@@ -1961,6 +1963,32 @@ impl mjModel {
 
 #[allow(non_snake_case)]
 impl mjModel {
+    /// number of non-zeros in each flex edge Jacobian row (nflexedge x 1)
+    pub fn flexedge_J_rownnz(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).flexedge_J_rownnz as *const i32, self.nflexedge()) }
+    }
+    /// row addresses in the flex edge Jacobian (nflexedge x 1)
+    pub fn flexedge_J_rowadr(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).flexedge_J_rowadr as *const i32, self.nflexedge()) }
+    }
+    /// column indices in the sparse flex edge Jacobian (nJfe x 1)
+    pub fn flexedge_J_colind(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).flexedge_J_colind as *const i32, self.nJfe()) }
+    }
+
+    /// number of non-zeros in each tendon Jacobian row (ntendon x 1)
+    pub fn ten_J_rownnz(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).ten_J_rownnz as *const i32, self.ntendon()) }
+    }
+    /// row addresses in the tendon Jacobian (ntendon x 1)
+    pub fn ten_J_rowadr(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).ten_J_rowadr as *const i32, self.ntendon()) }
+    }
+    /// column indices in the sparse tendon Jacobian (nJten x 1)
+    pub fn ten_J_colind(&self) -> &[i32] {
+        unsafe { slice((*self.as_ptr()).ten_J_colind as *const i32, self.nJten()) }
+    }
+
     /// body-dof: non-zeros in each row (nbody x 1)
     pub fn B_rownnz(&self) -> &[i32] {
         unsafe { slice((*self.as_ptr()).B_rownnz as *const i32, self.nbody()) }
