@@ -66,7 +66,7 @@
 - Depending on your setting, be sure to specify `$MUJOCO_LIB` as shared library path
   when executing your app (for example `LD_LIBRARY_PATH=$MUJOCO_LIB cargo run` on Linux)
 
-- For Nix user: Refer to [rusty_mujoco repo's flake.nix](https://github.com/rust-control/rusty_mujoco/blob/main/flake.nix) as an example for the Nix-way to setup specific version of MuJoCo, `MUJOCO_LIB`, or `glfw` or other depending packages for executable app.
+- For Nix user: Refer to [rusty_mujoco repo's flake.nix](https://github.com/rust-control/rusty_mujoco/blob/main/flake.nix) as an example for the Nix-way to setup specific version of MuJoCo, environment variables, or `glfw` or other depending packages for executable app.
 
 ## Example
 
