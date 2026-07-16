@@ -40,8 +40,16 @@
         in
         pkgs.mkShell {
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
+          RUSTFLAGS = pkgs.lib.optionalString pkgs.stdenv.isLinux "-C link-arg=-fuse-ld=bfd";
           MUJOCO_LIB = "${mujoco-3_10_0}/lib";
-          packages = [ rustToolchain ] ++ (with pkgs; [
+          packages = [
+            rustToolchain
+          ] ++ (with pkgs-pin-mujoco-3_10_0; [
+            pkg-config
+            glfw3
+          ]) ++ pkgs.lib.optionals pkgs.stdenv.isLinux (with pkgs-pin-mujoco-3_10_0; [
+            libx11
+            wayland
           ]);
         };
     };

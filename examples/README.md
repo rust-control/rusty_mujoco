@@ -8,14 +8,15 @@ This example leaves a single object in the scene and visualizes it.
 
 - Of course [`rusty_mujoco` Requirements](https://github.com/rust-control/rusty_mujoco?tab=readme-ov-file#requirements)
 - Additionally [`glfw` Prerequisites](https://github.com/PistonDevelopers/glfw-rs?tab=readme-ov-file#prerequisites)
+  - (NOTE: This is already configured if you setup with `flake.nix`)
 
 ### Usage
 
 Pass the path to a MuJoCo model XML file as an argument. For example,
-you can use the `humanoid.xml` model provided by MuJoCo:
+you may use the `humanoid.xml` model provided by MuJoCo:
 
 ```sh
-cargo run --example visualize_left_object -- $MUJOCO_LIB/../model/humanoid/humanoid.xml
+cargo run --example visualize_left_object -- $MUJOCO_LIB/../share/mujoco/model/humanoid/humanoid.xml
 ```
 
 *(replace the path to humanoid.xml with yours)*
@@ -35,5 +36,5 @@ Depending on your setting, you may need to specify:
 like:
 
 ```sh
-LD_LIBRARY_PATH="$MUJOCO_LIB" cargo run --example visualize_left_object -- $MUJOCO_LIB/../model/humanoid.xml
+LD_LIBRARY_PATH="$MUJOCO_LIB" cargo run --example visualize_left_object -- $MUJOCO_LIB/../share/mujoco/model/humanoid/humanoid.xml
 ```
