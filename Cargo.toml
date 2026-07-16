@@ -2,7 +2,7 @@
 name          = "rusty_mujoco"
 version       = "0.4.0"
 edition       = "2024"
-authors       = ["kanarus <kanarus786@gmail.com>"]
+authors       = ["kanarus <mail@kanarus.dev>"]
 documentation = "https://docs.rs/rusty_mujoco"
 homepage      = "https://crates.io/crates/rusty_mujoco"
 repository    = "https://github.com/rust-control/rusty_mujoco"
