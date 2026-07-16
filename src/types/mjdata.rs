@@ -4,7 +4,7 @@
 
 pub use crate::bindgen::{
     mjtConstraint, mjtConstraintState,
-    mjNSOLVER, mjNISLAND, mjNTIMER, mjNWARNING, mjMAXTHREAD,
+    mjNSOLVER, mjNISLAND, mjNTIMER, mjNWARNING,
 };
 
 resource_wrapper!(
@@ -27,7 +27,6 @@ fields_mapping!(mjData {
 
         // memory utilization statistics
         maxuse_stack: crate::bindgen::mjtSize = "maximum stack allocation in bytes";
-        maxuse_threadstack: [crate::bindgen::mjtSize; mjMAXTHREAD] = "maximum stack allocation per thread in bytes";
         maxuse_arena: crate::bindgen::mjtSize = "maximum arena allocation in bytes";
         maxuse_con: usize = "maximum number of contacts";
         maxuse_efc: usize = "maximum number of scalar constraints";
@@ -149,10 +148,10 @@ impl mjData {
     }
 
     pub fn eq_active(&self, id: ObjectId<obj::Equality>) -> bool {
-        (unsafe { self.eq_active.add(id.index()).read() }) != 0
+        unsafe { self.eq_active.add(id.index()).read() }
     }
     pub fn set_eq_active(&mut self, id: ObjectId<obj::Equality>, value: bool) {
-        unsafe { self.eq_active.add(id.index()).write(if value {1} else {0}) };
+        unsafe { self.eq_active.add(id.index()).write(value) };
     }
 
     /// `None` when the body is not a mocap body.
@@ -278,17 +277,9 @@ buffer_slices_depending_on_model! {
     flexedge_J: [f64; nflexedge * nv] = "flex edge Jacobian (nflexedge x nv)";
     flexedge_length: [f64; nflexedge * 1] = "flex edge lengths (nflexedge x 1)";
 
-    // computed by mj_fwdPosition/mj_flex
-    flexedge_J_rownnz: [i32; nflexedge * 1] = "number of non-zeros in Jacobian row (nflexedge x 1)";
-    flexedge_J_rowadr: [i32; nflexedge * 1] = "row start address in colind array (nflexedge x 1)";
-    flexedge_J_colind: [i32; nflexedge * nv] = "column indices in sparse Jacobian (nflexedge x nv)";
-
     // computed by mj_fwdPosition/mj_tendon
     ten_wrapadr: [i32; ntendon * 1] = "start address of tendon's path (ntendon x 1)";
     ten_wrapnum: [i32; ntendon * 1] = "number of wrap points in path (ntendon x 1)";
-    ten_J_rownnz: [i32; ntendon * 1] = "number of non-zeros in Jacobian row (ntendon x 1)";
-    ten_J_rowadr: [i32; ntendon * 1] = "row start address in colind array (ntendon x 1)";
-    ten_J_colind: [i32; ntendon * nv] = "column indices in sparse Jacobian (ntendon x nv)";
     wrap_obj: [i32; nwrap * 2] = "geom id; -1: site; -2: pulley (nwrap x 2)";
 
     // computed by mj_fwdPosition/mj_tendon
@@ -422,7 +413,6 @@ buffer_slices! {
     efc_pos: [f64; nefc] = "constraint position (equality, contact) (nefc x 1)";
     efc_margin: [f64; nefc] = "inclusion margin (contact) (nefc x 1)";
     efc_frictionloss: [f64; nefc] = "frictionloss (friction) (nefc x 1)";
-    efc_diagApprox: [f64; nefc] = "approximation to diagonal of A (nefc x 1)";
     efc_KBIP: [f64; nefc * 4] = "stiffness, damping, impedance, imp' (nefc x 4)";
     efc_D: [f64; nefc] = "constraint mass (nefc x 1)";
     efc_R: [f64; nefc] = "inverse constraint mass (nefc x 1)";
@@ -436,6 +426,32 @@ buffer_slices! {
 
 #[allow(non_snake_case)]
 impl mjData {
+    /// number of non-zeros in each flex edge Jacobian row (nflexedge x 1)
+    pub unsafe fn flexedge_J_rownnz<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.flexedge_J_rownnz()
+    }
+    /// row addresses in the flex edge Jacobian (nflexedge x 1)
+    pub unsafe fn flexedge_J_rowadr<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.flexedge_J_rowadr()
+    }
+    /// column indices in the sparse flex edge Jacobian (nJfe x 1)
+    pub unsafe fn flexedge_J_colind<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.flexedge_J_colind()
+    }
+
+    /// number of non-zeros in each tendon Jacobian row (ntendon x 1)
+    pub unsafe fn ten_J_rownnz<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.ten_J_rownnz()
+    }
+    /// row addresses in the tendon Jacobian (ntendon x 1)
+    pub unsafe fn ten_J_rowadr<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.ten_J_rowadr()
+    }
+    /// column indices in the sparse tendon Jacobian (nJten x 1)
+    pub unsafe fn ten_J_colind<'m>(&self, model: &'m mjModel) -> &'m [i32] {
+        model.ten_J_colind()
+    }
+
     /// body-dof: non-zeros in each row (nbody x 1)
     pub unsafe fn B_rownnz<'m>(&self, model: &'m mjModel) -> &'m [i32] {
         model.B_rownnz()

@@ -24,8 +24,8 @@ use crate::{obj, ObjectId, VertexId};
 /// Similar semantics to [`mj_ray`](crate::mj_ray), but `vec` is an array of
 /// `(nray x 3)` directions.
 /* void mj_multiRay(const mjModel* m, mjData* d, const mjtNum pnt[3], const mjtNum* vec,
-                 const mjtByte* geomgroup, mjtByte flg_static, int bodyexclude,
-                 int* geomid, mjtNum* dist, int nray, mjtNum cutoff); */
+                 const mjtByte* geomgroup, mjtBool flg_static, int bodyexclude,
+                 int* geomid, mjtNum* dist, mjtNum* normal, int nray, mjtNum cutoff); */
 pub fn mj_multiRay<const N_RAY: usize>(
     m: &crate::mjModel,
     d: &mut crate::mjData,
@@ -44,12 +44,13 @@ pub fn mj_multiRay<const N_RAY: usize>(
             m.as_ptr(),
             d.as_mut_ptr(),
             &pnt,
-            vec.as_ptr(),
+            vec.as_ptr().cast(),
             geomgroup.map_or(std::ptr::null(), |g| g.as_ptr()),
-            flg_static as u8,
+            flg_static,
             bodyexclude,
             geomid.as_mut_ptr(),
             dist.as_mut_ptr(),
+            std::ptr::null_mut(),
             N_RAY as i32,
             cutoff,
         )
@@ -75,8 +76,8 @@ pub fn mj_multiRay<const N_RAY: usize>(
 /// 
 /// `bodyexclude = None` can be used to indicate that all bodies are included.
 /* mjtNum mj_ray(const mjModel* m, const mjData* d, const mjtNum pnt[3], const mjtNum vec[3],
-              const mjtByte* geomgroup, mjtByte flg_static, int bodyexclude,
-              int geomid[1]); */
+              const mjtByte* geomgroup, mjtBool flg_static, int bodyexclude,
+              int geomid[1], mjtNum normal[3]); */
 pub fn mj_ray(
     m: &crate::mjModel,
     d: &crate::mjData,
@@ -97,9 +98,10 @@ pub fn mj_ray(
             &pnt,
             &vec,
             geomgroup.map_or(std::ptr::null(), |gg| gg.as_ptr()),
-            flg_static as u8,
+            flg_static,
             bodyexclude.index() as i32,
             &mut geomid,
+            std::ptr::null_mut(),
         )
     };
     
@@ -112,7 +114,7 @@ pub fn mj_ray(
 
 /// Intersect ray with hfield, return nearest distance or `None` if no intersection.
 /* mjtNum mj_rayHfield(const mjModel* m, const mjData* d, int geomid,
-                    const mjtNum pnt[3], const mjtNum vec[3]); */
+                    const mjtNum pnt[3], const mjtNum vec[3], mjtNum normal[3]); */
 pub fn mj_rayHfield(
     m: &crate::mjModel,
     d: &crate::mjData,
@@ -127,6 +129,7 @@ pub fn mj_rayHfield(
             geomid.index() as i32,
             &pnt,
             &vec,
+            std::ptr::null_mut(),
         )
     };
     
@@ -139,7 +142,7 @@ pub fn mj_rayHfield(
 
 /// Intersect ray with mesh, return nearest distance or `None` if no intersection.
 /* mjtNum mj_rayMesh(const mjModel* m, const mjData* d, int geomid,
-                  const mjtNum pnt[3], const mjtNum vec[3]); */
+                  const mjtNum pnt[3], const mjtNum vec[3], mjtNum normal[3]); */
 pub fn mj_rayMesh(
     m: &crate::mjModel,
     d: &crate::mjData,
@@ -154,6 +157,7 @@ pub fn mj_rayMesh(
             geomid.index() as i32,
             &pnt,
             &vec,
+            std::ptr::null_mut(),
         )
     };
     
@@ -166,7 +170,8 @@ pub fn mj_rayMesh(
 
 /// Intersect ray with pure geom, return nearest distance or `None` if no intersection.
 /* mjtNum mju_rayGeom(const mjtNum pos[3], const mjtNum mat[9], const mjtNum size[3],
-                   const mjtNum pnt[3], const mjtNum vec[3], int geomtype); */
+                   const mjtNum pnt[3], const mjtNum vec[3], int geomtype,
+                   mjtNum normal[3]); */
 pub fn mju_rayGeom(
     pos: [f64; 3],
     mat: [f64; 9],
@@ -183,6 +188,7 @@ pub fn mju_rayGeom(
             &pnt,
             &vec,
             geomtype.0 as i32,
+            std::ptr::null_mut(),
         )
     };
     
@@ -195,10 +201,10 @@ pub fn mju_rayGeom(
 
 /// Intersect ray with flex, return nearest distance or `None` if no intersection,
 /// and also output nearest vertex id.
-/* mjtNum mju_rayFlex(const mjModel* m, const mjData* d, int flex_layer, mjtByte flg_vert,
-                   mjtByte flg_edge, mjtByte flg_face, mjtByte flg_skin, int flexid,
-                   const mjtNum* pnt, const mjtNum* vec, int vertid[1]); */
-pub fn mju_rayFlex(
+/* mjtNum mj_rayFlex(const mjModel* m, const mjData* d, int flex_layer, mjtBool flg_vert,
+                  mjtBool flg_edge, mjtBool flg_face, mjtBool flg_skin, int flexid,
+                  const mjtNum* pnt, const mjtNum* vec, int vertid[1], mjtNum normal[3]); */
+pub fn mj_rayFlex(
     m: &crate::mjModel,
     d: &crate::mjData,
     flex_layer: Option<usize>,
@@ -210,21 +216,22 @@ pub fn mju_rayFlex(
     pnt: [f64; 3],
     vec: [f64; 3],
 ) -> Option<(VertexId<obj::Flex>, f64)> {
-    let mut vertid = [-1];
+    let mut vertid = [-1i32];
     
     let distance = unsafe {
-        crate::bindgen::mju_rayFlex(
+        crate::bindgen::mj_rayFlex(
             m.as_ptr(),
             d.as_ptr(),
             flex_layer.map_or(-1, |l| l as i32),
-            flg_vert as u8,
-            flg_edge as u8,
-            flg_face as u8,
-            flg_skin as u8,
+            flg_vert,
+            flg_edge,
+            flg_face,
+            flg_skin,
             flexid.index() as i32,
             &pnt,
             &vec,
             &mut vertid,
+            std::ptr::null_mut(),
         )
     };
     

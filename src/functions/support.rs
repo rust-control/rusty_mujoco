@@ -9,7 +9,7 @@ use crate::{obj, mjContact, mjData, mjModel, ObjectId};
 
 /// Returns the number of mjtNum⁠s required for a given state specification. The bits of the integer spec correspond to element fields of mjtState.
 pub fn mj_stateSize(m: &mjModel, spec: crate::bindgen::mjtState) -> usize {
-    unsafe { crate::bindgen::mj_stateSize(m.as_ptr(), spec.0 as u32) as _ }
+    unsafe { crate::bindgen::mj_stateSize(m.as_ptr(), spec.0 as i32) as _ }
 }
 
 /// Copy concatenated state components specified by spec from d into state. The bits of the integer spec correspond to element fields of mjtState. Fails with mju_error if spec is invalid.
@@ -27,7 +27,7 @@ pub fn mj_getState(
             m.as_ptr(),
             d.as_ptr(),
             state.as_mut_ptr(),
-            spec.0 as u32,
+            spec.0 as i32,
         )
     }
 }
@@ -47,7 +47,7 @@ pub fn mj_setState(
             m.as_ptr(),
             d.as_mut_ptr(),
             state.as_ptr(),
-            spec.0 as u32,
+            spec.0 as i32,
         )
     }
 }
@@ -350,22 +350,15 @@ pub fn mj_id2name<O: crate::Obj>(
     unsafe {std::ffi::CStr::from_ptr(c_name).to_str().unwrap().to_owned()}
 }
 
-/// Convert sparse inertia matrix M into full (i.e. dense) matrix.
-/// `M` must be of the same size as mjData.`qM`.
-/// Returned one is of size `nv x nv`,
-pub fn mj_fullM(
-    m: &mjModel,
-    M: &[f64],
-) -> Vec<f64> {
-    #[cfg(debug_assertions)] {
-        assert_eq!(M.len(), m.nM());
-    }
+/// Convert the sparse inertia matrix in `d.qM` into a full (i.e. dense) matrix.
+/// The returned matrix is of size `nv x nv`.
+pub fn mj_fullM(m: &mjModel, d: &mjData) -> Vec<f64> {
     let mut res = vec![0.0; m.nv() * m.nv()];
     unsafe {
         crate::bindgen::mj_fullM(
             m.as_ptr(),
+            d.as_ptr(),
             res.as_mut_ptr(),
-            M.as_ptr(),
         );
     }
     res
@@ -537,11 +530,11 @@ pub fn mj_objectAcceleration<O: crate::id::Obj>(
 /// Returned distances are bounded from above by distmax.
 /// 
 /// If no collision of distance smaller than distmax is found, the function will return distmax and fromto, if given, will be set to (0, 0, 0, 0, 0, 0).
-/* mjtNum mj_geomDistance(const mjModel* m, const mjData* d, int geom1, int geom2,
+/* mjtNum mj_geomDistance(const mjModel* m, mjData* d, int geom1, int geom2,
                        mjtNum distmax, mjtNum fromto[6]); */
 pub fn mj_geomDistance(
     m: &mjModel,
-    d: &mjData,
+    d: &mut mjData,
     geom1: ObjectId<obj::Geom>,
     geom2: ObjectId<obj::Geom>,
     distmax: f64,
@@ -550,7 +543,7 @@ pub fn mj_geomDistance(
     let dist = unsafe {
         crate::bindgen::mj_geomDistance(
             m.as_ptr(),
-            d.as_ptr(),
+            d.as_mut_ptr(),
             geom1.index() as i32,
             geom2.index() as i32,
             distmax,

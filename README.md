@@ -1,7 +1,7 @@
 <div align="center">
     <h1>Rusty MuJoCo Binding</h1>
     <p>Rust bindings for the <a href="https://mujoco.org">MuJoCo</a> physics simulator</p>
-    <p>MuJoCo Version: <a href="https://github.com/google-deepmind/mujoco/releases/tag/3.4.0">3.4.0</a></p>
+    <p>MuJoCo Version: <a href="https://github.com/google-deepmind/mujoco/releases/tag/3.10.0">3.10.0</a></p>
 </div>
 
 <br>
@@ -32,32 +32,32 @@
 
 ## Requirements
 
-- [MuJoCo 3.4.0](https://github.com/google-deepmind/mujoco/releases/tag/3.4.0) downloaded and installed
+- [MuJoCo 3.10.0](https://github.com/google-deepmind/mujoco/releases/tag/3.10.0) downloaded and installed
 - Additionally, if you place mujoco library in a non-standard directory of the platform,
   you need `MUJOCO_LIB` environment variable set to the path of the directory containing
-  `libmujoco.so` or `mujoco.lib` (e.g. `$HOME/.mujoco/mujoco-3.4.0/lib` when you placed the official release above in `~/.mujoco`)
+  `libmujoco.so` or `mujoco.lib` (e.g. `$HOME/.mujoco/mujoco-3.10.0/lib` when you placed the official release above in `~/.mujoco`)
 
 ### Note / Tips
 
 - For example on x86_64 Linux, run:
   ```sh
-  wget https://github.com/google-deepmind/mujoco/releases/download/3.4.0/mujoco-3.4.0-linux-x86_64.tar.gz
-  tar -xzf mujoco-3.4.0-linux-x86_64.tar.gz
+  wget https://github.com/google-deepmind/mujoco/releases/download/3.10.0/mujoco-3.10.0-linux-x86_64.tar.gz
+  tar -xzf mujoco-3.10.0-linux-x86_64.tar.gz
   ```
-  to download & expand MuJoCo 3.4.0.\
+  to download & expand MuJoCo 3.10.0.\
   On other platforms, do the same with the appropriate archive file for your system.
 
 - One way to setup is to install MuJoCo to _a default standard path_ like `/usr/local/lib/`
-  (or a folder in _PATH_ on Windows), then if needed create symlink to `mujoco-3.4.0/lib/libmujoco.so` there,
+  (or a folder in _PATH_ on Windows), then if needed create symlink to `mujoco-3.10.0/lib/libmujoco.so` there,
   and insert to your shell config file:
   ```sh
   # example on Linux with /usr/local/lib/
-  export MUJOCO_LIB="/usr/local/lib/mujoco-3.4.0/lib"
+  export MUJOCO_LIB="/usr/local/lib/mujoco-3.10.0/lib"
   ```
   Or if you'd like to avoid to install MuJoCo to such a system directory:
   ```sh
   # example on Linux with $HOME/.mujoco/
-  export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.4.0/lib"
+  export MUJOCO_LIB="$HOME/.mujoco/mujoco-3.10.0/lib"
   export LD_LIBRARY_PATH="$MUJOCO_LIB:$LD_LIBRARY_PATH"
   ```
 
@@ -70,7 +70,7 @@
 
 ```toml
 [dependencies]
-rusty_mujoco = "0.3"
+rusty_mujoco = "0.4"
 glfw = "0.60"
 ```
 
