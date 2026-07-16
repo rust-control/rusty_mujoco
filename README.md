@@ -39,7 +39,7 @@
 
 ### Note / Tips
 
-- For example on x86_64 Linux, run:
+- For example on typical x86_64 Linux, run:
   ```sh
   wget https://github.com/google-deepmind/mujoco/releases/download/3.10.0/mujoco-3.10.0-linux-x86_64.tar.gz
   tar -xzf mujoco-3.10.0-linux-x86_64.tar.gz
@@ -61,10 +61,12 @@
   export LD_LIBRARY_PATH="$MUJOCO_LIB:$LD_LIBRARY_PATH"
   ```
 
-- Or, you can get MuJoCo library through Python toolchain like `uv` or `pip`.
-    
+- Or, you can get MuJoCo library through Nix, or Python toolchain like `uv` or `pip`.
+
 - Depending on your setting, be sure to specify `$MUJOCO_LIB` as shared library path
   when executing your app (for example `LD_LIBRARY_PATH=$MUJOCO_LIB cargo run` on Linux)
+
+- For Nix user: refer to [rusty_mujoco repo's flake.nix](https://github.com/rust-control/rusty_mujoco/blob/main/flake.nix) as an example for setting up specific version of MuJoCo.
 
 ## Example
 
