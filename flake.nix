@@ -42,11 +42,10 @@
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
           RUSTFLAGS = pkgs.lib.optionalString pkgs.stdenv.isLinux "-C link-arg=-fuse-ld=bfd";
           MUJOCO_LIB = "${mujoco-3_11_0}/lib";
+          LIBCLANG_PATH = "${pkgs.llvmPackages.libclang.lib}/lib";
           packages = [
             rustToolchain
           ] ++ (with pkgs-pin-mujoco-3_11_0; [
-            clang-tools
-            clang
             pkg-config
             glfw3
           ]) ++ pkgs.lib.optionals pkgs.stdenv.isLinux (with pkgs-pin-mujoco-3_11_0; [
