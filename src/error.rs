@@ -4,6 +4,8 @@ pub struct MjError {
     buffer: [u8; BUFFER_SIZE],
 }
 
+pub type Result<T> = std::result::Result<T, MjError>;
+
 impl std::fmt::Debug for MjError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let msg = String::from_utf8_lossy(&self.buffer);

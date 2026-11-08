@@ -9,6 +9,6 @@ mod wrapper_functions;
 mod wrapper_methods;
 
 pub use bindgen::*;
-pub use error::MjError;
+pub use error::{Result, MjError};
 pub use id::*;
 pub use wrapper_functions::*;
