@@ -788,113 +788,113 @@ pub struct mjOption {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjVisual {
-    pub(crate) global: mjVisual___bindgen_ty_1,
-    pub(crate) quality: mjVisual___bindgen_ty_2,
-    pub(crate) headlight: mjVisual___bindgen_ty_3,
-    pub(crate) map: mjVisual___bindgen_ty_4,
-    pub(crate) scale: mjVisual___bindgen_ty_5,
-    pub(crate) rgba: mjVisual___bindgen_ty_6,
+    pub(crate) global: mjVisual_1,
+    pub(crate) quality: mjVisual_2,
+    pub(crate) headlight: mjVisual_3,
+    pub(crate) map: mjVisual_4,
+    pub(crate) scale: mjVisual_5,
+    pub(crate) rgba: mjVisual_6,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct mjVisual___bindgen_ty_1 {
+pub(crate) struct mjVisual_1 {
     pub(crate) cameraid: ::core::ffi::c_int,
-    pub(crate) orthographic: ::core::ffi::c_int,
-    pub(crate) fovy: f32,
-    pub(crate) ipd: f32,
-    pub(crate) azimuth: f32,
-    pub(crate) elevation: f32,
-    pub(crate) linewidth: f32,
-    pub(crate) glow: f32,
-    pub(crate) realtime: f32,
-    pub(crate) offwidth: ::core::ffi::c_int,
-    pub(crate) offheight: ::core::ffi::c_int,
-    pub(crate) ellipsoidinertia: ::core::ffi::c_int,
-    pub(crate) bvactive: ::core::ffi::c_int,
+    pub orthographic: ::core::ffi::c_int,
+    pub fovy: f32,
+    pub ipd: f32,
+    pub azimuth: f32,
+    pub elevation: f32,
+    pub linewidth: f32,
+    pub glow: f32,
+    pub realtime: f32,
+    pub offwidth: ::core::ffi::c_int,
+    pub offheight: ::core::ffi::c_int,
+    pub ellipsoidinertia: ::core::ffi::c_int,
+    pub bvactive: ::core::ffi::c_int,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct mjVisual___bindgen_ty_2 {
-    pub(crate) shadowsize: ::core::ffi::c_int,
-    pub(crate) offsamples: ::core::ffi::c_int,
-    pub(crate) numslices: ::core::ffi::c_int,
-    pub(crate) numstacks: ::core::ffi::c_int,
-    pub(crate) numquads: ::core::ffi::c_int,
+pub(crate) struct mjVisual_2 {
+    pub shadowsize: ::core::ffi::c_int,
+    pub offsamples: ::core::ffi::c_int,
+    pub numslices: ::core::ffi::c_int,
+    pub numstacks: ::core::ffi::c_int,
+    pub numquads: ::core::ffi::c_int,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct mjVisual___bindgen_ty_3 {
-    pub(crate) ambient: [f32; 3usize],
-    pub(crate) diffuse: [f32; 3usize],
-    pub(crate) specular: [f32; 3usize],
-    pub(crate) active: ::core::ffi::c_int,
+pub(crate) struct mjVisual_3 {
+    pub ambient: [f32; 3usize],
+    pub diffuse: [f32; 3usize],
+    pub specular: [f32; 3usize],
+    pub active: ::core::ffi::c_int,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct mjVisual___bindgen_ty_4 {
-    pub(crate) stiffness: f32,
-    pub(crate) stiffnessrot: f32,
-    pub(crate) force: f32,
-    pub(crate) torque: f32,
-    pub(crate) alpha: f32,
-    pub(crate) fogstart: f32,
-    pub(crate) fogend: f32,
-    pub(crate) znear: f32,
-    pub(crate) zfar: f32,
-    pub(crate) haze: f32,
-    pub(crate) shadowclip: f32,
-    pub(crate) shadowscale: f32,
-    pub(crate) actuatortendon: f32,
+pub(crate) struct mjVisual_4 {
+    pub stiffness: f32,
+    pub stiffnessrot: f32,
+    pub force: f32,
+    pub torque: f32,
+    pub alpha: f32,
+    pub fogstart: f32,
+    pub fogend: f32,
+    pub znear: f32,
+    pub zfar: f32,
+    pub haze: f32,
+    pub shadowclip: f32,
+    pub shadowscale: f32,
+    pub actuatortendon: f32,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct mjVisual___bindgen_ty_5 {
-    pub(crate) forcewidth: f32,
-    pub(crate) contactwidth: f32,
-    pub(crate) contactheight: f32,
-    pub(crate) connect: f32,
-    pub(crate) com: f32,
-    pub(crate) camera: f32,
-    pub(crate) light: f32,
-    pub(crate) selectpoint: f32,
-    pub(crate) jointlength: f32,
-    pub(crate) jointwidth: f32,
-    pub(crate) actuatorlength: f32,
-    pub(crate) actuatorwidth: f32,
-    pub(crate) framelength: f32,
-    pub(crate) framewidth: f32,
-    pub(crate) constraint: f32,
-    pub(crate) slidercrank: f32,
-    pub(crate) frustum: f32,
+pub(crate) struct mjVisual_5 {
+    pub forcewidth: f32,
+    pub contactwidth: f32,
+    pub contactheight: f32,
+    pub connect: f32,
+    pub com: f32,
+    pub camera: f32,
+    pub light: f32,
+    pub selectpoint: f32,
+    pub jointlength: f32,
+    pub jointwidth: f32,
+    pub actuatorlength: f32,
+    pub actuatorwidth: f32,
+    pub framelength: f32,
+    pub framewidth: f32,
+    pub constraint: f32,
+    pub slidercrank: f32,
+    pub frustum: f32,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
-pub(crate) struct mjVisual___bindgen_ty_6 {
-    pub(crate) fog: [f32; 4usize],
-    pub(crate) haze: [f32; 4usize],
-    pub(crate) force: [f32; 4usize],
-    pub(crate) inertia: [f32; 4usize],
-    pub(crate) joint: [f32; 4usize],
-    pub(crate) actuator: [f32; 4usize],
-    pub(crate) actuatornegative: [f32; 4usize],
-    pub(crate) actuatorpositive: [f32; 4usize],
-    pub(crate) com: [f32; 4usize],
-    pub(crate) camera: [f32; 4usize],
-    pub(crate) light: [f32; 4usize],
-    pub(crate) selectpoint: [f32; 4usize],
-    pub(crate) connect: [f32; 4usize],
-    pub(crate) contactpoint: [f32; 4usize],
-    pub(crate) contactforce: [f32; 4usize],
-    pub(crate) contactfriction: [f32; 4usize],
-    pub(crate) contacttorque: [f32; 4usize],
-    pub(crate) contactgap: [f32; 4usize],
-    pub(crate) rangefinder: [f32; 4usize],
-    pub(crate) constraint: [f32; 4usize],
-    pub(crate) slidercrank: [f32; 4usize],
-    pub(crate) crankbroken: [f32; 4usize],
-    pub(crate) frustum: [f32; 4usize],
-    pub(crate) bv: [f32; 4usize],
-    pub(crate) bvactive: [f32; 4usize],
+pub(crate) struct mjVisual_6 {
+    pub fog: [f32; 4usize],
+    pub haze: [f32; 4usize],
+    pub force: [f32; 4usize],
+    pub inertia: [f32; 4usize],
+    pub joint: [f32; 4usize],
+    pub actuator: [f32; 4usize],
+    pub actuatornegative: [f32; 4usize],
+    pub actuatorpositive: [f32; 4usize],
+    pub com: [f32; 4usize],
+    pub camera: [f32; 4usize],
+    pub light: [f32; 4usize],
+    pub selectpoint: [f32; 4usize],
+    pub connect: [f32; 4usize],
+    pub contactpoint: [f32; 4usize],
+    pub contactforce: [f32; 4usize],
+    pub contactfriction: [f32; 4usize],
+    pub contacttorque: [f32; 4usize],
+    pub contactgap: [f32; 4usize],
+    pub rangefinder: [f32; 4usize],
+    pub constraint: [f32; 4usize],
+    pub slidercrank: [f32; 4usize],
+    pub crankbroken: [f32; 4usize],
+    pub frustum: [f32; 4usize],
+    pub bv: [f32; 4usize],
+    pub bvactive: [f32; 4usize],
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3437,13 +3437,13 @@ pub struct mjuiItem {
     pub(crate) sectionid: ::core::ffi::c_int,
     pub(crate) itemid: ::core::ffi::c_int,
     pub(crate) userid: ::core::ffi::c_int,
-    pub(crate) __bindgen_anon_1: mjuiItem___bindgen_ty_1,
+    pub(crate) __bindgen_anon_1: mjuiItem_1,
     pub rect: mjrRect,
     pub skip: ::core::ffi::c_int,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
-pub(crate) union mjuiItem___bindgen_ty_1 {
+pub(crate) union mjuiItem_1 {
     pub single: mjuiItemSingle,
     pub multi: mjuiItemMulti,
     pub slider: mjuiItemSlider,

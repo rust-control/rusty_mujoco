@@ -217,6 +217,15 @@ fn bindgen() {
         };
         for item in &mut syn::parse_file(&bindings_buf).unwrap().items {
             match item {
+                syn::Item::Type(syn::ItemType { vis, ty, .. }) => {
+                    if ty
+                        .to_token_stream()
+                        .to_string()
+                        .contains("unsafe extern \"C\"")
+                    {
+                        *vis = syn::parse_quote!(pub(crate));
+                    }
+                }
                 syn::Item::Struct(syn::ItemStruct {
                     fields: syn::Fields::Unnamed(newtype_enum_inner),
                     ..
@@ -236,39 +245,36 @@ fn bindgen() {
                 }) => {
                     if ident.to_string().contains("__bindgen_ty") {
                         *vis = syn::parse_quote!(pub(crate));
-                        struct_fields
-                            .named
-                            .iter_mut()
-                            .for_each(|f| f.vis = syn::parse_quote!(pub(crate)));
-                    } else {
-                        for f in &mut struct_fields.named {
-                            let (ident_str, ty_str) = (
-                                f.ident.as_ref().unwrap().to_string(),
-                                f.ty.to_token_stream().to_string(),
-                            );
-                            if ident_str.ends_with("id")
-                                || (matches!(f.ty, syn::Type::Ptr(_))
-                                    && !ty_str.ends_with("c_void"))
-                                || ty_str.contains("unsafe extern \"C\"")
-                                || ty_str.contains("__bindgen_ty")
-                                || ty_str.contains("c_char")
-                            {
-                                f.vis = syn::parse_quote!(pub(crate));
+                        *ident = quote::format_ident!(
+                            "{}",
+                            ident.to_string().replace("__bindgen_ty_", "")
+                        );
+                    }
+                    for f in &mut struct_fields.named {
+                        let (ident_str, ty_str) = (
+                            f.ident.as_ref().unwrap().to_string(),
+                            f.ty.to_token_stream().to_string(),
+                        );
+                        if ident_str.ends_with("id")
+                            || (matches!(f.ty, syn::Type::Ptr(_)) && !ty_str.ends_with("c_void"))
+                            || ty_str.contains("unsafe extern \"C\"")
+                            || ty_str.contains("__bindgen_ty_")
+                            || ty_str.contains("c_char")
+                        {
+                            f.vis = syn::parse_quote!(pub(crate));
+                            if ty_str.contains("__bindgen_ty_") {
+                                f.ty =
+                                    syn::parse_str(&ty_str.replace("__bindgen_ty_", "")).unwrap();
                             }
                         }
                     }
                 }
-                syn::Item::Type(syn::ItemType { vis, ty, .. }) => {
-                    if ty
-                        .to_token_stream()
-                        .to_string()
-                        .contains("unsafe extern \"C\"")
-                    {
-                        *vis = syn::parse_quote!(pub(crate));
-                    }
-                }
                 syn::Item::Union(u) => {
                     u.vis = syn::parse_quote!(pub(crate));
+                    if u.ident.to_string().contains("__bindgen_ty_") {
+                        u.ident = syn::parse_str(&u.ident.to_string().replace("__bindgen_ty_", ""))
+                            .unwrap();
+                    }
                 }
                 syn::Item::Const(x) if x.ident.to_string().starts_with("mjMAX") => {
                     if let syn::Expr::Lit(syn::ExprLit {
