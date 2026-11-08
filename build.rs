@@ -247,7 +247,8 @@ fn bindgen() {
                                 f.ty.to_token_stream().to_string(),
                             );
                             if ident_str.ends_with("id")
-                                || matches!(f.ty, syn::Type::Ptr(_))
+                                || (matches!(f.ty, syn::Type::Ptr(_))
+                                    && !ty_str.ends_with("c_void"))
                                 || ty_str.contains("unsafe extern \"C\"")
                                 || ty_str.contains("__bindgen_ty")
                                 || ty_str.contains("c_char")

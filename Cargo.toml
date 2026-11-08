@@ -26,6 +26,3 @@ bindgen = ["dep:bindgen", "dep:syn", "dep:quote"]  # run bindgen at build time, 
 
 # internal
 DEBUG = []
-
-##### TEMPORARY #####
-default = ["bindgen"]

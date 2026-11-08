@@ -745,12 +745,12 @@ pub struct mjLROpt {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjCache {
-    pub(crate) impl_: *mut ::core::ffi::c_void,
+    pub impl_: *mut ::core::ffi::c_void,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjVFS {
-    pub(crate) impl_: *mut ::core::ffi::c_void,
+    pub impl_: *mut ::core::ffi::c_void,
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1012,7 +1012,7 @@ pub struct mjModel {
     pub opt: mjOption,
     pub vis: mjVisual,
     pub stat: mjStatistic,
-    pub(crate) buffer: *mut ::core::ffi::c_void,
+    pub buffer: *mut ::core::ffi::c_void,
     pub(crate) qpos0: *mut mjtNum,
     pub(crate) qpos_spring: *mut mjtNum,
     pub(crate) body_parentid: *mut ::core::ffi::c_int,
@@ -1599,8 +1599,8 @@ pub struct mjData {
     pub flg_rnepost: mjtBool,
     pub time: mjtNum,
     pub energy: [mjtNum; 2usize],
-    pub(crate) buffer: *mut ::core::ffi::c_void,
-    pub(crate) arena: *mut ::core::ffi::c_void,
+    pub buffer: *mut ::core::ffi::c_void,
+    pub arena: *mut ::core::ffi::c_void,
     pub(crate) qpos: *mut mjtNum,
     pub(crate) qvel: *mut mjtNum,
     pub(crate) act: *mut mjtNum,
@@ -2863,7 +2863,7 @@ pub struct mjvFigure {
 #[derive(Debug, Copy, Clone)]
 pub struct mjResource {
     pub(crate) name: *mut ::core::ffi::c_char,
-    pub(crate) data: *mut ::core::ffi::c_void,
+    pub data: *mut ::core::ffi::c_void,
     pub(crate) vfs: *mut mjVFS,
     pub(crate) timestamp: [::core::ffi::c_char; 512usize],
     pub(crate) provider: *const mjpResourceProvider,
@@ -2906,7 +2906,7 @@ pub struct mjpResourceProvider {
     pub unmount: mjfUnmountResource,
     pub modified: mjfResourceModified,
     pub write: mjfWriteResource,
-    pub(crate) data: *mut ::core::ffi::c_void,
+    pub data: *mut ::core::ffi::c_void,
 }
 pub(crate) type mjfDecode = ::core::option::Option<
     unsafe extern "C" fn(resource: *mut mjResource, vfs: *const mjVFS) -> *mut mjSpec,
@@ -3329,7 +3329,7 @@ pub(crate) type mjfItemEnable = ::core::option::Option<
 pub struct mjuiState {
     pub nrect: ::core::ffi::c_int,
     pub rect: [mjrRect; 25usize],
-    pub(crate) userdata: *mut ::core::ffi::c_void,
+    pub userdata: *mut ::core::ffi::c_void,
     pub type_: ::core::ffi::c_int,
     pub left: ::core::ffi::c_int,
     pub right: ::core::ffi::c_int,
@@ -3433,7 +3433,7 @@ pub struct mjuiItem {
     pub type_: ::core::ffi::c_int,
     pub(crate) name: [::core::ffi::c_char; 40usize],
     pub state: ::core::ffi::c_int,
-    pub(crate) pdata: *mut ::core::ffi::c_void,
+    pub pdata: *mut ::core::ffi::c_void,
     pub(crate) sectionid: ::core::ffi::c_int,
     pub(crate) itemid: ::core::ffi::c_int,
     pub(crate) userid: ::core::ffi::c_int,
@@ -3469,7 +3469,7 @@ pub struct mjUI {
     pub spacing: mjuiThemeSpacing,
     pub color: mjuiThemeColor,
     pub predicate: mjfItemEnable,
-    pub(crate) userdata: *mut ::core::ffi::c_void,
+    pub userdata: *mut ::core::ffi::c_void,
     pub(crate) rectid: ::core::ffi::c_int,
     pub(crate) auxid: ::core::ffi::c_int,
     pub radiocol: ::core::ffi::c_int,
@@ -3497,7 +3497,7 @@ pub struct mjuiDef {
     pub type_: ::core::ffi::c_int,
     pub(crate) name: [::core::ffi::c_char; 40usize],
     pub state: ::core::ffi::c_int,
-    pub(crate) pdata: *mut ::core::ffi::c_void,
+    pub pdata: *mut ::core::ffi::c_void,
     pub(crate) other: [::core::ffi::c_char; 300usize],
     pub otherint: ::core::ffi::c_int,
 }

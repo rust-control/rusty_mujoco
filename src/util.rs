@@ -32,5 +32,22 @@ pub struct Rgba {
 pub struct Dimention<const N: usize>;
 
 pub trait FrictionDimention {}
+
 impl FrictionDimention for Dimention<1> {}
 impl FrictionDimention for Dimention<2> {}
+
+pub(crate) trait AccessAs<T> {
+    fn access_as(self) -> T;
+}
+
+impl<'a> AccessAs<&'a str> for &'a *const ::core::ffi::c_char {
+    #[inline]
+    fn access_as(self) -> &'a str {
+        unsafe {
+            core::ffi::CStr::from_ptr(*self)
+                .to_str()
+                .expect("found non-UTF-8 C string")
+        }
+    }
+}
+// impl<'a> AccessAs<&'a mut >
