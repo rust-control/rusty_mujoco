@@ -1,13 +1,13 @@
 //! # [Non-tree elements](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#non-tree-elements)
 
-use crate::{mjSpec, mjsActuator, mjsDefault, mjsSensor, mjsFlex, mjsPair, mjsExclude, mjsEquality, mjsTendon, mjsWrap, mjsNumeric, mjsText, mjsTuple, mjsKey, mjsPlugin};
+use crate::{
+    mjSpec, mjsActuator, mjsDefault, mjsEquality, mjsExclude, mjsFlex, mjsKey, mjsNumeric, mjsPair,
+    mjsPlugin, mjsSensor, mjsTendon, mjsText, mjsTuple, mjsWrap,
+};
 
 /// Add actuator to mjSpec, return actuator spec.
 /* mjsActuator* mjs_addActuator(mjSpec* s, const mjsDefault* def); */
-pub fn mjs_addActuator<'spec>(
-    s: &'spec mut mjSpec,
-    def: &mjsDefault,
-) -> &'spec mut mjsActuator {
+pub fn mjs_addActuator<'spec>(s: &'spec mut mjSpec, def: &mjsDefault) -> &'spec mut mjsActuator {
     unsafe { &mut *crate::bindgen::mjs_addActuator(s.as_mut_ptr(), def) }
 }
 
@@ -25,10 +25,7 @@ pub fn mjs_addFlex<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsFlex {
 
 /// Add contact pair to mjSpec, return pair spec.
 /* mjsPair* mjs_addPair(mjSpec* s, const mjsDefault* def); */
-pub fn mjs_addPair<'spec>(
-    s: &'spec mut mjSpec,
-    def: &mjsDefault,
-) -> &'spec mut mjsPair {
+pub fn mjs_addPair<'spec>(s: &'spec mut mjSpec, def: &mjsDefault) -> &'spec mut mjsPair {
     unsafe { &mut *crate::bindgen::mjs_addPair(s.as_mut_ptr(), def) }
 }
 
@@ -40,28 +37,19 @@ pub fn mjs_addExclude<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsExclude {
 
 /// Add equality to mjSpec, return equality spec.
 /* mjsEquality* mjs_addEquality(mjSpec* s, const mjsDefault* def); */
-pub fn mjs_addEquality<'spec>(
-    s: &'spec mut mjSpec,
-    def: &mjsDefault,
-) -> &'spec mut mjsEquality {
+pub fn mjs_addEquality<'spec>(s: &'spec mut mjSpec, def: &mjsDefault) -> &'spec mut mjsEquality {
     unsafe { &mut *crate::bindgen::mjs_addEquality(s.as_mut_ptr(), def) }
 }
 
 /// Add tendon to mjSpec, return tendon spec.
 /* mjsTendon* mjs_addTendon(mjSpec* s, const mjsDefault* def); */
-pub fn mjs_addTendon<'spec>( 
-    s: &'spec mut mjSpec,
-    def: &mjsDefault,
-) -> &'spec mut mjsTendon {
+pub fn mjs_addTendon<'spec>(s: &'spec mut mjSpec, def: &mjsDefault) -> &'spec mut mjsTendon {
     unsafe { &mut *crate::bindgen::mjs_addTendon(s.as_mut_ptr(), def) }
 }
 
 /// Wrap site using tendon, return wrap spec.
 /* mjsWrap* mjs_wrapSite(mjsTendon* tendon, const char* name); */
-pub fn mjs_wrapSite<'tendon>(
-    tendon: &'tendon mut mjsTendon,
-    name: &str,
-) -> &'tendon mut mjsWrap {
+pub fn mjs_wrapSite<'tendon>(tendon: &'tendon mut mjsTendon, name: &str) -> &'tendon mut mjsWrap {
     let c_name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
     unsafe { &mut *crate::bindgen::mjs_wrapSite(tendon, c_name.as_ptr()) }
 }
@@ -74,7 +62,8 @@ pub fn mjs_wrapGeom<'tendon>(
     sidesite: &str,
 ) -> &'tendon mut mjsWrap {
     let c_name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
-    let c_sidesite = std::ffi::CString::new(sidesite).expect("`sidesite` must not contain null bytes");
+    let c_sidesite =
+        std::ffi::CString::new(sidesite).expect("`sidesite` must not contain null bytes");
     unsafe { &mut *crate::bindgen::mjs_wrapGeom(tendon, c_name.as_ptr(), c_sidesite.as_ptr()) }
 }
 
@@ -135,6 +124,7 @@ pub fn mjs_addDefault<'spec>(
     classname: &str,
     parent: &mjsDefault,
 ) -> &'spec mut mjsDefault {
-    let c_classname = std::ffi::CString::new(classname).expect("`classname` must not contain null bytes");
+    let c_classname =
+        std::ffi::CString::new(classname).expect("`classname` must not contain null bytes");
     unsafe { &mut *crate::bindgen::mjs_addDefault(s.as_mut_ptr(), c_classname.as_ptr(), parent) }
 }

@@ -128,26 +128,26 @@ macro_rules! fields_mapping {
     };
 }
 
+mod auxiliary;
 mod mjdata;
 mod mjmodel;
 mod mjoption;
 mod model_editing;
-mod auxiliary;
 mod rendering;
 mod sim_statistics;
 mod user_interface;
 mod visualization;
 
+pub use auxiliary::*;
 pub use mjdata::*;
 pub use mjmodel::*;
 pub use mjoption::*;
 pub use model_editing::*;
-pub use auxiliary::*;
 pub use rendering::*;
 pub use sim_statistics::*;
 pub use user_interface::*;
 pub use visualization::*;
 
 pub use crate::bindgen::{
-    mjtByte, mjByteVec, mjString, mjStringVec, mjIntVec, mjFloatVec, mjDoubleVec,
+    mjByteVec, mjDoubleVec, mjFloatVec, mjIntVec, mjString, mjStringVec, mjtByte,
 };

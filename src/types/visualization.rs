@@ -1,13 +1,13 @@
 //! # [Visualization]((https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#visualisation))
-//! 
+//!
 //! The names of these struct types are prefixed with `mjv`.
 
 pub use crate::bindgen::{
-    mjtPertBit, mjtCamera, mjtCatBit, mjtGeom, mjtLabel, mjtFrame, mjtVisFlag, mjtStereo, mjtRndFlag,
-    mjNGROUP, mjNVISFLAG, mjNRNDFLAG, mjMAXLIGHT, mjMAXLINE, mjMAXLINEPNT,
+    mjMAXLIGHT, mjMAXLINE, mjMAXLINEPNT, mjNGROUP, mjNRNDFLAG, mjNVISFLAG, mjtCamera, mjtCatBit,
+    mjtFrame, mjtGeom, mjtLabel, mjtPertBit, mjtRndFlag, mjtStereo, mjtVisFlag,
 };
 
-use crate::{helper, mjtObj, obj, ObjectId, SegmentationId};
+use crate::{ObjectId, SegmentationId, helper, mjtObj, obj};
 
 pub use crate::bindgen::mjvPerturb;
 impl Default for mjvPerturb {
@@ -32,36 +32,51 @@ fields_mapping!(mjvPerturb {
 impl mjvPerturb {
     /// selected body id
     pub fn select(&self) -> Option<ObjectId<obj::Body>> {
-        if self.select > 0 {Some(unsafe { ObjectId::new_unchecked(self.select as _) })} else {None}
+        if self.select > 0 {
+            Some(unsafe { ObjectId::new_unchecked(self.select as _) })
+        } else {
+            None
+        }
     }
     /// set selected body id
     pub fn set_select(&mut self, select: Option<ObjectId<obj::Body>>) -> &mut Self {
-        self.select = select.map_or(-1, |id| id.index() as i32); self
+        self.select = select.map_or(-1, |id| id.index() as i32);
+        self
     }
 
     /// selected flex id
     pub fn flexselect(&self) -> Option<ObjectId<obj::Flex>> {
-        if self.flexselect >= 0 {Some(unsafe { ObjectId::new_unchecked(self.flexselect as _) })} else {None}
+        if self.flexselect >= 0 {
+            Some(unsafe { ObjectId::new_unchecked(self.flexselect as _) })
+        } else {
+            None
+        }
     }
     /// set selected flex id
     pub fn set_flexselect(&mut self, flexselect: Option<ObjectId<obj::Flex>>) -> &mut Self {
-        self.flexselect = flexselect.map_or(-1, |id| id.index() as i32); self
+        self.flexselect = flexselect.map_or(-1, |id| id.index() as i32);
+        self
     }
 
     /// selected skin id
     pub fn skinselect(&self) -> Option<ObjectId<obj::Skin>> {
-        if self.skinselect >= 0 {Some(unsafe { ObjectId::new_unchecked(self.skinselect as _) })} else {None}
+        if self.skinselect >= 0 {
+            Some(unsafe { ObjectId::new_unchecked(self.skinselect as _) })
+        } else {
+            None
+        }
     }
     /// set selected skin id
     pub fn set_skinselect(&mut self, skinselect: Option<ObjectId<obj::Skin>>) -> &mut Self {
-        self.skinselect = skinselect.map_or(-1, |id| id.index() as i32); self
+        self.skinselect = skinselect.map_or(-1, |id| id.index() as i32);
+        self
     }
 }
 
 pub use crate::bindgen::mjvCamera;
 impl Default for mjvCamera {
     /// Create a new camera with default settings by [`mjv_defaultCamera`](crate::mjv_defaultCamera).
-    /// 
+    ///
     /// See [`mjvCamera::default_free`] for a free camera.
     fn default() -> Self {
         crate::mjv_defaultCamera()
@@ -69,7 +84,7 @@ impl Default for mjvCamera {
 }
 impl mjvCamera {
     /// Create a new free camera with default settings by [`mjv_defaultFreeCamera`](crate::mjv_defaultFreeCamera).
-    /// 
+    ///
     /// See [`mjvCamera::default`] for a camera with default settings.
     pub fn default_free(m: &crate::mjModel) -> Self {
         crate::mjv_defaultFreeCamera(m)
@@ -89,8 +104,14 @@ fields_mapping!(mjvCamera {
 impl mjvCamera {
     /// fixed camera id
     pub fn fixedcamid(&self) -> Option<ObjectId<obj::Camera>> {
-        if self.type_ != mjtCamera::FIXED.0 as i32 {return None}
-        if self.fixedcamid >= 0 {Some(unsafe { ObjectId::new_unchecked(self.fixedcamid as _) })} else {None}
+        if self.type_ != mjtCamera::FIXED.0 as i32 {
+            return None;
+        }
+        if self.fixedcamid >= 0 {
+            Some(unsafe { ObjectId::new_unchecked(self.fixedcamid as _) })
+        } else {
+            None
+        }
     }
     /// set fixed camera id, with setting camera type to `mjtCamera::FIXED`.
     pub fn set_fixedcamid(&mut self, fixedcamid: ObjectId<obj::Camera>) -> &mut Self {
@@ -101,8 +122,14 @@ impl mjvCamera {
 
     /// body id to track
     pub fn trackbodyid(&self) -> Option<ObjectId<obj::Body>> {
-        if self.type_ != mjtCamera::TRACKING.0 as i32 {return None}
-        if self.trackbodyid >= 0 {Some(unsafe { ObjectId::new_unchecked(self.trackbodyid as _) })} else {None}
+        if self.type_ != mjtCamera::TRACKING.0 as i32 {
+            return None;
+        }
+        if self.trackbodyid >= 0 {
+            Some(unsafe { ObjectId::new_unchecked(self.trackbodyid as _) })
+        } else {
+            None
+        }
     }
     /// set body id to track, with setting camera type to `mjtCamera::TRACKING`.
     pub fn set_trackbodyid(&mut self, trackbodyid: ObjectId<obj::Body>) -> &mut Self {
@@ -111,7 +138,9 @@ impl mjvCamera {
         self
     }
 
-    pub fn orthographic(&self) -> bool {self.orthographic != 0}
+    pub fn orthographic(&self) -> bool {
+        self.orthographic != 0
+    }
     pub fn set_orthographic(&mut self, orthographic: bool) -> &mut Self {
         self.orthographic = orthographic as i32;
         self
@@ -165,7 +194,11 @@ fields_mapping!(mjvGeom {
 impl mjvGeom {
     /// mesh, hfield or plane id
     pub fn dataid(&self) -> Option<ObjectId<obj::Mesh>> {
-        if self.dataid >= 0 {Some(unsafe { ObjectId::new_unchecked(self.dataid as _) })} else {None}
+        if self.dataid >= 0 {
+            Some(unsafe { ObjectId::new_unchecked(self.dataid as _) })
+        } else {
+            None
+        }
     }
     /// object type; `mjtObj::UNKNOWN` for decor
     pub fn objtype(&self) -> mjtObj {
@@ -173,15 +206,27 @@ impl mjvGeom {
     }
     /// object id; `None` for decor
     pub fn objid(&self) -> Option<usize> {
-        if self.objid >= 0 {Some(self.objid as usize)} else {None}
+        if self.objid >= 0 {
+            Some(self.objid as usize)
+        } else {
+            None
+        }
     }
     /// material id
     pub fn matid(&self) -> Option<ObjectId<obj::Material>> {
-        if self.matid >= 0 {Some(unsafe { ObjectId::new_unchecked(self.matid as _) })} else {None}
+        if self.matid >= 0 {
+            Some(unsafe { ObjectId::new_unchecked(self.matid as _) })
+        } else {
+            None
+        }
     }
     /// segmentation id
     pub fn segid(&self) -> Option<SegmentationId> {
-        if self.segid >= 0 {Some(unsafe { SegmentationId::new_unchecked(self.segid as usize) })} else {None}
+        if self.segid >= 0 {
+            Some(unsafe { SegmentationId::new_unchecked(self.segid as usize) })
+        } else {
+            None
+        }
     }
     /// if mesh or flex geom has texture coordinates
     pub fn texcoord(&self) -> bool {
@@ -214,8 +259,12 @@ fields_mapping!(mjvLight {
     }
 });
 impl mjvLight {
-    pub fn headlight(&self) -> bool {self.headlight != 0}
-    pub fn castshadow(&self) -> bool {self.castshadow != 0}
+    pub fn headlight(&self) -> bool {
+        self.headlight != 0
+    }
+    pub fn castshadow(&self) -> bool {
+        self.castshadow != 0
+    }
 }
 
 pub use crate::bindgen::mjvOption;
@@ -236,17 +285,29 @@ fields_mapping!(mjvOption {
 });
 impl mjvOption {
     /// site visualization by group
-    pub fn sitegroup(&self) -> [bool; mjNGROUP] {self.sitegroup.map(|b| b != 0)}
+    pub fn sitegroup(&self) -> [bool; mjNGROUP] {
+        self.sitegroup.map(|b| b != 0)
+    }
     /// joint visualization by group
-    pub fn jointgroup(&self) -> [bool; mjNGROUP] {self.jointgroup.map(|b| b != 0)}
+    pub fn jointgroup(&self) -> [bool; mjNGROUP] {
+        self.jointgroup.map(|b| b != 0)
+    }
     /// tendon visualization by group
-    pub fn tendongroup(&self) -> [bool; mjNGROUP] {self.tendongroup.map(|b| b != 0)}
+    pub fn tendongroup(&self) -> [bool; mjNGROUP] {
+        self.tendongroup.map(|b| b != 0)
+    }
     /// actuator visualization by group
-    pub fn actuatorgroup(&self) -> [bool; mjNGROUP] {self.actuatorgroup.map(|b| b != 0)}
+    pub fn actuatorgroup(&self) -> [bool; mjNGROUP] {
+        self.actuatorgroup.map(|b| b != 0)
+    }
     /// flex visualization by group
-    pub fn flexgroup(&self) -> [bool; mjNGROUP] {self.flexgroup.map(|b| b != 0)}
+    pub fn flexgroup(&self) -> [bool; mjNGROUP] {
+        self.flexgroup.map(|b| b != 0)
+    }
     /// skin visualization by group
-    pub fn skingroup(&self) -> [bool; mjNGROUP] {self.skingroup.map(|b| b != 0)}
+    pub fn skingroup(&self) -> [bool; mjNGROUP] {
+        self.skingroup.map(|b| b != 0)
+    }
 }
 pub struct VisualizationFlags([u8; mjNVISFLAG]);
 impl std::ops::Index<mjtVisFlag> for VisualizationFlags {
@@ -257,12 +318,15 @@ impl std::ops::Index<mjtVisFlag> for VisualizationFlags {
 }
 impl std::ops::IndexMut<mjtVisFlag> for VisualizationFlags {
     fn index_mut(&mut self, index: mjtVisFlag) -> &mut Self::Output {
-        &mut (unsafe { std::mem::transmute::<_, &mut [bool; mjNVISFLAG]>(&mut self.0) })[index.0 as usize]
+        &mut (unsafe { std::mem::transmute::<_, &mut [bool; mjNVISFLAG]>(&mut self.0) })
+            [index.0 as usize]
     }
 }
 impl mjvOption {
     /// geom visualization by group
-    pub fn geomgroup(&self) -> [bool; mjNGROUP] {self.geomgroup.map(|b| b != 0)}
+    pub fn geomgroup(&self) -> [bool; mjNGROUP] {
+        self.geomgroup.map(|b| b != 0)
+    }
     /// mutate geom visualization by group
     pub fn geomgroup_mut(&mut self) -> &mut [bool; mjNGROUP] {
         unsafe { std::mem::transmute(&mut self.geomgroup) }
@@ -285,9 +349,9 @@ resource_wrapper!(
 );
 impl mjvScene {
     /// Create a new abstract scene with resources allocated for `maxgeom` geoms.
-    /// 
+    ///
     /// This internally calls:
-    /// 
+    ///
     /// 1. [`mjv_defaultScene`](crate::mjv_defaultScene) to set default values for the scene.
     /// 2. [`mjv_makeScene`](crate::mjv_makeScene) to allocate resources in the scene.
     pub fn new(model: &crate::mjModel, maxgeom: usize) -> Self {
@@ -298,7 +362,7 @@ impl mjvScene {
 }
 impl Default for mjvScene {
     /// Internally calls [`mjv_defaultScene`](crate::mjv_defaultScene).
-    /// 
+    ///
     /// **note**: Be sure to call [`mjv_makeScene`](crate::mjv_makeScene) for the returned `mjvScene`
     ///           to allocate resources in abstract scene before using it in rendering.
     fn default() -> Self {
@@ -327,10 +391,18 @@ fields_mapping!(mjvScene {
     }
 });
 impl mjvScene {
-    fn nflexedge(&self) -> usize {self.flexedgenum().iter().sum::<i32>() as usize}
-    fn nflexface(&self) -> usize {self.flexfacenum().iter().sum::<i32>() as usize}
-    fn nflexvert(&self) -> usize {self.flexvertnum().iter().sum::<i32>() as usize}
-    fn nskinvert(&self) -> usize {self.skinvertnum().iter().sum::<i32>() as usize}
+    fn nflexedge(&self) -> usize {
+        self.flexedgenum().iter().sum::<i32>() as usize
+    }
+    fn nflexface(&self) -> usize {
+        self.flexfacenum().iter().sum::<i32>() as usize
+    }
+    fn nflexvert(&self) -> usize {
+        self.flexvertnum().iter().sum::<i32>() as usize
+    }
+    fn nskinvert(&self) -> usize {
+        self.skinvertnum().iter().sum::<i32>() as usize
+    }
 }
 macro_rules! buffer_slices {
     ($($name:ident : [$T:ty; $size:ident $(* $mul:literal)?] = $description:literal;)*) => {
@@ -369,29 +441,42 @@ pub struct RenderingFlags([u8; mjNRNDFLAG as usize]);
 impl std::ops::Index<mjtRndFlag> for RenderingFlags {
     type Output = bool;
     fn index(&self, index: mjtRndFlag) -> &Self::Output {
-        &(unsafe { std::mem::transmute::<_, &[bool; mjNRNDFLAG as usize]>(&self.0) })[index.0 as usize]
+        &(unsafe { std::mem::transmute::<_, &[bool; mjNRNDFLAG as usize]>(&self.0) })
+            [index.0 as usize]
     }
 }
 impl std::ops::IndexMut<mjtRndFlag> for RenderingFlags {
     fn index_mut(&mut self, index: mjtRndFlag) -> &mut Self::Output {
-        &mut (unsafe { std::mem::transmute::<_, &mut [bool; mjNRNDFLAG as usize]>(&mut self.0) })[index.0 as usize]
+        &mut (unsafe { std::mem::transmute::<_, &mut [bool; mjNRNDFLAG as usize]>(&mut self.0) })
+            [index.0 as usize]
     }
 }
 impl mjvScene {
     /// copy of mjVIS_FLEXVERT mjvOption flag
-    pub fn flexvertopt(&self) -> bool {self.flexvertopt != 0}
+    pub fn flexvertopt(&self) -> bool {
+        self.flexvertopt != 0
+    }
     /// copy of mjVIS_FLEXEDGE mjvOption flag
-    pub fn flexedgeopt(&self) -> bool {self.flexedgeopt != 0}
+    pub fn flexedgeopt(&self) -> bool {
+        self.flexedgeopt != 0
+    }
     /// copy of mjVIS_FLEXFACE mjvOption flag
-    pub fn flexfaceopt(&self) -> bool {self.flexfaceopt != 0}
+    pub fn flexfaceopt(&self) -> bool {
+        self.flexfaceopt != 0
+    }
     /// copy of mjVIS_FLEXSKIN mjvOption flag
-    pub fn flexskinopt(&self) -> bool {self.flexskinopt != 0}
+    pub fn flexskinopt(&self) -> bool {
+        self.flexskinopt != 0
+    }
 
     /// enable model transformation
-    pub fn enabletransform(&self) -> bool {self.enabletransform != 0}
+    pub fn enabletransform(&self) -> bool {
+        self.enabletransform != 0
+    }
     /// set enable model transformation
     pub fn set_enabletransform(&mut self, enabletransform: bool) -> &mut Self {
-        self.enabletransform = enabletransform as u8; self
+        self.enabletransform = enabletransform as u8;
+        self
     }
 
     /// rendering flags
@@ -470,11 +555,16 @@ chars! {
 impl mjvFigure {
     /// line name for legend of index `index` \in `0..mjMAXLINE`
     pub fn linename(&self, index: usize) -> &str {
-        (unsafe { std::ffi::CStr::from_ptr(self.linename[index].as_ptr()) }).to_str().expect("Invalid UTF-8 in line name")
+        (unsafe { std::ffi::CStr::from_ptr(self.linename[index].as_ptr()) })
+            .to_str()
+            .expect("Invalid UTF-8 in line name")
     }
     /// set line name for legend of index `index` \in `0..mjMAXLINE`
     pub fn set_linename(&mut self, index: usize, name: &str) -> &mut Self {
-        assert!(index < mjMAXLINE, "`set_linename`: too large index `{index}`, must be index < {mjMAXLINE}");
+        assert!(
+            index < mjMAXLINE,
+            "`set_linename`: too large index `{index}`, must be index < {mjMAXLINE}"
+        );
         helper::copy_str_to_c_chararray(name, &mut self.linename[index]);
         self
     }

@@ -1,12 +1,9 @@
 //! # [Assets](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#assets)
 
-use crate::{mjSpec, mjsMesh, mjsDefault, mjsHField, mjsSkin, mjsTexture, mjsMaterial};
+use crate::{mjSpec, mjsDefault, mjsHField, mjsMaterial, mjsMesh, mjsSkin, mjsTexture};
 
 /// Add mesh to mjSpec.
-pub fn mjs_addMesh<'spec>(
-    s: &'spec mut mjSpec,
-    def: &mjsDefault,
-) -> &'spec mut mjsMesh {
+pub fn mjs_addMesh<'spec>(s: &'spec mut mjSpec, def: &mjsDefault) -> &'spec mut mjsMesh {
     unsafe { &mut *crate::bindgen::mjs_addMesh(s.as_mut_ptr(), def) }
 }
 
@@ -26,9 +23,6 @@ pub fn mjs_addTexture<'spec>(s: &'spec mut mjSpec) -> &'spec mut mjsTexture {
 }
 
 /// Add material to mjSpec.
-pub fn mjs_addMaterial<'spec>(
-    s: &'spec mut mjSpec,
-    def: &mjsDefault,
-) -> &'spec mut mjsMaterial {
+pub fn mjs_addMaterial<'spec>(s: &'spec mut mjSpec, def: &mjsDefault) -> &'spec mut mjsMaterial {
     unsafe { &mut *crate::bindgen::mjs_addMaterial(s.as_mut_ptr(), def) }
 }

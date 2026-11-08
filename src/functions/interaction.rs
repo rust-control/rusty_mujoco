@@ -1,13 +1,13 @@
 //! # [Interaction](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#interaction)
-//! 
+//!
 //! These functions implement abstract mouse interactions, allowing control over cameras and perturbations.
 //! Their use is well illustrated in [simulate](https://mujoco.readthedocs.io/en/stable/programming/samples.html#sasimulate).
 
-use crate::{mjModel, mjData, mjvScene, mjvCamera, mjvGLCamera, mjvPerturb, mjvOption};
 use crate::{ObjectId, obj};
+use crate::{mjData, mjModel, mjvCamera, mjvGLCamera, mjvOption, mjvPerturb, mjvScene};
 
 /// Set default camera.
-/// 
+///
 /// **note**: [`mjvCamera`] calls this function in its `Default` implementation.
 /* void mjv_defaultCamera(mjvCamera* cam); */
 pub fn mjv_defaultCamera() -> mjvCamera {
@@ -25,7 +25,7 @@ pub fn mjv_defaultFreeCamera(m: &mjModel) -> mjvCamera {
 }
 
 /// Set default perturbation.
-/// 
+///
 /// **note**: [`mjvPerturb`] calls this function in its `Default` implementation.
 /* void mjv_defaultPerturb(mjvPerturb* pert); */
 pub fn mjv_defaultPerturb() -> mjvPerturb {
@@ -37,7 +37,7 @@ pub fn mjv_defaultPerturb() -> mjvPerturb {
 /// Transform pose from room to model space,
 /// returning `(modelpos, modelquat)`.
 /* void mjv_room2model(mjtNum modelpos[3], mjtNum modelquat[4], const mjtNum roompos[3],
-                    const mjtNum roomquat[4], const mjvScene* scn); */
+const mjtNum roomquat[4], const mjvScene* scn); */
 pub fn mjv_room2model(
     roompos: [f64; 3],
     roomquat: [f64; 4],
@@ -62,7 +62,7 @@ pub fn mjv_room2model(
 /// Transform pose from model to room space,
 /// returning `(roompos, roomquat)`.
 /* void mjv_model2room(mjtNum roompos[3], mjtNum roomquat[4], const mjtNum modelpos[3],
-                    const mjtNum modelquat[4], const mjvScene* scn); */
+const mjtNum modelquat[4], const mjvScene* scn); */
 pub fn mjv_model2room(
     modelpos: [f64; 3],
     modelquat: [f64; 4],
@@ -87,19 +87,14 @@ pub fn mjv_model2room(
 /// Get camera info in model space; average left and right OpenGL cameras,
 /// returning `(headpos, forward, up)`.
 /* void mjv_cameraInModel(mjtNum headpos[3], mjtNum forward[3], mjtNum up[3],
-                       const mjvScene* scn); */
+const mjvScene* scn); */
 pub fn mjv_cameraInModel(scn: &mjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
     let mut headpos = [0.0; 3];
     let mut forward = [0.0; 3];
     let mut up = [0.0; 3];
 
     unsafe {
-        crate::bindgen::mjv_cameraInModel(
-            &mut headpos,
-            &mut forward,
-            &mut up,
-            scn.as_ptr(),
-        );
+        crate::bindgen::mjv_cameraInModel(&mut headpos, &mut forward, &mut up, scn.as_ptr());
     }
 
     (headpos, forward, up)
@@ -108,19 +103,14 @@ pub fn mjv_cameraInModel(scn: &mjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
 /// Get camera info in room space; average left and right OpenGL cameras,
 /// returning `(headpos, forward, up)`.
 /* void mjv_cameraInRoom(mjtNum headpos[3], mjtNum forward[3], mjtNum up[3],
-                      const mjvScene* scn); */
+const mjvScene* scn); */
 pub fn mjv_cameraInRoom(scn: &mjvScene) -> ([f64; 3], [f64; 3], [f64; 3]) {
     let mut headpos = [0.0; 3];
     let mut forward = [0.0; 3];
     let mut up = [0.0; 3];
 
     unsafe {
-        crate::bindgen::mjv_cameraInRoom(
-            &mut headpos,
-            &mut forward,
-            &mut up,
-            scn.as_ptr(),
-        );
+        crate::bindgen::mjv_cameraInRoom(&mut headpos, &mut forward, &mut up, scn.as_ptr());
     }
 
     (headpos, forward, up)
@@ -137,18 +127,14 @@ pub fn mjv_frustumHeight(scn: &mjvScene) -> f64 {
 pub fn mjv_alignToCamera(vec: [f64; 3], forward: [f64; 3]) -> [f64; 3] {
     let mut res = [0.0; 3];
     unsafe {
-        crate::bindgen::mjv_alignToCamera(
-            &mut res,
-            &vec,
-            &forward,
-        );
+        crate::bindgen::mjv_alignToCamera(&mut res, &vec, &forward);
     }
     res
 }
 
 /// Move camera with mouse.
 /* void mjv_moveCamera(const mjModel* m, int action, mjtNum reldx, mjtNum reldy,
-                    const mjvScene* scn, mjvCamera* cam); */
+const mjvScene* scn, mjvCamera* cam); */
 pub fn mjv_moveCamera(
     m: &mjModel,
     action: crate::bindgen::mjtMouse,
@@ -171,7 +157,7 @@ pub fn mjv_moveCamera(
 
 /// Move perturb object with mouse.
 /* void mjv_movePerturb(const mjModel* m, const mjData* d, int action, mjtNum reldx,
-                     mjtNum reldy, const mjvScene* scn, mjvPerturb* pert); */
+mjtNum reldy, const mjvScene* scn, mjvPerturb* pert); */
 pub fn mjv_movePerturb(
     m: &mjModel,
     d: &mjData,
@@ -196,7 +182,7 @@ pub fn mjv_movePerturb(
 
 /// Move model with mouse.
 /* void mjv_moveModel(const mjModel* m, int action, mjtNum reldx, mjtNum reldy,
-                   const mjtNum roomup[3], mjvScene* scn); */
+const mjtNum roomup[3], mjvScene* scn); */
 pub fn mjv_moveModel(
     m: &mjModel,
     action: crate::bindgen::mjtMouse,
@@ -228,13 +214,8 @@ pub fn mjv_initPerturb(m: &mjModel, d: &mut mjData, scn: &mjvScene, pert: &mut m
 /// Set perturb pos,quat in d->mocap when selected body is mocap, and in d->qpos otherwise.
 /// Write d->qpos only if flg_paused and subtree root for selected body has free joint.
 /* void mjv_applyPerturbPose(const mjModel* m, mjData* d, const mjvPerturb* pert,
-                          int flg_paused); */
-pub fn mjv_applyPerturbPose(
-    m: &mjModel,
-    d: &mut mjData,
-    pert: &mjvPerturb,
-    flg_paused: bool,
-) {
+int flg_paused); */
+pub fn mjv_applyPerturbPose(m: &mjModel, d: &mut mjData, pert: &mjvPerturb, flg_paused: bool) {
     unsafe {
         crate::bindgen::mjv_applyPerturbPose(
             m.as_ptr(),
@@ -256,12 +237,7 @@ pub fn mjv_applyPerturbForce(m: &mjModel, d: &mut mjData, pert: &mjvPerturb) {
 /// Return the average of two OpenGL cameras.
 /* mjvGLCamera mjv_averageCamera(const mjvGLCamera* cam1, const mjvGLCamera* cam2); */
 pub fn mjv_averageCamera(cam1: &mjvGLCamera, cam2: &mjvGLCamera) -> mjvGLCamera {
-    unsafe {
-        crate::bindgen::mjv_averageCamera(
-            cam1,
-            cam2,
-        )
-    }
+    unsafe { crate::bindgen::mjv_averageCamera(cam1, cam2) }
 }
 
 mod mjv_select {
@@ -275,22 +251,22 @@ mod mjv_select {
 }
 
 /// This function is used for mouse selection, relying on ray intersections.
-/// 
+///
 /// `aspectratio` is the viewport width/height.
 /// `relx` and `rely` are the relative coordinates of the 2D point of interest
 /// in the viewport (usually mouse cursor).
-/// 
+///
 /// The function returns the id of the geom under the specified 2D point,
 /// or `None` if there is no geom
 /// (note that they skybox if present is not a model geom).
-/// 
+///
 /// The 3D coordinates of the clicked point are returned (`selpnt`). See
 /// [simulate](https://mujoco.readthedocs.io/en/stable/programming/samples.html#sasimulate)
 /// for an illustration.
 /* int mjv_select(const mjModel* m, const mjData* d, const mjvOption* vopt,
-               mjtNum aspectratio, mjtNum relx, mjtNum rely,
-               const mjvScene* scn, mjtNum selpnt[3],
-               int geomid[1], int flexid[1], int skinid[1]); */
+mjtNum aspectratio, mjtNum relx, mjtNum rely,
+const mjvScene* scn, mjtNum selpnt[3],
+int geomid[1], int flexid[1], int skinid[1]); */
 pub fn mjv_select(
     m: &mjModel,
     d: &mjData,
@@ -322,9 +298,21 @@ pub fn mjv_select(
     }
 
     mjv_select::SelectResult {
-        geomid: if geomid[0] < 0 {None} else {Some(unsafe { ObjectId::new_unchecked(geomid[0] as usize) })},
-        flexid: if flexid[0] < 0 {None} else {Some(unsafe { ObjectId::new_unchecked(geomid[0] as usize) })},
-        skinid: if skinid[0] < 0 {None} else {Some(unsafe { ObjectId::new_unchecked(geomid[0] as usize) })},
+        geomid: if geomid[0] < 0 {
+            None
+        } else {
+            Some(unsafe { ObjectId::new_unchecked(geomid[0] as usize) })
+        },
+        flexid: if flexid[0] < 0 {
+            None
+        } else {
+            Some(unsafe { ObjectId::new_unchecked(geomid[0] as usize) })
+        },
+        skinid: if skinid[0] < 0 {
+            None
+        } else {
+            Some(unsafe { ObjectId::new_unchecked(geomid[0] as usize) })
+        },
         selpnt,
     }
 }

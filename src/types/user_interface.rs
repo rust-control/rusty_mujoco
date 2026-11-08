@@ -1,21 +1,16 @@
 //! # [User Interface](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#tyuistructure)
-//! 
+//!
 //! For a high-level description of the UI framework,
 //! see [User Interface](https://mujoco.readthedocs.io/en/stable/programming/ui.html#ui).
 //! The names of these struct types are prefixed with `mjui`, except for
 //! the main [`mjUI`] struct itself.
 
+use crate::bindgen::mjrRect;
 pub use crate::bindgen::{
-    mjtButton, mjtEvent, mjtItem, mjtSection,
-    mjfItemEnable,
-    mjMAXUIRECT, mjMAXUIMULTI, mjMAXUINAME, mjMAXUIEDIT, mjMAXUIITEM, mjMAXUITEXT, mjMAXUISECT,
+    mjMAXUIEDIT, mjMAXUIITEM, mjMAXUIMULTI, mjMAXUINAME, mjMAXUIRECT, mjMAXUISECT, mjMAXUITEXT,
+    mjfItemEnable, mjtButton, mjtEvent, mjtItem, mjtSection,
 };
-use crate::bindgen::{
-    mjrRect,
-};
-use crate::helper::{
-    Rgb, copy_str_to_c_chararray,
-};
+use crate::helper::{Rgb, copy_str_to_c_chararray};
 
 pub use crate::bindgen::mjuiState;
 fields_mapping!(mjuiState {
@@ -58,12 +53,16 @@ impl mjuiState {
     }
 
     /// Returns the paths to files dropped.
-    /// 
+    ///
     /// ## Panics
-    /// 
+    ///
     /// - if not `index < self.dropcount()`
     pub fn droppath(&self, index: usize) -> &str {
-        assert!(index < self.dropcount(), "mjuiState::droppath({index}): index out of bounds; must be < {}", self.dropcount());
+        assert!(
+            index < self.dropcount(),
+            "mjuiState::droppath({index}): index out of bounds; must be < {}",
+            self.dropcount()
+        );
         let c_str_ptr = unsafe { self.droppaths.add(index).read() };
         let c_str = unsafe { std::ffi::CStr::from_ptr(c_str_ptr) };
         c_str.to_str().expect("`droppath` returned non-UTF-8 bytes")
@@ -154,7 +153,10 @@ impl mjuiItemSingle {
             1 => Some(Modifier::Control),
             2 => Some(Modifier::Shift),
             4 => Some(Modifier::Alt),
-            _ => panic!("mjuiItemSingle::modifier: unexpected modifier value {}", self.modifier),
+            _ => panic!(
+                "mjuiItemSingle::modifier: unexpected modifier value {}",
+                self.modifier
+            ),
         }
     }
     /// Set the modifier key
@@ -170,7 +172,11 @@ impl mjuiItemSingle {
 
     /// shortcut key
     pub fn shortcut(&self) -> Option<u32> {
-        if self.shortcut == 0 {None} else {Some(self.shortcut as u32)}
+        if self.shortcut == 0 {
+            None
+        } else {
+            Some(self.shortcut as u32)
+        }
     }
     /// Set the shortcut key
     pub fn set_shortcut(&mut self, shortcut: Option<u32>) -> &mut Self {
@@ -187,13 +193,15 @@ fields_mapping!(mjuiItemMulti {
 });
 impl mjuiItemMulti {
     /// Returns the name of the element at `index`.
-    /// 
+    ///
     /// ## Panics
-    /// 
+    ///
     /// - if not `index < self.nelem()`
     pub fn name(&self, index: usize) -> &str {
         let c_str = unsafe { std::ffi::CStr::from_ptr(self.name[index].as_ptr()) };
-        c_str.to_str().expect("`mjuiItemMulti::name` returned non-UTF-8 bytes")
+        c_str
+            .to_str()
+            .expect("`mjuiItemMulti::name` returned non-UTF-8 bytes")
     }
 }
 
@@ -223,18 +231,18 @@ fields_mapping!(mjuiItemEdit {
 });
 impl mjuiItemEdit {
     /// Returns the range of the element at `index`, `None` for ignore.
-    /// 
+    ///
     /// ## Panics
-    /// 
+    ///
     /// - if not `index < self.nelem()`
     pub fn range(&self, index: usize) -> Option<std::ops::Range<f64>> {
         let [min, max] = self.range[index];
-        if min >= max {None} else {Some(min..max)}
+        if min >= max { None } else { Some(min..max) }
     }
     /// Set the range of the element at `index`, `None` for ignore.
-    /// 
+    ///
     /// ## Panics
-    /// 
+    ///
     /// - if not `index < self.nelem()`
     pub fn set_range(&mut self, index: usize, range: Option<std::ops::Range<f64>>) -> &mut Self {
         match range {
@@ -277,7 +285,9 @@ impl mjuiItem {
     /// name
     pub fn name(&self) -> &str {
         let c_str = unsafe { std::ffi::CStr::from_ptr(self.name.as_ptr()) };
-        c_str.to_str().expect("`mjuiItem::name` returned non-UTF-8 bytes")
+        c_str
+            .to_str()
+            .expect("`mjuiItem::name` returned non-UTF-8 bytes")
     }
     /* not provide for union safety
     /// Set the name of the item
@@ -290,28 +300,36 @@ impl mjuiItem {
     /// check and button properties for: `mjtItem::{BUTTON, CHECKINT, CHECKBYTE}`
     pub fn single(&self) -> Option<&mjuiItemSingle> {
         match self.type_() {
-            mjtItem::BUTTON | mjtItem::CHECKINT | mjtItem::CHECKBYTE => Some(unsafe { &self.__bindgen_anon_1.single }),
+            mjtItem::BUTTON | mjtItem::CHECKINT | mjtItem::CHECKBYTE => {
+                Some(unsafe { &self.__bindgen_anon_1.single })
+            }
             _ => None,
         }
     }
     /// static, radio and select properties for: `mjtItem::{RADIO, RADIOLINE, SELECT}`
     pub fn multi(&self) -> Option<&mjuiItemMulti> {
         match self.type_() {
-            mjtItem::RADIO | mjtItem::RADIOLINE | mjtItem::SELECT => Some(unsafe { &self.__bindgen_anon_1.multi }),
+            mjtItem::RADIO | mjtItem::RADIOLINE | mjtItem::SELECT => {
+                Some(unsafe { &self.__bindgen_anon_1.multi })
+            }
             _ => None,
         }
     }
     /// slider properties for: `mjtItem::{SLIDERINT, SLIDERNUM}`
     pub fn slider(&self) -> Option<&mjuiItemSlider> {
         match self.type_() {
-            mjtItem::SLIDERINT | mjtItem::SLIDERNUM => Some(unsafe { &self.__bindgen_anon_1.slider }),
+            mjtItem::SLIDERINT | mjtItem::SLIDERNUM => {
+                Some(unsafe { &self.__bindgen_anon_1.slider })
+            }
             _ => None,
         }
     }
     /// edit properties for: `mjtItem::{EDITINT, EDITNUM, EDITFLOAT, EDITTXT}`
     pub fn edit(&self) -> Option<&mjuiItemEdit> {
         match self.type_() {
-            mjtItem::EDITINT | mjtItem::EDITNUM | mjtItem::EDITFLOAT | mjtItem::EDITTXT => Some(unsafe { &self.__bindgen_anon_1.edit }),
+            mjtItem::EDITINT | mjtItem::EDITNUM | mjtItem::EDITFLOAT | mjtItem::EDITTXT => {
+                Some(unsafe { &self.__bindgen_anon_1.edit })
+            }
             _ => None,
         }
     }
@@ -338,7 +356,9 @@ impl mjuiSection {
     /// name
     pub fn name(&self) -> &str {
         let c_str = unsafe { std::ffi::CStr::from_ptr(self.name.as_ptr()) };
-        c_str.to_str().expect("`mjuiSection::name` returned non-UTF-8 bytes")
+        c_str
+            .to_str()
+            .expect("`mjuiSection::name` returned non-UTF-8 bytes")
     }
     /// Set the name of the section
     pub fn set_name(&mut self, name: &str) -> &mut Self {
@@ -364,7 +384,9 @@ impl mjuiDef {
     /// string with type-specific properties
     pub fn other(&self) -> &str {
         let c_str = unsafe { std::ffi::CStr::from_ptr(self.other.as_ptr()) };
-        c_str.to_str().expect("`mjuiDef::other` returned non-UTF-8 bytes")
+        c_str
+            .to_str()
+            .expect("`mjuiDef::other` returned non-UTF-8 bytes")
     }
     /// Set the string with type-specific properties
     pub fn set_other(&mut self, other: &str) -> &mut Self {
@@ -375,7 +397,9 @@ impl mjuiDef {
     /// name
     pub fn name(&self) -> &str {
         let c_str = unsafe { std::ffi::CStr::from_ptr(self.name.as_ptr()) };
-        c_str.to_str().expect("`mjuiDef::name` returned non-UTF-8 bytes")
+        c_str
+            .to_str()
+            .expect("`mjuiDef::name` returned non-UTF-8 bytes")
     }
     /// Set the name of the definition
     pub fn set_name(&mut self, name: &str) -> &mut Self {
@@ -420,7 +444,9 @@ impl mjUI {
     /// current text in the edit field
     pub fn edittext(&self) -> &str {
         let c_str = unsafe { std::ffi::CStr::from_ptr(self.edittext.as_ptr()) };
-        c_str.to_str().expect("`mjUI::edittext` returned non-UTF-8 bytes")
+        c_str
+            .to_str()
+            .expect("`mjUI::edittext` returned non-UTF-8 bytes")
     }
     /// Set the current text in the edit field
     pub fn set_edittext(&mut self, text: &str) -> &mut Self {
@@ -430,7 +456,11 @@ impl mjUI {
 
     /// Pointer to changed edit in last `mjui_event`
     pub fn editchanged(&self) -> Option<&mjuiItem> {
-        if self.editchanged.is_null() {None} else {Some(unsafe {&*self.editchanged})}
+        if self.editchanged.is_null() {
+            None
+        } else {
+            Some(unsafe { &*self.editchanged })
+        }
     }
 
     /// Predicate callback to set item state programmatically

@@ -1,4 +1,4 @@
-pub use crate::bindgen::{mjtObj, mjtWrap, mjtJoint};
+pub use crate::bindgen::{mjtJoint, mjtObj, mjtWrap};
 
 pub trait Element: Obj + element::Sealed {}
 mod element {
@@ -193,17 +193,14 @@ impl SegmentationId {
         */
         let objtype = self.0 >> 16;
         let objid = self.0 & 0xFFFF;
-        (
-            mjtObj(objtype as u32),
-            objid,
-        )
+        (mjtObj(objtype as u32), objid)
     }
 
     /// try to convert `SegmentationId` to `ObjectId<O>`
     pub fn to_object_id<O: Obj>(&self) -> Option<ObjectId<O>> {
         let (objtype, objid) = self.to_object_info();
         if objtype == O::TYPE {
-            Some(unsafe {ObjectId::new_unchecked(objid)})
+            Some(unsafe { ObjectId::new_unchecked(objid) })
         } else {
             None
         }
@@ -325,7 +322,8 @@ impl<O: Obj> std::fmt::Display for ObjectId<O> {
     }
 }
 
-impl<O: Obj> Clone for ObjectId<O> {// not require `O: Clone`
+impl<O: Obj> Clone for ObjectId<O> {
+    // not require `O: Clone`
     fn clone(&self) -> Self {
         Self {
             index: self.index,
@@ -335,19 +333,22 @@ impl<O: Obj> Clone for ObjectId<O> {// not require `O: Clone`
 }
 impl<O: Obj> Copy for ObjectId<O> {} // `O: Copy` is not required, as `usize` is always `Copy`
 
-impl<O: Obj> PartialEq for ObjectId<O> {// not require `O: PartialEq`
+impl<O: Obj> PartialEq for ObjectId<O> {
+    // not require `O: PartialEq`
     fn eq(&self, other: &Self) -> bool {
         self.index == other.index
     }
 }
 impl<O: Obj> Eq for ObjectId<O> {} // `O: Eq` is not required, as `usize` is always `Eq`
 
-impl<O: Obj> std::cmp::PartialOrd for ObjectId<O> {// not require `O: PartialOrd`
+impl<O: Obj> std::cmp::PartialOrd for ObjectId<O> {
+    // not require `O: PartialOrd`
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.index.cmp(&other.index))
     }
 }
-impl<O: Obj> std::cmp::Ord for ObjectId<O> {// not require `O: Ord`
+impl<O: Obj> std::cmp::Ord for ObjectId<O> {
+    // not require `O: Ord`
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
         self.index.cmp(&other.index)
     }
@@ -364,15 +365,17 @@ pub trait Joint: Obj {
     type Qvel: for<'q> TryFrom<&'q [f64]> + AsRef<[f64]>;
 }
 pub mod joint {
-    use super::{obj, Obj, Joint};
-    
+    use super::{Joint, Obj, obj};
+
     pub struct Free;
     impl super::private::Sealed for Free {}
     impl Obj for Free {
         const TYPE: super::mjtObj = super::mjtObj::JOINT;
         fn object_id(model: &crate::mjModel, name: &str) -> Option<super::ObjectId<Self>> {
             let o = obj::Joint::object_id(model, name)?;
-            if model.jnt_type(o) != Self::MJT {return None}
+            if model.jnt_type(o) != Self::MJT {
+                return None;
+            }
             Some(unsafe { super::ObjectId::<Self>::new_unchecked(o.index) })
         }
     }
@@ -390,7 +393,9 @@ pub mod joint {
         const TYPE: super::mjtObj = super::mjtObj::JOINT;
         fn object_id(model: &crate::mjModel, name: &str) -> Option<super::ObjectId<Self>> {
             let o = obj::Joint::object_id(model, name)?;
-            if model.jnt_type(o) != Self::MJT {return None}
+            if model.jnt_type(o) != Self::MJT {
+                return None;
+            }
             Some(unsafe { super::ObjectId::<Self>::new_unchecked(o.index) })
         }
     }
@@ -408,7 +413,9 @@ pub mod joint {
         const TYPE: super::mjtObj = super::mjtObj::JOINT;
         fn object_id(model: &crate::mjModel, name: &str) -> Option<super::ObjectId<Self>> {
             let o = obj::Joint::object_id(model, name)?;
-            if model.jnt_type(o) != Self::MJT {return None}
+            if model.jnt_type(o) != Self::MJT {
+                return None;
+            }
             Some(unsafe { super::ObjectId::<Self>::new_unchecked(o.index) })
         }
     }
@@ -426,7 +433,9 @@ pub mod joint {
         const TYPE: super::mjtObj = super::mjtObj::JOINT;
         fn object_id(model: &crate::mjModel, name: &str) -> Option<super::ObjectId<Self>> {
             let o = obj::Joint::object_id(model, name)?;
-            if model.jnt_type(o) != Self::MJT {return None}
+            if model.jnt_type(o) != Self::MJT {
+                return None;
+            }
             Some(unsafe { super::ObjectId::<Self>::new_unchecked(o.index) })
         }
     }
@@ -448,27 +457,39 @@ impl<J: Joint> Into<ObjectId<obj::Joint>> for ObjectId<J> {
 /*
  * TODO: use `Wrap` and `WrapObjectId` ?
  */
-pub trait Wrap: private::Sealed { const TYPE: mjtWrap; }
+pub trait Wrap: private::Sealed {
+    const TYPE: mjtWrap;
+}
 pub mod wrap {
     pub struct Joint;
     impl super::private::Sealed for Joint {}
-    impl super::Wrap for Joint { const TYPE: super::mjtWrap = super::mjtWrap::JOINT; }
+    impl super::Wrap for Joint {
+        const TYPE: super::mjtWrap = super::mjtWrap::JOINT;
+    }
 
     pub struct Pulley;
     impl super::private::Sealed for Pulley {}
-    impl super::Wrap for Pulley { const TYPE: super::mjtWrap = super::mjtWrap::PULLEY; }
+    impl super::Wrap for Pulley {
+        const TYPE: super::mjtWrap = super::mjtWrap::PULLEY;
+    }
 
     pub struct Site;
     impl super::private::Sealed for Site {}
-    impl super::Wrap for Site { const TYPE: super::mjtWrap = super::mjtWrap::SITE; }
+    impl super::Wrap for Site {
+        const TYPE: super::mjtWrap = super::mjtWrap::SITE;
+    }
 
     pub struct Sphere;
     impl super::private::Sealed for Sphere {}
-    impl super::Wrap for Sphere { const TYPE: super::mjtWrap = super::mjtWrap::SPHERE; }
+    impl super::Wrap for Sphere {
+        const TYPE: super::mjtWrap = super::mjtWrap::SPHERE;
+    }
 
     pub struct Cylinder;
     impl super::private::Sealed for Cylinder {}
-    impl super::Wrap for Cylinder { const TYPE: super::mjtWrap = super::mjtWrap::CYLINDER; }
+    impl super::Wrap for Cylinder {
+        const TYPE: super::mjtWrap = super::mjtWrap::CYLINDER;
+    }
 }
 pub struct WrapObjectId<W: Wrap> {
     index: usize,

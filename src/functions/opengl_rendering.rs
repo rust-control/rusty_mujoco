@@ -1,34 +1,28 @@
 //! # [OpenGL rendering](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#opengl-rendering)
-//! 
+//!
 //! These functions expose the OpenGL renderer. See
 //! [simulate](https://mujoco.readthedocs.io/en/stable/programming/samples.html#sasimulate)
 //! for an illustration of how to use these functions.
 
-pub use crate::bindgen::{
-    mjtFontScale, mjtFont, mjtGridPos,
-};
+pub use crate::bindgen::{mjtFont, mjtFontScale, mjtGridPos};
 
-use crate::helper::{
-    Rgb, Rgba,
-};
-use crate::{
-    ObjectId, obj,
-    mjModel, mjrContext, mjvScene, mjrRect, mjvFigure,
-    mjtFramebuffer,
-};
+use crate::helper::{Rgb, Rgba};
+use crate::{ObjectId, mjModel, mjrContext, mjrRect, mjtFramebuffer, mjvFigure, mjvScene, obj};
 
 /// Set default mjrContext.
-/// 
+///
 /// **note**: [`mjrContext`] calls this function in its `Default` implementation.
 /* void mjr_defaultContext(mjrContext* con); */
 pub fn mjr_defaultContext() -> mjrContext {
     let mut c = Box::<crate::bindgen::mjrContext>::new_uninit();
-    unsafe { crate::bindgen::mjr_defaultContext(c.as_mut_ptr()); }
+    unsafe {
+        crate::bindgen::mjr_defaultContext(c.as_mut_ptr());
+    }
     mjrContext::from_raw(Box::into_raw(unsafe { c.assume_init() }))
 }
 
 /// Allocate resources in custom OpenGL context; fontscale is [`mjtFontScale`].
-/// 
+///
 /// **note**: [`mjrContext`] calls this function in its `new` implementation.
 /* void mjr_makeContext(const mjModel* m, mjrContext* con, int fontscale); */
 pub fn mjr_makeContext(m: &mjModel, con: &mut mjrContext, fontscale: mjtFontScale) {
@@ -47,24 +41,20 @@ pub fn mjr_changeFont(fontscale: mjtFontScale, con: &mut mjrContext) {
 
 /// Add Aux buffer with given index to context; free previous Aux buffer.
 /* void mjr_addAux(int index, int width, int height, int samples, mjrContext* con); */
-pub fn mjr_addAux(
-    index: usize,
-    width: i32,
-    height: i32,
-    samples: i32,
-    con: &mut mjrContext,
-) {
+pub fn mjr_addAux(index: usize, width: i32, height: i32, samples: i32, con: &mut mjrContext) {
     unsafe {
         crate::bindgen::mjr_addAux(index as i32, width, height, samples, con.as_mut_ptr());
     }
 }
 
 /// Free resources in custom OpenGL context, set to default.
-/// 
+///
 /// **note**: [`mjrContext`] calls this function in its `Drop` implementation.
 /* void mjr_freeContext(mjrContext* con); */
 pub fn mjr_freeContext(con: &mut mjrContext) {
-    unsafe { crate::bindgen::mjr_freeContext(con.as_mut_ptr()); }
+    unsafe {
+        crate::bindgen::mjr_freeContext(con.as_mut_ptr());
+    }
     drop(unsafe { Box::from_raw(con.as_mut_ptr()) });
 }
 
@@ -120,15 +110,13 @@ pub fn mjr_setBuffer(framebuffer: mjtFramebuffer, con: &mut mjrContext) {
 /// Read pixels from current OpenGL framebuffer to client buffer.
 /// Viewport is in OpenGL framebuffer; client buffer starts at (0,0).
 /* void mjr_readPixels(unsigned char* rgb, float* depth,
-                    mjrRect viewport, const mjrContext* con); */
-pub fn mjr_readPixels(
-    rgb: &mut [u8],
-    depth: &mut [f32],
-    viewport: mjrRect,
-    con: &mjrContext,
-) {
+mjrRect viewport, const mjrContext* con); */
+pub fn mjr_readPixels(rgb: &mut [u8], depth: &mut [f32], viewport: mjrRect, con: &mjrContext) {
     assert_eq!(rgb.len(), (viewport.width * viewport.height * 3) as usize);
-    assert_eq!(depth.len(), viewport.width as usize * viewport.height as usize);
+    assert_eq!(
+        depth.len(),
+        viewport.width as usize * viewport.height as usize
+    );
     unsafe {
         crate::bindgen::mjr_readPixels(
             rgb.as_mut_ptr(),
@@ -142,29 +130,22 @@ pub fn mjr_readPixels(
 /// Draw pixels from client buffer to current OpenGL framebuffer.
 /// Viewport is in OpenGL framebuffer; client buffer starts at (0,0).
 /* void mjr_drawPixels(const unsigned char* rgb, const float* depth,
-                    mjrRect viewport, const mjrContext* con); */
-pub fn mjr_drawPixels(
-    rgb: &[u8],
-    depth: &[f32],
-    viewport: mjrRect,
-    con: &mjrContext,
-) {
+mjrRect viewport, const mjrContext* con); */
+pub fn mjr_drawPixels(rgb: &[u8], depth: &[f32], viewport: mjrRect, con: &mjrContext) {
     assert_eq!(rgb.len(), (viewport.width * viewport.height * 3) as usize);
-    assert_eq!(depth.len(), viewport.width as usize * viewport.height as usize);
+    assert_eq!(
+        depth.len(),
+        viewport.width as usize * viewport.height as usize
+    );
     unsafe {
-        crate::bindgen::mjr_drawPixels(
-            rgb.as_ptr(),
-            depth.as_ptr(),
-            viewport,
-            con.as_ptr(),
-        );
+        crate::bindgen::mjr_drawPixels(rgb.as_ptr(), depth.as_ptr(), viewport, con.as_ptr());
     }
 }
 
 /// Blit from src viewport in current framebuffer to dst viewport in other framebuffer.
 /// If src, dst have different size and flg_depth==0, color is interpolated with GL_LINEAR.
 /* void mjr_blitBuffer(mjrRect src, mjrRect dst,
-                    int flg_color, int flg_depth, const mjrContext* con); */
+int flg_color, int flg_depth, const mjrContext* con); */
 pub fn mjr_blitBuffer(
     src: mjrRect,
     dst: mjrRect,
@@ -193,13 +174,7 @@ pub fn mjr_setAux(index: i32, con: &mjrContext) {
 
 /// Blit from Aux buffer to con->currentBuffer.
 /* void mjr_blitAux(int index, mjrRect src, int left, int bottom, const mjrContext* con); */
-pub fn mjr_blitAux(
-    index: usize,
-    src: mjrRect,
-    left: i32,
-    bottom: i32,
-    con: &mjrContext,
-) {
+pub fn mjr_blitAux(index: usize, src: mjrRect, left: i32, bottom: i32, con: &mjrContext) {
     unsafe {
         crate::bindgen::mjr_blitAux(index as i32, src, left, bottom, con.as_ptr());
     }
@@ -207,7 +182,7 @@ pub fn mjr_blitAux(
 
 /// Draw text at (x,y) in relative coordinates; font is mjtFont.
 /* void mjr_text(int font, const char* txt, const mjrContext* con,
-              float x, float y, float r, float g, float b); */
+float x, float y, float r, float g, float b); */
 pub fn mjr_text(
     font: mjtFontScale,
     txt: &str,
@@ -218,22 +193,13 @@ pub fn mjr_text(
 ) {
     let c_txt = std::ffi::CString::new(txt).expect("`txt` has invalid UTF-8");
     unsafe {
-        crate::bindgen::mjr_text(
-            font.0 as i32,
-            c_txt.as_ptr(),
-            con.as_ptr(),
-            x,
-            y,
-            r,
-            g,
-            b,
-        );
+        crate::bindgen::mjr_text(font.0 as i32, c_txt.as_ptr(), con.as_ptr(), x, y, r, g, b);
     }
 }
 
 /// Draw text overlay; font is mjtFont; gridpos is mjtGridPos.
 /* void mjr_overlay(int font, int gridpos, mjrRect viewport,
-                 const char* overlay, const char* overlay2, const mjrContext* con); */
+const char* overlay, const char* overlay2, const mjrContext* con); */
 pub fn mjr_overlay(
     font: mjtFont,
     gridpos: mjtGridPos,
@@ -272,8 +238,8 @@ pub fn mjr_rectangle(viewport: mjrRect, Rgba { r, g, b, a }: Rgba) {
 
 /// Draw rectangle with centered text.
 /* void mjr_label(mjrRect viewport, int font, const char* txt,
-               float r, float g, float b, float a, float rt, float gt, float bt,
-               const mjrContext* con); */
+float r, float g, float b, float a, float rt, float gt, float bt,
+const mjrContext* con); */
 pub fn mjr_label(
     viewport: mjrRect,
     font: mjtFont,
@@ -288,8 +254,13 @@ pub fn mjr_label(
             viewport,
             font.0 as i32,
             c_txt.as_ptr(),
-            text_color.r, text_color.g, text_color.b, text_color.a,
-            background_color.r, background_color.g, background_color.b,
+            text_color.r,
+            text_color.g,
+            text_color.b,
+            text_color.a,
+            background_color.r,
+            background_color.g,
+            background_color.b,
             con.as_ptr(),
         );
     }
@@ -327,13 +298,11 @@ pub fn mjr_getError() -> i32 {
 
 /// Find first rectangle containing mouse, returning the index; `None` for not found.
 /* int mjr_findRect(int x, int y, int nrect, const mjrRect* rect); */
-pub fn mjr_findRect(
-    x: i32,
-    y: i32,
-    rect: &[mjrRect],
-) -> Option<usize> {
-    let index = unsafe {
-        crate::bindgen::mjr_findRect(x, y, rect.len() as i32, rect.as_ptr())
-    };
-    if index < 0 {None} else {Some(index as usize)}
+pub fn mjr_findRect(x: i32, y: i32, rect: &[mjrRect]) -> Option<usize> {
+    let index = unsafe { crate::bindgen::mjr_findRect(x, y, rect.len() as i32, rect.as_ptr()) };
+    if index < 0 {
+        None
+    } else {
+        Some(index as usize)
+    }
 }

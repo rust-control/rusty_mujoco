@@ -1,5 +1,5 @@
 //! # [Sub components](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#sub-components)
-//! 
+//!
 //! These are sub-components of the simulation pipeline, called internally from the components above.
 
 /// Evaluate position-dependent sensors.
@@ -100,13 +100,7 @@ pub fn mj_factorM(m: &crate::mjModel, d: &mut crate::mjData) {
 
 /// Solve linear system _M x = y_ using factorization: _x = (L^TDL)^{-1} y_
 /* void mj_solveM(const mjModel* m, mjData* d, mjtNum* x, const mjtNum* y, int n); */
-pub fn mj_solveM(
-    m: &crate::mjModel,
-    d: &mut crate::mjData,
-    x: &mut [f64],
-    y: &[f64],
-    n: usize,
-) {
+pub fn mj_solveM(m: &crate::mjModel, d: &mut crate::mjData, x: &mut [f64], y: &[f64], n: usize) {
     assert_eq!(x.len(), m.nv());
     assert_eq!(y.len(), m.nv());
     unsafe {
@@ -122,7 +116,7 @@ pub fn mj_solveM(
 
 /// Half of linear solve: _x = \sqrt{D^{-1}} (L^T)^{-1} y_
 /* void mj_solveM2(const mjModel* m, mjData* d, mjtNum* x, const mjtNum* y,
-                const mjtNum* sqrtInvD, int n); */
+const mjtNum* sqrtInvD, int n); */
 pub fn mj_solveM2(
     m: &crate::mjModel,
     d: &mut crate::mjData,
@@ -175,18 +169,14 @@ pub fn mj_subtreeVel(m: &crate::mjModel, d: &mut crate::mjData) {
 /// Recursive Newton Euler: compute _M(q) \ddot{q} + C(q, \dot{q})_.
 /// `flg_acc = false` removes the inertial term (i.e. assumes _\ddot{q} = 0_).
 /* void mj_rne(const mjModel* m, mjData* d, int flg_acc, mjtNum* result); */
-pub fn mj_rne(
-    m: &crate::mjModel,
-    d: &mut crate::mjData,
-    flg_acc: bool,
-) -> Vec<f64> {
+pub fn mj_rne(m: &crate::mjModel, d: &mut crate::mjData, flg_acc: bool) -> Vec<f64> {
     let mut result = vec![0.0; m.nv()];
     unsafe {
         crate::bindgen::mj_rne(
             m.as_ptr(),
             d.as_mut_ptr(),
             flg_acc as i32,
-            result.as_mut_ptr()
+            result.as_mut_ptr(),
         );
     }
     result
@@ -196,19 +186,19 @@ pub fn mj_rne(
 /// Computes three body-level `nv x 6` arrays, all defined in the subtreecom-based
 /// [c-frame](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#tynotescom)
 /// and arranged in `[rotation(3), translation(3)]` order.
-/// 
+///
 /// - `cacc`: Body acceleration, required for [`mj_objectAcceleration`](crate::mj_objectAcceleration).
 /// - `cfrc_int`: Interaction force with the parent body.
 /// - `cfrc_ext`: External force acting on the body.
-/// 
+///
 /// This function is triggered automatically if the following sensors are present in the model:
-/// 
+///
 /// - [accelerometer](https://mujoco.readthedocs.io/en/stable/XMLreference.html#sensor-accelerometer)
 /// - [force](https://mujoco.readthedocs.io/en/stable/XMLreference.html#sensor-force)
 /// - [torque](https://mujoco.readthedocs.io/en/stable/XMLreference.html#sensor-torque)
 /// - [framelinacc](https://mujoco.readthedocs.io/en/stable/XMLreference.html#sensor-framelinacc)
 /// - [frameangacc](https://mujoco.readthedocs.io/en/stable/XMLreference.html#sensor-frameangacc)
-/// 
+///
 /// It is also triggered for [user sensors](https://mujoco.readthedocs.io/en/stable/XMLreference.html#sensor-user)
 /// of [stage](https://mujoco.readthedocs.io/en/stable/XMLreference.html#sensor-user-needstage)
 /// “acc”.
@@ -248,10 +238,10 @@ pub fn mj_referenceConstraint(m: &crate::mjModel, d: &mut crate::mjData) {
 }
 
 /// Compute `efc_state`, `efc_force`, `qfrc_constraint`, and (optionally) cone Hessians.
-/// 
+///
 /// returns `s(jar) where jar = Jac*qacc - aref`.
 /* void mj_constraintUpdate(const mjModel* m, mjData* d, const mjtNum* jar,
-                         mjtNum cost[1], int flg_coneHessian); */
+mjtNum cost[1], int flg_coneHessian); */
 pub fn mj_constraintUpdate(
     m: &crate::mjModel,
     d: &mut crate::mjData,

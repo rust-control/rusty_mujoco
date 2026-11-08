@@ -1,18 +1,11 @@
 //! # [Attribute setters](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#attribute-setters)
 
-use crate::{
-    mjByteVec, mjString, mjStringVec, mjIntVec, mjFloatVec, mjDoubleVec,
-    mjsPlugin,
-};
+use crate::{mjByteVec, mjDoubleVec, mjFloatVec, mjIntVec, mjString, mjStringVec, mjsPlugin};
 
 /// Copy buffer to destination.
 pub fn mjs_setBuffer(dest: &mut mjByteVec, array: &[u8]) {
     unsafe {
-        crate::bindgen::mjs_setBuffer(
-            dest,
-            array.as_ptr() as *const _,
-            array.len() as i32,
-        );
+        crate::bindgen::mjs_setBuffer(dest, array.as_ptr() as *const _, array.len() as i32);
     }
 }
 
@@ -42,31 +35,43 @@ pub fn mjs_appendString(dest: &mut mjStringVec, text: &str) {
 
 /// Copy int array to vector.
 pub fn mjs_setInt(dest: &mut mjIntVec, array: &[i32]) {
-    unsafe { crate::bindgen::mjs_setInt(dest, array.as_ptr(), array.len() as i32); }
+    unsafe {
+        crate::bindgen::mjs_setInt(dest, array.as_ptr(), array.len() as i32);
+    }
 }
 
 /// Append int array to vector of arrays.
 pub fn mjs_appendIntVec(dest: &mut mjIntVec, array: &[i32]) {
-    unsafe { crate::bindgen::mjs_appendIntVec(dest, array.as_ptr(), array.len() as i32); }
+    unsafe {
+        crate::bindgen::mjs_appendIntVec(dest, array.as_ptr(), array.len() as i32);
+    }
 }
 
 /// Copy float array to vector.
 pub fn mjs_setFloat(dest: &mut mjFloatVec, array: &[f32]) {
-    unsafe { crate::bindgen::mjs_setFloat(dest, array.as_ptr(), array.len() as i32); }
+    unsafe {
+        crate::bindgen::mjs_setFloat(dest, array.as_ptr(), array.len() as i32);
+    }
 }
 
 /// Append float array to vector of arrays.
 pub fn mjs_appendFloatVec(dest: &mut mjFloatVec, array: &[f32]) {
-    unsafe { crate::bindgen::mjs_appendFloatVec(dest, array.as_ptr(), array.len() as i32); }
+    unsafe {
+        crate::bindgen::mjs_appendFloatVec(dest, array.as_ptr(), array.len() as i32);
+    }
 }
 
 /// Copy double array to vector.
 pub fn mjs_setDouble(dest: &mut mjDoubleVec, array: &[f64]) {
-    unsafe { crate::bindgen::mjs_setDouble(dest, array.as_ptr(), array.len() as i32); }
+    unsafe {
+        crate::bindgen::mjs_setDouble(dest, array.as_ptr(), array.len() as i32);
+    }
 }
 
 /// Set plugin attributes.
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn mjs_setPluginAttributes(plugin: &mut mjsPlugin, attributes: *mut std::ffi::c_void) {
-    unsafe { crate::bindgen::mjs_setPluginAttributes(plugin, attributes); }
+    unsafe {
+        crate::bindgen::mjs_setPluginAttributes(plugin, attributes);
+    }
 }

@@ -1,5 +1,5 @@
 //! # [Sim statistics](https://mujoco.readthedocs.io/en/latest/api.html#sim-statistics)
-//! 
+//!
 //! These structs are all embedded in [`mjData`](crate::mjData),
 //! and collect simulation-related statistics.
 

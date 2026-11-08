@@ -4,37 +4,16 @@ use crate::helper::{Dimention, FrictionDimention};
 
 /// Muscle active force, prm = (range[2], force, scale, lmin, lmax, vmax, fpmax, fvmax).
 /* mjtNum mju_muscleGain(mjtNum len, mjtNum vel, const mjtNum lengthrange[2],
-                      mjtNum acc0, const mjtNum prm[9]); */
-pub fn mju_muscleGain(
-    len: f64,
-    vel: f64,
-    lengthrange: [f64; 2],
-    acc0: f64,
-    prm: [f64; 9],
-) -> f64 {
-    unsafe {
-        crate::bindgen::mju_muscleGain(
-            len,
-            vel,
-            &lengthrange,
-            acc0,
-            &prm,
-        )
-    }
+mjtNum acc0, const mjtNum prm[9]); */
+pub fn mju_muscleGain(len: f64, vel: f64, lengthrange: [f64; 2], acc0: f64, prm: [f64; 9]) -> f64 {
+    unsafe { crate::bindgen::mju_muscleGain(len, vel, &lengthrange, acc0, &prm) }
 }
 
 /// Muscle passive force, prm = (range[2], force, scale, lmin, lmax, vmax, fpmax, fvmax).
 /* mjtNum mju_muscleBias(mjtNum len, const mjtNum lengthrange[2],
-                      mjtNum acc0, const mjtNum prm[9]); */
-pub fn mju_muscleBias(
-    len: f64,
-    lengthrange: [f64; 2],
-    acc0: f64,
-    prm: [f64; 9],
-) -> f64 {
-    unsafe {
-        crate::bindgen::mju_muscleBias(len, &lengthrange, acc0, &prm)
-    }
+mjtNum acc0, const mjtNum prm[9]); */
+pub fn mju_muscleBias(len: f64, lengthrange: [f64; 2], acc0: f64, prm: [f64; 9]) -> f64 {
+    unsafe { crate::bindgen::mju_muscleBias(len, &lengthrange, acc0, &prm) }
 }
 
 /// Muscle activation dynamics, prm = (tau_act, tau_deact, smoothing_width).
@@ -45,10 +24,7 @@ pub fn mju_muscleDynamics(ctrl: f64, act: f64, prm: [f64; 3]) -> f64 {
 
 /// Convert contact force to pyramid representation.
 /* void mju_encodePyramid(mjtNum* pyramid, const mjtNum* force, const mjtNum* mu, int dim); */
-pub fn mju_encodePyramid<const MU_DIM: usize>(
-    force: [f64; 3],
-    mu: [f64; MU_DIM],
-) -> [f64; 3]
+pub fn mju_encodePyramid<const MU_DIM: usize>(force: [f64; 3], mu: [f64; MU_DIM]) -> [f64; 3]
 where
     Dimention<MU_DIM>: FrictionDimention,
 {
@@ -66,10 +42,7 @@ where
 
 /// Convert pyramid representation to contact force.
 /* void mju_decodePyramid(mjtNum* force, const mjtNum* pyramid, const mjtNum* mu, int dim); */
-pub fn mju_decodePyramid<const MU_DIM: usize>(
-    pyramid: [f64; 3],
-    mu: [f64; MU_DIM],
-) -> [f64; 3]
+pub fn mju_decodePyramid<const MU_DIM: usize>(pyramid: [f64; 3], mu: [f64; MU_DIM]) -> [f64; 3]
 where
     Dimention<MU_DIM>: FrictionDimention,
 {
@@ -117,8 +90,12 @@ when directly implemented in Rust:
 /* const char* mju_writeNumBytes(size_t nbytes); */
 pub fn mju_writeNumBytes(nbytes: usize) -> String {
     let c_ptr = unsafe { crate::bindgen::mju_writeNumBytes(nbytes) };
-    #[cfg(debug_assertions)] {
-        assert!(!c_ptr.is_null(), "`mju_writeNumBytes` unexpectedly returned a null pointer");
+    #[cfg(debug_assertions)]
+    {
+        assert!(
+            !c_ptr.is_null(),
+            "`mju_writeNumBytes` unexpectedly returned a null pointer"
+        );
     }
     unsafe { std::ffi::CStr::from_ptr(c_ptr).to_str().unwrap().to_owned() }
 }
@@ -127,8 +104,12 @@ pub fn mju_writeNumBytes(nbytes: usize) -> String {
 /* const char* mju_warningText(int warning, size_t info); */
 pub fn mju_warningText(warning: crate::bindgen::mjtWarning, info: usize) -> String {
     let c_ptr = unsafe { crate::bindgen::mju_warningText(warning.0 as i32, info) };
-    #[cfg(debug_assertions)] {
-        assert!(!c_ptr.is_null(), "`mju_warningText` unexpectedly returned a null pointer");
+    #[cfg(debug_assertions)]
+    {
+        assert!(
+            !c_ptr.is_null(),
+            "`mju_warningText` unexpectedly returned a null pointer"
+        );
     }
     unsafe { std::ffi::CStr::from_ptr(c_ptr).to_str().unwrap().to_owned() }
 }
@@ -158,13 +139,13 @@ pub fn mju_Halton(index: usize, base: usize) -> f64 {
 }
 
 /// Twice continuously differentiable sigmoid function using a quintic polynomial:
-/// 
+///
 /// _s(x) =_
-/// 
+///
 /// - _0_ if _x <= 0_
 /// - _1_ if _1 <= x_
 /// - _6x^5 - 15x^4 + 10x^3_ otherwise
-/// 
+///
 /* mjtNum mju_sigmoid(mjtNum x); */
 pub fn mju_sigmoid(x: f64) -> f64 {
     unsafe { crate::bindgen::mju_sigmoid(x) }

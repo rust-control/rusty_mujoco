@@ -1,5 +1,5 @@
 //! # [mjModel](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#mjmodel)
-//! 
+//!
 //! This is the main data structure holding the MuJoCo model. It is treated as constant by the simulator.
 
 // pub use crate::bindgen::{mjModel, mjOption, mjVisual, mjStatistic};
@@ -113,18 +113,16 @@ fields_mapping!(mjModel {
 });
 
 pub use crate::bindgen::{
-    mjtSameFrame, mjtJoint, mjtGeom, mjtCamLight, mjtProjection, mjtFlexSelf, mjtTexture, mjtEq, mjtObj, mjtWrap, mjtTrn, mjtDyn, mjtGain, mjtBias, mjtSensor, mjtDataType, mjtStage,
-    mjNREF, mjNIMP, mjNFLUID, mjNTEXROLE, mjNEQDATA, mjNDYN, mjNGAIN, mjNBIAS,
+    mjNBIAS, mjNDYN, mjNEQDATA, mjNFLUID, mjNGAIN, mjNIMP, mjNREF, mjNTEXROLE, mjtBias,
+    mjtCamLight, mjtDataType, mjtDyn, mjtEq, mjtFlexSelf, mjtGain, mjtGeom, mjtJoint, mjtObj,
+    mjtProjection, mjtSameFrame, mjtSensor, mjtStage, mjtTexture, mjtTrn, mjtWrap,
 };
 use crate::{
-    helper::Rgba,
-    mjOption, mjVisual, mjStatistic,
-    ObjectId, Obj, obj, Joint, NodeId, VertexId, BoneId, ElementId, ElementDataId, EdgeId, EdgeDataId, ShellDataId, EvPairId, TexcoordId, FaceId, NormalId, TexDataId, HFieldDataId, BoneVertexId,
+    BoneId, BoneVertexId, EdgeDataId, EdgeId, ElementDataId, ElementId, EvPairId, FaceId,
+    HFieldDataId, Joint, NodeId, NormalId, Obj, ObjectId, ShellDataId, TexDataId, TexcoordId,
+    VertexId, helper::Rgba, mjOption, mjStatistic, mjVisual, obj,
 };
-use std::{
-    slice::from_raw_parts as slice,
-    array::from_fn as array,
-};
+use std::{array::from_fn as array, slice::from_raw_parts as slice};
 
 impl mjModel {
     pub fn object_id<O: Obj>(&self, name: &str) -> Option<ObjectId<O>> {
@@ -137,21 +135,27 @@ impl mjModel {
     /// qpos values at default pose
     pub fn qpos0<J: Joint>(&self, joint_id: ObjectId<J>) -> J::Qpos {
         unsafe {
-            let ptr = self.qpos0.add(self.jnt_qposadr.add(joint_id.index()).read() as usize);
-            J::Qpos::try_from(slice(ptr, J::QPOS_SIZE)).ok().unwrap()
-        }
-    }    
-    /// reference pose for springs
-    pub fn qpos_spring<J: Joint>(&self, joint_id: ObjectId<J>) -> J::Qpos {
-        unsafe {
-            let ptr = self.qpos_spring.add(self.jnt_qposadr.add(joint_id.index()).read() as usize);
+            let ptr = self
+                .qpos0
+                .add(self.jnt_qposadr.add(joint_id.index()).read() as usize);
             J::Qpos::try_from(slice(ptr, J::QPOS_SIZE)).ok().unwrap()
         }
     }
-    
+    /// reference pose for springs
+    pub fn qpos_spring<J: Joint>(&self, joint_id: ObjectId<J>) -> J::Qpos {
+        unsafe {
+            let ptr = self
+                .qpos_spring
+                .add(self.jnt_qposadr.add(joint_id.index()).read() as usize);
+            J::Qpos::try_from(slice(ptr, J::QPOS_SIZE)).ok().unwrap()
+        }
+    }
+
     /// id of body's parent
     pub fn body_parentid(&self, id: ObjectId<obj::Body>) -> Option<ObjectId<obj::Body>> {
-        let index = (unsafe { self.body_parentid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.body_parentid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// id of root above body
@@ -166,7 +170,9 @@ impl mjModel {
     }
     /// id of mocap data
     pub fn body_mocapid(&self, id: ObjectId<obj::Body>) -> Option<ObjectId<obj::Body>> {
-        let index = (unsafe { self.body_mocapid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.body_mocapid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// number of joints for this body
@@ -175,7 +181,9 @@ impl mjModel {
     }
     /// start addr of joints
     pub fn body_jntadr(&self, id: ObjectId<obj::Body>) -> Option<usize> {
-        (unsafe { self.body_jntadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.body_jntadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of motion degrees of freedom
     pub fn body_dofnum(&self, id: ObjectId<obj::Body>) -> usize {
@@ -183,11 +191,15 @@ impl mjModel {
     }
     /// start addr of dofs
     pub fn body_dofadr(&self, id: ObjectId<obj::Body>) -> Option<usize> {
-        (unsafe { self.body_dofadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.body_dofadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// id of body's kinematic tree
     pub fn body_treeid(&self, id: ObjectId<obj::Body>) -> Option<ObjectId<obj::Body>> {
-        let index = (unsafe { self.body_treeid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.body_treeid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// number of geoms
@@ -196,7 +208,9 @@ impl mjModel {
     }
     /// start addr of geoms
     pub fn body_geomadr(&self, id: ObjectId<obj::Body>) -> Option<usize> {
-        (unsafe { self.body_geomadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.body_geomadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// body_simple: 1: diag M; 2: diag M, sliders only
     pub fn body_simple(&self, id: ObjectId<obj::Body>) -> u8 {
@@ -231,7 +245,7 @@ impl mjModel {
     pub fn body_iquat(&self, id: ObjectId<obj::Body>) -> [f64; 4] {
         unsafe {
             let ptr = self.body_iquat.add(id.index() * 4);
-            array(|i| ptr.add(i).read())            
+            array(|i| ptr.add(i).read())
         }
     }
     /// mass
@@ -266,7 +280,9 @@ impl mjModel {
     }
     /// plugin instance id
     pub fn body_plugin(&self, id: ObjectId<obj::Body>) -> Option<ObjectId<obj::Plugin>> {
-        let index = (unsafe { self.body_plugin.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.body_plugin.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// bit-wise OR over all geom contypes
@@ -279,13 +295,17 @@ impl mjModel {
     }
     /// address of bounding volume hierarchy root
     pub fn body_bvhadr(&self, id: ObjectId<obj::Body>) -> Option<usize> {
-        (unsafe { self.body_bvhadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.body_bvhadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of bounding volumes
     pub fn body_bvhnum(&self, id: ObjectId<obj::Body>) -> Option<usize> {
-        (unsafe { self.body_bvhnum.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.body_bvhnum.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
-    
+
     /// depth in the bounding volume hierarchy
     pub fn bvh_depth(&self, id: ObjectId<obj::Geom>) -> usize {
         (unsafe { self.bvh_depth.add(id.index()).read() }) as usize
@@ -296,20 +316,25 @@ impl mjModel {
             let ptr = self.bvh_child.add(id.index() * 2);
             (
                 ptr.read().try_into().ok(),
-                ptr.add(1).read().try_into().ok()
+                ptr.add(1).read().try_into().ok(),
             )
         }
     }
     /// geom or elem id of node
     pub fn bvh_nodeid(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::Geom>> {
-        let index = (unsafe { self.bvh_nodeid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.bvh_nodeid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// local bounding box (center, size)
     pub fn bvh_aabb(&self, id: ObjectId<obj::Geom>) -> ([f64; 3], [f64; 3]) {
         unsafe {
             let ptr = self.bvh_aabb.add(id.index() * 6);
-            (array(|i| ptr.add(i).read()), array(|i| ptr.add(i + 3).read()))
+            (
+                array(|i| ptr.add(i).read()),
+                array(|i| ptr.add(i + 3).read()),
+            )
         }
     }
 
@@ -323,7 +348,9 @@ impl mjModel {
     }
     /// start addr in 'qvel' for joint's data
     pub fn jnt_dofadr(&self, id: impl Into<ObjectId<obj::Joint>>) -> Option<usize> {
-        (unsafe { self.jnt_dofadr.add(id.into().index()).read() }).try_into().ok()
+        (unsafe { self.jnt_dofadr.add(id.into().index()).read() })
+            .try_into()
+            .ok()
     }
     /// id of joint's body
     pub fn jnt_bodyid(&self, id: impl Into<ObjectId<obj::Joint>>) -> ObjectId<obj::Body> {
@@ -387,7 +414,10 @@ impl mjModel {
         (range != (0.0..0.0)).then_some(range)
     }
     /// range of total actuator force
-    pub fn jnt_actfrcrange(&self, id: impl Into<ObjectId<obj::Joint>>) -> Option<std::ops::Range<f64>> {
+    pub fn jnt_actfrcrange(
+        &self,
+        id: impl Into<ObjectId<obj::Joint>>,
+    ) -> Option<std::ops::Range<f64>> {
         let range = unsafe {
             let ptr = self.jnt_actfrcrange.add(id.into().index() * 2);
             ptr.read()..ptr.add(1).read()
@@ -411,7 +441,9 @@ impl mjModel {
     }
     /// id of dof's parent
     pub fn dof_parentid(&self, id: ObjectId<obj::Dof>) -> Option<ObjectId<obj::Dof>> {
-        let index = (unsafe { self.dof_parentid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.dof_parentid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// id of dof's kinematic tree
@@ -484,19 +516,29 @@ impl mjModel {
     }
     /// id of geom's mesh
     pub fn geom_dataid_mesh(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::Mesh>> {
-        if self.geom_type(id) != mjtGeom::MESH {return None}
-        let index = (unsafe { self.geom_dataid.add(id.index()).read() }).try_into().ok()?;
+        if self.geom_type(id) != mjtGeom::MESH {
+            return None;
+        }
+        let index = (unsafe { self.geom_dataid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// id of geom's hfield
     pub fn geom_dataid_hfield(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::HField>> {
-        if self.geom_type(id) != mjtGeom::HFIELD {return None}
-        let index = (unsafe { self.geom_dataid.add(id.index()).read() }).try_into().ok()?;
+        if self.geom_type(id) != mjtGeom::HFIELD {
+            return None;
+        }
+        let index = (unsafe { self.geom_dataid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// material id for rendering
     pub fn geom_matid(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::Material>> {
-        let index = (unsafe { self.geom_matid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.geom_matid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// group for visibility
@@ -509,7 +551,9 @@ impl mjModel {
     }
     /// plugin instance id
     pub fn geom_plugin(&self, id: ObjectId<obj::Geom>) -> Option<ObjectId<obj::Plugin>> {
-        let index = (unsafe { self.geom_plugin.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.geom_plugin.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// same frame as body (mjtSameframe)
@@ -545,7 +589,10 @@ impl mjModel {
     pub fn geom_aabb(&self, id: ObjectId<obj::Geom>) -> ([f64; 3], [f64; 3]) {
         unsafe {
             let ptr = self.geom_aabb.add(id.index() * 6);
-            (array(|i| ptr.add(i).read()), array(|i| ptr.add(i + 3).read()))
+            (
+                array(|i| ptr.add(i).read()),
+                array(|i| ptr.add(i + 3).read()),
+            )
         }
     }
     /// radius of bounding sphere
@@ -592,7 +639,12 @@ impl mjModel {
     pub fn geom_rgba(&self, id: ObjectId<obj::Geom>) -> Rgba {
         unsafe {
             let ptr = self.geom_rgba.add(id.index() * 4);
-            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+            Rgba {
+                r: ptr.read(),
+                g: ptr.add(1).read(),
+                b: ptr.add(2).read(),
+                a: ptr.add(3).read(),
+            }
         }
     }
 
@@ -607,7 +659,9 @@ impl mjModel {
     }
     /// material id for rendering
     pub fn site_matid(&self, id: ObjectId<obj::Site>) -> Option<ObjectId<obj::Material>> {
-        let index = (unsafe { self.site_matid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.site_matid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// group for visibility
@@ -643,7 +697,12 @@ impl mjModel {
     pub fn site_rgba(&self, id: ObjectId<obj::Site>) -> Rgba {
         unsafe {
             let ptr = self.site_rgba.add(id.index() * 4);
-            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+            Rgba {
+                r: ptr.read(),
+                g: ptr.add(1).read(),
+                b: ptr.add(2).read(),
+                a: ptr.add(3).read(),
+            }
         }
     }
 
@@ -658,7 +717,9 @@ impl mjModel {
     }
     /// id of targeted body
     pub fn cam_targetbodyid(&self, id: ObjectId<obj::Camera>) -> Option<ObjectId<obj::Body>> {
-        let index = (unsafe { self.cam_targetbodyid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.cam_targetbodyid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         unsafe { Some(ObjectId::new_unchecked(index)) }
     }
     /// does camera cast shadows
@@ -696,7 +757,7 @@ impl mjModel {
             [
                 [ptr.read(), ptr.add(1).read(), ptr.add(2).read()],
                 [ptr.add(3).read(), ptr.add(4).read(), ptr.add(5).read()],
-                [ptr.add(6).read(), ptr.add(7).read(), ptr.add(8).read()]
+                [ptr.add(6).read(), ptr.add(7).read(), ptr.add(8).read()],
             ]
         }
     }
@@ -723,7 +784,7 @@ impl mjModel {
     pub fn cam_sensorsize(&self, id: ObjectId<obj::Camera>) -> (f32, f32) {
         unsafe {
             let ptr = self.cam_sensorsize.add(id.index() * 2);
-            (ptr.read(), ptr.add(1).read())            
+            (ptr.read(), ptr.add(1).read())
         }
     }
     /// [focal length; principal point]
@@ -745,7 +806,9 @@ impl mjModel {
     }
     /// id of targeted body
     pub fn light_targetbodyid(&self, id: ObjectId<obj::Light>) -> Option<ObjectId<obj::Body>> {
-        let index = (unsafe { self.light_targetbodyid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.light_targetbodyid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// does light cast shadows
@@ -814,21 +877,36 @@ impl mjModel {
     pub fn light_ambient(&self, id: ObjectId<obj::Light>) -> Rgba {
         unsafe {
             let ptr = self.light_ambient.add(id.index() * 3);
-            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: 1.0 }
+            Rgba {
+                r: ptr.read(),
+                g: ptr.add(1).read(),
+                b: ptr.add(2).read(),
+                a: 1.0,
+            }
         }
     }
     /// diffuse rgb (alpha=1)
     pub fn light_diffuse(&self, id: ObjectId<obj::Light>) -> Rgba {
         unsafe {
             let ptr = self.light_diffuse.add(id.index() * 4);
-            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+            Rgba {
+                r: ptr.read(),
+                g: ptr.add(1).read(),
+                b: ptr.add(2).read(),
+                a: ptr.add(3).read(),
+            }
         }
     }
     /// specular rgb (alpha=1)
     pub fn light_specular(&self, id: ObjectId<obj::Light>) -> Rgba {
         unsafe {
             let ptr = self.light_specular.add(id.index() * 4);
-            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+            Rgba {
+                r: ptr.read(),
+                g: ptr.add(1).read(),
+                b: ptr.add(2).read(),
+                a: ptr.add(3).read(),
+            }
         }
     }
 
@@ -900,7 +978,9 @@ impl mjModel {
     }
     /// material id for rendering
     pub fn flex_matid(&self, id: ObjectId<obj::Flex>) -> Option<ObjectId<obj::Material>> {
-        let index = (unsafe { self.flex_matid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.flex_matid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// group for visibility
@@ -913,7 +993,9 @@ impl mjModel {
     }
     /// first node address
     pub fn flex_nodeadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
-        (unsafe { self.flex_nodeadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.flex_nodeadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of nodes
     pub fn flex_nodenum(&self, id: ObjectId<obj::Flex>) -> usize {
@@ -921,7 +1003,9 @@ impl mjModel {
     }
     /// first vertex address
     pub fn flex_vertadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
-        (unsafe { self.flex_vertadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.flex_vertadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of vertices
     pub fn flex_vertnum(&self, id: ObjectId<obj::Flex>) -> usize {
@@ -929,7 +1013,9 @@ impl mjModel {
     }
     /// first edge address
     pub fn flex_edgeadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
-        (unsafe { self.flex_edgeadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.flex_edgeadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of edges
     pub fn flex_edgenum(&self, id: ObjectId<obj::Flex>) -> usize {
@@ -937,7 +1023,9 @@ impl mjModel {
     }
     /// first element address
     pub fn flex_elemadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
-        (unsafe { self.flex_elemadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.flex_elemadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of elements
     pub fn flex_elemnum(&self, id: ObjectId<obj::Flex>) -> usize {
@@ -945,11 +1033,15 @@ impl mjModel {
     }
     /// first element vertex id address
     pub fn flex_elemdataadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
-        (unsafe { self.flex_elemdataadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.flex_elemdataadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// first element edge id address
     pub fn flex_elemedgeadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
-        (unsafe { self.flex_elemedgeadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.flex_elemedgeadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of shells
     pub fn flex_shellnum(&self, id: ObjectId<obj::Flex>) -> usize {
@@ -957,11 +1049,15 @@ impl mjModel {
     }
     /// first shell data address
     pub fn flex_shelldataadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
-        (unsafe { self.flex_shelldataadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.flex_shelldataadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// first evpair address
     pub fn flex_evpairadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
-        (unsafe { self.flex_evpairadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.flex_evpairadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of evpairs
     pub fn flex_evpairnum(&self, id: ObjectId<obj::Flex>) -> usize {
@@ -983,7 +1079,7 @@ impl mjModel {
             let ptr = self.flex_edge.add(id.index() * 2);
             (
                 VertexId::new_unchecked(ptr.read() as usize),
-                VertexId::new_unchecked(ptr.add(1).read() as usize)
+                VertexId::new_unchecked(ptr.add(1).read() as usize),
             )
         }
     }
@@ -1014,7 +1110,10 @@ impl mjModel {
     pub fn flex_evpair(&self, id: EvPairId) -> (ElementId<obj::Flex>, VertexId<obj::Flex>) {
         unsafe {
             let ptr = self.flex_evpair.add(id.index() * 2);
-            (ElementId::new_unchecked(ptr.read() as usize), VertexId::new_unchecked(ptr.add(1).read() as usize))
+            (
+                ElementId::new_unchecked(ptr.read() as usize),
+                VertexId::new_unchecked(ptr.add(1).read() as usize),
+            )
         }
     }
     /// vertex positions in local body frames
@@ -1098,7 +1197,9 @@ impl mjModel {
     }
     /// address of bvh root
     pub fn flex_bvhadr(&self, id: ObjectId<obj::Flex>) -> Option<usize> {
-        (unsafe { self.flex_bvhadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.flex_bvhadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of bounding volumes
     pub fn flex_bvhnum(&self, id: ObjectId<obj::Flex>) -> usize {
@@ -1108,7 +1209,12 @@ impl mjModel {
     pub fn flex_rgba(&self, id: ObjectId<obj::Flex>) -> Rgba {
         unsafe {
             let ptr = self.flex_rgba.add(id.index() * 4);
-            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+            Rgba {
+                r: ptr.read(),
+                g: ptr.add(1).read(),
+                b: ptr.add(2).read(),
+                a: ptr.add(3).read(),
+            }
         }
     }
     /// vertex texture coordinates
@@ -1121,7 +1227,9 @@ impl mjModel {
 
     /// first vertex address
     pub fn mesh_vertadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
-        (unsafe { self.mesh_vertadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.mesh_vertadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of vertices
     pub fn mesh_vertnum(&self, id: ObjectId<obj::Mesh>) -> usize {
@@ -1129,7 +1237,9 @@ impl mjModel {
     }
     /// first face address
     pub fn mesh_faceadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
-        (unsafe { self.mesh_faceadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.mesh_faceadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of faces
     pub fn mesh_facenum(&self, id: ObjectId<obj::Mesh>) -> usize {
@@ -1137,7 +1247,9 @@ impl mjModel {
     }
     /// address of bvh root
     pub fn mesh_bvhadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
-        (unsafe { self.mesh_bvhadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.mesh_bvhadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of bounding volumes
     pub fn mesh_bvhnum(&self, id: ObjectId<obj::Mesh>) -> usize {
@@ -1145,7 +1257,9 @@ impl mjModel {
     }
     /// first normal address
     pub fn mesh_normaladr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
-        (unsafe { self.mesh_normaladr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.mesh_normaladr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of normals
     pub fn mesh_normalnum(&self, id: ObjectId<obj::Mesh>) -> usize {
@@ -1153,7 +1267,9 @@ impl mjModel {
     }
     /// texcoord data address
     pub fn mesh_texcoordadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
-        (unsafe { self.mesh_texcoordadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.mesh_texcoordadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of texcoord
     pub fn mesh_texcoordnum(&self, id: ObjectId<obj::Mesh>) -> usize {
@@ -1218,13 +1334,17 @@ impl mjModel {
     }
     /// address of asset path for mesh
     pub fn mesh_pathadr(&self, id: ObjectId<obj::Mesh>) -> Option<usize> {
-        (unsafe { self.mesh_pathadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.mesh_pathadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     // TODO `mesh_poly*`
 
     /// skin material id
     pub fn skin_matid(&self, id: ObjectId<obj::Skin>) -> Option<ObjectId<obj::Material>> {
-        let index = (unsafe { self.skin_matid.add(id.index()).read() }).try_into().ok()?;
+        let index = (unsafe { self.skin_matid.add(id.index()).read() })
+            .try_into()
+            .ok()?;
         Some(unsafe { ObjectId::new_unchecked(index) })
     }
     /// group for visibility
@@ -1235,7 +1355,12 @@ impl mjModel {
     pub fn skin_rgba(&self, id: ObjectId<obj::Skin>) -> Rgba {
         unsafe {
             let ptr = self.skin_rgba.add(id.index() * 4);
-            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+            Rgba {
+                r: ptr.read(),
+                g: ptr.add(1).read(),
+                b: ptr.add(2).read(),
+                a: ptr.add(3).read(),
+            }
         }
     }
     /// inflate skin in normal direction
@@ -1244,7 +1369,9 @@ impl mjModel {
     }
     /// first vertex address
     pub fn skin_vertadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
-        (unsafe { self.skin_vertadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.skin_vertadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of vertices
     pub fn skin_vertnum(&self, id: ObjectId<obj::Skin>) -> usize {
@@ -1252,11 +1379,15 @@ impl mjModel {
     }
     /// texcoord data address
     pub fn skin_texcoordadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
-        (unsafe { self.skin_texcoordadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.skin_texcoordadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// first face address
     pub fn skin_faceadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
-        (unsafe { self.skin_faceadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.skin_faceadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of faces
     pub fn skin_facenum(&self, id: ObjectId<obj::Skin>) -> usize {
@@ -1264,7 +1395,9 @@ impl mjModel {
     }
     /// first bone in skin
     pub fn skin_boneadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
-        (unsafe { self.skin_boneadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.skin_boneadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of bones in skin
     pub fn skin_bonenum(&self, id: ObjectId<obj::Skin>) -> usize {
@@ -1293,7 +1426,9 @@ impl mjModel {
     }
     /// first vertex in each bone
     pub fn skin_bonevertadr(&self, id: BoneId) -> Option<usize> {
-        (unsafe { self.skin_bonevertadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.skin_bonevertadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of vertices in each bone
     pub fn skin_bonevertnum(&self, id: BoneId) -> usize {
@@ -1329,7 +1464,9 @@ impl mjModel {
     }
     /// address of asset path for skin
     pub fn skin_pathadr(&self, id: ObjectId<obj::Skin>) -> Option<usize> {
-        (unsafe { self.skin_pathadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.skin_pathadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
 
     /// (x, y, z_top, z_bottom)
@@ -1357,7 +1494,9 @@ impl mjModel {
     }
     /// address of hfield asset path
     pub fn hfield_pathadr(&self, id: ObjectId<obj::HField>) -> Option<usize> {
-        (unsafe { self.hfield_pathadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.hfield_pathadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
 
     /// texture type (mjtTexture)
@@ -1386,11 +1525,16 @@ impl mjModel {
     }
     /// address of texture asset path
     pub fn tex_pathadr(&self, id: ObjectId<obj::Texture>) -> Option<usize> {
-        (unsafe { self.tex_pathadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.tex_pathadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
 
     /// indices of textures
-    pub fn mat_texid(&self, id: ObjectId<obj::Material>) -> [Option<ObjectId<obj::Texture>>; mjNTEXROLE] {
+    pub fn mat_texid(
+        &self,
+        id: ObjectId<obj::Material>,
+    ) -> [Option<ObjectId<obj::Texture>>; mjNTEXROLE] {
         unsafe {
             let ptr = self.mat_texid.add(id.index() * mjNTEXROLE);
             array(|i| Some(ObjectId::new_unchecked(ptr.add(i).read().try_into().ok()?)))
@@ -1435,7 +1579,12 @@ impl mjModel {
     pub fn mat_rgba(&self, id: ObjectId<obj::Material>) -> Rgba {
         unsafe {
             let ptr = self.mat_rgba.add(id.index() * 4);
-            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+            Rgba {
+                r: ptr.read(),
+                g: ptr.add(1).read(),
+                b: ptr.add(2).read(),
+                a: ptr.add(3).read(),
+            }
         }
     }
 
@@ -1490,7 +1639,13 @@ impl mjModel {
     pub fn pair_friction(&self, id: ObjectId<obj::Pair>) -> (f64, f64, f64, f64, f64) {
         unsafe {
             let ptr = self.pair_friction.add(id.index() * 5);
-            (ptr.read(), ptr.add(1).read(), ptr.add(2).read(), ptr.add(3).read(), ptr.add(4).read())
+            (
+                ptr.read(),
+                ptr.add(1).read(),
+                ptr.add(2).read(),
+                ptr.add(3).read(),
+                ptr.add(4).read(),
+            )
         }
     }
 
@@ -1504,16 +1659,19 @@ impl mjModel {
         mjtEq((unsafe { self.eq_type.add(id.index()).read() }) as u32)
     }
     /// get object ids as `ObjectId<O>`; `None` if object is not of type `O`.
-    /// 
+    ///
     /// the object type can be got (as value) with `.eq_objtype()`.
-    pub fn eq_objid<O: Obj>(&self, id: ObjectId<obj::Equality>) -> Option<(ObjectId<O>, ObjectId<O>)> {
+    pub fn eq_objid<O: Obj>(
+        &self,
+        id: ObjectId<obj::Equality>,
+    ) -> Option<(ObjectId<O>, ObjectId<O>)> {
         if self.eq_objtype(id) != O::TYPE {
             return None;
         }
         unsafe {
             Some((
                 ObjectId::new_unchecked(self.eq_obj1id.add(id.index()).read() as usize),
-                ObjectId::new_unchecked(self.eq_obj2id.add(id.index()).read() as usize)
+                ObjectId::new_unchecked(self.eq_obj2id.add(id.index()).read() as usize),
             ))
         }
     }
@@ -1657,7 +1815,12 @@ impl mjModel {
     pub fn tendon_rgba(&self, id: ObjectId<obj::Tendon>) -> Rgba {
         unsafe {
             let ptr = self.tendon_rgba.add(id.index() * 4);
-            Rgba { r: ptr.read(), g: ptr.add(1).read(), b: ptr.add(2).read(), a: ptr.add(3).read() }
+            Rgba {
+                r: ptr.read(),
+                g: ptr.add(1).read(),
+                b: ptr.add(2).read(),
+                a: ptr.add(3).read(),
+            }
         }
     }
 
@@ -1666,7 +1829,7 @@ impl mjModel {
         mjtWrap((unsafe { self.wrap_type.add(index).read() }) as u32)
     }
     /// object id: geom, site, joint
-    /// 
+    ///
     /// Returns `None` if specified object type `O` does not match the wrap object type.
     /// The wrap object type can be got (as value) with `.wrap_type(index)`.
     pub fn wrap_objid<O: Obj>(&self, index: usize) -> Option<ObjectId<O>> {
@@ -1680,7 +1843,7 @@ impl mjModel {
     pub fn wrap_prm(&self, index: usize) -> f64 {
         unsafe { self.wrap_prm.add(index).read() }
     }
-    
+
     /// transmission type (mjtTrn)
     pub fn actuator_trntype(&self, id: ObjectId<obj::Actuator>) -> mjtTrn {
         mjtTrn((unsafe { self.actuator_trntype.add(id.index()).read() }) as u32)
@@ -1700,7 +1863,10 @@ impl mjModel {
     /// transmission id: joint, tendon, site
     ///
     /// Returns `None` if the transmission id does not match the object type `O`.
-    pub fn actuator_trnid<O: Obj>(&self, id: ObjectId<obj::Actuator>) -> (Option<ObjectId<O>>, Option<ObjectId<O>>) {
+    pub fn actuator_trnid<O: Obj>(
+        &self,
+        id: ObjectId<obj::Actuator>,
+    ) -> (Option<ObjectId<O>>, Option<ObjectId<O>>) {
         if (unsafe { self.actuator_trnid.add(id.index() * 2).read() }) != O::TYPE.0 as i32 {
             return (None, None);
         }
@@ -1708,13 +1874,15 @@ impl mjModel {
             let ptr = self.actuator_trnid.add(id.index() * 2);
             (
                 Some(ObjectId::new_unchecked(ptr.read() as usize)),
-                Some(ObjectId::new_unchecked(ptr.add(1).read() as usize))
+                Some(ObjectId::new_unchecked(ptr.add(1).read() as usize)),
             )
         }
     }
     /// first activation address; None: stateless
     pub fn actuator_actadr(&self, id: ObjectId<obj::Actuator>) -> Option<usize> {
-        (unsafe { self.actuator_actadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.actuator_actadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of activation variables
     pub fn actuator_actnum(&self, id: ObjectId<obj::Actuator>) -> usize {
@@ -1849,7 +2017,7 @@ impl mjModel {
         mjtObj((unsafe { self.sensor_reftype.add(id.index()).read() }) as u32)
     }
     /// id of reference frame;
-    /// 
+    ///
     /// Returns `None` when it's global frame or, if the reference frame type does not match the sensor reference type.
     /// The sensor reference type can be got (as value) with `.sensor_reftype(id)`.
     pub fn sensor_refid<O: Obj>(&self, id: ObjectId<obj::Sensor>) -> Option<ObjectId<O>> {
@@ -1890,7 +2058,9 @@ impl mjModel {
     }
     /// address in the plugin state array
     pub fn plugin_stateadr(&self, id: ObjectId<obj::Plugin>) -> Option<usize> {
-        (unsafe { self.plugin_stateadr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.plugin_stateadr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
     /// number of states in the plugin instance
     pub fn plugin_statenum(&self, id: ObjectId<obj::Plugin>) -> usize {
@@ -1908,7 +2078,9 @@ impl mjModel {
     }
     /// address to each instance's config attribute
     pub fn plugin_attradr(&self, id: ObjectId<obj::Plugin>) -> Option<usize> {
-        (unsafe { self.plugin_attradr.add(id.index()).read() }).try_into().ok()
+        (unsafe { self.plugin_attradr.add(id.index()).read() })
+            .try_into()
+            .ok()
     }
 
     /// keyframe time
@@ -1957,7 +2129,7 @@ impl mjModel {
             slice(ptr, self.nu())
         }
     }
-    
+
     /* TODO: *name* */
 }
 
@@ -1965,15 +2137,30 @@ impl mjModel {
 impl mjModel {
     /// number of non-zeros in each flex edge Jacobian row (nflexedge x 1)
     pub fn flexedge_J_rownnz(&self) -> &[i32] {
-        unsafe { slice((*self.as_ptr()).flexedge_J_rownnz as *const i32, self.nflexedge()) }
+        unsafe {
+            slice(
+                (*self.as_ptr()).flexedge_J_rownnz as *const i32,
+                self.nflexedge(),
+            )
+        }
     }
     /// row addresses in the flex edge Jacobian (nflexedge x 1)
     pub fn flexedge_J_rowadr(&self) -> &[i32] {
-        unsafe { slice((*self.as_ptr()).flexedge_J_rowadr as *const i32, self.nflexedge()) }
+        unsafe {
+            slice(
+                (*self.as_ptr()).flexedge_J_rowadr as *const i32,
+                self.nflexedge(),
+            )
+        }
     }
     /// column indices in the sparse flex edge Jacobian (nJfe x 1)
     pub fn flexedge_J_colind(&self) -> &[i32] {
-        unsafe { slice((*self.as_ptr()).flexedge_J_colind as *const i32, self.nJfe()) }
+        unsafe {
+            slice(
+                (*self.as_ptr()).flexedge_J_colind as *const i32,
+                self.nJfe(),
+            )
+        }
     }
 
     /// number of non-zeros in each tendon Jacobian row (ntendon x 1)

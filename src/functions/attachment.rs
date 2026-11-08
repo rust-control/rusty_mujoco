@@ -1,10 +1,10 @@
 //! # [Attachment](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#attachment)
 
-use crate::{mjSpec, mjsElement, mjsBody, mjsDefault};
+use crate::{mjSpec, mjsBody, mjsDefault, mjsElement};
 
 /// Attach child to a parent, return the attached element if success or `None` otherwise.
 /* mjsElement* mjs_attach(mjsElement* parent, const mjsElement* child,
-                       const char* prefix, const char* suffix); */
+const char* prefix, const char* suffix); */
 pub fn mjs_attach<'element>(
     parent: &'element mut mjsElement,
     child: &'element mjsElement,
@@ -18,12 +18,20 @@ pub fn mjs_attach<'element>(
         crate::bindgen::mjs_attach(
             parent,
             child,
-            prefix_cstr.as_ref().map_or(std::ptr::null(), |s| s.as_ptr()),
-            suffix_cstr.as_ref().map_or(std::ptr::null(), |s| s.as_ptr()),
+            prefix_cstr
+                .as_ref()
+                .map_or(std::ptr::null(), |s| s.as_ptr()),
+            suffix_cstr
+                .as_ref()
+                .map_or(std::ptr::null(), |s| s.as_ptr()),
         )
     };
 
-    if c_ptr.is_null() {None} else {Some(unsafe { &mut *c_ptr })}
+    if c_ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *c_ptr })
+    }
 }
 
 /// Delete body and descendants from mjSpec, remove all references.
@@ -33,7 +41,11 @@ pub fn mjs_detachBody(s: &mut mjSpec, b: &mut mjsBody) -> Result<(), ()> {
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-delete>
     > return 0 on success
     */
-    if unsafe { crate::bindgen::mjs_delete(s.as_mut_ptr(), b.element) } == 0 {Ok(())} else {Err(())}
+    if unsafe { crate::bindgen::mjs_delete(s.as_mut_ptr(), b.element) } == 0 {
+        Ok(())
+    } else {
+        Err(())
+    }
 }
 
 /// Delete default class and descendants from mjSpec, remove all references.
@@ -43,5 +55,9 @@ pub fn mjs_detachDefault(s: &mut mjSpec, d: &mut mjsDefault) -> Result<(), ()> {
     <https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#mjs-delete>
     > return 0 on success
     */
-    if unsafe { crate::bindgen::mjs_delete(s.as_mut_ptr(), d.element) } == 0 {Ok(())} else {Err(())}
+    if unsafe { crate::bindgen::mjs_delete(s.as_mut_ptr(), d.element) } == 0 {
+        Ok(())
+    } else {
+        Err(())
+    }
 }

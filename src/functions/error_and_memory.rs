@@ -36,11 +36,7 @@ pub fn mju_free(ptr: *mut u8) {
 
 /// High-level warning function: count warnings in mjData, print only the first.
 /* void mj_warning(mjData* d, int warning, int info); */
-pub fn mj_warning(
-    d: &mut crate::mjData,
-    warning: crate::bindgen::mjtWarning,
-    info: usize,
-) {
+pub fn mj_warning(d: &mut crate::mjData, warning: crate::bindgen::mjtWarning, info: usize) {
     unsafe { crate::bindgen::mj_warning(d.as_mut_ptr(), warning.0 as i32, info as i32) }
 }
 

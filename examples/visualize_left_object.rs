@@ -1,5 +1,5 @@
 use rusty_mujoco::{mj_loadXML, mj_makeData, mj_name2id, mj_step, mjr_render, mjv_updateScene};
-use rusty_mujoco::{mjrContext, mjrRect, mjvScene, mjvCamera, mjvOption, mjtCatBit, mjtFontScale};
+use rusty_mujoco::{mjrContext, mjrRect, mjtCatBit, mjtFontScale, mjvCamera, mjvOption, mjvScene};
 
 struct Args {
     xml_path: String,
@@ -13,10 +13,10 @@ impl Args {
             Options:\n\
             \t--camera <camera name>\tSpecify the name of camera to use for rendering (optional)\n\
         ";
-        
+
         let mut args = std::env::args().skip(1);
         let xml_path = args.next().expect(USAGE);
-        
+
         let (mut camera_name,) = (None,);
         while let Some(arg) = args.next() {
             match &*arg {
@@ -30,14 +30,20 @@ impl Args {
                 }
             }
         }
-        
-        Self { xml_path, camera_name }
+
+        Self {
+            xml_path,
+            camera_name,
+        }
     }
 }
 
 fn main() {
-    let Args { xml_path, camera_name } = Args::from_env();
-    
+    let Args {
+        xml_path,
+        camera_name,
+    } = Args::from_env();
+
     let model = mj_loadXML(xml_path).expect("Failed to load XML file");
     let mut data = mj_makeData(&model);
 
@@ -53,18 +59,20 @@ fn main() {
     let opt = mjvOption::default();
     let mut scn = mjvScene::new(&model, 2000);
     let mut cam = mjvCamera::default();
-    camera_name.map(|name| cam.set_fixedcamid(mj_name2id(&model, &name).expect("No camera of such name in the model")));
+    camera_name.map(|name| {
+        cam.set_fixedcamid(mj_name2id(&model, &name).expect("No camera of such name in the model"))
+    });
 
     while !window.should_close() {
         while data.time() < glfw.get_time() {
             mj_step(&model, &mut data);
         }
-        
+
         let viewport = {
             let (width, height) = window.get_framebuffer_size();
             mjrRect::new(0, 0, width as u32, height as u32)
         };
-        
+
         mjv_updateScene(
             &model,
             &mut data,
@@ -75,7 +83,7 @@ fn main() {
             &mut scn,
         );
         mjr_render(viewport, &mut scn, &con);
-        
+
         glfw::Context::swap_buffers(&mut *window);
         glfw.poll_events();
     }

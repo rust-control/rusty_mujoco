@@ -1,14 +1,14 @@
 //! # [Ray casting](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#ray-casting)
-//! 
+//!
 //! Ray collisions, also known as ray casting, find the distance `x`
 //! of a ray’s intersection with a geom, where a ray is a line emanating from
 //! the 3D point `p` in the direction `v` i.e., `(p + x*v, x >= 0)`.
-//! 
+//!
 //! All functions in this family return the distance to the nearest geom surface,
 //! or -1 if there is no intersection. Note that if `p` is inside a geom,
 //! the ray will intersect the surface from the inside which still counts as
 //! an intersection.
-//! 
+//!
 //! All ray collision functions rely on quantities computed by
 //! [`mj_kinematics`](crate::mj_kinematics) (see [`mjData`](crate::mjData)),
 //! so must be called after `mj_kinematics`, or functions that call it
@@ -18,14 +18,14 @@
 //! which casts multiple rays from a single point.
 
 use crate::helper::array_flatslice;
-use crate::{obj, ObjectId, VertexId};
+use crate::{ObjectId, VertexId, obj};
 
 /// Intersect multiple rays emanating from a single point.
 /// Similar semantics to [`mj_ray`](crate::mj_ray), but `vec` is an array of
 /// `(nray x 3)` directions.
 /* void mj_multiRay(const mjModel* m, mjData* d, const mjtNum pnt[3], const mjtNum* vec,
-                 const mjtByte* geomgroup, mjtBool flg_static, int bodyexclude,
-                 int* geomid, mjtNum* dist, mjtNum* normal, int nray, mjtNum cutoff); */
+const mjtByte* geomgroup, mjtBool flg_static, int bodyexclude,
+int* geomid, mjtNum* dist, mjtNum* normal, int nray, mjtNum cutoff); */
 pub fn mj_multiRay<const N_RAY: usize>(
     m: &crate::mjModel,
     d: &mut crate::mjData,
@@ -35,7 +35,7 @@ pub fn mj_multiRay<const N_RAY: usize>(
     flg_static: bool,
     bodyexclude: i32,
     cutoff: f64,
-) -> Vec<Option<(ObjectId::<obj::Geom>, f64)>> {
+) -> Vec<Option<(ObjectId<obj::Geom>, f64)>> {
     let mut geomid = vec![-1; N_RAY];
     let mut dist = vec![-1.0; N_RAY];
 
@@ -56,28 +56,30 @@ pub fn mj_multiRay<const N_RAY: usize>(
         )
     }
 
-    Iterator::zip(geomid.into_iter(), dist.into_iter()).map(|(geomid, dist)| {
-        if geomid < 0 || dist < 0.0 {
-            None
-        } else {
-            Some((unsafe { ObjectId::new_unchecked(geomid as usize) }, dist))
-        }
-    }).collect()
+    Iterator::zip(geomid.into_iter(), dist.into_iter())
+        .map(|(geomid, dist)| {
+            if geomid < 0 || dist < 0.0 {
+                None
+            } else {
+                Some((unsafe { ObjectId::new_unchecked(geomid as usize) }, dist))
+            }
+        })
+        .collect()
 }
 
 /// Intersect ray `(pnt + x * vec, x >= 0)` with visible geoms, except geoms in `bodyexclude`.
-/// 
+///
 /// Return `geomid` and distance (`x`) to nearest surface, or `None` if no intersection.
-/// 
+///
 /// `geomgroup` is an array of length `mjNGROUP`, where `1` means the group should be included.
 /// Pass `geomgroup = None` to skip group exclusion.
-/// 
+///
 /// If `flg_static` is `false`, static geoms will be excluded.
-/// 
+///
 /// `bodyexclude = None` can be used to indicate that all bodies are included.
 /* mjtNum mj_ray(const mjModel* m, const mjData* d, const mjtNum pnt[3], const mjtNum vec[3],
-              const mjtByte* geomgroup, mjtBool flg_static, int bodyexclude,
-              int geomid[1], mjtNum normal[3]); */
+const mjtByte* geomgroup, mjtBool flg_static, int bodyexclude,
+int geomid[1], mjtNum normal[3]); */
 pub fn mj_ray(
     m: &crate::mjModel,
     d: &crate::mjData,
@@ -90,7 +92,7 @@ pub fn mj_ray(
     let geomgroup = geomgroup.map(|geomgroup| geomgroup.map(|bool| bool as u8));
 
     let mut geomid = [-1];
-    
+
     let distance = unsafe {
         crate::bindgen::mj_ray(
             m.as_ptr(),
@@ -104,17 +106,20 @@ pub fn mj_ray(
             std::ptr::null_mut(),
         )
     };
-    
+
     if geomid[0] < 0 || distance < 0.0 {
         None
     } else {
-        Some((unsafe { ObjectId::new_unchecked(geomid[0] as usize) }, distance))
+        Some((
+            unsafe { ObjectId::new_unchecked(geomid[0] as usize) },
+            distance,
+        ))
     }
 }
 
 /// Intersect ray with hfield, return nearest distance or `None` if no intersection.
 /* mjtNum mj_rayHfield(const mjModel* m, const mjData* d, int geomid,
-                    const mjtNum pnt[3], const mjtNum vec[3], mjtNum normal[3]); */
+const mjtNum pnt[3], const mjtNum vec[3], mjtNum normal[3]); */
 pub fn mj_rayHfield(
     m: &crate::mjModel,
     d: &crate::mjData,
@@ -132,17 +137,13 @@ pub fn mj_rayHfield(
             std::ptr::null_mut(),
         )
     };
-    
-    if distance < 0.0 {
-        None
-    } else {
-        Some(distance)
-    }
+
+    if distance < 0.0 { None } else { Some(distance) }
 }
 
 /// Intersect ray with mesh, return nearest distance or `None` if no intersection.
 /* mjtNum mj_rayMesh(const mjModel* m, const mjData* d, int geomid,
-                  const mjtNum pnt[3], const mjtNum vec[3], mjtNum normal[3]); */
+const mjtNum pnt[3], const mjtNum vec[3], mjtNum normal[3]); */
 pub fn mj_rayMesh(
     m: &crate::mjModel,
     d: &crate::mjData,
@@ -160,18 +161,14 @@ pub fn mj_rayMesh(
             std::ptr::null_mut(),
         )
     };
-    
-    if distance < 0.0 {
-        None
-    } else {
-        Some(distance)
-    }
+
+    if distance < 0.0 { None } else { Some(distance) }
 }
 
 /// Intersect ray with pure geom, return nearest distance or `None` if no intersection.
 /* mjtNum mju_rayGeom(const mjtNum pos[3], const mjtNum mat[9], const mjtNum size[3],
-                   const mjtNum pnt[3], const mjtNum vec[3], int geomtype,
-                   mjtNum normal[3]); */
+const mjtNum pnt[3], const mjtNum vec[3], int geomtype,
+mjtNum normal[3]); */
 pub fn mju_rayGeom(
     pos: [f64; 3],
     mat: [f64; 9],
@@ -191,19 +188,15 @@ pub fn mju_rayGeom(
             std::ptr::null_mut(),
         )
     };
-    
-    if distance < 0.0 {
-        None
-    } else {
-        Some(distance)
-    }
+
+    if distance < 0.0 { None } else { Some(distance) }
 }
 
 /// Intersect ray with flex, return nearest distance or `None` if no intersection,
 /// and also output nearest vertex id.
 /* mjtNum mj_rayFlex(const mjModel* m, const mjData* d, int flex_layer, mjtBool flg_vert,
-                  mjtBool flg_edge, mjtBool flg_face, mjtBool flg_skin, int flexid,
-                  const mjtNum* pnt, const mjtNum* vec, int vertid[1], mjtNum normal[3]); */
+mjtBool flg_edge, mjtBool flg_face, mjtBool flg_skin, int flexid,
+const mjtNum* pnt, const mjtNum* vec, int vertid[1], mjtNum normal[3]); */
 pub fn mj_rayFlex(
     m: &crate::mjModel,
     d: &crate::mjData,
@@ -217,7 +210,7 @@ pub fn mj_rayFlex(
     vec: [f64; 3],
 ) -> Option<(VertexId<obj::Flex>, f64)> {
     let mut vertid = [-1i32];
-    
+
     let distance = unsafe {
         crate::bindgen::mj_rayFlex(
             m.as_ptr(),
@@ -234,18 +227,21 @@ pub fn mj_rayFlex(
             std::ptr::null_mut(),
         )
     };
-    
+
     if vertid[0] < 0 || distance < 0.0 {
         None
     } else {
-        Some((unsafe { VertexId::<obj::Flex>::new_unchecked(vertid[0] as usize) }, distance))
+        Some((
+            unsafe { VertexId::<obj::Flex>::new_unchecked(vertid[0] as usize) },
+            distance,
+        ))
     }
 }
 
 /// Intersect ray with skin, return nearest distance or `None` if no intersection,
 /// and also output nearest vertex id.
 /* mjtNum mju_raySkin(int nface, int nvert, const int* face, const float* vert,
-                   const mjtNum pnt[3], const mjtNum vec[3], int vertid[1]); */
+const mjtNum pnt[3], const mjtNum vec[3], int vertid[1]); */
 pub fn mju_raySkin<const N_FACE: usize, const N_VERT: usize>(
     face_indices: [[usize; 3]; N_FACE],
     vert_coordinates: [[f32; 3]; N_VERT],
@@ -257,7 +253,7 @@ pub fn mju_raySkin<const N_FACE: usize, const N_VERT: usize>(
     let face_indices: Vec<i32> = face_indices.iter().map(|&i| i as i32).collect();
 
     let mut vertid = [-1];
-    
+
     let distance = unsafe {
         crate::bindgen::mju_raySkin(
             N_FACE as i32,
@@ -269,10 +265,13 @@ pub fn mju_raySkin<const N_FACE: usize, const N_VERT: usize>(
             &mut vertid,
         )
     };
-    
+
     if vertid[0] < 0 || distance < 0.0 {
         None
     } else {
-        Some((unsafe { VertexId::<obj::Mesh>::new_unchecked(vertid[0] as usize) }, distance))
+        Some((
+            unsafe { VertexId::<obj::Mesh>::new_unchecked(vertid[0] as usize) },
+            distance,
+        ))
     }
 }

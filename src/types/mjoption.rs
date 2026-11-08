@@ -1,11 +1,11 @@
 //! # [mjOption](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#mjoption)
-//! 
+//!
 //! This is the data structure with simulation options. It corresponds to
 //! the MJCF element [option](https://mujoco.readthedocs.io/en/stable/XMLreference.html#option).
 //! One instance of it is embedded in [`mjModel`](crate::mjModel).
 
 pub use crate::bindgen::{
-    mjtIntegrator, mjtCone, mjtJacobian, mjtSolver, mjtDisableBit, mjtEnableBit
+    mjtCone, mjtDisableBit, mjtEnableBit, mjtIntegrator, mjtJacobian, mjtSolver,
 };
 
 pub use crate::bindgen::mjOption;

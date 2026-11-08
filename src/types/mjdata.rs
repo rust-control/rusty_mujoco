@@ -1,10 +1,9 @@
 //! # [mjData](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#mjdata)
-//! 
+//!
 //! This is the main data structure holding the simulation state. It is the workspace where all functions read their modifiable inputs and write their outputs.
 
 pub use crate::bindgen::{
-    mjtConstraint, mjtConstraintState,
-    mjNSOLVER, mjNISLAND, mjNTIMER, mjNWARNING,
+    mjNISLAND, mjNSOLVER, mjNTIMER, mjNWARNING, mjtConstraint, mjtConstraintState,
 };
 
 resource_wrapper!(
@@ -74,7 +73,7 @@ impl mjData {
     }
 }
 
-use crate::{mjModel, ObjectId, obj, Joint};
+use crate::{Joint, ObjectId, mjModel, obj};
 
 impl mjData {
     pub fn ctrl(&self, id: ObjectId<obj::Actuator>) -> f64 {
@@ -89,7 +88,12 @@ impl mjData {
         Some(unsafe { self.act.add(offset).read() })
     }
     /// Set the actuator activation value. `None` when the actuator is stateless.
-    pub fn set_act(&mut self, id: ObjectId<obj::Actuator>, value: f64, model: &mjModel) -> Option<()> {
+    pub fn set_act(
+        &mut self,
+        id: ObjectId<obj::Actuator>,
+        value: f64,
+        model: &mjModel,
+    ) -> Option<()> {
         let offset = model.actuator_actadr(id)?;
         unsafe { self.act.add(offset).write(value) };
         Some(())
@@ -97,7 +101,9 @@ impl mjData {
 
     pub fn qpos<J: Joint>(&self, id: ObjectId<J>, model: &mjModel) -> J::Qpos {
         let ptr = unsafe { self.qpos.add(model.jnt_qposadr(id)) };
-        J::Qpos::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QPOS_SIZE) }).ok().unwrap()
+        J::Qpos::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QPOS_SIZE) })
+            .ok()
+            .unwrap()
     }
     pub fn set_qpos<J: Joint>(&mut self, id: ObjectId<J>, qpos: J::Qpos, model: &mjModel) {
         let ptr = unsafe { self.qpos.add(model.jnt_qposadr(id)) };
@@ -105,11 +111,21 @@ impl mjData {
     }
 
     pub fn qvel<J: Joint>(&self, id: ObjectId<J>, model: &mjModel) -> J::Qvel {
-        let ptr = unsafe { self.qvel.add(model.jnt_dofadr(id).expect("Currently we don't support `weld` in `joint::`, so this will not be None...")) };
-        J::Qvel::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QVEL_SIZE) }).ok().unwrap()
+        let ptr = unsafe {
+            self.qvel.add(model.jnt_dofadr(id).expect(
+                "Currently we don't support `weld` in `joint::`, so this will not be None...",
+            ))
+        };
+        J::Qvel::try_from(unsafe { std::slice::from_raw_parts(ptr, J::QVEL_SIZE) })
+            .ok()
+            .unwrap()
     }
     pub fn set_qvel<J: Joint>(&mut self, id: ObjectId<J>, qvel: J::Qvel, model: &mjModel) {
-        let ptr = unsafe { self.qvel.add(model.jnt_dofadr(id).expect("Currently we don't support `weld` in `joint::`, so this will not be None...")) };
+        let ptr = unsafe {
+            self.qvel.add(model.jnt_dofadr(id).expect(
+                "Currently we don't support `weld` in `joint::`, so this will not be None...",
+            ))
+        };
         unsafe { std::ptr::copy_nonoverlapping(qvel.as_ref().as_ptr(), ptr, J::QVEL_SIZE) };
     }
 
@@ -125,7 +141,12 @@ impl mjData {
         Some(unsafe { self.plugin_state.add(offset).read() })
     }
     /// Set the plugin state value. Returns `None` when the plugin is stateless.
-    pub fn set_plugin_state(&mut self, id: ObjectId<obj::Plugin>, value: f64, model: &mjModel) -> Option<()> {
+    pub fn set_plugin_state(
+        &mut self,
+        id: ObjectId<obj::Plugin>,
+        value: f64,
+        model: &mjModel,
+    ) -> Option<()> {
         let offset = model.plugin_stateadr(id)?;
         unsafe { self.plugin_state.add(offset).write(value) };
         Some(())
@@ -157,23 +178,41 @@ impl mjData {
     /// `None` when the body is not a mocap body.
     pub fn mocap_pos(&self, id: ObjectId<obj::Body>, model: &mjModel) -> Option<[f64; 3]> {
         let offset = model.body_mocapid(id)?.index() * 3;
-        Some(std::array::from_fn(|i| unsafe { self.mocap_pos.add(offset + i).read() }))
+        Some(std::array::from_fn(|i| unsafe {
+            self.mocap_pos.add(offset + i).read()
+        }))
     }
     /// `None` when the body is not a mocap body.
-    pub fn set_mocap_pos(&mut self, id: ObjectId<obj::Body>, pos: [f64; 3], model: &mjModel) -> Option<()> {
+    pub fn set_mocap_pos(
+        &mut self,
+        id: ObjectId<obj::Body>,
+        pos: [f64; 3],
+        model: &mjModel,
+    ) -> Option<()> {
         let offset = model.body_mocapid(id)?.index() * 3;
-        unsafe { std::ptr::copy_nonoverlapping(pos.as_ptr(), self.mocap_pos.add(offset), pos.len()) };
+        unsafe {
+            std::ptr::copy_nonoverlapping(pos.as_ptr(), self.mocap_pos.add(offset), pos.len())
+        };
         Some(())
     }
 
     pub fn mocap_quat(&self, id: ObjectId<obj::Body>, model: &mjModel) -> Option<[f64; 4]> {
         let offset = model.body_mocapid(id)?.index() * 4;
-        Some(std::array::from_fn(|i| unsafe { self.mocap_quat.add(offset + i).read() }))
+        Some(std::array::from_fn(|i| unsafe {
+            self.mocap_quat.add(offset + i).read()
+        }))
     }
     /// `None` when the body is not a mocap body.
-    pub fn set_mocap_quat(&mut self, id: ObjectId<obj::Body>, quat: [f64; 4], model: &mjModel) -> Option<()> {
+    pub fn set_mocap_quat(
+        &mut self,
+        id: ObjectId<obj::Body>,
+        quat: [f64; 4],
+        model: &mjModel,
+    ) -> Option<()> {
         let offset = model.body_mocapid(id)?.index() * 4;
-        unsafe { std::ptr::copy_nonoverlapping(quat.as_ptr(), self.mocap_quat.add(offset), quat.len()) };
+        unsafe {
+            std::ptr::copy_nonoverlapping(quat.as_ptr(), self.mocap_quat.add(offset), quat.len())
+        };
         Some(())
     }
 }

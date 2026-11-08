@@ -2,8 +2,8 @@
 
 pub mod assets;
 pub mod attachment;
-pub mod attribute_setters;
 pub mod attribute_getters;
+pub mod attribute_setters;
 pub mod components;
 pub mod element_casting;
 pub mod element_initialization;
@@ -26,8 +26,8 @@ pub mod visualization;
 
 pub use assets::*;
 pub use attachment::*;
-pub use attribute_setters::*;
 pub use attribute_getters::*;
+pub use attribute_setters::*;
 pub use components::*;
 pub use element_casting::*;
 pub use element_initialization::*;

@@ -1,17 +1,14 @@
 //! # [Auxiliary](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#auxiliary)
-//! 
+//!
 //! hese struct types are used in the engine and their names are prefixed
 //! with `mj`.
-//! 
+//!
 //! [`mjVisual`] and [`mjStatistic`] are embedded in [`mjModel`](crate::mjModel),
 //! [`mjContact`] is embedded in [`mjData`](crate::mjData).
 
-pub use crate::bindgen::{
-    mjtLRMode,
-    mjNREF, mjNIMP,
-};
+pub use crate::bindgen::{mjNIMP, mjNREF, mjtLRMode};
 
-use crate::{obj, ObjectId, VertexId, ElementId};
+use crate::{ElementId, ObjectId, VertexId, obj};
 
 pub use crate::bindgen::mjVisual;
 impl Default for mjVisual {
@@ -45,14 +42,18 @@ fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_1 {
 });
 impl crate::bindgen::mjVisual___bindgen_ty_1 {
     /// is the free camera orthographic
-    pub fn orthographic(&self) -> bool {self.orthographic != 0}
+    pub fn orthographic(&self) -> bool {
+        self.orthographic != 0
+    }
     /// set if the free camera is orthographic
     pub fn set_orthographic(&mut self, value: bool) -> &mut Self {
         self.orthographic = value as i32;
         self
     }
     /// visualize active bounding volumes
-    pub fn bvactive(&self) -> bool {self.bvactive != 0}
+    pub fn bvactive(&self) -> bool {
+        self.bvactive != 0
+    }
     /// set if visualize active bounding volumes
     pub fn set_bvactive(&mut self, value: bool) -> &mut Self {
         self.bvactive = value as i32;
@@ -77,7 +78,9 @@ fields_mapping!(crate::bindgen::mjVisual___bindgen_ty_3 {
 });
 impl crate::bindgen::mjVisual___bindgen_ty_3 {
     /// is headlight active
-    pub fn active(&self) -> bool {self.active != 0}
+    pub fn active(&self) -> bool {
+        self.active != 0
+    }
     /// set if headlight is active
     pub fn set_active(&mut self, value: bool) -> &mut Self {
         self.active = value as i32;
@@ -168,7 +171,7 @@ fields_mapping!(mjContact {
         dist: f64 = "distance between nearest points; negative means penetration";
         pos: [f64; 3] = "position of contact point: midpoint between geoms";
         frame: [f64; 9] = "normal is in [0-2], points from geom[0] to geom[1]";
-        
+
         // contact parameters set by `mj_collideGeoms`
         includemargin: f64 = "include if dist < includemargin = margin - gap";
         friction: [f64; 5] = "tangent1, 2, spin, roll1, 2";
@@ -183,35 +186,69 @@ fields_mapping!(mjContact {
 });
 impl mjContact {
     /// contact space dimensionality: 1, 3, 4 or 6
-    pub fn dim(&self) -> usize {self.dim as usize}
-    
+    pub fn dim(&self) -> usize {
+        self.dim as usize
+    }
+
     /// geom ids; `None` for flex
     pub fn geom(&self) -> (Option<ObjectId<obj::Geom>>, Option<ObjectId<obj::Geom>>) {
         (
-            if self.geom[0] >= 0 {Some(unsafe { ObjectId::new_unchecked(self.geom[0] as usize) })} else {None},
-            if self.geom[1] >= 0 {Some(unsafe { ObjectId::new_unchecked(self.geom[1] as usize) })} else {None}
+            if self.geom[0] >= 0 {
+                Some(unsafe { ObjectId::new_unchecked(self.geom[0] as usize) })
+            } else {
+                None
+            },
+            if self.geom[1] >= 0 {
+                Some(unsafe { ObjectId::new_unchecked(self.geom[1] as usize) })
+            } else {
+                None
+            },
         )
     }
     /// flex ids; `None` for geom
     pub fn flex(&self) -> (Option<ObjectId<obj::Flex>>, Option<ObjectId<obj::Flex>>) {
         (
-            if self.flex[0] >= 0 {Some(unsafe { ObjectId::new_unchecked(self.flex[0] as usize) })} else {None},
-            if self.flex[1] >= 0 {Some(unsafe { ObjectId::new_unchecked(self.flex[1] as usize) })} else {None}
+            if self.flex[0] >= 0 {
+                Some(unsafe { ObjectId::new_unchecked(self.flex[0] as usize) })
+            } else {
+                None
+            },
+            if self.flex[1] >= 0 {
+                Some(unsafe { ObjectId::new_unchecked(self.flex[1] as usize) })
+            } else {
+                None
+            },
         )
     }
 
     /// element ids; `None` for geom or flex vertex
     pub fn elem(&self) -> (Option<ElementId<obj::Mesh>>, Option<ElementId<obj::Mesh>>) {
         (
-            if self.elem[0] >= 0 {Some(unsafe { ElementId::<obj::Mesh>::new_unchecked(self.elem[0] as usize) })} else {None},
-            if self.elem[1] >= 0 {Some(unsafe { ElementId::<obj::Mesh>::new_unchecked(self.elem[1] as usize) })} else {None}
+            if self.elem[0] >= 0 {
+                Some(unsafe { ElementId::<obj::Mesh>::new_unchecked(self.elem[0] as usize) })
+            } else {
+                None
+            },
+            if self.elem[1] >= 0 {
+                Some(unsafe { ElementId::<obj::Mesh>::new_unchecked(self.elem[1] as usize) })
+            } else {
+                None
+            },
         )
     }
     /// vertex ids; `None` for geom or flex element
     pub fn vert(&self) -> (Option<VertexId<obj::Mesh>>, Option<VertexId<obj::Mesh>>) {
         (
-            if self.vert[0] >= 0 {Some(unsafe { VertexId::<obj::Mesh>::new_unchecked(self.vert[0] as usize) })} else {None},
-            if self.vert[1] >= 0 {Some(unsafe { VertexId::<obj::Mesh>::new_unchecked(self.vert[1] as usize) })} else {None}
+            if self.vert[0] >= 0 {
+                Some(unsafe { VertexId::<obj::Mesh>::new_unchecked(self.vert[0] as usize) })
+            } else {
+                None
+            },
+            if self.vert[1] >= 0 {
+                Some(unsafe { VertexId::<obj::Mesh>::new_unchecked(self.vert[1] as usize) })
+            } else {
+                None
+            },
         )
     }
 }
@@ -235,7 +272,11 @@ impl mjContact {
 
     /// address in efc; `None` means not included
     pub fn efc_address(&self) -> Option<usize> {
-        if self.efc_address >= 0 {Some(self.efc_address as usize)} else {None}
+        if self.efc_address >= 0 {
+            Some(self.efc_address as usize)
+        } else {
+            None
+        }
     }
 }
 
@@ -261,16 +302,22 @@ fields_mapping!(mjLROpt {
 });
 impl mjLROpt {
     /// use existing length range if available
-    pub fn useexisting(&self) -> bool {self.useexisting != 0}
+    pub fn useexisting(&self) -> bool {
+        self.useexisting != 0
+    }
     /// Set if use existing length range if available
     pub fn set_useexisting(&mut self, value: bool) -> &mut Self {
-        self.useexisting = value as i32; self
+        self.useexisting = value as i32;
+        self
     }
 
     /// use joint and tendon limits if available
-    pub fn uselimit(&self) -> bool {self.uselimit != 0}
+    pub fn uselimit(&self) -> bool {
+        self.uselimit != 0
+    }
     /// Set if use joint and tendon limits if available
     pub fn set_uselimit(&mut self, value: bool) -> &mut Self {
-        self.uselimit = value as i32; self
+        self.uselimit = value as i32;
+        self
     }
 }

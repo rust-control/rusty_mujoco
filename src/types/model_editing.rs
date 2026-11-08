@@ -1,14 +1,12 @@
 //! # [Model Editing](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#model-editing)
-//! 
+//!
 //! The structs below are defined in mjspec.h and, with the exception of
 //! the top level [`mjSpec`] struct, begin with the `mjs` prefix.
 //! For more details, see the [Model Editing](https://mujoco.readthedocs.io/en/stable/programming/modeledit.html) chapter.
 
-pub use crate::bindgen::{
-    mjtInertiaFromGeom,
-};
+pub use crate::bindgen::mjtInertiaFromGeom;
 
-use crate::bindgen::{mjOption, mjVisual, mjStatistic, mjString, mjLROpt};
+use crate::bindgen::{mjLROpt, mjOption, mjStatistic, mjString, mjVisual};
 
 resource_wrapper!(
     mjSpec for crate::bindgen::mjSpec;
@@ -52,55 +50,97 @@ fields_mapping!(mjSpec {
 });
 impl mjSpec {
     /// element type, do not modify
-    pub fn element(&self) -> &mjsElement {unsafe { &*self.element }}
+    pub fn element(&self) -> &mjsElement {
+        unsafe { &*self.element }
+    }
 
     /// model name
     pub fn modelname(&self) -> Option<&mjString> {
-        if self.modelname.is_null() {None} else {Some(unsafe { &*self.modelname })}
+        if self.modelname.is_null() {
+            None
+        } else {
+            Some(unsafe { &*self.modelname })
+        }
     }
     /// mutable model name
     pub fn modelname_mut(&mut self) -> Option<&mut mjString> {
-        if self.modelname.is_null() {None} else {Some(unsafe { &mut *self.modelname })}
+        if self.modelname.is_null() {
+            None
+        } else {
+            Some(unsafe { &mut *self.modelname })
+        }
     }
 
     /// comment at top of XML
     pub fn comment(&self) -> Option<&mjString> {
-        if self.comment.is_null() {None} else {Some(unsafe { &*self.comment })}
+        if self.comment.is_null() {
+            None
+        } else {
+            Some(unsafe { &*self.comment })
+        }
     }
     /// mutable comment at top of XML
     pub fn comment_mut(&mut self) -> Option<&mut mjString> {
-        if self.comment.is_null() {None} else {Some(unsafe { &mut *self.comment })}
+        if self.comment.is_null() {
+            None
+        } else {
+            Some(unsafe { &mut *self.comment })
+        }
     }
 
     /// path to model file
     pub fn modelfiledir(&self) -> Option<&mjString> {
-        if self.modelfiledir.is_null() {None} else {Some(unsafe { &*self.modelfiledir })}
+        if self.modelfiledir.is_null() {
+            None
+        } else {
+            Some(unsafe { &*self.modelfiledir })
+        }
     }
     /// mutable path to model file
     pub fn modelfiledir_mut(&mut self) -> Option<&mut mjString> {
-        if self.modelfiledir.is_null() {None} else {Some(unsafe { &mut *self.modelfiledir })}
+        if self.modelfiledir.is_null() {
+            None
+        } else {
+            Some(unsafe { &mut *self.modelfiledir })
+        }
     }
 
     /// mesh and hfield directory
     pub fn meshdir(&self) -> Option<&mjString> {
         let meshdir = unsafe { (*self.as_ptr()).compiler.meshdir };
-        if meshdir.is_null() {None} else {Some(unsafe { &*meshdir })}
+        if meshdir.is_null() {
+            None
+        } else {
+            Some(unsafe { &*meshdir })
+        }
     }
     /// mutable mesh and hfield directory
     pub fn meshdir_mut(&mut self) -> Option<&mut mjString> {
         let meshdir = unsafe { (*self.as_mut_ptr()).compiler.meshdir };
-        if meshdir.is_null() {None} else {Some(unsafe { &mut *meshdir })}
+        if meshdir.is_null() {
+            None
+        } else {
+            Some(unsafe { &mut *meshdir })
+        }
     }
 
     /// texture directory
     pub fn texturedir(&self) -> Option<&mjString> {
         let texturedir = unsafe { (*self.as_ptr()).compiler.texturedir };
-        if texturedir.is_null() {None} else {Some(unsafe { &*texturedir })}
+        if texturedir.is_null() {
+            None
+        } else {
+            Some(unsafe { &*texturedir })
+        }
     }
     /// mutable texture directory
     pub fn texturedir_mut(&mut self) -> Option<&mut mjString> {
         let texturedir = unsafe { (*self.as_mut_ptr()).compiler.texturedir };
-        if texturedir.is_null() {None} else {Some(unsafe { &mut *texturedir })}
+        if texturedir.is_null() {
+            None
+        } else {
+            Some(unsafe { &mut *texturedir })
+        }
     }
 }
 
@@ -143,11 +183,15 @@ fields_mapping!(mjsCompiler {
 impl mjsCompiler {
     /// sequence for Euler rotations
     pub fn eulerseq(&self) -> [char; 3] {
-        self.eulerseq.map(|i8| u8::try_from(i8).expect("unexpected char in `eulerseq`") as char)
+        self.eulerseq
+            .map(|i8| u8::try_from(i8).expect("unexpected char in `eulerseq`") as char)
     }
     /// set sequence for Euler rotations (**ASCII characters**)
     pub fn set_eulerseq(&mut self, seq: [char; 3]) -> &mut Self {
-        assert!(seq.iter().all(char::is_ascii), "eulerseq must contain ASCII characters only");
+        assert!(
+            seq.iter().all(char::is_ascii),
+            "eulerseq must contain ASCII characters only"
+        );
         self.eulerseq = seq.map(|c| (c as u8).try_into().expect("unexpected char in `eulerseq`"));
         self
     }
@@ -156,7 +200,6 @@ impl mjsCompiler {
 ///////////////////////////////////////////////////////////////////////////////////
 /// TODO fields mapping...
 ///////////////////////////////////////////////////////////////////////////////////
-
 pub use crate::bindgen::mjsExclude;
 
 pub use crate::bindgen::mjsDefault;
@@ -176,7 +219,6 @@ impl Default for mjsBody {
         crate::mjs_defaultBody()
     }
 }
-
 
 pub use crate::bindgen::mjsFrame;
 impl Default for mjsFrame {

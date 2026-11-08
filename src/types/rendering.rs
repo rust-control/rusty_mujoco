@@ -1,10 +1,10 @@
 //! # [Rendering](https://mujoco.readthedocs.io/en/stable/APIreference/APItypes.html#tyrenderstructure)
-//! 
+//!
 //! The names of these struct types are prefixed with mjr.
 
 pub use crate::bindgen::{
-    mjtTexture, mjtTextureRole, mjtFramebuffer, mjtDepthMap,
-    mjNAUX, mjMAXMATERIAL, mjNTEXROLE, mjMAXTEXTURE,
+    mjMAXMATERIAL, mjMAXTEXTURE, mjNAUX, mjNTEXROLE, mjtDepthMap, mjtFramebuffer, mjtTexture,
+    mjtTextureRole,
 };
 
 pub use crate::bindgen::mjrRect;
@@ -33,7 +33,7 @@ resource_wrapper!(
 );
 impl Default for mjrContext {
     /// Internally calls [`mjr_defaultContext`](crate::mjr_defaultContext).
-    /// 
+    ///
     /// **note**: Be sure to call [`mjr_makeContext`](crate::mjr_makeContext) for the returned `mjrContext` to allocate resources
     ///           before using it in rendering.
     fn default() -> Self {
@@ -42,9 +42,9 @@ impl Default for mjrContext {
 }
 impl mjrContext {
     /// Create a new `mjrContext` with given font scale.
-    /// 
+    ///
     /// This internally calls:
-    /// 
+    ///
     /// 1. [`mjr_defaultContext`](crate::mjr_defaultContext) to set default values for the scene.
     /// 2. [`mjr_makeContext`](crate::mjr_makeContext) to allocate resources in the scene.
     pub fn new(m: &crate::mjModel, fontscale: crate::mjtFontScale) -> Self {
@@ -120,7 +120,8 @@ impl mjrContext {
     }
     /// set default color pixel format for `mjr_readPixels`
     pub fn set_readPixelFormat(&mut self, value: i32) -> &mut Self {
-        self.readPixelFormat = value; self
+        self.readPixelFormat = value;
+        self
     }
 
     /// depth mapping: `mjDEPTH_ZERONEAR` or `mjDEPTH_ZEROFAR`
@@ -128,8 +129,9 @@ impl mjrContext {
         mjtDepthMap(self.readDepthMap as u32)
     }
     /// set depth mapping: `mjDEPTH_ZERONEAR` or `mjDEPTH_ZEROFAR`
-    pub fn set_readDepthMap(&mut self, value: mjtDepthMap ) -> &mut Self {
-        self.readDepthMap = value.0 as i32; self
+    pub fn set_readDepthMap(&mut self, value: mjtDepthMap) -> &mut Self {
+        self.readDepthMap = value.0 as i32;
+        self
     }
 
     /// type of texture (ntexture)

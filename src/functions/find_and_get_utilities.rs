@@ -1,16 +1,16 @@
 //! # [Find and get utilities](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#find-and-get-utilities)
 
-use crate::{
-    mjSpec,
-    mjsElement, mjsBody, mjsFrame, mjsDefault,
-    mjtObj,
-};
+use crate::{mjSpec, mjsBody, mjsDefault, mjsElement, mjsFrame, mjtObj};
 
 /// Get spec from element.
 /* mjSpec* mjs_getSpec(mjsElement* element); */
 pub fn mjs_getSpec(element: &mut mjsElement) -> Option<mjSpec> {
     let ptr = unsafe { crate::bindgen::mjs_getSpec(element) };
-    if ptr.is_null() {None} else {Some(mjSpec::from_raw(ptr)) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(mjSpec::from_raw(ptr))
+    }
 }
 
 /// Find spec (model asset) by name.
@@ -18,7 +18,11 @@ pub fn mjs_getSpec(element: &mut mjsElement) -> Option<mjSpec> {
 pub fn mjs_findSpec<'spec>(spec: &'spec mut mjSpec, name: &str) -> Option<mjSpec> {
     let name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
     let ptr = unsafe { crate::bindgen::mjs_findSpec(spec.as_mut_ptr(), name.as_ptr()) };
-    if ptr.is_null() {None} else {Some(mjSpec::from_raw(ptr)) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(mjSpec::from_raw(ptr))
+    }
 }
 
 /// Find body in spec by name.
@@ -26,7 +30,11 @@ pub fn mjs_findSpec<'spec>(spec: &'spec mut mjSpec, name: &str) -> Option<mjSpec
 pub fn mjs_findBody<'spec>(spec: &'spec mut mjSpec, name: &str) -> Option<&'spec mut mjsBody> {
     let name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
     let ptr = unsafe { crate::bindgen::mjs_findBody(spec.as_mut_ptr(), name.as_ptr()) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Find element in spec by name.
@@ -38,7 +46,11 @@ pub fn mjs_findElement<'spec>(
 ) -> Option<&'spec mut mjsElement> {
     let name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
     let ptr = unsafe { crate::bindgen::mjs_findElement(spec.as_mut_ptr(), type_, name.as_ptr()) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Find child body by name.
@@ -46,21 +58,33 @@ pub fn mjs_findElement<'spec>(
 pub fn mjs_findChild<'body>(body: &'body mut mjsBody, name: &str) -> Option<&'body mut mjsBody> {
     let name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
     let ptr = unsafe { crate::bindgen::mjs_findChild(body, name.as_ptr()) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Get parent body.
 /* mjsBody* mjs_getParent(mjsElement* element); */
 pub fn mjs_getParent<'body>(element: &'body mut mjsElement) -> Option<&'body mut mjsBody> {
     let ptr = unsafe { crate::bindgen::mjs_getParent(element) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Get parent frame.
 /* mjsFrame* mjs_getFrame(mjsElement* element); */
 pub fn mjs_getFrame<'element>(element: &'element mut mjsElement) -> Option<&'element mut mjsFrame> {
     let ptr = unsafe { crate::bindgen::mjs_getFrame(element) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Find frame by name.
@@ -68,14 +92,24 @@ pub fn mjs_getFrame<'element>(element: &'element mut mjsElement) -> Option<&'ele
 pub fn mjs_findFrame<'spec>(spec: &'spec mut mjSpec, name: &str) -> Option<&'spec mut mjsFrame> {
     let name = std::ffi::CString::new(name).expect("`name` must not contain null bytes");
     let ptr = unsafe { crate::bindgen::mjs_findFrame(spec.as_mut_ptr(), name.as_ptr()) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Get default corresponding to an element.
 /* mjsDefault* mjs_getDefault(mjsElement* element); */
-pub fn mjs_getDefault<'element>(element: &'element mut mjsElement) -> Option<&'element mut mjsDefault> {
+pub fn mjs_getDefault<'element>(
+    element: &'element mut mjsElement,
+) -> Option<&'element mut mjsDefault> {
     let ptr = unsafe { crate::bindgen::mjs_getDefault(element) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Find default in model by class name.
@@ -84,16 +118,25 @@ pub fn mjs_findDefault<'spec>(
     spec: &'spec mut mjSpec,
     classname: &str,
 ) -> Option<&'spec mut mjsDefault> {
-    let classname = std::ffi::CString::new(classname).expect("`classname` must not contain null bytes");
+    let classname =
+        std::ffi::CString::new(classname).expect("`classname` must not contain null bytes");
     let ptr = unsafe { crate::bindgen::mjs_findDefault(spec.as_mut_ptr(), classname.as_ptr()) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Get global default from model.
 /* mjsDefault* mjs_getSpecDefault(mjSpec* s); */
 pub fn mjs_getSpecDefault<'spec>(spec: &'spec mut mjSpec) -> Option<&'spec mut mjsDefault> {
     let ptr = unsafe { crate::bindgen::mjs_getSpecDefault(spec.as_mut_ptr()) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr })}
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Get element id index.
@@ -110,7 +153,11 @@ pub fn mjs_firstChild<'body>(
     recurse: bool,
 ) -> Option<&'body mut mjsElement> {
     let ptr = unsafe { crate::bindgen::mjs_firstChild(body, type_, recurse as i32) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Return body’s next child of the same type; return `None` if child is last. If `recurse` is true, also search the body’s subtree.
@@ -121,7 +168,11 @@ pub fn mjs_nextChild<'body>(
     recurse: bool,
 ) -> Option<&'body mut mjsElement> {
     let ptr = unsafe { crate::bindgen::mjs_nextChild(body, child, recurse as i32) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Return spec’s first element of selected type.
@@ -131,7 +182,11 @@ pub fn mjs_firstElement<'spec>(
     type_: mjtObj,
 ) -> Option<&'spec mut mjsElement> {
     let ptr = unsafe { crate::bindgen::mjs_firstElement(spec.as_mut_ptr(), type_) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }
 
 /// Return spec’s next element; return `None` if element is last.
@@ -141,5 +196,9 @@ pub fn mjs_nextElement<'spec>(
     element: &mut mjsElement,
 ) -> Option<&'spec mut mjsElement> {
     let ptr = unsafe { crate::bindgen::mjs_nextElement(spec.as_mut_ptr(), element) };
-    if ptr.is_null() {None} else {Some(unsafe { &mut *ptr }) }
+    if ptr.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *ptr })
+    }
 }

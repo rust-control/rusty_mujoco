@@ -1,5 +1,7 @@
 fn main() {
-    if option_env!("DOCS_RS").is_some() { return }
+    if option_env!("DOCS_RS").is_some() {
+        return;
+    }
 
     if dbg!(!probe_mujoco_lib_with_libdir(None)) {
         if let Some(mujoco_lib_dir) = mujoco_lib_directory_from_env("MUJOCO_LIB") {
@@ -7,16 +9,21 @@ fn main() {
                 dbg!(probe_mujoco_lib_with_libdir(Some(&mujoco_lib_dir))),
                 "Failed to link with mujoco library even after setting `MUJOCO_LIB` environment variable!"
             );
-            println!("cargo:rustc-link-search=native={}", mujoco_lib_dir.display());
+            println!(
+                "cargo:rustc-link-search=native={}",
+                mujoco_lib_dir.display()
+            );
         } else {
-            panic!("\
+            panic!(
+                "\
                 MuJoCo library not found. Make sure that the mujoco library is installed and, \
                 if its location is non-standard, set the path via the `MUJOCO_LIB` environment variable.\
-            ");
+            "
+            );
         }
     }
     println!("cargo:rustc-link-lib=mujoco");
-    
+
     #[cfg(feature = "bindgen")]
     bindgen();
 }
@@ -24,17 +31,17 @@ fn main() {
 fn probe_mujoco_lib_with_libdir(libdir: Option<&std::path::Path>) -> bool {
     let crate_root = std::path::Path::new(env!("CARGO_MANIFEST_DIR"));
     let vendor_dir = crate_root.join("vendor");
-    
+
     let probe_c = crate_root.join("probe.c");
     let vendor_include = vendor_dir.join("include");
     let vendor_include_mujoco = vendor_include.join("mujoco");
-    
+
     /*
      * `cc` crate is designed as:
-     * 
+     *
      * > A library for Cargo build scripts to compile a set of C/C++/assembly/CUDA files
      *   into a static archive for Cargo to link into the crate being built.
-     * 
+     *
      * However, here we need to probe whether linking with `mujoco` library to an executable
      * succeeds or not, so we manually invoke the compiler with appropriate arguments,
      * using `cc` crate to get the compiler path and kind.
@@ -47,7 +54,8 @@ fn probe_mujoco_lib_with_libdir(libdir: Option<&std::path::Path>) -> bool {
             probe_c.to_str().unwrap().to_string(),
             format!("-I{}", vendor_include.display()),
             format!("-I{}", vendor_include_mujoco.display()),
-            "-o".to_string(), "/dev/null".to_string(),
+            "-o".to_string(),
+            "/dev/null".to_string(),
         ];
         if let Some(libdir) = libdir {
             args.push(format!("-L{}", libdir.display()));
@@ -69,7 +77,7 @@ fn probe_mujoco_lib_with_libdir(libdir: Option<&std::path::Path>) -> bool {
     } else {
         panic!("Unsupported compiler: {}", cc_path.display());
     };
-    
+
     std::process::Command::new(dbg!(cc_path))
         .args(dbg!(cc_args))
         .stdout(std::process::Stdio::inherit())
@@ -86,16 +94,23 @@ fn mujoco_lib_directory_from_env(env: &'static str) -> Option<std::path::PathBuf
     let mujoco_lib = match std::env::var(env) {
         Ok(value) => value,
         Err(std::env::VarError::NotPresent) => return None,
-        Err(std::env::VarError::NotUnicode(os_str)) => panic!("{env} contains invalid unicode: `{}`", os_str.to_string_lossy()),
+        Err(std::env::VarError::NotUnicode(os_str)) => panic!(
+            "{env} contains invalid unicode: `{}`",
+            os_str.to_string_lossy()
+        ),
     };
     let mujoco_lib = std::path::Path::new(&mujoco_lib);
-    
+
     Some(if mujoco_lib.is_dir() {
         mujoco_lib.to_owned()
     } else if mujoco_lib.is_file() {
         mujoco_lib
             .parent()
-            .unwrap_or_else(|| panic!("{env} must be a valid path to mujoco library file or directory containing it"))
+            .unwrap_or_else(|| {
+                panic!(
+                    "{env} must be a valid path to mujoco library file or directory containing it"
+                )
+            })
             .to_owned()
     } else {
         panic!("{env} must be a valid path to mujoco library file or directory containing it")
@@ -115,7 +130,7 @@ fn bindgen() {
             item_info.name.strip_suffix('_').map(str::to_owned)
         }
     }
-    
+
     #[derive(Debug)]
     struct MakeMjnVariantGlobalConstCallbacks;
     impl bindgen::callbacks::ParseCallbacks for MakeMjnVariantGlobalConstCallbacks {
@@ -126,13 +141,15 @@ fn bindgen() {
             _variant_value: bindgen::callbacks::EnumVariantValue,
         ) -> Option<bindgen::callbacks::EnumVariantCustomBehavior> {
             /*
-                This generates const like:            
+                This generates const like:
                 ```
                 pub const mjNTEXROLE: mjtTextureRole = mjtTextureRole::mjNTEXROLE;
                 ```
                 at module top for `mjN*` variants.
             */
-            original_variant_name.starts_with("mjN").then_some(bindgen::callbacks::EnumVariantCustomBehavior::Constify)
+            original_variant_name
+                .starts_with("mjN")
+                .then_some(bindgen::callbacks::EnumVariantCustomBehavior::Constify)
         }
     }
 
@@ -153,15 +170,22 @@ fn bindgen() {
 
     let vendor_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("vendor");
     let vendor_include = vendor_dir.join("include").to_str().unwrap().to_owned();
-    let vendor_include_mujoco = vendor_dir.join("include").join("mujoco").to_str().unwrap().to_owned();
+    let vendor_include_mujoco = vendor_dir
+        .join("include")
+        .join("mujoco")
+        .to_str()
+        .unwrap()
+        .to_owned();
 
     let mut bindings_buf = String::new();
     bindgen::builder()
         /* common */
         .header_contents("bindgen.h", "#include \"mujoco.h\"")
-        .clang_args([format!("-I{vendor_include}"), format!("-I{vendor_include_mujoco}")])
+        .clang_args([
+            format!("-I{vendor_include}"),
+            format!("-I{vendor_include_mujoco}"),
+        ])
         .use_core()
-        .raw_line("#![allow(unused, non_camel_case_types, non_snake_case, non_upper_case_globals, clippy::all)]")
         .size_t_is_usize(true)
         .layout_tests(false)
         /* for types */
@@ -188,7 +212,9 @@ fn bindgen() {
 
     let bindings_buf = {
         use quote::ToTokens;
-        let mut r#final = quote::__private::TokenStream::new();
+        let mut r#final = quote::quote! {
+            #![allow(unused, non_camel_case_types, non_snake_case, non_upper_case_globals, clippy::all)]
+        };
         for item in &mut syn::parse_file(&bindings_buf).unwrap().items {
             match item {
                 syn::Item::Struct(syn::ItemStruct {
@@ -196,27 +222,52 @@ fn bindgen() {
                     ..
                 }) => {
                     assert_eq!(newtype_enum_inner.unnamed.len(), 1);
-                    assert!(matches!(newtype_enum_inner.unnamed[0].vis, syn::Visibility::Public(_)));
+                    assert!(matches!(
+                        newtype_enum_inner.unnamed[0].vis,
+                        syn::Visibility::Public(_)
+                    ));
                     newtype_enum_inner.unnamed[0].vis = syn::Visibility::Inherited;
-                },
+                }
                 syn::Item::Struct(syn::ItemStruct {
+                    vis,
+                    ident,
                     fields: syn::Fields::Named(struct_fields),
                     ..
                 }) => {
-                    for f in &mut struct_fields.named {
-                        if matches!(f.ty, syn::Type::Ptr(_)) {
-                            f.vis = syn::Visibility::Inherited;
+                    if ident.to_string().contains("__bindgen_ty") {
+                        *vis = syn::parse_quote!(pub(crate));
+                        struct_fields
+                            .named
+                            .iter_mut()
+                            .for_each(|f| f.vis = syn::parse_quote!(pub(crate)));
+                    } else {
+                        for f in &mut struct_fields.named {
+                            if matches!(f.ty, syn::Type::Ptr(_)) || {
+                                let ty_string = f.ty.to_token_stream().to_string();
+                                ty_string.contains("unsafe extern \"C\"")
+                                    || ty_string.contains("__bindgen_ty")
+                                    || ty_string.contains("c_char")
+                            } {
+                                f.vis = syn::parse_quote!(pub(crate));
+                            }
                         }
                     }
-                },
+                }
+                syn::Item::Union(u) => {
+                    u.vis = syn::parse_quote!(pub(crate));
+                }
                 syn::Item::Const(x) if x.ident.to_string().starts_with("mjMAX") => {
-                    if let syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(intliteral), .. }) = &*x.expr {
+                    if let syn::Expr::Lit(syn::ExprLit {
+                        lit: syn::Lit::Int(intliteral),
+                        ..
+                    }) = &*x.expr
+                    {
                         let syn::ItemConst { ident, .. } = &*x;
                         *x = syn::parse_quote! {
                             pub const #ident: usize = #intliteral;
                         };
                     }
-                },
+                }
                 syn::Item::Const(x) if x.ident.to_string().starts_with("mjN") => {
                     if let syn::Expr::Path(syn::ExprPath { path, .. }) = &*x.expr {
                         // generated by MakeMjnVariantGlobalConstCallbacks
@@ -225,17 +276,18 @@ fn bindgen() {
                             pub const #ident: usize = #path.0 as usize;
                         };
                     }
-                },
+                }
                 syn::Item::Impl(syn::ItemImpl { items, .. }) => {
                     for impl_item in items {
-                        if let syn::ImplItem::Const(syn::ImplItemConst {
-                            vis, ident, ..
-                        }) = impl_item {
+                        if let syn::ImplItem::Const(syn::ImplItemConst { vis, ident, .. }) =
+                            impl_item
+                        {
                             if ident.to_string().starts_with("mjN") {
                                 // the targets of MakeMjnVariantGlobalConstCallbacks
                                 *vis = syn::Visibility::Inherited;
                             } else if ident.to_string().starts_with("mj") {
-                                let after_mj_prefix = ident.to_string().split_once('_').unwrap().1.to_owned();
+                                let after_mj_prefix =
+                                    ident.to_string().split_once('_').unwrap().1.to_owned();
                                 *ident = if after_mj_prefix.starts_with("2D") {
                                     quote::format_ident!("{}", &after_mj_prefix.replace("2D", "D2"))
                                 } else if after_mj_prefix.chars().next().unwrap().is_ascii_digit() {
@@ -246,8 +298,21 @@ fn bindgen() {
                             }
                         }
                     }
-                },
-                _ => ()
+                }
+                syn::Item::ForeignMod(syn::ItemForeignMod { items, .. }) => {
+                    for foreign_item in items {
+                        match foreign_item {
+                            syn::ForeignItem::Fn(syn::ForeignItemFn { vis, .. }) => {
+                                *vis = syn::parse_quote!(pub(crate))
+                            }
+                            syn::ForeignItem::Static(syn::ForeignItemStatic { vis, .. }) => {
+                                *vis = syn::parse_quote!(pub(crate))
+                            }
+                            _ => unreachable!("unexpected foreign item"),
+                        }
+                    }
+                }
+                _ => (),
             }
             item.to_tokens(&mut r#final);
         }
@@ -255,7 +320,17 @@ fn bindgen() {
     };
 
     std::fs::write(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src").join("bindgen_next.rs"),
-        bindings_buf
-    ).expect("failed to write types bindings to file");
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("src")
+            .join("bindgen_next.rs"),
+        bindings_buf,
+    )
+    .expect("failed to write types bindings to file");
+
+    std::process::Command::new("cargo")
+        .arg("fmt")
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .status()
+        .ok();
 }

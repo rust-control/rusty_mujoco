@@ -1,10 +1,9 @@
 //! # [Element casting](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#element-casting)
 
 use crate::{
-    mjsElement, mjsBody, mjsGeom, mjsJoint, mjsSite, mjsCamera, mjsLight,
-    mjsFrame, mjsActuator, mjsSensor, mjsFlex, mjsPair, mjsEquality,
-    mjsExclude, mjsTendon, mjsNumeric, mjsText, mjsTuple, mjsKey,
-    mjsMesh, mjsHField, mjsSkin, mjsTexture, mjsMaterial, mjsPlugin,
+    mjsActuator, mjsBody, mjsCamera, mjsElement, mjsEquality, mjsExclude, mjsFlex, mjsFrame,
+    mjsGeom, mjsHField, mjsJoint, mjsKey, mjsLight, mjsMaterial, mjsMesh, mjsNumeric, mjsPair,
+    mjsPlugin, mjsSensor, mjsSite, mjsSkin, mjsTendon, mjsText, mjsTexture, mjsTuple,
 };
 
 macro_rules! element_casting {

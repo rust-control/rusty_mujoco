@@ -1,8 +1,8 @@
 //! # [UI framework](https://mujoco.readthedocs.io/en/stable/APIreference/APIfunctions.html#ui-framework)
-//! 
+//!
 //! For a high-level description of the UI framework, see [User Interface](https://mujoco.readthedocs.io/en/stable/programming/ui.html#ui).
 
-use crate::{mjrContext, mjUI, mjuiDef, mjuiItem, mjuiThemeColor, mjuiThemeSpacing};
+use crate::{mjUI, mjrContext, mjuiDef, mjuiItem, mjuiThemeColor, mjuiThemeSpacing};
 
 /// Get builtin UI theme spacing (ind: 0-1).
 /* mjuiThemeSpacing mjui_themeSpacing(int ind); */
@@ -17,11 +17,11 @@ pub fn mjui_themeColor(ind: i32) -> mjuiThemeColor {
 }
 
 /// This is the helper function used to construct a UI.
-/// 
+///
 /// The second argument points to an array of [`mjuiDef`] structs,
 /// each corresponding to one item. The last (unused) item has its
 /// type set to -1, to mark termination.
-/// 
+///
 /// The items are added after the end of the last used section.
 /// There is also another version of this function ([`mjui_addToSection`])
 /// which adds items to a specified section instead of adding them
@@ -39,8 +39,17 @@ pub fn mjui_add(ui: &mut mjUI, def: impl AsRef<[mjuiDef]>) {
         #[inline(never)]
         fn with_dynamically_addiing_terminator(ui: &mut mjUI, def: &[mjuiDef]) {
             let mut def = def.to_vec();
-            def.push(mjuiDef { type_: -1, name: [0; crate::mjMAXUINAME], state: 0, pdata: std::ptr::null_mut(), other: [0; crate::mjMAXUITEXT], otherint: 0 });
-            unsafe { crate::bindgen::mjui_add(ui, def.as_ptr()); }
+            def.push(mjuiDef {
+                type_: -1,
+                name: [0; crate::mjMAXUINAME],
+                state: 0,
+                pdata: std::ptr::null_mut(),
+                other: [0; crate::mjMAXUITEXT],
+                otherint: 0,
+            });
+            unsafe {
+                crate::bindgen::mjui_add(ui, def.as_ptr());
+            }
         }
         with_dynamically_addiing_terminator(ui, def);
     }
@@ -48,25 +57,26 @@ pub fn mjui_add(ui: &mut mjUI, def: impl AsRef<[mjuiDef]>) {
 
 /// Add definitions to UI section. See [`mjui_add`] for details.
 /* void mjui_addToSection(mjUI* ui, int sect, const mjuiDef* def); */
-pub fn mjui_addToSection(
-    ui: &mut mjUI,
-    sect: i32,
-    def: impl AsRef<[mjuiDef]>,
-) {
+pub fn mjui_addToSection(ui: &mut mjUI, sect: i32, def: impl AsRef<[mjuiDef]>) {
     let def: &[mjuiDef] = def.as_ref();
     if def.last().unwrap().type_() == -1 {
         unsafe { crate::bindgen::mjui_addToSection(ui, sect, def.as_ptr()) }
     } else {
         #[cold]
         #[inline(never)]
-        fn with_dynamically_addiing_terminator(
-            ui: &mut mjUI,
-            sect: i32,
-            def: &[mjuiDef],
-        ) {
+        fn with_dynamically_addiing_terminator(ui: &mut mjUI, sect: i32, def: &[mjuiDef]) {
             let mut def = def.to_vec();
-            def.push(mjuiDef { type_: -1, name: [0; crate::mjMAXUINAME], state: 0, pdata: std::ptr::null_mut(), other: [0; crate::mjMAXUITEXT], otherint: 0 });
-            unsafe { crate::bindgen::mjui_addToSection(ui, sect, def.as_ptr()); }
+            def.push(mjuiDef {
+                type_: -1,
+                name: [0; crate::mjMAXUINAME],
+                state: 0,
+                pdata: std::ptr::null_mut(),
+                other: [0; crate::mjMAXUITEXT],
+                otherint: 0,
+            });
+            unsafe {
+                crate::bindgen::mjui_addToSection(ui, sect, def.as_ptr());
+            }
         }
         with_dynamically_addiing_terminator(ui, sect, def);
     }
@@ -88,7 +98,7 @@ pub fn mjui_resize(ui: &mut mjUI, con: &mjrContext) {
 /// and the item that was modified. A value of `None` means all items and/or sections
 /// need to be updated (which is needed following major changes.)
 /* void mjui_update(int section, int item, const mjUI* ui,
-                 const mjuiState* state, const mjrContext* con); */
+const mjuiState* state, const mjrContext* con); */
 pub fn mjui_update(
     section: Option<u32>,
     item: Option<u32>,
@@ -110,7 +120,7 @@ pub fn mjui_update(
 /// This function is the low-level event handler. It makes
 /// the necessary changes in the UI and returns a pointer to the item
 /// that received the event (or `None` if no valid event was recorded).
-/// 
+///
 /// This is normally called within the event handler implemented by the user
 /// (`UiEvent` in [simulate.cc](https://mujoco.readthedocs.io/en/stable/programming/samples.html#sasimulate)),
 /// and then some action is taken by user code depending on which UI item was
@@ -122,12 +132,16 @@ pub fn mjui_event<'ui>(
     con: &mjrContext,
 ) -> Option<&'ui mut mjuiItem> {
     let item = unsafe { crate::bindgen::mjui_event(ui, state, con.as_ptr()) };
-    if item.is_null() {None} else {Some(unsafe { &mut *item })}
+    if item.is_null() {
+        None
+    } else {
+        Some(unsafe { &mut *item })
+    }
 }
 
 /// This function is called in the screen refresh loop. It copies
 /// the offscreen OpenGL buffer to the window framebuffer.
-/// 
+///
 /// If there are multiple UIs in the application, it should be called
 /// once for each UI. Thus `mjui_render` is called all the time,
 /// while `mjui_update` is called only when changes in the UI take place.
