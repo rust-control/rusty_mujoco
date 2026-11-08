@@ -1,6 +1,6 @@
 [package]
 name          = "rusty_mujoco"
-version       = "0.4.0"
+version       = "3.11.0"
 edition       = "2024"
 authors       = ["kanarus <mail@kanarus.dev>"]
 documentation = "https://docs.rs/rusty_mujoco"

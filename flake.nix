@@ -2,14 +2,8 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs-pin-mujoco-3_11_0.url = "github:nixos/nixpkgs/cc551d3bc5defdc1419e169016899bb50db52905";
-    flake-parts = {
-      url = "github:hercules-ci/flake-parts";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    systems = {
-      url = "github:nix-systems/default";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    systems.url = "github:nix-systems/default";
     rust-overlay = {
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -39,7 +33,7 @@
       };
       devShells.default =
         let
-          rustToolchain = pkgs.rust-bin.stable.latest.default.override {
+          rustToolchain = pkgs.rust-bin.stable."1.99.1".default.override {
             extensions = [ "rust-src" ];
           };
           mujoco-3_11_0 = pkgs-pin-mujoco-3_11_0.mujoco;
@@ -51,6 +45,8 @@
           packages = [
             rustToolchain
           ] ++ (with pkgs-pin-mujoco-3_11_0; [
+            clang-tools
+            clang
             pkg-config
             glfw3
           ]) ++ pkgs.lib.optionals pkgs.stdenv.isLinux (with pkgs-pin-mujoco-3_11_0; [
