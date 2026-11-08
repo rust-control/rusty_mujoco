@@ -117,8 +117,8 @@ fn bindgen() {
     }
     
     #[derive(Debug)]
-    struct MakeMjnConstantsCallbacks;
-    impl bindgen::callbacks::ParseCallbacks for MakeMjnConstantsCallbacks {
+    struct MakeMjnVariantGlobalConstCallbacks;
+    impl bindgen::callbacks::ParseCallbacks for MakeMjnVariantGlobalConstCallbacks {
         fn enum_variant_behavior(
             &self,
             _enum_name: Option<&str>,
@@ -155,111 +155,107 @@ fn bindgen() {
     let vendor_include = vendor_dir.join("include").to_str().unwrap().to_owned();
     let vendor_include_mujoco = vendor_dir.join("include").join("mujoco").to_str().unwrap().to_owned();
 
-    let src_dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
-    let bindgen_rs = src_dir.join("bindgen.rs").to_str().unwrap().to_owned();
-
-    let mut bindings = Vec::new();
+    let mut bindings_buf = String::new();
     bindgen::builder()
+        /* common */
         .header_contents("bindgen.h", "#include \"mujoco.h\"")
         .clang_args([format!("-I{vendor_include}"), format!("-I{vendor_include_mujoco}")])
         .use_core()
         .raw_line("#![allow(unused, non_camel_case_types, non_snake_case, non_upper_case_globals, clippy::all)]")
-        .respect_cxx_access_specs(false)
-        .default_visibility(bindgen::FieldVisibilityKind::PublicCrate)
-        .newtype_enum("_?mjt.+[^B]+_?")
-        .bitfield_enum("_?mjt.+Bit_?")
-        .allowlist_type("_?mj.*")
-        .allowlist_function("_?mj.*")
-        .allowlist_var("_?mj.*")
-        .no_copy("mj(Model|Data|Spec|vScene|rContext)_")/* impl Drop with using specific freeing functions */
         .size_t_is_usize(true)
+        .layout_tests(false)
+        /* for types */
+        .default_visibility(bindgen::FieldVisibilityKind::Public)
+        .respect_cxx_access_specs(false)
+        .prepend_enum_name(false)
+        .newtype_enum("_?mj.+[^B]+_?")
+        .bitfield_enum("_?mj.+Bit_?")
+        .allowlist_type("_?mj.*")
+        .no_copy("mj(Model|Data|Spec|vScene|rContext)_") // manually impl Drop with each specific freeing function
+        .parse_callbacks(Box::new(TrimUnderscoreCallbacks))
+        .parse_callbacks(Box::new(MakeMjnVariantGlobalConstCallbacks))
+        /* for functions */
         .array_pointers_in_arguments(true)
         .merge_extern_blocks(true)
-        .prepend_enum_name(false)
-        .layout_tests(false)
-        .parse_callbacks(Box::new(TrimUnderscoreCallbacks))
-        .parse_callbacks(Box::new(MakeMjnConstantsCallbacks))
+        .allowlist_function("_?mj.*")
+        .allowlist_var("_?mj.*")
+        /* generate to intermediate buffer on memory */
         .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
-        .generate().expect("Failed to generate bindings")
-        .write(Box::new(&mut bindings)).expect("Failed to write bindings to file");
-    
-    /*
-        There seems to be no way to:
-        
-        - set `pub(crate)` visibility for newtype's inner field
-        - make `mjtN.*` constants `usize` instead of original type
-        - make `mjMAX.*` constants `usize` except for ones originally defined as
-          `f(64|32)` which are limit values for something
-        - hide only `mjtN.*` consts of newtype impl from user, and
-          remove `mj{NAME}_` prefix of consts of newtype impl
+        .generate()
+        .expect("failed to generate bindings")
+        .write(unsafe { bindings_buf.as_mut_vec() }) // SAFETY: valid Rust code is UTF-8
+        .expect("failed to write bindings to buffer");
 
-        using bindgen, so we do them manually...
-    */
-    let bindings = std::io::BufRead::lines(&*bindings)
-        .map(Result::unwrap)
-        .fold(Vec::with_capacity(bindings.len()), |mut new, line| {
-            if line.starts_with("pub struct mjt") {
-                /* sed -i -r 's/^pub struct mjt(.*)\(pub (.*)\);$/pub struct mjt\1\(pub\(crate\) \2\);/' */
-                new.push(line.replace("(pub", "(pub(crate)"));
-            } else if line.starts_with("pub const mjN") {
-                /*
-                    pub const mjNSomething: Something = Something::Value; // from enum newtype impl
-                    pub const mjNSOMETHING: u32 = 42;
-                */
-                let mut line = line.split(' ');
-                let _ = line.next(); // "pub"
-                let _ = line.next(); // "const"
-                let name = line.next().unwrap().strip_suffix(':').unwrap();
-                let _ty = line.next().unwrap();
-                let _ = line.next(); // "="
-                let value = line.next().unwrap().strip_suffix(";").unwrap();
-                new.push(if value.contains("::") {
-                    format!("pub const {name}: usize = {value}.0 as usize;")
-                } else {
-                    format!("pub const {name}: usize = {value};")
-                });
-            } else if line.starts_with("pub const mjMAX") {
-                /*
-                    pub const mjMAXSOMETHING: f(64|32) = 1.0;
-                    pub const mjMAXNSOMETHING: u.* = 42;
-                */
-                let mut line = line.split(' ');
-                let _ = line.next(); // "pub"
-                let _ = line.next(); // "const"
-                let name = line.next().unwrap().strip_suffix(':').unwrap();
-                let ty = line.next().unwrap();
-                let _ = line.next(); // "="
-                let value = line.next().unwrap().strip_suffix(";").unwrap();
-                new.push(if ty.starts_with('f') {
-                    format!("pub const {name}: {ty} = {value};")
-                } else {
-                    format!("pub const {name}: usize = {value};")
-                });
-            } else if line.starts_with("    pub const mjN") {
-                new.push(line.replace("pub ", ""));
-            } else if line.starts_with("    pub const mj") {
-                /*
-                    impl mjtObj {
-                        pub const mjOBJ_UNKNOWN: mjtObj = mjtObj(0);
-                        pub const mjOBJ_BODY: mjtObj = mjtObj(1);
-                        pub const mjOBJ_XBODY: mjtObj = mjtObj(2);
-                        ...
-                        pub const mjNOBJECT: mjtObj = mjtObj(26);
+    let bindings_buf = {
+        use quote::ToTokens;
+        let mut r#final = quote::__private::TokenStream::new();
+        for item in &mut syn::parse_file(&bindings_buf).unwrap().items {
+            match item {
+                syn::Item::Struct(syn::ItemStruct {
+                    fields: syn::Fields::Unnamed(newtype_enum_inner),
+                    ..
+                }) => {
+                    assert_eq!(newtype_enum_inner.unnamed.len(), 1);
+                    assert!(matches!(newtype_enum_inner.unnamed[0].vis, syn::Visibility::Public(_)));
+                    newtype_enum_inner.unnamed[0].vis = syn::Visibility::Inherited;
+                },
+                syn::Item::Struct(syn::ItemStruct {
+                    fields: syn::Fields::Named(struct_fields),
+                    ..
+                }) => {
+                    for f in &mut struct_fields.named {
+                        if matches!(f.ty, syn::Type::Ptr(_)) {
+                            f.vis = syn::Visibility::Inherited;
+                        }
                     }
-                */
-                let after_mj_prefix = line.split_once('_').map_or(&*line, |(_, rest)| rest);
-                new.push(if after_mj_prefix.starts_with("2D") {
-                    format!("    pub const {}", after_mj_prefix.replace("2D", "D2"))
-                } else if after_mj_prefix.chars().next().unwrap().is_ascii_digit() {
-                    format!("    pub const X{after_mj_prefix}")
-                } else {
-                    format!("    pub const {after_mj_prefix}")
-                });
-            } else {
-                new.push(line);
+                },
+                syn::Item::Const(x) if x.ident.to_string().starts_with("mjMAX") => {
+                    if let syn::Expr::Lit(syn::ExprLit { lit: syn::Lit::Int(intliteral), .. }) = &*x.expr {
+                        let syn::ItemConst { ident, .. } = &*x;
+                        *x = syn::parse_quote! {
+                            pub const #ident: usize = #intliteral;
+                        };
+                    }
+                },
+                syn::Item::Const(x) if x.ident.to_string().starts_with("mjN") => {
+                    if let syn::Expr::Path(syn::ExprPath { path, .. }) = &*x.expr {
+                        // generated by MakeMjnVariantGlobalConstCallbacks
+                        let syn::ItemConst { ident, .. } = x;
+                        *x = syn::parse_quote! {
+                            pub const #ident: usize = #path.0 as usize;
+                        };
+                    }
+                },
+                syn::Item::Impl(syn::ItemImpl { items, .. }) => {
+                    for impl_item in items {
+                        if let syn::ImplItem::Const(syn::ImplItemConst {
+                            vis, ident, ..
+                        }) = impl_item {
+                            if ident.to_string().starts_with("mjN") {
+                                // the targets of MakeMjnVariantGlobalConstCallbacks
+                                *vis = syn::Visibility::Inherited;
+                            } else if ident.to_string().starts_with("mj") {
+                                let after_mj_prefix = ident.to_string().split_once('_').unwrap().1.to_owned();
+                                *ident = if after_mj_prefix.starts_with("2D") {
+                                    quote::format_ident!("{}", &after_mj_prefix.replace("2D", "D2"))
+                                } else if after_mj_prefix.chars().next().unwrap().is_ascii_digit() {
+                                    quote::format_ident!("X{after_mj_prefix}")
+                                } else {
+                                    quote::format_ident!("{after_mj_prefix}")
+                                }
+                            }
+                        }
+                    }
+                },
+                _ => ()
             }
-            new
-        });
+            item.to_tokens(&mut r#final);
+        }
+        r#final.to_string()
+    };
 
-    std::fs::write(&bindgen_rs, bindings.join("\n")).expect("Failed to write bindings to file");
+    std::fs::write(
+        std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src").join("bindgen_next.rs"),
+        bindings_buf
+    ).expect("failed to write types bindings to file");
 }

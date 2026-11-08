@@ -13,14 +13,19 @@ keywords      = ["mujoco", "rl", "ml", "physics", "robotics"]
 categories    = ["api-bindings", "science::robotics", "simulation"]
 
 [build-dependencies]
-bindgen = { optional = true, version = "=0.72.1" }
-cc      = { version = "=1.2.45" }
+bindgen = { optional = true, version = "=0.73.2" }
+syn     = { optional = true, version = "3", features = ["full"] }
+quote   = { optional = true, version = "1" }
+cc      = { version = "=1.11.1" }
 
 [dev-dependencies]
 glfw = "0.60"
 
 [features]
-bindgen = ["dep:bindgen"]  # run bindgen at build time, instead of using pre-generated bindgen.rs
+bindgen = ["dep:bindgen", "dep:syn", "dep:quote"]  # run bindgen at build time, instead of using pre-generated bindgen.rs
 
 # internal
 DEBUG = []
+
+##### TEMPORARY #####
+default = ["bindgen"]

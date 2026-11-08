@@ -119,6 +119,7 @@ impl mjsElement {
 pub use crate::bindgen::mjsCompiler;
 fields_mapping!(mjsCompiler {
     boolean_flags {
+        alignfree / set_alignfree = "align free joints with inertial frame";
         autolimits / set_autolimits = "infer 'limited' attribute based on range";
         balanceinertia / set_balanceinertia = "automatically impose A + B >= C rule";
         fitaabb / set_fitaabb = "mesh fit to AABB instead of inertia box";
@@ -133,12 +134,9 @@ fields_mapping!(mjsCompiler {
         boundinertia / set_boundinertia: f64 = "enforce minimum body diagonal inertia";
         settotalmass / set_settotalmass: f64 = "rescale masses and inertias; <=0: ignore";
         inertiagrouprange / set_inertiagrouprange: [i32; 2] = "range of geom groups used to compute inertia";
-        alignfree / set_alignfree: i32 = "align free joints with inertial frame";
-    }
-    enums {
-        inertiafromgeom / set_inertiafromgeom: mjtInertiaFromGeom = "use geom inertias (mjtInertiaFromGeom)";
     }
     structs {
+        inertiafromgeom / set_inertiafromgeom: mjtInertiaFromGeom = "use geom inertias (mjtInertiaFromGeom)";
         LRopt / LRopt_mut: mjLROpt = "options for lengthrange computation";
     }
 });
