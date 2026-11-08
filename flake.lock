@@ -49,19 +49,19 @@
         "type": "github"
       }
     },
-    "nixpkgs-pin-mujoco-3_10_0": {
+    "nixpkgs-pin-mujoco-3_11_0": {
       "locked": {
-        "lastModified": 1782169413,
-        "narHash": "sha256-OemhXzlWI9ZximP9Hbd8eXi9gmRmCGzoxp4DtVO1pbU=",
+        "lastModified": 1785528902,
+        "narHash": "sha256-g3AGXVGtfMGbDzZd6W67XxUoUMZyvCKoYlDKs980xw0=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "775bdd0467f3de2fb5017830d00fa1f573b2ecda",
+        "rev": "cc551d3bc5defdc1419e169016899bb50db52905",
         "type": "github"
       },
       "original": {
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "775bdd0467f3de2fb5017830d00fa1f573b2ecda",
+        "rev": "cc551d3bc5defdc1419e169016899bb50db52905",
         "type": "github"
       }
     },
@@ -69,7 +69,7 @@
       "inputs": {
         "flake-parts": "flake-parts",
         "nixpkgs": "nixpkgs",
-        "nixpkgs-pin-mujoco-3_10_0": "nixpkgs-pin-mujoco-3_10_0",
+        "nixpkgs-pin-mujoco-3_11_0": "nixpkgs-pin-mujoco-3_11_0",
         "rust-overlay": "rust-overlay",
         "systems": "systems"
       }
