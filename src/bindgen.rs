@@ -75,42 +75,106 @@ pub type mjtByte = ::core::ffi::c_uchar;
 pub type mjtBool = bool;
 pub type mjtSize = i64;
 pub const mjNDISABLE: usize = mjtDisableBit::mjNDISABLE.0 as usize;
-pub const mjDSBL_CONSTRAINT: mjtDisableBit = 1;
-pub const mjDSBL_EQUALITY: mjtDisableBit = 2;
-pub const mjDSBL_FRICTIONLOSS: mjtDisableBit = 4;
-pub const mjDSBL_LIMIT: mjtDisableBit = 8;
-pub const mjDSBL_CONTACT: mjtDisableBit = 16;
-pub const mjDSBL_SPRING: mjtDisableBit = 32;
-pub const mjDSBL_DAMPER: mjtDisableBit = 64;
-pub const mjDSBL_GRAVITY: mjtDisableBit = 128;
-pub const mjDSBL_CLAMPCTRL: mjtDisableBit = 256;
-pub const mjDSBL_WARMSTART: mjtDisableBit = 512;
-pub const mjDSBL_FILTERPARENT: mjtDisableBit = 1024;
-pub const mjDSBL_ACTUATION: mjtDisableBit = 2048;
-pub const mjDSBL_REFSAFE: mjtDisableBit = 4096;
-pub const mjDSBL_SENSOR: mjtDisableBit = 8192;
-pub const mjDSBL_MIDPHASE: mjtDisableBit = 16384;
-pub const mjDSBL_EULERDAMP: mjtDisableBit = 32768;
-pub const mjDSBL_AUTORESET: mjtDisableBit = 65536;
-pub const mjDSBL_NATIVECCD: mjtDisableBit = 131072;
-pub const mjDSBL_ISLAND: mjtDisableBit = 262144;
-pub const mjDSBL_MULTICCD: mjtDisableBit = 524288;
-pub const mjNDISABLE: usize = 20;
-pub type mjtDisableBit = ::core::ffi::c_uint;
+impl mjtDisableBit {
+    pub const CONSTRAINT: mjtDisableBit = mjtDisableBit(1);
+    pub const EQUALITY: mjtDisableBit = mjtDisableBit(2);
+    pub const FRICTIONLOSS: mjtDisableBit = mjtDisableBit(4);
+    pub const LIMIT: mjtDisableBit = mjtDisableBit(8);
+    pub const CONTACT: mjtDisableBit = mjtDisableBit(16);
+    pub const SPRING: mjtDisableBit = mjtDisableBit(32);
+    pub const DAMPER: mjtDisableBit = mjtDisableBit(64);
+    pub const GRAVITY: mjtDisableBit = mjtDisableBit(128);
+    pub const CLAMPCTRL: mjtDisableBit = mjtDisableBit(256);
+    pub const WARMSTART: mjtDisableBit = mjtDisableBit(512);
+    pub const FILTERPARENT: mjtDisableBit = mjtDisableBit(1024);
+    pub const ACTUATION: mjtDisableBit = mjtDisableBit(2048);
+    pub const REFSAFE: mjtDisableBit = mjtDisableBit(4096);
+    pub const SENSOR: mjtDisableBit = mjtDisableBit(8192);
+    pub const MIDPHASE: mjtDisableBit = mjtDisableBit(16384);
+    pub const EULERDAMP: mjtDisableBit = mjtDisableBit(32768);
+    pub const AUTORESET: mjtDisableBit = mjtDisableBit(65536);
+    pub const NATIVECCD: mjtDisableBit = mjtDisableBit(131072);
+    pub const ISLAND: mjtDisableBit = mjtDisableBit(262144);
+    pub const MULTICCD: mjtDisableBit = mjtDisableBit(524288);
+    const mjNDISABLE: mjtDisableBit = mjtDisableBit(20);
+}
+impl ::core::ops::BitOr<mjtDisableBit> for mjtDisableBit {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        mjtDisableBit(self.0 | other.0)
+    }
+}
+impl ::core::ops::BitOrAssign for mjtDisableBit {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: mjtDisableBit) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::core::ops::BitAnd<mjtDisableBit> for mjtDisableBit {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        mjtDisableBit(self.0 & other.0)
+    }
+}
+impl ::core::ops::BitAndAssign for mjtDisableBit {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: mjtDisableBit) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtDisableBit(pub(crate) ::core::ffi::c_uint);
 pub const mjNENABLE: usize = mjtEnableBit::mjNENABLE.0 as usize;
-pub const mjENBL_OVERRIDE: mjtEnableBit = 1;
-pub const mjENBL_ENERGY: mjtEnableBit = 2;
-pub const mjENBL_FWDINV: mjtEnableBit = 4;
-pub const mjENBL_INVDISCRETE: mjtEnableBit = 8;
-pub const mjENBL_SLEEP: mjtEnableBit = 16;
-pub const mjENBL_DIAGEXACT: mjtEnableBit = 32;
-pub const mjNENABLE: usize = 6;
-pub type mjtEnableBit = ::core::ffi::c_uint;
-pub const mjJNT_FREE: mjtJoint = 0;
-pub const mjJNT_BALL: mjtJoint = 1;
-pub const mjJNT_SLIDE: mjtJoint = 2;
-pub const mjJNT_HINGE: mjtJoint = 3;
-pub type mjtJoint = ::core::ffi::c_uint;
+impl mjtEnableBit {
+    pub const OVERRIDE: mjtEnableBit = mjtEnableBit(1);
+    pub const ENERGY: mjtEnableBit = mjtEnableBit(2);
+    pub const FWDINV: mjtEnableBit = mjtEnableBit(4);
+    pub const INVDISCRETE: mjtEnableBit = mjtEnableBit(8);
+    pub const SLEEP: mjtEnableBit = mjtEnableBit(16);
+    pub const DIAGEXACT: mjtEnableBit = mjtEnableBit(32);
+    const mjNENABLE: mjtEnableBit = mjtEnableBit(6);
+}
+impl ::core::ops::BitOr<mjtEnableBit> for mjtEnableBit {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        mjtEnableBit(self.0 | other.0)
+    }
+}
+impl ::core::ops::BitOrAssign for mjtEnableBit {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: mjtEnableBit) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::core::ops::BitAnd<mjtEnableBit> for mjtEnableBit {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        mjtEnableBit(self.0 & other.0)
+    }
+}
+impl ::core::ops::BitAndAssign for mjtEnableBit {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: mjtEnableBit) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtEnableBit(pub(crate) ::core::ffi::c_uint);
+impl mjtJoint {
+    pub const FREE: mjtJoint = mjtJoint(0);
+    pub const BALL: mjtJoint = mjtJoint(1);
+    pub const SLIDE: mjtJoint = mjtJoint(2);
+    pub const HINGE: mjtJoint = mjtJoint(3);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtJoint(pub(crate) ::core::ffi::c_uint);
 pub const mjNGEOMTYPES: usize = mjtGeom::mjNGEOMTYPES.0 as usize;
 impl mjtGeom {
     pub const PLANE: mjtGeom = mjtGeom(0);
@@ -144,12 +208,16 @@ impl mjtProjection {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtProjection(pub(crate) ::core::ffi::c_uint);
-pub const mjCAMLIGHT_FIXED: mjtCamLight = 0;
-pub const mjCAMLIGHT_TRACK: mjtCamLight = 1;
-pub const mjCAMLIGHT_TRACKCOM: mjtCamLight = 2;
-pub const mjCAMLIGHT_TARGETBODY: mjtCamLight = 3;
-pub const mjCAMLIGHT_TARGETBODYCOM: mjtCamLight = 4;
-pub type mjtCamLight = ::core::ffi::c_uint;
+impl mjtCamLight {
+    pub const FIXED: mjtCamLight = mjtCamLight(0);
+    pub const TRACK: mjtCamLight = mjtCamLight(1);
+    pub const TRACKCOM: mjtCamLight = mjtCamLight(2);
+    pub const TARGETBODY: mjtCamLight = mjtCamLight(3);
+    pub const TARGETBODYCOM: mjtCamLight = mjtCamLight(4);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtCamLight(pub(crate) ::core::ffi::c_uint);
 impl mjtLightType {
     pub const SPOT: mjtLightType = mjtLightType(0);
     pub const DIRECTIONAL: mjtLightType = mjtLightType(1);
@@ -295,9 +363,13 @@ impl mjtBias {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtBias(pub(crate) ::core::ffi::c_uint);
-pub const mjCHART_EXPMAP: mjtCtrlChart = 1;
-pub const mjCHART_QUAT: mjtCtrlChart = 2;
-pub type mjtCtrlChart = ::core::ffi::c_uint;
+impl mjtCtrlChart {
+    pub const EXPMAP: mjtCtrlChart = mjtCtrlChart(1);
+    pub const QUAT: mjtCtrlChart = mjtCtrlChart(2);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtCtrlChart(pub(crate) ::core::ffi::c_uint);
 pub const mjNOBJECT: usize = mjtObj::mjNOBJECT.0 as usize;
 impl mjtObj {
     pub const UNKNOWN: mjtObj = mjtObj(0);
@@ -434,13 +506,43 @@ impl mjtRayDataField {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtRayDataField(pub(crate) ::core::ffi::c_uint);
 pub const mjNCAMOUT: usize = mjtCamOutBit::mjNCAMOUT.0 as usize;
-pub const mjCAMOUT_RGB: mjtCamOutBit = 1;
-pub const mjCAMOUT_DEPTH: mjtCamOutBit = 2;
-pub const mjCAMOUT_DIST: mjtCamOutBit = 4;
-pub const mjCAMOUT_NORMAL: mjtCamOutBit = 8;
-pub const mjCAMOUT_SEG: mjtCamOutBit = 16;
-pub const mjNCAMOUT: usize = 5;
-pub type mjtCamOutBit = ::core::ffi::c_uint;
+impl mjtCamOutBit {
+    pub const RGB: mjtCamOutBit = mjtCamOutBit(1);
+    pub const DEPTH: mjtCamOutBit = mjtCamOutBit(2);
+    pub const DIST: mjtCamOutBit = mjtCamOutBit(4);
+    pub const NORMAL: mjtCamOutBit = mjtCamOutBit(8);
+    pub const SEG: mjtCamOutBit = mjtCamOutBit(16);
+    const mjNCAMOUT: mjtCamOutBit = mjtCamOutBit(5);
+}
+impl ::core::ops::BitOr<mjtCamOutBit> for mjtCamOutBit {
+    type Output = Self;
+    #[inline]
+    fn bitor(self, other: Self) -> Self {
+        mjtCamOutBit(self.0 | other.0)
+    }
+}
+impl ::core::ops::BitOrAssign for mjtCamOutBit {
+    #[inline]
+    fn bitor_assign(&mut self, rhs: mjtCamOutBit) {
+        self.0 |= rhs.0;
+    }
+}
+impl ::core::ops::BitAnd<mjtCamOutBit> for mjtCamOutBit {
+    type Output = Self;
+    #[inline]
+    fn bitand(self, other: Self) -> Self {
+        mjtCamOutBit(self.0 & other.0)
+    }
+}
+impl ::core::ops::BitAndAssign for mjtCamOutBit {
+    #[inline]
+    fn bitand_assign(&mut self, rhs: mjtCamOutBit) {
+        self.0 &= rhs.0;
+    }
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtCamOutBit(pub(crate) ::core::ffi::c_uint);
 impl mjtSameFrame {
     pub const NONE: mjtSameFrame = mjtSameFrame(0);
     pub const BODY: mjtSameFrame = mjtSameFrame(1);
@@ -515,15 +617,19 @@ impl mjtState {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtState(pub(crate) ::core::ffi::c_uint);
-pub const mjCNSTR_EQUALITY: mjtConstraint = 0;
-pub const mjCNSTR_FRICTION_DOF: mjtConstraint = 1;
-pub const mjCNSTR_FRICTION_TENDON: mjtConstraint = 2;
-pub const mjCNSTR_LIMIT_JOINT: mjtConstraint = 3;
-pub const mjCNSTR_LIMIT_TENDON: mjtConstraint = 4;
-pub const mjCNSTR_CONTACT_FRICTIONLESS: mjtConstraint = 5;
-pub const mjCNSTR_CONTACT_PYRAMIDAL: mjtConstraint = 6;
-pub const mjCNSTR_CONTACT_ELLIPTIC: mjtConstraint = 7;
-pub type mjtConstraint = ::core::ffi::c_uint;
+impl mjtConstraint {
+    pub const EQUALITY: mjtConstraint = mjtConstraint(0);
+    pub const FRICTION_DOF: mjtConstraint = mjtConstraint(1);
+    pub const FRICTION_TENDON: mjtConstraint = mjtConstraint(2);
+    pub const LIMIT_JOINT: mjtConstraint = mjtConstraint(3);
+    pub const LIMIT_TENDON: mjtConstraint = mjtConstraint(4);
+    pub const CONTACT_FRICTIONLESS: mjtConstraint = mjtConstraint(5);
+    pub const CONTACT_PYRAMIDAL: mjtConstraint = mjtConstraint(6);
+    pub const CONTACT_ELLIPTIC: mjtConstraint = mjtConstraint(7);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtConstraint(pub(crate) ::core::ffi::c_uint);
 impl mjtConstraintState {
     pub const SATISFIED: mjtConstraintState = mjtConstraintState(0);
     pub const QUADRATIC: mjtConstraintState = mjtConstraintState(1);
@@ -1770,10 +1876,14 @@ impl mjtOrientation {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtOrientation(pub(crate) ::core::ffi::c_uint);
-pub const mjCONFLICT_WARNING: mjtConflict = 0;
-pub const mjCONFLICT_MERGE: mjtConflict = 1;
-pub const mjCONFLICT_ERROR: mjtConflict = 2;
-pub type mjtConflict = ::core::ffi::c_uint;
+impl mjtConflict {
+    pub const WARNING: mjtConflict = mjtConflict(0);
+    pub const MERGE: mjtConflict = mjtConflict(1);
+    pub const ERROR: mjtConflict = mjtConflict(2);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtConflict(pub(crate) ::core::ffi::c_uint);
 pub const mjNCTIMER: usize = mjtCTimer::mjNCTIMER.0 as usize;
 impl mjtCTimer {
     pub const TOTAL: mjtCTimer = mjtCTimer(0);
@@ -3138,16 +3248,20 @@ impl mjtButton {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtButton(pub(crate) ::core::ffi::c_uint);
-pub const mjEVENT_NONE: mjtEvent = 0;
-pub const mjEVENT_MOVE: mjtEvent = 1;
-pub const mjEVENT_PRESS: mjtEvent = 2;
-pub const mjEVENT_RELEASE: mjtEvent = 3;
-pub const mjEVENT_SCROLL: mjtEvent = 4;
-pub const mjEVENT_KEY: mjtEvent = 5;
-pub const mjEVENT_RESIZE: mjtEvent = 6;
-pub const mjEVENT_REDRAW: mjtEvent = 7;
-pub const mjEVENT_FILESDROP: mjtEvent = 8;
-pub type mjtEvent = ::core::ffi::c_uint;
+impl mjtEvent {
+    pub const NONE: mjtEvent = mjtEvent(0);
+    pub const MOVE: mjtEvent = mjtEvent(1);
+    pub const PRESS: mjtEvent = mjtEvent(2);
+    pub const RELEASE: mjtEvent = mjtEvent(3);
+    pub const SCROLL: mjtEvent = mjtEvent(4);
+    pub const KEY: mjtEvent = mjtEvent(5);
+    pub const RESIZE: mjtEvent = mjtEvent(6);
+    pub const REDRAW: mjtEvent = mjtEvent(7);
+    pub const FILESDROP: mjtEvent = mjtEvent(8);
+}
+#[repr(transparent)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub struct mjtEvent(pub(crate) ::core::ffi::c_uint);
 pub const mjNITEM: usize = mjtItem::mjNITEM.0 as usize;
 impl mjtItem {
     pub const END: mjtItem = mjtItem(-2);
