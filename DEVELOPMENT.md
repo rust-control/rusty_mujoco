@@ -14,7 +14,7 @@ Please introduce Nix and  then`nix develop` would be enough for most development
 
 1. Read the changelog of the version to update (and write what are changed to a temporary file if you need). As of MuJoCo 3.11.0, `https://github.com/google-deepmind/mujoco/releases/tag/${version}` serves the changelog of each release. (e.g. MuJoCo 3.11.0 changelog is available at https://github.com/google-deepmind/mujoco/releases/tag/3.11.0)
 
-2. Download an official release from https://github.com/google-deepmind/mujoco/releases/download/${version}/mujoco-${version}-linux-x86_64.tar.gz and replace `vendor/include` directory with new `include` directory in the expanded release. (The header files in `include` will not be different between platforms)
+2. Download an official release from https://github.com/google-deepmind/mujoco/releases/download/${version}/mujoco-${version}-linux-x86_64.tar.gz somewhere, expand it, and replace `./vendor/include` directory with new `include` directory in the expanded release. (The header files in `include` will not be different between platforms)
 
 ### Nix
 
@@ -38,12 +38,9 @@ Please introduce Nix and  then`nix develop` would be enough for most development
 
 ### Rust
 
-6. Bump the crate version in `Cargo.toml`, and then run `cargo build --features bindgen` to run `build.rs` to generate `bindgen.rs`. Versioning:
-    - In `0.*.*` version, update minor
-    - In `${>=1}.*.*` version unrelated to upstram version, update major for upstream's major update or update minor for upstream's minor update.
-    - In upstream-syncing version, just update to the same version as upstream's.
+6. Bump the crate version in `Cargo.toml`. Versioning rule: basically sync with upstream version, and add patch suffix for binding-specific updates.
 
-7. Understand all compile errors, setup a series of reasonable plans to fix them following the binding policy:
+7. Run `cargo build --features bindgen` to generate raw binding by the build script. Then understand all compile errors and setup a series of reasonable plans for minimal fix following existing codebase and the binding policy:
     - Offers safe, low-level Rust wrappers for the entire MuJoCo API.
     - Provides getters for all struct fields and setters for user-modifiable fields,
       instead of allowing direct field access.
@@ -57,3 +54,5 @@ Please introduce Nix and  then`nix develop` would be enough for most development
 8. For each reason of compile errors (7.), fix it, and then, if the change is listed in the change log (2.) mark it as "resolved".
 
 9. For remaining changes in changelog (2.), implement the new feature following the binding policy.
+
+10. Check buildability and test success referring `.github/workflows/CI.yml`.
