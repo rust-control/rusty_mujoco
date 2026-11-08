@@ -12,7 +12,7 @@ Please introduce Nix and  then`nix develop` would be enough for most development
 
 1. <upstream> Read the changelog of the version to update (and write what are changed to a temporary file if you need). As of MuJoCo 3.11.0, `https://github.com/google-deepmind/mujoco/releases/tag/${version}` serves the changelog of each release. (e.g. MuJoCo 3.11.0 changelog is available at https://github.com/google-deepmind/mujoco/releases/tag/3.11.0)
 
-2. <upstream> Download an official release from https://github.com/google-deepmind/mujoco/releases/download/${version}/mujoco-${version}-linux-x86_64.tar.gz somewhere, expand it, and replace `./vendor/include` directory with new `include` directory in the expanded release. (The header files in `include` will not be different between platforms)
+2. <upstream> Download an official release from https://github.com/google-deepmind/mujoco/releases/download/${version}/mujoco-${version}-linux-x86_64.tar.gz somewhere, expand it, and replace this crate's `vendor/include/mujoco` directory with expended release's `include/mujoco` directory. Note that the header files in `include` will not be different between platforms. (e.g. MuJoCo 3.11.0 release is avaibale at https://github.com/google-deepmind/mujoco/releases/download/3.11.0/mujoco-3.11.0-linux-x86_64.tar.gz)
 
 3. <nix> Search https://github.com/NixOS/nixpkgs/commits/master/pkgs/by-name/mu/mujoco commit history and find specific commit that bumps `pkgs.mujoco` to the version to update. (e.g. MuJoCo 3.11.0 is bumped by [`cc551d3bc5defdc1419e169016899bb50db52905`](https://github.com/NixOS/nixpkgs/commit/cc551d3bc5defdc1419e169016899bb50db52905))
 
