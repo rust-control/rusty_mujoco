@@ -46,6 +46,8 @@
           packages = [
             rustToolchain
           ] ++ (with pkgs-pin-mujoco-3_11_0; [
+            clang-tools
+            clang
             pkg-config
             glfw3
           ]) ++ pkgs.lib.optionals pkgs.stdenv.isLinux (with pkgs-pin-mujoco-3_11_0; [
