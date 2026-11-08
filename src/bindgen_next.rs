@@ -726,7 +726,8 @@ pub struct mjLogConfig {
     pub(crate) logfile: [::core::ffi::c_char; 1024usize],
     pub topics: ::core::ffi::c_int,
 }
-pub type mjfLogHandler = ::core::option::Option<unsafe extern "C" fn(arg1: *const mjLogMessage)>;
+pub(crate) type mjfLogHandler =
+    ::core::option::Option<unsafe extern "C" fn(arg1: *const mjLogMessage)>;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjLROpt {
@@ -1763,9 +1764,9 @@ pub struct mjData {
     pub(crate) ifrc_constraint: *mut mjtNum,
     pub signature: u64,
 }
-pub type mjfGeneric =
+pub(crate) type mjfGeneric =
     ::core::option::Option<unsafe extern "C" fn(m: *const mjModel, d: *mut mjData)>;
-pub type mjfConFilt = ::core::option::Option<
+pub(crate) type mjfConFilt = ::core::option::Option<
     unsafe extern "C" fn(
         m: *const mjModel,
         d: *mut mjData,
@@ -1773,14 +1774,14 @@ pub type mjfConFilt = ::core::option::Option<
         geom2: ::core::ffi::c_int,
     ) -> ::core::ffi::c_int,
 >;
-pub type mjfSensor = ::core::option::Option<
+pub(crate) type mjfSensor = ::core::option::Option<
     unsafe extern "C" fn(m: *const mjModel, d: *mut mjData, stage: ::core::ffi::c_int),
 >;
-pub type mjfTime = ::core::option::Option<unsafe extern "C" fn() -> mjtNum>;
-pub type mjfAct = ::core::option::Option<
+pub(crate) type mjfTime = ::core::option::Option<unsafe extern "C" fn() -> mjtNum>;
+pub(crate) type mjfAct = ::core::option::Option<
     unsafe extern "C" fn(m: *const mjModel, d: *const mjData, id: ::core::ffi::c_int) -> mjtNum,
 >;
-pub type mjfCollision = ::core::option::Option<
+pub(crate) type mjfCollision = ::core::option::Option<
     unsafe extern "C" fn(
         m: *const mjModel,
         d: *mut mjData,
@@ -1806,23 +1807,23 @@ impl mjtGeomInertia {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtGeomInertia(::core::ffi::c_uint);
 impl mjtMeshInertia {
-    pub const INERTIA_CONVEX: mjtMeshInertia = mjtMeshInertia(0);
-    pub const INERTIA_EXACT: mjtMeshInertia = mjtMeshInertia(1);
-    pub const INERTIA_LEGACY: mjtMeshInertia = mjtMeshInertia(2);
-    pub const INERTIA_SHELL: mjtMeshInertia = mjtMeshInertia(3);
+    pub const CONVEX: mjtMeshInertia = mjtMeshInertia(0);
+    pub const EXACT: mjtMeshInertia = mjtMeshInertia(1);
+    pub const LEGACY: mjtMeshInertia = mjtMeshInertia(2);
+    pub const SHELL: mjtMeshInertia = mjtMeshInertia(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtMeshInertia(::core::ffi::c_uint);
 impl mjtMeshBuiltin {
-    pub const BUILTIN_NONE: mjtMeshBuiltin = mjtMeshBuiltin(0);
-    pub const BUILTIN_SPHERE: mjtMeshBuiltin = mjtMeshBuiltin(1);
-    pub const BUILTIN_HEMISPHERE: mjtMeshBuiltin = mjtMeshBuiltin(2);
-    pub const BUILTIN_CONE: mjtMeshBuiltin = mjtMeshBuiltin(3);
-    pub const BUILTIN_SUPERSPHERE: mjtMeshBuiltin = mjtMeshBuiltin(4);
-    pub const BUILTIN_SUPERTORUS: mjtMeshBuiltin = mjtMeshBuiltin(5);
-    pub const BUILTIN_WEDGE: mjtMeshBuiltin = mjtMeshBuiltin(6);
-    pub const BUILTIN_PLATE: mjtMeshBuiltin = mjtMeshBuiltin(7);
+    pub const NONE: mjtMeshBuiltin = mjtMeshBuiltin(0);
+    pub const SPHERE: mjtMeshBuiltin = mjtMeshBuiltin(1);
+    pub const HEMISPHERE: mjtMeshBuiltin = mjtMeshBuiltin(2);
+    pub const CONE: mjtMeshBuiltin = mjtMeshBuiltin(3);
+    pub const SUPERSPHERE: mjtMeshBuiltin = mjtMeshBuiltin(4);
+    pub const SUPERTORUS: mjtMeshBuiltin = mjtMeshBuiltin(5);
+    pub const WEDGE: mjtMeshBuiltin = mjtMeshBuiltin(6);
+    pub const PLATE: mjtMeshBuiltin = mjtMeshBuiltin(7);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -2082,7 +2083,7 @@ pub struct mjsGeom {
     pub mass: f64,
     pub density: f64,
     pub typeinertia: mjtGeomInertia,
-    pub fluid_ellipsoid: mjtNum,
+    pub(crate) fluid_ellipsoid: mjtNum,
     pub fluid_coefs: [mjtNum; 5usize],
     pub(crate) material: *mut mjString,
     pub rgba: [f32; 4usize],
@@ -2693,8 +2694,8 @@ pub struct mjvPerturb {
 #[derive(Debug, Copy, Clone)]
 pub struct mjvCamera {
     pub type_: ::core::ffi::c_int,
-    pub fixedcamid: ::core::ffi::c_int,
-    pub trackbodyid: ::core::ffi::c_int,
+    pub(crate) fixedcamid: ::core::ffi::c_int,
+    pub(crate) trackbodyid: ::core::ffi::c_int,
     pub lookat: [mjtNum; 3usize],
     pub distance: mjtNum,
     pub azimuth: mjtNum,
@@ -2719,15 +2720,15 @@ pub struct mjvGLCamera {
 #[derive(Debug, Copy, Clone)]
 pub struct mjvGeom {
     pub type_: ::core::ffi::c_int,
-    pub dataid: ::core::ffi::c_int,
+    pub(crate) dataid: ::core::ffi::c_int,
     pub objtype: ::core::ffi::c_int,
-    pub objid: ::core::ffi::c_int,
+    pub(crate) objid: ::core::ffi::c_int,
     pub category: ::core::ffi::c_int,
-    pub matid: ::core::ffi::c_int,
-    pub texid: ::core::ffi::c_int,
+    pub(crate) matid: ::core::ffi::c_int,
+    pub(crate) texid: ::core::ffi::c_int,
     pub texuniform: ::core::ffi::c_int,
     pub texcoord: ::core::ffi::c_int,
-    pub segid: ::core::ffi::c_int,
+    pub(crate) segid: ::core::ffi::c_int,
     pub size: [f32; 3usize],
     pub pos: [f32; 3usize],
     pub mat: [f32; 9usize],
@@ -2745,11 +2746,11 @@ pub struct mjvGeom {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct mjvLight {
-    pub id: ::core::ffi::c_int,
+    pub(crate) id: ::core::ffi::c_int,
     pub pos: [f32; 3usize],
     pub dir: [f32; 3usize],
     pub type_: ::core::ffi::c_int,
-    pub texid: ::core::ffi::c_int,
+    pub(crate) texid: ::core::ffi::c_int,
     pub attenuation: [f32; 3usize],
     pub cutoff: f32,
     pub exponent: f32,
@@ -2849,7 +2850,7 @@ pub struct mjvFigure {
     pub legendoffset: ::core::ffi::c_int,
     pub subplot: ::core::ffi::c_int,
     pub highlight: [::core::ffi::c_int; 2usize],
-    pub highlightid: ::core::ffi::c_int,
+    pub(crate) highlightid: ::core::ffi::c_int,
     pub selection: f32,
     pub linepnt: [::core::ffi::c_int; 100usize],
     pub linedata: [[f32; 2002usize]; 100usize],
@@ -2867,26 +2868,27 @@ pub struct mjResource {
     pub(crate) timestamp: [::core::ffi::c_char; 512usize],
     pub(crate) provider: *const mjpResourceProvider,
 }
-pub type mjfOpenResource =
+pub(crate) type mjfOpenResource =
     ::core::option::Option<unsafe extern "C" fn(resource: *mut mjResource) -> ::core::ffi::c_int>;
-pub type mjfReadResource = ::core::option::Option<
+pub(crate) type mjfReadResource = ::core::option::Option<
     unsafe extern "C" fn(
         resource: *mut mjResource,
         buffer: *mut *const ::core::ffi::c_void,
     ) -> ::core::ffi::c_int,
 >;
-pub type mjfCloseResource = ::core::option::Option<unsafe extern "C" fn(resource: *mut mjResource)>;
-pub type mjfMountResource =
+pub(crate) type mjfCloseResource =
+    ::core::option::Option<unsafe extern "C" fn(resource: *mut mjResource)>;
+pub(crate) type mjfMountResource =
     ::core::option::Option<unsafe extern "C" fn(resource: *mut mjResource) -> ::core::ffi::c_int>;
-pub type mjfUnmountResource =
+pub(crate) type mjfUnmountResource =
     ::core::option::Option<unsafe extern "C" fn(resource: *mut mjResource) -> ::core::ffi::c_int>;
-pub type mjfResourceModified = ::core::option::Option<
+pub(crate) type mjfResourceModified = ::core::option::Option<
     unsafe extern "C" fn(
         resource: *const mjResource,
         timestamp: *const ::core::ffi::c_char,
     ) -> ::core::ffi::c_int,
 >;
-pub type mjfWriteResource = ::core::option::Option<
+pub(crate) type mjfWriteResource = ::core::option::Option<
     unsafe extern "C" fn(
         resource: *mut mjResource,
         buffer: *const ::core::ffi::c_void,
@@ -2906,10 +2908,10 @@ pub struct mjpResourceProvider {
     pub write: mjfWriteResource,
     pub(crate) data: *mut ::core::ffi::c_void,
 }
-pub type mjfDecode = ::core::option::Option<
+pub(crate) type mjfDecode = ::core::option::Option<
     unsafe extern "C" fn(resource: *mut mjResource, vfs: *const mjVFS) -> *mut mjSpec,
 >;
-pub type mjfCanDecode =
+pub(crate) type mjfCanDecode =
     ::core::option::Option<unsafe extern "C" fn(resource: *const mjResource) -> ::core::ffi::c_int>;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2919,7 +2921,7 @@ pub struct mjpDecoder {
     pub can_decode: mjfCanDecode,
     pub decode: mjfDecode,
 }
-pub type mjfEncode = ::core::option::Option<
+pub(crate) type mjfEncode = ::core::option::Option<
     unsafe extern "C" fn(
         s: *const mjSpec,
         m: *const mjModel,
@@ -3075,7 +3077,7 @@ pub struct mjSDF {
     pub(crate) relmat: *mut mjtNum,
     pub(crate) geomtype: *mut mjtGeom,
 }
-pub type mjfPluginLibraryLoadCallback = ::core::option::Option<
+pub(crate) type mjfPluginLibraryLoadCallback = ::core::option::Option<
     unsafe extern "C" fn(
         filename: *const ::core::ffi::c_char,
         first: ::core::ffi::c_int,
@@ -3129,46 +3131,46 @@ impl mjtFont {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtFont(::core::ffi::c_uint);
 impl mjrPixelFormat {
-    pub const FORMAT_UNKNOWN: mjrPixelFormat = mjrPixelFormat(0);
-    pub const FORMAT_R8: mjrPixelFormat = mjrPixelFormat(1);
-    pub const FORMAT_RGB8: mjrPixelFormat = mjrPixelFormat(2);
-    pub const FORMAT_RGBA8: mjrPixelFormat = mjrPixelFormat(3);
-    pub const FORMAT_R32F: mjrPixelFormat = mjrPixelFormat(4);
-    pub const FORMAT_DEPTH32F: mjrPixelFormat = mjrPixelFormat(5);
-    pub const FORMAT_KTX: mjrPixelFormat = mjrPixelFormat(6);
+    pub const UNKNOWN: mjrPixelFormat = mjrPixelFormat(0);
+    pub const R8: mjrPixelFormat = mjrPixelFormat(1);
+    pub const RGB8: mjrPixelFormat = mjrPixelFormat(2);
+    pub const RGBA8: mjrPixelFormat = mjrPixelFormat(3);
+    pub const R32F: mjrPixelFormat = mjrPixelFormat(4);
+    pub const DEPTH32F: mjrPixelFormat = mjrPixelFormat(5);
+    pub const KTX: mjrPixelFormat = mjrPixelFormat(6);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjrPixelFormat(::core::ffi::c_uint);
 impl mjrVertexAttributeUsage {
-    pub const ATTRIBUTE_USAGE_POSITION: mjrVertexAttributeUsage = mjrVertexAttributeUsage(0);
-    pub const ATTRIBUTE_USAGE_NORMAL: mjrVertexAttributeUsage = mjrVertexAttributeUsage(1);
-    pub const ATTRIBUTE_USAGE_TANGENTS: mjrVertexAttributeUsage = mjrVertexAttributeUsage(2);
-    pub const ATTRIBUTE_USAGE_UV: mjrVertexAttributeUsage = mjrVertexAttributeUsage(3);
-    pub const ATTRIBUTE_USAGE_COLOR: mjrVertexAttributeUsage = mjrVertexAttributeUsage(4);
+    pub const POSITION: mjrVertexAttributeUsage = mjrVertexAttributeUsage(0);
+    pub const NORMAL: mjrVertexAttributeUsage = mjrVertexAttributeUsage(1);
+    pub const TANGENTS: mjrVertexAttributeUsage = mjrVertexAttributeUsage(2);
+    pub const UV: mjrVertexAttributeUsage = mjrVertexAttributeUsage(3);
+    pub const COLOR: mjrVertexAttributeUsage = mjrVertexAttributeUsage(4);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjrVertexAttributeUsage(::core::ffi::c_uint);
 impl mjrVertexAttributeType {
-    pub const ATTRIBUTE_TYPE_FLOAT2: mjrVertexAttributeType = mjrVertexAttributeType(0);
-    pub const ATTRIBUTE_TYPE_FLOAT3: mjrVertexAttributeType = mjrVertexAttributeType(1);
-    pub const ATTRIBUTE_TYPE_FLOAT4: mjrVertexAttributeType = mjrVertexAttributeType(2);
-    pub const ATTRIBUTE_TYPE_UBYTE4: mjrVertexAttributeType = mjrVertexAttributeType(3);
+    pub const FLOAT2: mjrVertexAttributeType = mjrVertexAttributeType(0);
+    pub const FLOAT3: mjrVertexAttributeType = mjrVertexAttributeType(1);
+    pub const FLOAT4: mjrVertexAttributeType = mjrVertexAttributeType(2);
+    pub const UBYTE4: mjrVertexAttributeType = mjrVertexAttributeType(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjrVertexAttributeType(::core::ffi::c_uint);
 impl mjrIndexType {
-    pub const TYPE_U16: mjrIndexType = mjrIndexType(0);
-    pub const TYPE_U32: mjrIndexType = mjrIndexType(1);
+    pub const U16: mjrIndexType = mjrIndexType(0);
+    pub const U32: mjrIndexType = mjrIndexType(1);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjrIndexType(::core::ffi::c_uint);
 impl mjrMeshPrimitiveType {
-    pub const PRIMITIVE_TYPE_TRIANGLES: mjrMeshPrimitiveType = mjrMeshPrimitiveType(0);
-    pub const PRIMITIVE_TYPE_LINES: mjrMeshPrimitiveType = mjrMeshPrimitiveType(1);
+    pub const TRIANGLES: mjrMeshPrimitiveType = mjrMeshPrimitiveType(0);
+    pub const LINES: mjrMeshPrimitiveType = mjrMeshPrimitiveType(1);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -3226,7 +3228,7 @@ pub struct mjrContext {
     pub auxFBO_r: [::core::ffi::c_uint; 10usize],
     pub auxColor: [::core::ffi::c_uint; 10usize],
     pub auxColor_r: [::core::ffi::c_uint; 10usize],
-    pub mat_texid: [::core::ffi::c_int; 10000usize],
+    pub(crate) mat_texid: [::core::ffi::c_int; 10000usize],
     pub mat_texuniform: [::core::ffi::c_int; 1000usize],
     pub mat_texrepeat: [f32; 2000usize],
     pub ntexture: ::core::ffi::c_int,
@@ -3316,7 +3318,7 @@ impl mjtSection {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct mjtSection(::core::ffi::c_uint);
-pub type mjfItemEnable = ::core::option::Option<
+pub(crate) type mjfItemEnable = ::core::option::Option<
     unsafe extern "C" fn(
         category: ::core::ffi::c_int,
         data: *mut ::core::ffi::c_void,
@@ -3362,7 +3364,7 @@ pub struct mjuiThemeSpacing {
     pub cornersect: ::core::ffi::c_int,
     pub cornersep: ::core::ffi::c_int,
     pub itemside: ::core::ffi::c_int,
-    pub itemmid: ::core::ffi::c_int,
+    pub(crate) itemmid: ::core::ffi::c_int,
     pub itemver: ::core::ffi::c_int,
     pub texthor: ::core::ffi::c_int,
     pub textver: ::core::ffi::c_int,
@@ -3432,9 +3434,9 @@ pub struct mjuiItem {
     pub(crate) name: [::core::ffi::c_char; 40usize],
     pub state: ::core::ffi::c_int,
     pub(crate) pdata: *mut ::core::ffi::c_void,
-    pub sectionid: ::core::ffi::c_int,
-    pub itemid: ::core::ffi::c_int,
-    pub userid: ::core::ffi::c_int,
+    pub(crate) sectionid: ::core::ffi::c_int,
+    pub(crate) itemid: ::core::ffi::c_int,
+    pub(crate) userid: ::core::ffi::c_int,
     pub(crate) __bindgen_anon_1: mjuiItem___bindgen_ty_1,
     pub rect: mjrRect,
     pub skip: ::core::ffi::c_int,
@@ -3468,8 +3470,8 @@ pub struct mjUI {
     pub color: mjuiThemeColor,
     pub predicate: mjfItemEnable,
     pub(crate) userdata: *mut ::core::ffi::c_void,
-    pub rectid: ::core::ffi::c_int,
-    pub auxid: ::core::ffi::c_int,
+    pub(crate) rectid: ::core::ffi::c_int,
+    pub(crate) auxid: ::core::ffi::c_int,
     pub radiocol: ::core::ffi::c_int,
     pub width: ::core::ffi::c_int,
     pub height: ::core::ffi::c_int,

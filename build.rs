@@ -242,15 +242,28 @@ fn bindgen() {
                             .for_each(|f| f.vis = syn::parse_quote!(pub(crate)));
                     } else {
                         for f in &mut struct_fields.named {
-                            if matches!(f.ty, syn::Type::Ptr(_)) || {
-                                let ty_string = f.ty.to_token_stream().to_string();
-                                ty_string.contains("unsafe extern \"C\"")
-                                    || ty_string.contains("__bindgen_ty")
-                                    || ty_string.contains("c_char")
-                            } {
+                            let (ident_str, ty_str) = (
+                                f.ident.as_ref().unwrap().to_string(),
+                                f.ty.to_token_stream().to_string(),
+                            );
+                            if ident_str.ends_with("id")
+                                || matches!(f.ty, syn::Type::Ptr(_))
+                                || ty_str.contains("unsafe extern \"C\"")
+                                || ty_str.contains("__bindgen_ty")
+                                || ty_str.contains("c_char")
+                            {
                                 f.vis = syn::parse_quote!(pub(crate));
                             }
                         }
+                    }
+                }
+                syn::Item::Type(syn::ItemType { vis, ty, .. }) => {
+                    if ty
+                        .to_token_stream()
+                        .to_string()
+                        .contains("unsafe extern \"C\"")
+                    {
+                        *vis = syn::parse_quote!(pub(crate));
                     }
                 }
                 syn::Item::Union(u) => {
@@ -278,7 +291,7 @@ fn bindgen() {
                     }
                 }
                 syn::Item::Impl(syn::ItemImpl { items, .. }) => {
-                    for impl_item in items {
+                    for impl_item in items.iter_mut() {
                         if let syn::ImplItem::Const(syn::ImplItemConst { vis, ident, .. }) =
                             impl_item
                         {
@@ -295,6 +308,33 @@ fn bindgen() {
                                 } else {
                                     quote::format_ident!("{after_mj_prefix}")
                                 }
+                            }
+                        }
+                    }
+                    if items.iter().all(|i| matches!(i, syn::ImplItem::Const(_))) {
+                        let ident_muts = items
+                            .iter_mut()
+                            .map(|i| match i {
+                                syn::ImplItem::Const(syn::ImplItemConst { ident, .. }) => ident,
+                                _ => unreachable!(),
+                            })
+                            .collect::<Vec<_>>();
+                        if let Some(prefix) = ident_muts[0]
+                            .to_string()
+                            .rsplit_once('_')
+                            .map(|(prefix, _)| prefix.to_owned())
+                            && ident_muts
+                                .iter()
+                                .all(|i| i.to_string().starts_with(&prefix))
+                        {
+                            for i in ident_muts {
+                                *i = quote::format_ident!(
+                                    "{}",
+                                    i.to_string()
+                                        .strip_prefix(&prefix)
+                                        .unwrap()
+                                        .trim_start_matches('_')
+                                );
                             }
                         }
                     }
