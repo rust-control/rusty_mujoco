@@ -226,7 +226,7 @@ fn bindgen() {
                         newtype_enum_inner.unnamed[0].vis,
                         syn::Visibility::Public(_)
                     ));
-                    newtype_enum_inner.unnamed[0].vis = syn::Visibility::Inherited;
+                    newtype_enum_inner.unnamed[0].vis = syn::parse_quote!(pub(crate));
                 }
                 syn::Item::Struct(syn::ItemStruct {
                     vis,
@@ -358,6 +358,13 @@ fn bindgen() {
                                 *vis = syn::parse_quote!(pub(crate))
                             }
                             _ => unreachable!("unexpected foreign item"),
+                        }
+                    }
+                    // Ok because of `.merge_extern_blocks(true)` bindgen option
+                    *item = syn::parse_quote! {
+                        pub(crate) mod functions {
+                            use super::*;
+                            #item
                         }
                     }
                 }
