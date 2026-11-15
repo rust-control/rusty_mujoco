@@ -1,0 +1,18 @@
+[package]
+name          = "rusty_mujoco_bindgen"
+version       = "0.1.0"
+edition       = "2024"
+authors       = ["kanarus <mail@kanarus.dev>"]
+documentation = "https://docs.rs/rusty_mujoco_bindgen"
+homepage      = "https://crates.io/crates/rusty_mujoco_bindgen"
+repository    = "https://github.com/rust-control/rusty_mujoco"
+readme        = "README.md"
+license       = "Apache-2.0"
+description   = "Code generator library for rusty_mujoco crate"
+keywords      = ["mujoco", "rl", "ml", "physics", "robotics"]
+categories    = ["api-bindings", "science::robotics", "simulation"]
+
+[dependencies]
+bindgen = { version = "=0.73.2" }
+syn     = { version = "3", features = ["full"] }
+quote   = { version = "1" }

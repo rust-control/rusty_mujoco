@@ -1,20 +1,14 @@
 <div align="center">
     <h1>Rusty MuJoCo Binding</h1>
     <p>Rust bindings for the <a href="https://mujoco.org">MuJoCo</a> physics simulator</p>
-    <p>MuJoCo Version: <a href="https://github.com/google-deepmind/mujoco/releases/tag/3.10.0">3.10.0</a></p>
+    <p>MuJoCo Version: <a href="https://github.com/google-deepmind/mujoco/releases/tag/3.11.0">3.11.0</a></p>
 </div>
 
 <br>
 
 - Offers safe, low-level Rust wrappers for the entire MuJoCo API.
-- Provides getters for all struct fields and setters for user-modifiable fields,
-  instead of allowing direct field access.
-- Implements automatic resource management via Rust's RAII pattern.
-  For example, `mjModel` automatically calls `mj_deleteModel` in its `Drop` implementation, preventing memory leaks.
-- Emphasizes type-safety and efficiency within a lean binding interface.
-  For instance, the `ObjectId<T>` type system replaces raw integer IDs to:
-    - Ensure compile-time safety for all object-related operations.
-    - Improve performance by eliminating the need for repeated `mj_name2id` lookups.
+- Provides safe access for all struct fields and functions, instead of raw pointers.
+- Implements safe, automatic resource management via Rust's RAII pattern, e.g., `mjModel` automatically calls `mj_deleteModel` in its `Drop`.
 
 <div align="right">
     <a href="https://github.com/rust-control/rusty_mujoco/blob/main/LICENSE">
@@ -32,7 +26,7 @@
 
 ## Requirements
 
-- [MuJoCo 3.10.0](https://github.com/google-deepmind/mujoco/releases/tag/3.10.0) downloaded and installed
+- [MuJoCo 3.11.0](https://github.com/google-deepmind/mujoco/releases/tag/3.11.0) downloaded and installed
 - Additionally, if you place mujoco library in a non-standard directory of the platform,
   you need `MUJOCO_LIB` environment variable set to the path of the directory containing
   `libmujoco.so` or `mujoco.lib` (e.g. `$HOME/.mujoco/mujoco-3.10.0/lib` when you placed the official release above in `~/.mujoco`)

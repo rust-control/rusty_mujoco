@@ -1,0 +1,24 @@
+[package]
+name          = "rusty_mujoco"
+version       = "3.11.0"
+edition       = "2024"
+authors       = ["kanarus <mail@kanarus.dev>"]
+documentation = "https://docs.rs/rusty_mujoco"
+homepage      = "https://crates.io/crates/rusty_mujoco"
+repository    = "https://github.com/rust-control/rusty_mujoco"
+readme        = "README.md"
+license       = "Apache-2.0"
+description   = "Rust bindings for the MuJoCo physics simulator"
+keywords      = ["mujoco", "rl", "ml", "physics", "robotics"]
+categories    = ["api-bindings", "science::robotics", "simulation"]
+
+[build-dependencies]
+rusty_mujoco_bindgen = { optional = true, version = "0.1", path = "../rusty_mujoco_bindgen" }
+cc = { version = "=1.11.1" }
+
+[dev-dependencies]
+glfw = "0.60"
+
+[features]
+# run rusty_mujoco_bindgen at build time, instead of using pre-generated bindgen.rs
+bindgen = ["dep:rusty_mujoco_bindgen"]
