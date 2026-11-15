@@ -184,13 +184,13 @@ fn bindgen() {
         .clang_args([
             format!("-I{vendor_include}"),
             format!("-I{vendor_include_mujoco}"),
+            format!("-fparse-all-comments"),
         ])
         .use_core()
         .size_t_is_usize(true)
         .layout_tests(false)
         /* for types */
         .default_visibility(bindgen::FieldVisibilityKind::Public)
-        .respect_cxx_access_specs(false)
         .prepend_enum_name(false)
         .newtype_enum("_?mj.+[^B]+_?")
         .bitfield_enum("_?mj.+Bit_?")
@@ -238,13 +238,11 @@ fn bindgen() {
                     newtype_enum_inner.unnamed[0].vis = syn::parse_quote!(pub(crate));
                 }
                 syn::Item::Struct(syn::ItemStruct {
-                    vis,
                     ident,
                     fields: syn::Fields::Named(struct_fields),
                     ..
                 }) => {
                     if ident.to_string().contains("__bindgen_ty") {
-                        *vis = syn::parse_quote!(pub(crate));
                         *ident = quote::format_ident!(
                             "{}",
                             ident.to_string().replace("__bindgen_ty_", "")
@@ -255,17 +253,15 @@ fn bindgen() {
                             f.ident.as_ref().unwrap().to_string(),
                             f.ty.to_token_stream().to_string(),
                         );
+                        if ty_str.contains("__bindgen_ty_") {
+                            f.ty = syn::parse_str(&ty_str.replace("__bindgen_ty_", "")).unwrap();
+                        }
                         if ident_str.ends_with("id")
                             || (matches!(f.ty, syn::Type::Ptr(_)) && !ty_str.ends_with("c_void"))
                             || ty_str.contains("unsafe extern \"C\"")
-                            || ty_str.contains("__bindgen_ty_")
                             || ty_str.contains("c_char")
                         {
                             f.vis = syn::parse_quote!(pub(crate));
-                            if ty_str.contains("__bindgen_ty_") {
-                                f.ty =
-                                    syn::parse_str(&ty_str.replace("__bindgen_ty_", "")).unwrap();
-                            }
                         }
                     }
                 }

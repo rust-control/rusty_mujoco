@@ -39,7 +39,7 @@ impl FrictionDimention for Dimention<2> {}
 pub(crate) trait AccessAs<T> {
     fn access_as(self) -> T;
 }
-pub (crate) trait SetBy<T, R = ()> {
+pub(crate) trait SetBy<T, R = ()> {
     fn set_by(&mut self, value: T) -> R;
 }
 
@@ -49,7 +49,9 @@ impl<'a> AccessAs<Result<&'a str, std::str::Utf8Error>> for &'a *const ::core::f
     }
 }
 
-impl<'a, const N: usize> AccessAs<Result<&'a str, std::str::Utf8Error>> for &'a [::core::ffi::c_char; N] {
+impl<'a, const N: usize> AccessAs<Result<&'a str, std::str::Utf8Error>>
+    for &'a [::core::ffi::c_char; N]
+{
     fn access_as(self) -> Result<&'a str, std::str::Utf8Error> {
         unsafe { core::ffi::CStr::from_ptr(self.as_ptr()).to_str() }
     }
@@ -57,7 +59,9 @@ impl<'a, const N: usize> AccessAs<Result<&'a str, std::str::Utf8Error>> for &'a 
 impl<'a, const N: usize> SetBy<String, crate::Result<()>> for [::core::ffi::c_char; N] {
     fn set_by(&mut self, value: String) -> Result<(), crate::MjError> {
         if value.len() >= N {
-            return Err(crate::MjError::from_error("can't convert Rust string to C: inline string capacity overflow"));
+            return Err(crate::MjError::from_error(
+                "can't convert Rust string to C: inline string capacity overflow",
+            ));
         }
         value.as_bytes().iter().enumerate().for_each(|(i, b)| {
             self[i] = *b as ::core::ffi::c_char;

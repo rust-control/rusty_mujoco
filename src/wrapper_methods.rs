@@ -18,6 +18,26 @@ macro_rules! basic_accessors {
         }
     };
 }
+macro_rules! slice_accessors {
+    ($T:ty {
+        $(
+            $fieldname:ident $(| $fieldname_mut:ident)?: [$I:ty; $n:expr],
+        )*
+    }) => {
+        impl $T {
+            $(
+                pub fn $fieldname(&self) -> &[$I] {
+                    unsafe { std::slice::from_raw_parts(self.$fieldname, $n) }
+                }
+                $(
+                    pub fn $fieldname_mut(&mut self) -> &mut [$I] {
+                        unsafe { std::slice::from_raw_parts_mut(self.$fieldname, $n) }
+                    }
+                )?
+            )*
+        }
+    };
+}
 
 basic_accessors!(crate::mjLogMessage {
     subject: Result<&str, std::str::Utf8Error>,
