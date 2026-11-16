@@ -1,3 +1,5 @@
+use quote::ToTokens;
+
 pub struct Bindings {
     pub globalattrs: Vec<::syn::Attribute>,
     pub constants: Vec<::syn::ItemConst>,
@@ -9,35 +11,34 @@ pub struct Bindings {
     pub statics: Vec<::syn::ForeignItemStatic>,
 }
 
-pub struct BindingEnum(::syn::ItemStruct);
+pub struct BindingEnum {
+    pub variants_impl: Vec<BindingEnumVariant>,
+    pub bitflag_impls: Option<Box<[::syn::ItemImpl; 4]>>,
+    pub attrs: Vec<::syn::Attribute>,
+    pub vis: ::syn::Visibility,
+    pub ident: ::syn::Ident,
+    pub internal_type: ::syn::Type,
+}
 
-pub struct BindingStruct(::syn::ItemStruct);
+pub struct BindingEnumVariant(::syn::ImplItemConst);
 
-pub struct BindingStructField<'s> {
+pub struct BindingStruct {
+    pub attrs: Vec<::syn::Attribute>,
+    pub vis: ::syn::Visibility,
+    pub ident: ::syn::Ident,
+    pub fields: Vec<BindingStructField>,
+}
+
+pub struct BindingStructField {
     pub comment: Option<BindingStructFieldComment>,
-    pub vis: &'s ::syn::Visibility,
-    pub ident: &'s ::syn::Ident,
-    pub ty: &'s ::syn::Type,
+    pub vis: ::syn::Visibility,
+    pub ident: ::syn::Ident,
+    pub ty: ::syn::Type,
 }
 
 pub enum BindingStructFieldComment {
-    Slice { raw: String, size_expr: ::syn::Expr },
+    Slice { text: String, size_expr: ::syn::Expr },
     Varbatim(String),
-}
-
-impl BindingStruct {
-    pub fn ident(&self) -> &::syn::Ident {
-        &self.0.ident
-    }
-
-    pub fn fields(&self) -> impl Iterator<Item = BindingStructField<'_>> {
-        self.0.fields.iter().map(|f| BindingStructField {
-            comment: BindingStructFieldComment::extract(f.attrs.iter()),
-            vis: &f.vis,
-            ident: f.ident.as_ref().unwrap(),
-            ty: &f.ty,
-        })
-    }
 }
 
 impl BindingStructFieldComment {
@@ -62,6 +63,7 @@ impl BindingStructFieldComment {
                 _ => None
             })
     }
+
     fn parse_literal(s: String) -> Self {
         let Some((_, p)) = s.strip_suffix(')').and_then(|s_| s_.rsplit_once('(')) else {
             return Self::Varbatim(s);
@@ -73,11 +75,11 @@ impl BindingStructFieldComment {
                     ::syn::parse_quote!(lhs), ::syn::parse_quote!(rhs)
                 );
                 Self::Slice {
-                    raw: s.clone(),
+                    text: s.clone(),
                     size_expr: if rhs.starts_with("mjN") || rhs.parse::<usize>().is_ok() {
-                        ::syn::parse_quote! { self.#lhs_expr * #rhs_expr }
+                        ::syn::parse_quote! { (self.#lhs_expr as usize) * #rhs_expr }
                     } else if rhs.chars().all(|c| matches!(c, 'a'..='z' | '_')) {
-                        ::syn::parse_quote!  { self.#lhs_expr * self.#rhs_expr }
+                        ::syn::parse_quote!  { (self.#lhs_expr as usize) * (self.#rhs_expr as usize) }
                     } else {
                         unreachable!("unexpected pattern of slice field comment: `{lhs} x {rhs}`")
                     }
@@ -156,12 +158,12 @@ impl Bindings {
             .map_err(std::io::Error::other)?
             .write(&mut buf)?;
 
-        let buf = String::from_utf8(buf)
-            .map_err(std::io::Error::other)?;
-        Self::parse_file(&buf)
+        let buf = String::from_utf8(buf).map_err(std::io::Error::other)?;
+        let mut parsing_stack = Vec::new();
+        Self::parse_file(&buf, &mut parsing_stack)
     }
 
-    fn parse_file(content: &str) -> std::io::Result<Self> {
+    fn parse_file(content: &str, stack: &mut Vec<::syn::Item>) -> std::io::Result<Self> {
         use ::quote::ToTokens;
 
         let syn_file = ::syn::parse_file(content)
@@ -183,11 +185,7 @@ impl Bindings {
                 ::syn::Item::Const(x) => this.constants.push(x),
                 ::syn::Item::Type(x) => this.typealiases.push(x),
                 ::syn::Item::Union(x) => this.unions.push(x),
-                ::syn::Item::Struct(x) => match &x.fields {
-                    ::syn::Fields::Named(_) => this.structs.push(BindingStruct(x)),
-                    ::syn::Fields::Unnamed(_) => this.enums.push(BindingEnum(x)),
-                    ::syn::Fields::Unit => unreachable!("unexpected unit struct")
-                },
+                ::syn::Item::Struct(x) => this.dispatch_syn_item_struct(x, stack),
                 ::syn::Item::ForeignMod(f) => for fitem in f.items {
                     match fitem {
                         ::syn::ForeignItem::Fn(x) => this.functions.push(x),
@@ -195,10 +193,87 @@ impl Bindings {
                         _ => unreachable!("unexpected foreign item in bindgen output: `{}`", fitem.to_token_stream())
                     }
                 },
-                _ => unreachable!("unexpected item in bindgen output: `{}`", item.to_token_stream())
+                x => stack.push(x),
             }
+        }
+
+        if let Some(x) = stack.pop() {
+            return Err(std::io::Error::other(format!(
+                "unhandled item remained: `{}`",
+                x.to_token_stream()
+            )));
         }
 
         Ok(this)
     }
+
+    fn dispatch_syn_item_struct(&mut self, s: ::syn::ItemStruct, stack: &mut Vec<::syn::Item>) {
+        let pop_impl_t = |t: &::syn::Ident, stack: &mut Vec<syn::Item>| -> ::syn::ItemImpl {
+            match stack.pop() {
+                Some(::syn::Item::Impl(i)) if 
+                    i.trait_.is_none() &&
+                    i.self_ty.to_token_stream().to_string() == t.to_string() => i,
+                _ => panic!("expected `impl {t} {{ ... }}`"),
+            }
+        };
+        let pop_impl_trait_for_t = |
+            trait_name: &str,
+            t: &::syn::Ident,
+            stack: &mut Vec<syn::Item>
+        | -> ::syn::ItemImpl {
+            match stack.pop() {
+                Some(::syn::Item::Impl(i)) if 
+                    i.trait_.as_ref().is_some_and(|(p, _)| p.segments.last().unwrap().ident == trait_name) &&
+                    i.self_ty.to_token_stream().to_string() == t.to_string() => i,
+                _ => panic!("expected `impl {trait_name} for {t} {{ ... }}`"),
+            }
+        };
+
+        match s.fields {
+            ::syn::Fields::Named(f) => self.structs.push(BindingStruct {
+                attrs: s.attrs,
+                vis: s.vis,
+                ident: s.ident,
+                fields: f.named.into_iter().map(|f| BindingStructField {
+                    comment: BindingStructFieldComment::extract(f.attrs.iter()),
+                    vis: f.vis,
+                    ident: f.ident.unwrap(),
+                    ty: f.ty,
+                }).collect(),
+            }),
+            ::syn::Fields::Unnamed(mut f) => self.enums.push(BindingEnum {
+                bitflag_impls: stack
+                    .last()
+                    .is_some_and(|l| matches!(
+                        l,
+                        ::syn::Item::Impl(::syn::ItemImpl { trait_: Some(_), .. })
+                    ))
+                    .then(|| Box::new([
+                        pop_impl_trait_for_t("BiAndAssign", &s.ident, stack),
+                        pop_impl_trait_for_t("BitAnd", &s.ident, stack),
+                        pop_impl_trait_for_t("BitOrAssign", &s.ident, stack),
+                        pop_impl_trait_for_t("BitOr", &s.ident, stack),
+                    ])),
+                variants_impl: {
+                    pop_impl_t(&s.ident, stack)
+                        .items
+                        .into_iter()
+                        .map(|i| match i {
+                            ::syn::ImplItem::Const(c) => BindingEnumVariant(c),
+                            _ => panic!("unexpected item in `impl {}`", s.ident)
+                        })
+                        .collect()
+                },
+                attrs: s.attrs,
+                vis: s.vis,
+                ident: s.ident,
+                internal_type: f.unnamed.pop()
+                    .and_then(|t| f.unnamed.pop().is_none().then_some(t.ty))
+                    .expect("expected newtype struct for binding enum"),
+            }),
+            ::syn::Fields::Unit => unreachable!("unexpected unit struct: `{}`", s.ident)
+        }
+    }
 }
+
+// impl ::quote::ToTokens for 

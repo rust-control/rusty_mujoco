@@ -1,4 +1,4 @@
-mod raw;
+mod bindings;
 mod ast;
 
 pub fn bindgen() {
