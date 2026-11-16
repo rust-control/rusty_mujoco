@@ -1,5 +1,3 @@
-use quote::ToTokens;
-
 pub struct Bindings {
     pub globalattrs: Vec<::syn::Attribute>,
     pub constants: Vec<::syn::ItemConst>,
@@ -7,12 +5,12 @@ pub struct Bindings {
     pub unions: Vec<::syn::ItemUnion>,
     pub enums: Vec<BindingEnum>,
     pub structs: Vec<BindingStruct>,
-    pub functions: Vec<::syn::ForeignItemFn>,
-    pub statics: Vec<::syn::ForeignItemStatic>,
+    pub foreign_statics: Vec<::syn::ForeignItemStatic>,
+    pub foreign_functions: Vec<::syn::ForeignItemFn>,
 }
 
 pub struct BindingEnum {
-    pub variants_impl: Vec<BindingEnumVariant>,
+    pub variant_consts: Vec<BindingEnumVariant>,
     pub bitflag_impls: Option<Box<[::syn::ItemImpl; 4]>>,
     pub attrs: Vec<::syn::Attribute>,
     pub vis: ::syn::Visibility,
@@ -176,8 +174,8 @@ impl Bindings {
             enums: Vec::new(),
             unions: Vec::new(),
             structs: Vec::new(),
-            functions: Vec::new(),
-            statics: Vec::new(),
+            foreign_functions: Vec::new(),
+            foreign_statics: Vec::new(),
         };
 
         for item in syn_file.items {
@@ -188,8 +186,8 @@ impl Bindings {
                 ::syn::Item::Struct(x) => this.dispatch_syn_item_struct(x, stack),
                 ::syn::Item::ForeignMod(f) => for fitem in f.items {
                     match fitem {
-                        ::syn::ForeignItem::Fn(x) => this.functions.push(x),
-                        ::syn::ForeignItem::Static(x) => this.statics.push(x),
+                        ::syn::ForeignItem::Fn(x) => this.foreign_functions.push(x),
+                        ::syn::ForeignItem::Static(x) => this.foreign_statics.push(x),
                         _ => unreachable!("unexpected foreign item in bindgen output: `{}`", fitem.to_token_stream())
                     }
                 },
@@ -208,6 +206,8 @@ impl Bindings {
     }
 
     fn dispatch_syn_item_struct(&mut self, s: ::syn::ItemStruct, stack: &mut Vec<::syn::Item>) {
+        use ::quote::ToTokens;
+
         let pop_impl_t = |t: &::syn::Ident, stack: &mut Vec<syn::Item>| -> ::syn::ItemImpl {
             match stack.pop() {
                 Some(::syn::Item::Impl(i)) if 
@@ -254,12 +254,13 @@ impl Bindings {
                         pop_impl_trait_for_t("BitOrAssign", &s.ident, stack),
                         pop_impl_trait_for_t("BitOr", &s.ident, stack),
                     ])),
-                variants_impl: {
+                variant_consts: {
                     pop_impl_t(&s.ident, stack)
                         .items
                         .into_iter()
-                        .map(|i| match i {
-                            ::syn::ImplItem::Const(c) => BindingEnumVariant(c),
+                        .filter_map(|i| match i {
+                            ::syn::ImplItem::Const(c) => (!c.ident.to_string().starts_with("mjN"))
+                                .then_some(BindingEnumVariant(c)),
                             _ => panic!("unexpected item in `impl {}`", s.ident)
                         })
                         .collect()
@@ -276,4 +277,64 @@ impl Bindings {
     }
 }
 
-// impl ::quote::ToTokens for 
+impl ::quote::ToTokens for Bindings {
+    fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
+        self.globalattrs.iter().for_each(|x| x.to_tokens(t));
+        self.constants.iter().for_each(|x| x.to_tokens(t));
+        self.typealiases.iter().for_each(|x| x.to_tokens(t));
+        self.unions.iter().for_each(|x| x.to_tokens(t));
+        self.structs.iter().for_each(|x| x.to_tokens(t));
+        self.enums.iter().for_each(|x| x.to_tokens(t));
+        let mut foreign = ::quote::__private::TokenStream::new();
+        self.foreign_statics.iter().for_each(|x| x.to_tokens(&mut foreign));
+        self.foreign_functions.iter().for_each(|x| x.to_tokens(&mut foreign));
+        t.extend(::quote::quote! {
+            pub(crate) mod functions {
+                use super::*;
+                unsafe extern "C" {
+                    #foreign
+                }
+            }
+        });
+    }
+}
+
+impl ::quote::ToTokens for BindingStruct {
+    fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
+        let BindingStruct { attrs, vis, ident, fields } = self;
+        t.extend(::quote::quote! {
+            #(#attrs)*
+            #vis struct #ident {
+                #(#fields)*
+            }
+        });
+    }
+}
+
+impl ::quote::ToTokens for BindingStructField {
+    fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
+        TODO
+    }
+}
+
+impl ::quote::ToTokens for BindingEnum {
+    fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
+        let BindingEnum {
+            variant_consts, bitflag_impls, attrs, vis, ident, internal_type } = self;
+        let bitflag_impls = bitflag_impls.as_deref().map_or(&[][..], |i| &i[..]);
+        t.extend(::quote::quote! {
+            #(#attrs)*
+            #vis struct #ident(#internal_type);
+            impl #ident {
+                #(#variant_consts)*
+            }
+            #(#bitflag_impls)*
+        });
+    }
+}
+
+impl ::quote::ToTokens for BindingEnumVariant {
+    fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
+        TODO
+    }
+}
