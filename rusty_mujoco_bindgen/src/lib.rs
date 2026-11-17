@@ -1,6 +1,5 @@
-mod bindings;
-
-use self::bindings::Bindings;
+mod binding;
+mod layers;
 
 pub fn bindgen(
     include_dir: impl AsRef<std::path::Path>,
@@ -13,22 +12,37 @@ pub fn bindgen(
             format!("include directory `{}` not found", include_dir.display())
         ));
     }
+    std::fs::remove_dir_all(out_mod_dir).ok();
+    std::fs::create_dir_all(out_mod_dir)?;
 
-    let mut b = Bindings::new(include_dir);
+    let b = binding::Binding::new(include_dir)?;
+    let traits = layers::traits_layer(&b, "super::raw");
+    let accessors = layers::accessors_layer(&b, "super::raw");
+    let functions = layers::functions_layer(&b, "super::raw");
 
-    for f in ["mod.rs", "raw.rs", "functions.rs", "types.rs"] {
-        std::fs::write(out_mod_dir.join(f), "TODO")?;
-    }
+    std::fs::write(out_mod_dir.join("mod.rs"), "\
+        mod raw;\n\
+        mod traits;\n\
+        mod accessors;\n\
+        mod functions;\n\
+        \n\
+        pub use raw::*;\n\
+        pub use functions::*;\n\
+    ")?;
+    std::fs::write(out_mod_dir.join("raw.rs"), b.to_string())?;
+    std::fs::write(out_mod_dir.join("traits.rs"), traits.to_string())?;
+    std::fs::write(out_mod_dir.join("accessors.rs"), accessors.to_string())?;
+    std::fs::write(out_mod_dir.join("functions.rs"), functions.to_string())?;
+
     if std::process::Command::new("rustfmt")
-        .args([
-            "mod.rs", "raw.rs", "functions.rs", "types.rs"
-        ].map(|f| out_mod_dir.join(f)))
+        .args(["mod.rs", "traits.rs", "accessors.rs", "raw.rs", "functions.rs"].map(|f| out_mod_dir.join(f)))
+        .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .status()
         .is_err()
     {
-        eprintln!("[WARNING] `rustfmt` is not found; skipping format...");
+        eprintln!("[WARNING] `rustfmt` failed; skipping formatting...");
     }
 
     Ok(())

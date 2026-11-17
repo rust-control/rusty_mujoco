@@ -1,6 +1,6 @@
 use quote::ToTokens;
 
-pub struct Bindings {
+pub struct Binding {
     pub globalattrs: Vec<::syn::Attribute>,
     pub constants: Vec<::syn::ItemConst>,
     pub typealiases: Vec<::syn::ItemType>,
@@ -89,7 +89,7 @@ impl BindingStructFieldComment {
     }
 }
 
-impl Bindings {
+impl Binding {
     pub fn new(include_dir: impl AsRef<std::path::Path>) -> std::io::Result<Self> {
         #[derive(Debug)]
         struct TrimUnderscoreCallbacks;
@@ -354,7 +354,7 @@ impl Bindings {
     }
 }
 
-impl ::quote::ToTokens for Bindings {
+impl ::quote::ToTokens for Binding {
     fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
         self.globalattrs.iter().for_each(|x| x.to_tokens(t));
         self.constants.iter().for_each(|x| x.to_tokens(t));
@@ -425,5 +425,11 @@ impl ::quote::ToTokens for BindingEnum {
             }
             #(#bitflag_impls)*
         });
+    }
+}
+
+impl std::fmt::Display for Binding {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        ::quote::ToTokens::into_token_stream(self).fmt(f)
     }
 }
