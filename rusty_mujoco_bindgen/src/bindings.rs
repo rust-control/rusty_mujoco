@@ -1,3 +1,5 @@
+use quote::ToTokens;
+
 pub struct Bindings {
     pub globalattrs: Vec<::syn::Attribute>,
     pub constants: Vec<::syn::ItemConst>,
@@ -10,15 +12,14 @@ pub struct Bindings {
 }
 
 pub struct BindingEnum {
-    pub variant_consts: Vec<BindingEnumVariant>,
+    pub variant_consts: Vec<::syn::ImplItemConst>,
     pub bitflag_impls: Option<Box<[::syn::ItemImpl; 4]>>,
     pub attrs: Vec<::syn::Attribute>,
     pub vis: ::syn::Visibility,
     pub ident: ::syn::Ident,
+    pub internal_vis: ::syn::Visibility,
     pub internal_type: ::syn::Type,
 }
-
-pub struct BindingEnumVariant(::syn::ImplItemConst);
 
 pub struct BindingStruct {
     pub attrs: Vec<::syn::Attribute>,
@@ -158,7 +159,82 @@ impl Bindings {
 
         let buf = String::from_utf8(buf).map_err(std::io::Error::other)?;
         let mut parsing_stack = Vec::new();
-        Self::parse_file(&buf, &mut parsing_stack)
+        let mut this = Self::parse_file(&buf, &mut parsing_stack)?;
+        this.apply_rusty_mujoco_convention();
+        Ok(this)
+    }
+
+    fn apply_rusty_mujoco_convention(&mut self) {
+        for x in &mut self.typealiases {
+            if x.ty.to_token_stream().to_string().contains("unsafe extern") {
+                x.vis = ::syn::parse_quote!(pub(crate));
+            }
+        }
+        for x in &mut self.unions {
+            x.vis = ::syn::parse_quote!(pub(crate));
+            if x.ident.to_string().contains("__bindgen_ty_") {
+                x.ident = ::quote::format_ident!("{}", x.ident.to_string().replace("__bindgen_ty_", ""));
+            }
+        }
+        for x in &mut self.constants {
+            let ident_str = x.ident.to_string();
+            if let ::syn::Expr::Lit(::syn::ExprLit { lit: ::syn::Lit::Int(_), .. }) = &*x.expr &&
+                (ident_str.starts_with("mjMAX") || ident_str.starts_with("mjMIN") || ident_str.starts_with("mjN"))
+            {
+                *x.ty = ::syn::parse_quote!(usize);
+            }
+            if let ::syn::Expr::Path(::syn::ExprPath { path, .. }) = &*x.expr &&
+                ident_str.starts_with("mjN")
+            {/* the consitied enum variant by `MakeMjnVariantGlobalConstCallbacks` */
+                *x.ty = ::syn::parse_quote!(usize);
+                *x.expr = ::syn::parse_quote!(#path.0 as usize);
+            }
+        }
+        for x in &mut self.structs {
+            if x.ident.to_string().contains("__bindgen_ty_") {
+                x.ident = ::quote::format_ident!("{}", x.ident.to_string().replace("__bindgen_ty_", ""));
+            }
+            for f in &mut x.fields {
+                let ty_str = f.ty.to_token_stream().to_string();
+                if ty_str.contains("__bindgen_ty_") {
+                    f.ty = ::syn::parse_str(&ty_str.replace("__bindgen_ty_", "")).unwrap();
+                }
+                if f.ident.to_string().ends_with("id")
+                    || (matches!(f.ty, ::syn::Type::Ptr(_)) && !ty_str.ends_with("c_void"))
+                    || ty_str.contains("unsafe extern")
+                    || ty_str.contains("c_char")
+                {
+                    f.vis = ::syn::parse_quote!(pub(crate));
+                }
+            }
+        }
+        for x in &mut self.enums {
+            x.internal_vis = ::syn::parse_quote!(pub(crate));
+            for v in &mut x.variant_consts {
+                assert!(v.ident.to_string().starts_with("mj"));
+                let after_mj_prefix = v.ident.to_string().split_once('_').unwrap().1.to_owned();
+                v.ident = if after_mj_prefix.starts_with("2D") {
+                    ::quote::format_ident!("{}", &after_mj_prefix.replace("2D", "D2"))
+                } else if after_mj_prefix.chars().next().unwrap().is_ascii_digit() {
+                    ::quote::format_ident!("X{after_mj_prefix}")
+                } else {
+                    ::quote::format_ident!("{after_mj_prefix}")
+                };
+            }
+            if let Some(prefix_) = x.variant_consts[0].ident.to_string().rsplit_once('_').map(|(p, _)| p.to_owned()) &&
+                x.variant_consts[1..].iter().all(|v| v.ident.to_string().starts_with(&prefix_))
+            {
+                for v in &mut x.variant_consts {
+                    v.ident = ::quote::format_ident!(
+                        "{}",
+                        v.ident.to_string().strip_prefix(&prefix_).unwrap().trim_start_matches('_')
+                    );
+                }
+            }
+        }
+        for x in &mut self.foreign_functions {
+            x.vis = ::syn::parse_quote!(pub(crate));
+        }
     }
 
     fn parse_file(content: &str, stack: &mut Vec<::syn::Item>) -> std::io::Result<Self> {
@@ -241,37 +317,38 @@ impl Bindings {
                     ty: f.ty,
                 }).collect(),
             }),
-            ::syn::Fields::Unnamed(mut f) => self.enums.push(BindingEnum {
-                bitflag_impls: stack
+            ::syn::Fields::Unnamed(mut f) => {
+                let Some(single_field) = f.unnamed.pop().and_then(|x| f.unnamed.pop().is_none().then_some(x)) else {
+                    panic!("expected newtype struct for enum definition");
+                };
+                let (internal_vis, internal_type) = (single_field.vis, single_field.ty);
+                let bitflag_impls = stack
                     .last()
-                    .is_some_and(|l| matches!(
-                        l,
-                        ::syn::Item::Impl(::syn::ItemImpl { trait_: Some(_), .. })
-                    ))
+                    .is_some_and(|l| matches!(l, ::syn::Item::Impl(::syn::ItemImpl { trait_: Some(_), .. })))
                     .then(|| Box::new([
                         pop_impl_trait_for_t("BiAndAssign", &s.ident, stack),
                         pop_impl_trait_for_t("BitAnd", &s.ident, stack),
                         pop_impl_trait_for_t("BitOrAssign", &s.ident, stack),
                         pop_impl_trait_for_t("BitOr", &s.ident, stack),
-                    ])),
-                variant_consts: {
-                    pop_impl_t(&s.ident, stack)
-                        .items
-                        .into_iter()
-                        .filter_map(|i| match i {
-                            ::syn::ImplItem::Const(c) => (!c.ident.to_string().starts_with("mjN"))
-                                .then_some(BindingEnumVariant(c)),
-                            _ => panic!("unexpected item in `impl {}`", s.ident)
-                        })
-                        .collect()
-                },
-                attrs: s.attrs,
-                vis: s.vis,
-                ident: s.ident,
-                internal_type: f.unnamed.pop()
-                    .and_then(|t| f.unnamed.pop().is_none().then_some(t.ty))
-                    .expect("expected newtype struct for binding enum"),
-            }),
+                    ]));
+                let variant_consts = pop_impl_t(&s.ident, stack)
+                    .items
+                    .into_iter()
+                    .filter_map(|i| match i {
+                        ::syn::ImplItem::Const(c) => (!c.ident.to_string().starts_with("mjN")).then_some(c),
+                        _ => panic!("unexpected item in `impl {}`", s.ident)
+                    })
+                    .collect();
+                self.enums.push(BindingEnum {
+                    internal_vis,
+                    internal_type,
+                    bitflag_impls,
+                    variant_consts,
+                    attrs: s.attrs,
+                    vis: s.vis,
+                    ident: s.ident,
+                });
+            },
             ::syn::Fields::Unit => unreachable!("unexpected unit struct: `{}`", s.ident)
         }
     }
@@ -338,22 +415,15 @@ impl ::quote::ToTokens for BindingStructFieldComment {
 
 impl ::quote::ToTokens for BindingEnum {
     fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
-        let BindingEnum {
-            variant_consts, bitflag_impls, attrs, vis, ident, internal_type } = self;
+        let BindingEnum { variant_consts, bitflag_impls, attrs, vis, ident, internal_vis, internal_type } = self;
         let bitflag_impls = bitflag_impls.as_deref().map_or(&[][..], |i| &i[..]);
         t.extend(::quote::quote! {
             #(#attrs)*
-            #vis struct #ident(#internal_type);
+            #vis struct #ident(#internal_vis #internal_type);
             impl #ident {
                 #(#variant_consts)*
             }
             #(#bitflag_impls)*
         });
-    }
-}
-
-impl ::quote::ToTokens for BindingEnumVariant {
-    fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
-        self.0.to_tokens(t);
     }
 }
