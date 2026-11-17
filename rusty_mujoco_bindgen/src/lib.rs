@@ -1,42 +1,35 @@
 mod bindings;
-mod ast;
 
-pub fn bindgen() {
-    /*
-     * The hand-processing step after `bindgen` generation requires
-     * `cargo fmt` (and then it's automatically applied to the
-     * bindgen's raw output, and the hand-processing correctly works).
-     * This is a **requirement** for the build script to continue.
-     */
-    assert!(
-        std::process::Command::new("rustfmt")
-            .arg("TODO.rs")
-            .stdout(std::process::Stdio::null())
-            .status()
-            .is_ok_and(|s| s.success()),
-        "`rustfmt` is not available; This build script can't continue without it."
-    );
+use self::bindings::Bindings;
 
+pub fn bindgen(
+    include_dir: impl AsRef<std::path::Path>,
+    out_mod_dir: impl AsRef<std::path::Path>,
+) -> std::io::Result<()> {
+    let (include_dir, out_mod_dir) = (include_dir.as_ref(), out_mod_dir.as_ref());
+    if !std::fs::exists(include_dir)? {
+        return Err(std::io::Error::new(
+            std::io::ErrorKind::NotFound,
+            format!("include directory `{}` not found", include_dir.display())
+        ));
+    }
 
-    let mut binding_items = syn::parse_file(&bindings_buf).unwrap().items;
+    let mut b = Bindings::new(include_dir);
 
-    // todo!()
-
-    let bindings_buf = {
-    };
-
-    std::fs::write(
-        std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
-            .join("src")
-            .join("bindgen.rs"),
-        bindings_buf,
-    )
-    .expect("failed to write types bindings to file");
-
-    std::process::Command::new("cargo")
-        .arg("fmt")
+    for f in ["mod.rs", "raw.rs", "functions.rs", "types.rs"] {
+        std::fs::write(out_mod_dir.join(f), "TODO")?;
+    }
+    if std::process::Command::new("rustfmt")
+        .args([
+            "mod.rs", "raw.rs", "functions.rs", "types.rs"
+        ].map(|f| out_mod_dir.join(f)))
         .stdout(std::process::Stdio::null())
         .stderr(std::process::Stdio::null())
         .status()
-        .ok();
+        .is_err()
+    {
+        eprintln!("[WARNING] `rustfmt` is not found; skipping format...");
+    }
+
+    Ok(())
 }
