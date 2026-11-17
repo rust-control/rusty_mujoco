@@ -313,7 +313,26 @@ impl ::quote::ToTokens for BindingStruct {
 
 impl ::quote::ToTokens for BindingStructField {
     fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
-        TODO
+        let Self { comment, vis, ident, ty } = self;
+        t.extend(::quote::quote! {
+            #comment
+            #vis #ident: #ty,
+        });
+    }
+}
+
+impl ::quote::ToTokens for BindingStructFieldComment {
+    fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
+        match self {
+            Self::Varbatim(x) => {
+                let lit = ::syn::LitStr::new(x, ::quote::__private::Span::call_site());
+                t.extend(::quote::quote! { #[doc = #lit] })
+            }
+            Self::Slice { text, size_expr: _ } => {
+                let text = ::syn::LitStr::new(text, ::quote::__private::Span::call_site());
+                t.extend(::quote::quote! { #[doc = #text] });
+            }
+        }
     }
 }
 
@@ -335,6 +354,6 @@ impl ::quote::ToTokens for BindingEnum {
 
 impl ::quote::ToTokens for BindingEnumVariant {
     fn to_tokens(&self, t: &mut ::quote::__private::TokenStream) {
-        TODO
+        self.0.to_tokens(t);
     }
 }
